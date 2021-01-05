@@ -8,14 +8,8 @@ module.exports = async function (context) {
     const user = await tokenClient.createUser();
 
     const userToken = await tokenClient.issueToken(user, ["voip"]);
-            
-    const response = {
-    "User" : userToken.user,
-    "Token": userToken.token,
-    "ExpiresOn": userToken.expiresOn
-    }
 
     context.res = {
-        body: response
+        body: userToken
     };
 }
