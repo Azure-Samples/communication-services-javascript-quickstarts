@@ -16,32 +16,42 @@ let remoteVideoStream;
 let rendererLocal;
 let rendererRemote;
 
-function handleVideoStreams(v) {
-  remoteVideoStream = v;
-  remoteVideoView();
+function handleVideoStream(remoteVideoStream) {
+  remoteVideoView(remoteVideoStream);
   remoteVideoStream.on('availabilityChanged', async () => {
     if (remoteVideoStream.isAvailable) {
-        remoteVideoView();
+        remoteVideoView(remoteVideoStream);
     } else {
         rendererRemote.dispose();
     }
   });
   if (remoteVideoStream.isAvailable) {
-    remoteVideoView();
+    remoteVideoView(remoteVideoStream);
   }
 }
 
-function subscribeToRemoteParticipant(p) {
-  p.videoStreams.forEach(v => {
-    handleVideoStreams(v);
+function subscribeToRemoteParticipant(remoteParticipant) {
+  remoteParticipant.videoStreams.forEach(v => {
+    handleVideoStream(v);
   });
-  p.on('videoStreamsUpdated', e => {
+  remoteParticipant.on('videoStreamsUpdated', e => {
     e.added.forEach(v => {
-      handleVideoStreams(v);
+      handleVideoStream(v);
     })
   });
 }
 
+function subscribeToRemoteParticipantInCall(callInstance) {
+  callInstance.remoteParticipants.forEach( p => {
+    subscribeToRemoteParticipant(p);
+  })
+
+  callInstance.on('remoteParticipantsUpdated', e => {
+    e.added.forEach( p => {
+      subscribeToRemoteParticipant(p);
+    })
+  });   
+}
 
 async function init() {
   const callClient = new CallClient();
@@ -64,15 +74,7 @@ async function init() {
     const addedCall = await e.incomingCall.accept({videoOptions: {localVideoStreams:[localVideoStream]}});
     call = addedCall;
 
-    addedCall.remoteParticipants.forEach( p => {
-      subscribeToRemoteParticipant(p);
-    })
-
-    addedCall.on('remoteParticipantsUpdated', e => {
-      e.added.forEach( p => {
-        subscribeToRemoteParticipant(p);
-      })
-    });        
+    subscribeToRemoteParticipantInCall(addedCall);      
   });
 
   callAgent.on('callsUpdated', e => {
@@ -117,21 +119,13 @@ callButton.addEventListener("click", async () => {
     placeCallOptions
   );
 
-  call.remoteParticipants.forEach( p => {
-    subscribeToRemoteParticipant(p);
-  })
-
-  call.on('remoteParticipantsUpdated', e => {
-    e.added.forEach( p=>{
-      subscribeToRemoteParticipant(p);
-    })
-  });
+  subscribeToRemoteParticipantInCall(call);
 
   hangUpButton.disabled = false;
   callButton.disabled = true;
 });
 
-stopVideoButton.addEventListener("click", async () =>{
+stopVideoButton.addEventListener("click", async () => {
   await call.stopVideo(localVideoStream);
   rendererLocal.dispose();
   startVideoButton.disabled = false;
