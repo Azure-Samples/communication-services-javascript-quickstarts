@@ -12,7 +12,6 @@ const startVideoButton = document.getElementById("startVideo");
 let placeCallOptions;
 let deviceManager;
 let localVideoStream;
-let remoteVideoStream;
 let rendererLocal;
 let rendererRemote;
 
