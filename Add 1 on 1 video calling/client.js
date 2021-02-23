@@ -96,7 +96,7 @@ async function localVideoView() {
   document.getElementById("myVideo").appendChild(view.target);
 }
 
-async function remoteVideoView() {
+async function remoteVideoView(remoteVideoStream) {
   rendererRemote = new Renderer(remoteVideoStream);
   const view = await rendererRemote.createView();
   document.getElementById("remoteVideo").appendChild(view.target);
