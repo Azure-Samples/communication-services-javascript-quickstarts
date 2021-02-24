@@ -6,8 +6,8 @@ let callAgent;
 const calleeInput = document.getElementById("callee-id-input");
 const callButton = document.getElementById("call-button");
 const hangUpButton = document.getElementById("hang-up-button");
-const stopVideoButton = document.getElementById("stopVideo");
-const startVideoButton = document.getElementById("startVideo");
+const stopVideoButton = document.getElementById("stop-Video");
+const startVideoButton = document.getElementById("start-Video");
 
 let placeCallOptions;
 let deviceManager;
