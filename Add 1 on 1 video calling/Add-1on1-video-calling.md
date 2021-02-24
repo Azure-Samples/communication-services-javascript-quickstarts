@@ -1,1 +1,1 @@
-
+[Add 1 on 1 video calling](https://github.com/MicrosoftDocs/azure-docs-pr/blob/e88f624bd1e1a0abaf025a4786cd1c0182dd6a65/articles/communication-services/quickstarts/voice-video-calling/getting-started-with-video-calling.md)
