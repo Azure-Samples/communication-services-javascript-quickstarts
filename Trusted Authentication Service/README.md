@@ -1,3 +1,13 @@
+---
+page_type: sample
+languages:
+- javascript
+- nodejs
+products:
+- azure
+- azure-functions
+---
+
 # Build a trusted authentication service using Azure Functions
 
 This code sample is meant to be used with Azure Functions, to generate a trusted token provision service. As part of the Azure Communication Services architecture, in order to access communication resources, users or applications require to have an `Access Token`. It is recommended that the token provisioning logic is held in a trusted and secure service rather than directly on the client as a resource critical information is needed to generated tokens.The Azure Function will work as a trusted middleman between the user and the Communication Services
