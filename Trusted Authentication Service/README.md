@@ -49,4 +49,4 @@ Generally, you will need to:
 - [Add voice calling to your app](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/getting-started-with-calling?pivots=platform-web)
 - [Add chat to your app](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/chat/get-started?pivots=programming-language-javascript)
 - [Learn about client and server architecture](https://docs.microsoft.com/en-us/azure/communication-services/concepts/client-and-server-architecture)
-- [Learn about authentication](https://docs.microsoft.com/en-us/azure/communication-services/concepts/authentication?tabs=csharp)
+- [Learn about authentication](https://docs.microsoft.com/en-us/azure/communication-services/concepts/authentication?tabs=csharp) 
