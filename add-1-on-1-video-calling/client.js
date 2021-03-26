@@ -1,4 +1,4 @@
-import { CallClient, CallAgent, Renderer, LocalVideoStream} from "@azure/communication-calling";
+import { CallClient, CallAgent, VideoStreamRenderer, LocalVideoStream} from "@azure/communication-calling";
 import { AzureCommunicationTokenCredential } from '@azure/communication-common';
 
 let call;
@@ -16,40 +16,35 @@ let rendererLocal;
 let rendererRemote;
 
 function handleVideoStream(remoteVideoStream) {
-  remoteVideoView(remoteVideoStream);
-  remoteVideoStream.on('availabilityChanged', async () => {
+  remoteVideoStream.on('isAvailableChanged', async () => {
     if (remoteVideoStream.isAvailable) {
         remoteVideoView(remoteVideoStream);
     } else {
         rendererRemote.dispose();
     }
   });
-  if (remoteVideoStream.isAvailable) {
-    remoteVideoView(remoteVideoStream);
-  }
 }
 
-function subscribeToRemoteParticipant(remoteParticipant) {
-  remoteParticipant.videoStreams.forEach(v => {
-    handleVideoStream(v);
-  });
+function subscribeToParticipantVideoStreams(remoteParticipant) {
   remoteParticipant.on('videoStreamsUpdated', e => {
     e.added.forEach(v => {
       handleVideoStream(v);
     })
   });
+  remoteParticipant.videoStreams.forEach(v => {
+    handleVideoStream(v);
+  });
 }
 
 function subscribeToRemoteParticipantInCall(callInstance) {
-  callInstance.remoteParticipants.forEach( p => {
-    subscribeToRemoteParticipant(p);
-  })
-
   callInstance.on('remoteParticipantsUpdated', e => {
     e.added.forEach( p => {
-      subscribeToRemoteParticipant(p);
+      subscribeToParticipantVideoStreams(p);
     })
-  });   
+  }); 
+  callInstance.remoteParticipants.forEach( p => {
+    subscribeToParticipantVideoStreams(p);
+  })
 }
 
 async function init() {
@@ -91,13 +86,13 @@ async function init() {
 init();
 
 async function localVideoView() {
-  rendererLocal = new Renderer(localVideoStream);
+  rendererLocal = new VideoStreamRenderer(localVideoStream);
   const view = await rendererLocal.createView();
   document.getElementById("myVideo").appendChild(view.target);
 }
 
 async function remoteVideoView(remoteVideoStream) {
-  rendererRemote = new Renderer(remoteVideoStream);
+  rendererRemote = new VideoStreamRenderer(remoteVideoStream);
   const view = await rendererRemote.createView();
   document.getElementById("remoteVideo").appendChild(view.target);
 }
