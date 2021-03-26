@@ -23,6 +23,9 @@ function handleVideoStream(remoteVideoStream) {
         rendererRemote.dispose();
     }
   });
+  if (remoteVideoStream.isAvailable) {
+    remoteVideoView(remoteVideoStream);
+  }
 }
 
 function subscribeToParticipantVideoStreams(remoteParticipant) {
