@@ -15,3 +15,5 @@ Azure Communication Services enable developers to add communication capabilities
 2. [Send SMS](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/telephony-sms/send?pivots=programming-language-javascript)
 
 3. [Add Chat to your app](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/chat/get-started?pivots=programming-language-javascript)
+
+4. [Add Video Calling to your Web App](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/get-started-with-video-calling)
