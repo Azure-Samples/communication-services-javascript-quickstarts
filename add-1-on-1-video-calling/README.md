@@ -4,6 +4,7 @@ languages:
 - javascript
 products:
 - azure
+- azure-communication-services
 ---
 
 # Add 1 on 1 video calling to your application
