@@ -6,6 +6,7 @@ languages:
 products:
 - azure
 - azure-functions
+- azure-communication-services
 ---
 
 # Build a trusted authentication service using Azure Functions 
