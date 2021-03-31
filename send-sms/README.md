@@ -4,6 +4,7 @@ languages:
 - javascript
 products:
 - azure
+- azure-communication-services
 ---
 
 
