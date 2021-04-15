@@ -17,3 +17,7 @@ Azure Communication Services enable developers to add communication capabilities
 3. [Add Chat to your app](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/chat/get-started?pivots=programming-language-javascript)
 
 4. [Add Video Calling to your Web App](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/get-started-with-video-calling)
+
+5. [Manage Phone Numbers](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/telephony-sms/get-phone-number?pivots=programming-language-javascript)
+
+6. [Create and manage access tokens](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/access-tokens?pivots=programming-language-javascript)
