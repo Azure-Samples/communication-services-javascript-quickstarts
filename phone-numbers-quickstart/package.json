@@ -1,0 +1,15 @@
+{
+  "name": "phone-numbers-quickstart",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/communication-phone-numbers": "^1.0.0-beta.5"
+  }
+}
