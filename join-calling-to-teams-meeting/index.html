@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Communication Client - Calling Sample</title>
+</head>
+<body>
+    <h4>Azure Communication Services</h4>
+    <h1>Teams meeting join quickstart</h1>
+    <input id="teams-link-input" type="text" placeholder="Teams meeting link"
+           style="margin-bottom:1em; width: 300px;" />
+    <p>Call state <span style="font-weight: bold" id="call-state">-</span></p>
+    <p><span style="font-weight: bold" id="recording-state"></span></p>
+    <div>
+        <button id="join-meeting-button" type="button" disabled="false">
+            Join Teams Meeting
+        </button>
+        <button id="hang-up-button" type="button" disabled="true">
+            Hang Up
+        </button>
+    </div>
+    <script src="./bundle.js"></script>
+</body>
+
+</html>
