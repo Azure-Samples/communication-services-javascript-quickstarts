@@ -10,12 +10,12 @@ products:
 
 # Add Chat to your Application
 
-For full instructions on how to build this code sample from scratch, look at [Quickstart: Join your calling app to a Teams meeting](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-interop?pivots=platform-web)
+For full instructions on how to build this code sample from scratch, look at [Quickstart: Join your calling app to a Teams meeting](https://docs.microsoft.com/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-interop?pivots=platform-web)
 
 ## Prerequisites
 
-- A Working [Communication Services calling web app](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/getting-started-with-calling?pivots=platform-web). 
-- A [Teams deployment](https://docs.microsoft.com/en-us/deployoffice/teams-install)
+- A Working [Communication Services calling web app](https://docs.microsoft.com/azure/communication-services/quickstarts/voice-video-calling/getting-started-with-calling?pivots=platform-web). 
+- A [Teams deployment](https://docs.microsoft.com/deployoffice/teams-install)
 
 ## Code Structure
 

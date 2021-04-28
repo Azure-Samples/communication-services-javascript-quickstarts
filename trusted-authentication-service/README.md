@@ -13,7 +13,7 @@ products:
 
 This code sample is meant to be used with Azure Functions, to generate a trusted token provision service. As part of the Azure Communication Services architecture, in order to access communication resources, users or applications require to have an `Access Token`. It is recommended that the token provisioning logic is held in a trusted and secure service rather than directly on the client as a resource critical information is needed to generated tokens.The Azure Function will work as a trusted middleman between the user and the Communication Services
 
-This quickstart sample includes the code that is explained as part of [this document](https://docs.microsoft.com/en-us/azure/communication-services/tutorials/trusted-service-tutorial). See that document for additional details on how this sample works.
+This quickstart sample includes the code that is explained as part of [this document](https://docs.microsoft.com/azure/communication-services/tutorials/trusted-service-tutorial). See that document for additional details on how this sample works.
 
 ## Prerequisites
 
@@ -21,7 +21,7 @@ This quickstart sample includes the code that is explained as part of [this docu
 - [Visual Studio Code](https://code.visualstudio.com/) on one of the [supported platforms](https://code.visualstudio.com/docs/supporting/requirements#_platforms).
 - [Node.js](https://nodejs.org/), Active LTS and Maintenance LTS versions (10.14.1 recommended). Use the `node --version` command to check your version. 
 - The [Azure Functions extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurefunctions) for Visual Studio Code. 
-- An active Communication Services resource and connection string. [Create a Communication Services resource](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/create-communication-resource?tabs=windows&pivots=platform-azp).
+- An active Communication Services resource and connection string. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
 
 ## Running Sample Locally
 
@@ -34,7 +34,7 @@ This quickstart sample includes the code that is explained as part of [this docu
 
 ## Deploy to Azure
 
-To deploy your Azure Function, you can follow [step by step instructions](https://docs.microsoft.com/en-us/azure/azure-functions/create-first-function-vs-code-csharp?pivots=programming-language-javascript#sign-in-to-azure)
+To deploy your Azure Function, you can follow [step by step instructions](https://docs.microsoft.com/azure/azure-functions/create-first-function-vs-code-csharp?pivots=programming-language-javascript#sign-in-to-azure)
 
 Generally, you will need to:
 
@@ -46,7 +46,7 @@ Generally, you will need to:
 
 ## Next steps
 
-- [Add voice calling to your app](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/getting-started-with-calling?pivots=platform-web)
-- [Add chat to your app](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/chat/get-started?pivots=programming-language-javascript)
-- [Learn about client and server architecture](https://docs.microsoft.com/en-us/azure/communication-services/concepts/client-and-server-architecture)
-- [Learn about authentication](https://docs.microsoft.com/en-us/azure/communication-services/concepts/authentication?tabs=csharp) 
+- [Add voice calling to your app](https://docs.microsoft.com/azure/communication-services/quickstarts/voice-video-calling/getting-started-with-calling?pivots=platform-web)
+- [Add chat to your app](https://docs.microsoft.com/azure/communication-services/quickstarts/chat/get-started?pivots=programming-language-javascript)
+- [Learn about client and server architecture](https://docs.microsoft.com/azure/communication-services/concepts/client-and-server-architecture)
+- [Learn about authentication](https://docs.microsoft.com/azure/communication-services/concepts/authentication?tabs=csharp) 
