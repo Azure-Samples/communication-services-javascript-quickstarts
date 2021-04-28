@@ -11,14 +11,14 @@ products:
 
 # Use managed identities Quickstart
 
-For full instructions on how to build this code sample from scratch, look at [Quickstart: Use managed identities](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/managed-identity?pivots=programming-language-javascript)
+For full instructions on how to build this code sample from scratch, look at [Quickstart: Use managed identities](https://docs.microsoft.com/azure/communication-services/quickstarts/managed-identity?pivots=programming-language-javascript)
 
 ## Prerequisites
 
 - An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F). 
 - An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
-- An SMS enabled telephone number. [Get a phone number](https://docs.microsoft.com/azure/communication-services/quickstarts/telephony-sms/get-phone-number).
-- A setup managed identity for a development environment,see [Authorize access with managed identity](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/managed-identity-from-cli).
+- An SMS enabled telephone number. [Get a phone number](https://docs.microsoft.com/azure/communication-services/quickstarts/telephony-sms/get-phone-number?pivots=programming-language-javascript).
+- A setup managed identity for a development environment,see [Authorize access with managed identity](https://docs.microsoft.com/azure/communication-services/quickstarts/managed-identity-from-cli).
 
 ## Code Structure
 

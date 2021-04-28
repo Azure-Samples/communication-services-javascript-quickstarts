@@ -10,7 +10,7 @@ products:
 
 # Send an SMS Message Quickstart
 
-For full instructions on how to build this code sample from scratch, look at [Quickstart: Send an SMS Message](https://docs.microsoft.com/azure/communication-services/quickstarts/telephony-sms/send)
+For full instructions on how to build this code sample from scratch, look at [Quickstart: Send an SMS Message](https://docs.microsoft.com/azure/communication-services/quickstarts/telephony-sms/send?pivots=programming-language-javascript)
 
 ## Prerequisites
 
@@ -28,7 +28,7 @@ For full instructions on how to build this code sample from scratch, look at [Qu
 
 1. Open an instance of PowerShell, Windows Terminal, Command Prompt or equivalent and navigate to the directory that you'd like to clone the sample to.
 2. `git clone https://github.com/Azure-Samples/Communication-Services-javascript-quickstarts.git`
-3. With the `Connection String` procured in pre-requisites, follow [instructions](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/create-communication-resource?tabs=windows&pivots=platform-azp#store-your-connection-string) to add it to your environment variables.
+3. With the `Connection String` procured in pre-requisites, follow [instructions](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource?pivots=#store-your-connection-string) to add it to your environment variables.
 4. With the SMS enabled telephone number procured in pre-requisites, add it to the **send-SMS/send-sms.js** file. Assign your telephone number in line 7:
    ```from: "<from-phone-number>",```
 5. Add a phone number to send the SMS to in line 8:
