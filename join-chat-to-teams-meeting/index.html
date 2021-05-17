@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Communication Client - Calling and Chat Sample</title>
+      <style>
+         body {box-sizing: border-box;}
+         /* The popup chat - hidden by default */
+         .chat-popup {
+         display: none;
+         position: fixed;
+         bottom: 0;
+         left: 15px;
+         border: 3px solid #f1f1f1;
+         z-index: 9;
+         }
+         .message-box {
+         display: none;
+         position: fixed;
+         bottom: 0;
+         left: 15px;
+         border: 3px solid #FFFACD;
+         z-index: 9;
+         }
+         .form-container {
+         max-width: 300px;
+         padding: 10px;
+         background-color: white;
+         }
+         .form-container textarea {
+         width: 90%;
+         padding: 15px;
+         margin: 5px 0 22px 0;
+         border: none;
+         background: #e1e1e1;
+         resize: none;
+         min-height: 50px;
+         }
+         .form-container .btn {
+         background-color: #4CAF40;
+         color: white;
+         padding: 14px 18px;
+         margin-bottom:10px;
+         opacity: 0.6;
+         border: none;
+         cursor: pointer;
+         width: 100%;
+         }
+         .container {
+         border: 1px solid #dedede;
+         background-color: #F1F1F1;
+         border-radius: 3px;
+         padding: 8px;
+         margin: 8px 0;
+         }
+         .darker {
+         border-color: #ccc;
+         background-color: #ffdab9;
+         margin-left: 25px;
+         margin-right: 3px;
+         }
+         .lighter {
+         margin-right: 20px;
+         margin-left: 3px;
+         }
+         .container::after {
+         content: "";
+         clear: both;
+         display: table;
+         }
+      </style>
+   </head>
+   <body>
+      <h4>Azure Communication Services</h4>
+      <h1>Calling and Chat Quickstart</h1>
+          <input id="teams-link-input" type="text" placeholder="Teams meeting link"
+        style="margin-bottom:1em; width: 300px;" />
+          <input id="thread-id-input" type="text" placeholder="Chat thread id"
+        style="margin-bottom:1em; width: 300px;" />
+        <p>Call state <span style="font-weight: bold" id="call-state">-</span></p>
+      <div>
+        <button id="join-meeting-button" type="button">
+            Join Teams Meeting
+        </button>
+        <button id="hang-up-button" type="button" disabled="true">
+            Hang Up
+        </button>
+      </div>
+      <div class="chat-popup" id="chat-box">
+         <div id="messages-container"></div>
+         <form class="form-container">
+            <textarea placeholder="Type message.." name="msg" id="message-box" required></textarea>
+            <button type="button" class="btn" id="send-message">Send</button>
+         </form>
+      </div>
+      <script src="./bundle.js"></script>
+   </body>
+</html>
