@@ -1,4 +1,4 @@
-const { CommunicationIdentityClient } = require('@azure/communication-administration');
+const { CommunicationIdentityClient } = require('@azure/communication-identity');
 
 const connectionString = 'ADD_YOUR_CONNECTION_STRING';
 
@@ -7,7 +7,7 @@ module.exports = async function (context) {
 
     const user = await tokenClient.createUser();
 
-    const userToken = await tokenClient.issueToken(user, ["voip"]);
+    const userToken = await tokenClient.getToken(user, ["voip"]);
 
     context.res = {
         body: userToken
