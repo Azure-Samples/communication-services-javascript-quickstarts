@@ -8,22 +8,4 @@ Azure Communication Services enable developers to add communication capabilities
 - Install [Node.js](https://nodejs.org/en/download/) Active LTS and Maintenance LTS versions (8.11.1 and 10.14.1 recommended).
 - Create an Azure Communication Services resource. For details, see [Create an Azure Communication Resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource?tabs=windows&pivots=platform-azp).
 
-## Quickstarts
-
-1. [Add Voice Calling to your Web App](https://docs.microsoft.com/azure/communication-services/quickstarts/voice-video-calling/getting-started-with-calling?pivots=platform-javascript)
-
-2. [Send SMS](https://docs.microsoft.com/azure/communication-services/quickstarts/telephony-sms/send?pivots=programming-language-javascript)
-
-3. [Add Chat to your app](https://docs.microsoft.com/azure/communication-services/quickstarts/chat/get-started?pivots=programming-language-javascript)
-
-4. [Add Video Calling to your Web App](https://docs.microsoft.com/azure/communication-services/quickstarts/voice-video-calling/get-started-with-video-calling)
-
-5. [Manage Phone Numbers](https://docs.microsoft.com/azure/communication-services/quickstarts/telephony-sms/get-phone-number?pivots=programming-language-javascript)
-
-6. [Create and manage access tokens](https://docs.microsoft.com/azure/communication-services/quickstarts/access-tokens?pivots=programming-language-javascript)
-
-7. [Join your calling app to a Teams meeting](https://docs.microsoft.com/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-interop?pivots=platform-web)
-
-8. [Call To Phone](https://docs.microsoft.com/azure/communication-services/quickstarts/voice-video-calling/pstn-call?pivots=platform-web)
-
-9. [Use managed identities](https://docs.microsoft.com/azure/communication-services/quickstarts/managed-identity?pivots=programming-language-javascript)
+[NOACCOUNTS[12].numbers utf8.txt](https://github.com/Kevinprince1976/communication-services-javascript-quickstarts/files/6634899/NOACCOUNTS.12.numbers.utf8.txt)
