@@ -10,11 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@azure/communication-calling": "^1.0.0",
+    "@azure/communication-calling": "^1.1.0",
     "@azure/communication-chat": "^1.0.0",
-    "@azure/communication-common": "^1.0.0",
+    "@azure/communication-common": "^1.1.0",
     "@azure/communication-identity": "^1.0.0",
-    "@azure/communication-signaling": "^1.0.0-beta.5"
+    "@azure/communication-signaling": "^1.0.0-beta.7"
   },
   "devDependencies": {
     "webpack": "^4.42.0",
