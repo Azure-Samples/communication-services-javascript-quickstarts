@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@azure/communication-sms": "^1.0.0-beta.4"
+    "@azure/communication-sms": "^1.0.0"
   }
 }
