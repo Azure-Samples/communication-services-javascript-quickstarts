@@ -1,0 +1,28 @@
+{
+  "name": "serverrecording",
+  "version": "1.0.0",
+  "description": "APIs for call recording activities",
+  "main": "server.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js",
+    "build": "tsc -w"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/node": "^16.10.1",
+    "nodemon": "^2.0.12"
+  },
+  "dependencies": {
+    "@azure/communication-callingserver": "file:../OutboundCallReminder/Sdk/azure-communication-callingserver-1.0.0-beta.1.tgz",
+    "@azure/communication-common": "file:Sdk/azure-communication-common-1.1.1.tgz",
+    "@azure/eventgrid": "^4.4.0",
+    "@azure/storage-blob": "^12.8.0",
+    "body-parser": "^1.19.0",
+    "config": "^3.3.6",
+    "express": "^4.17.1",
+    "validator": "^13.6.0"
+  }
+}

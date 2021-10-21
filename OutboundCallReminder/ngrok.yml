@@ -1,0 +1,4 @@
+tunnels:
+  app:
+    proto: http  # exposes an HTTP end point
+    addr: 9007   # uses local port 9007
