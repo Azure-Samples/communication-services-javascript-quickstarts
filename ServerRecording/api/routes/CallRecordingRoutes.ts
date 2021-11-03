@@ -8,6 +8,9 @@ module.exports = function (app: any) {
   app.route('/startRecording')
     .get(controller.startRecording)
 
+  app.route('/startRecordingWithOptions')
+    .get(controller.startRecordingWithOptions)
+
   app.route('/pauseRecording')
     .get(controller.pauseRecording)
 

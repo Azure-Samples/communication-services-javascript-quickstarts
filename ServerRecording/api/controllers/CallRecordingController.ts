@@ -1,6 +1,13 @@
-import { ServerCallLocator, ContentDownloadResponse } from "@azure/communication-callingserver";
+import {
+  ServerCallLocator,
+  ContentDownloadResponse,
+  StartRecordingOptions,
+  KnownRecordingChannelType,
+} from "@azure/communication-callingserver";
 import { Request, Response } from "express";
-import * as fs from 'fs';
+import * as fs from "fs";
+import Root from "../../Root";
+import { Mapper, FileFormat, FileDownloadType } from "../../FileFormat";
 
 var cfg = require("../../config");
 
@@ -15,6 +22,7 @@ const { Logger, MessageType } = require("../../Logger");
 const client = new CallingServerClient.CallingServerClient(connectionString);
 
 let recordingData = new Map<string, string>();
+let recFileFormat: FileFormat = FileFormat.mp4;
 
 exports.startUp = function (req: Request, res: Response) {
   res.json("App is running...");
@@ -32,6 +40,57 @@ exports.startRecording = async function (req: Request, res: Response) {
     );
     var locator: ServerCallLocator = { serverCallId: serverCallId };
     var output = await client.startRecording(locator, callbackUri);
+
+    recordingData.set(serverCallId, output.recordingId);
+    return res.json(output);
+  } catch (e) {
+    var output = BlobStorageHelper.getExecptionDetails(e);
+    return res.status(output.statusCode).json(String(output.output));
+  }
+};
+
+exports.startRecordingWithOptions = async function (req: Request, res: Response) {
+  try {
+    let serverCallId: string = req.query.serverCallId.toString();
+
+    if (!serverCallId || String(serverCallId).trim() == "") {
+      return res.status(400).json("serverCallId is invalid");
+    }
+
+    let recordingContent: string = req.query.recordingContent
+      ? req.query.recordingContent.toString()
+      : "audiovideo";
+    let recordingChannel: string = req.query.recordingChannel
+      ? req.query.recordingChannel.toString()
+      : "mixed";
+    let recordingFormat: string = req.query.recordingFormat
+      ? req.query.recordingFormat.toString()
+      : "mp4";
+  
+    Logger.logMessage(
+      MessageType.INFORMATION,
+      "Start recording API called with serverCallId =  " + serverCallId
+    );
+
+    var locator: ServerCallLocator = { serverCallId: serverCallId };
+    var mapper = new Mapper();
+    var content = mapper.recContentMap.get(recordingContent)
+      ? mapper.recContentMap.get(recordingContent)
+      : "audiovideo";
+    var channel = mapper.recChannelMap.get(recordingChannel)
+      ? (mapper.recChannelMap.get(
+          recordingChannel
+        ) as KnownRecordingChannelType)
+      : KnownRecordingChannelType.Mixed;
+    var format = mapper.recFormatMap.get(recordingFormat)
+      ? mapper.recFormatMap.get(recordingFormat)
+      : "mp4";
+    var options: StartRecordingOptions = {
+      recordingContentType: content,
+      recordingChannelType: channel,
+      recordingFormatType: format,
+    };
+    var output = await client.startRecording(locator, callbackUri, options);
 
     recordingData.set(serverCallId, output.recordingId);
     return res.json(output);
@@ -241,47 +300,53 @@ exports.getRecordingFile = async function (req: Request, res: Response) {
       const metadata_location =
         acsRecordingChunkInfoProperties["metadataLocation"];
 
-      var processmp4FileResponse = await process_file(
+      var processmetadataFileResponse = await process_file(
         document_id,
-        content_location,
-        "mp4",
-        "recording"
+        metadata_location,
+        FileFormat.json,
+        FileDownloadType.metadata
       );
 
-      if (processmp4FileResponse.output == "true") {
-        var processmetadataFileResponse = await process_file(
-          document_id,
-          metadata_location,
-          "json",
-          "metadata"
+      if (processmetadataFileResponse.output.toString() == "true") {
+        Logger.logMessage(
+          MessageType.INFORMATION,
+          `Processing ${FileDownloadType.metadata} file completed successfully.`
         );
 
-        if (processmetadataFileResponse.output == "true") {
+        var processRecordingFileResponse = await process_file(
+          document_id,
+          content_location,
+          recFileFormat,
+          FileDownloadType.recording
+        );
+        if (processRecordingFileResponse.output.toString() == "true") {
           Logger.logMessage(
             MessageType.INFORMATION,
-            "Processing recording and metadata files completed successfully."
+            `Processing ${FileDownloadType.recording} file completed successfully.`
           );
-          return res.status(parseInt(processmetadataFileResponse.statusCode)).json;
         } else {
           Logger.logMessage(
             MessageType.INFORMATION,
-            "Processing metadata file failed with message --> " +
-              String(processmetadataFileResponse.output)
+            `Processing ${FileDownloadType.recording} file failed with message --> ${processRecordingFileResponse.output}`
           );
           return res
             .status(parseInt(processmetadataFileResponse.statusCode))
-            .json(String(processmetadataFileResponse.output));
+            .json(String(processRecordingFileResponse.output));
         }
-      }
 
-      Logger.logMessage(
-        MessageType.INFORMATION,
-        "Processing mp4 recording file failed with message --> " +
-          String(processmp4FileResponse.output)
-      );
-      return res
-        .status(parseInt(processmetadataFileResponse.statusCode))
-        .json(String(processmp4FileResponse.output));
+        return res
+          .status(parseInt(processmetadataFileResponse.statusCode))
+          .json(String(processmetadataFileResponse.output));
+      } else {
+        Logger.logMessage(
+          MessageType.INFORMATION,
+          `Processing ${FileDownloadType.metadata} file failed with message --> ${processmetadataFileResponse.output}`
+        );
+
+        return res
+          .status(parseInt(processmetadataFileResponse.statusCode))
+          .json(String(processmetadataFileResponse.output));
+      }
     }
   } catch (e) {
     {
@@ -294,8 +359,8 @@ exports.getRecordingFile = async function (req: Request, res: Response) {
 async function process_file(
   documentId: string,
   downloadLocation: string,
-  fileFormat: string,
-  downloadType: string
+  fileFormat: FileFormat,
+  downloadType: FileDownloadType
 ): Promise<{ output: string; statusCode: string }> {
   try {
     Logger.logMessage(
@@ -324,6 +389,20 @@ async function process_file(
       });
 
       downloadResponse.readableStreamBody.pipe(writeStream);
+
+      if (downloadType == FileDownloadType.metadata) {
+        fs.readFile(fileName, "utf8", (err, jsonString) => {
+          if (err) {
+            console.log("Metadata file read failed:", err);
+            return;
+          }
+          
+          let obj: Root.RootObject = JSON.parse(jsonString);
+          recFileFormat = (obj.recordingInfo.format as FileFormat)
+            ? (obj.recordingInfo.format as FileFormat)
+            : FileFormat.mp4;
+        });
+      }
 
       var blobUploadResult = await BlobStorageHelper.uploadFileToStorage(
         cfg.ContainerName,
