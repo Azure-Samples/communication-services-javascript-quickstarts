@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js",
-    "build": "tsc -w"
+    "build": "npx -p typescript tsc"
   },
   "author": "",
   "license": "ISC",
@@ -16,7 +16,7 @@
     "nodemon": "^2.0.12"
   },
   "dependencies": {
-    "@azure/communication-callingserver": "file:../OutboundCallReminder/Sdk/azure-communication-callingserver-1.0.0-beta.1.tgz",
+    "@azure/communication-callingserver": "file:Sdk/azure-communication-callingserver-1.0.0-beta.1.tgz",
     "@azure/communication-common": "file:Sdk/azure-communication-common-1.1.1.tgz",
     "@azure/eventgrid": "^4.4.0",
     "@azure/storage-blob": "^12.8.0",
