@@ -28,10 +28,10 @@ Azure Communication Services enable developers to add communication capabilities
 
 9. [Use managed identities](https://docs.microsoft.com/azure/communication-services/quickstarts/managed-identity?pivots=programming-language-javascript)
 
-10.[Get Started with UI Components](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-uicomponents--page)
+10. [Get Started with UI Components](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-uicomponents--page)
 
-11.[Get Started with Composites](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-composites--page)
+11. [Get Started with Composites](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-composites--page)
 
-12.[Get Started with Chat Stateful Client](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-statefulclient--page)
+12. [Get Started with Chat Stateful Client](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-statefulclient--page)
 
-13.[Get Started with Call Stateful Client](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-statefulclient--page)
+13. [Get Started with Call Stateful Client](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-statefulclient--page)
