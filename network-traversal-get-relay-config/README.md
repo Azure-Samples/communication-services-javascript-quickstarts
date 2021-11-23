@@ -35,7 +35,6 @@ To run the samples using the published version of the package:
 1. Install the dependencies using `npm`:
 
 ```bash
-npm i @azure/communication-network-traversal
 npm install
 ```
 

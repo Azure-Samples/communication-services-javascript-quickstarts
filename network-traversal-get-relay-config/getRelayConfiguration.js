@@ -5,7 +5,6 @@
  * @summary Issue a new Relay configuration
  */
 
-const { CommunicationIdentityClient } = require("@azure/communication-identity");
 const { CommunicationRelayClient } = require("@azure/communication-network-traversal");
 
 // Load the .env file if it exists
@@ -19,18 +18,35 @@ const connectionString =
 async function main() {
   console.log("\n== Get Relay configuration Sample ==\n");
 
-  const identityClient = new CommunicationIdentityClient(connectionString);
-
-  // Create user
-  console.log("Creating User");
-
-  const user = await identityClient.createUser();
-
   const relayClient = new CommunicationRelayClient(connectionString);
   console.log("Getting relay configuration");
 
-  const config = await relayClient.getRelayConfiguration(user);
+  const config = await relayClient.getRelayConfiguration();
   console.log("RelayConfig", config);
+
+  /* You can now create a new RTCPeerConnection passing the IceServers obtained
+  
+  console.log("Creating Data Channel");
+  const dataChannel =
+  peerConnection.createDataChannel("myLabel", dataChannelOptions);
+
+  dataChannel.onerror = (error) => {
+    console.log("Data Channel Error:", error);
+  };
+
+  dataChannel.onmessage = (event) => {
+    console.log("Got Data Channel Message:", event.data);
+  };
+
+  dataChannel.onopen = () => {
+    dataChannel.send("We used Azure Communication Network Traversal");
+  };
+
+  dataChannel.onclose = () => {
+    console.log("The Data Channel is Closed");
+  };
+  
+  */
 }
 
 main().catch((error) => {
