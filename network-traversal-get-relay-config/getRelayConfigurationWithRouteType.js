@@ -23,7 +23,6 @@ async function main() {
 
   const config = await relayClient.getRelayConfiguration("nearest");
   console.log("RelayConfig", config);
-
 }
 
 main().catch((error) => {

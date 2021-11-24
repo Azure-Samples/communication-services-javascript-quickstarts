@@ -15,6 +15,8 @@ These sample programs show how to use the JavaScript client libraries for Azure 
 | **File Name**                                     | **Description**                 |
 | ------------------------------------------------- | ------------------------------- |
 | [getRelayConfiguration.js][getrelayconfiguration] | Issue a new Relay configuration |
+| [getRelayConfigurationWithIdentity.js][getrelayconfiguration] | Issue a new Relay configuration |
+| [getRelayConfigurationWithRouteType.js][getrelayconfiguration] | Issue a new Relay configuration |
 
 ## Prerequisites
 
@@ -50,6 +52,13 @@ Alternatively, run a single sample with the correct environment variables set (s
 
 ```bash
 npx cross-env COMMUNICATION_CONNECTION_STRING="<communication connection string>" node getRelayConfiguration.js
+```
+
+4. You can now create a new RTCPeerConnection passing the IceServers obtained
+
+```Javascript
+    const config = await relayClient.getRelayConfiguration();
+    const peerConnection = new RTCPeerConnection(config.iceServers);
 ```
 
 ## Next Steps

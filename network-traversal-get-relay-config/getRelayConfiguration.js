@@ -23,32 +23,6 @@ async function main() {
 
   const config = await relayClient.getRelayConfiguration();
   console.log("RelayConfig", config);
-
-  /* You can now create a new RTCPeerConnection passing the IceServers obtained
-  
-  const peerConnection = new RTCPeerConnection(config.iceServers);
-
-  console.log("Creating Data Channel");
-  const dataChannel =
-  peerConnection.createDataChannel("myLabel", dataChannelOptions);
-
-  dataChannel.onerror = (error) => {
-    console.log("Data Channel Error:", error);
-  };
-
-  dataChannel.onmessage = (event) => {
-    console.log("Got Data Channel Message:", event.data);
-  };
-
-  dataChannel.onopen = () => {
-    dataChannel.send("We used Azure Communication Network Traversal");
-  };
-
-  dataChannel.onclose = () => {
-    console.log("The Data Channel is Closed");
-  };
-  
-  */
 }
 
 main().catch((error) => {
