@@ -26,6 +26,8 @@ async function main() {
 
   /* You can now create a new RTCPeerConnection passing the IceServers obtained
   
+  const peerConnection = new RTCPeerConnection(config.iceServers);
+
   console.log("Creating Data Channel");
   const dataChannel =
   peerConnection.createDataChannel("myLabel", dataChannelOptions);
