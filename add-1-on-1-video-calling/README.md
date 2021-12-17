@@ -9,7 +9,7 @@ products:
 
 # Add 1 on 1 video calling to your application
 
-This code sample walks through the process of integration Azure Communication Services video calling into your Javascript application.
+This code sample walks through the process of integration Azure Communication Services video calling into your JavaScript application.
 
 This quickstart sample includes the code that is explained as part of [this document](https://docs.microsoft.com/azure/communication-services/quickstarts/voice-video-calling/get-started-with-video-calling). See that document for additional details on how this sample works.
 
