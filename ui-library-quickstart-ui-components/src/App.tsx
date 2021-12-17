@@ -3,6 +3,10 @@ import { Stack } from '@fluentui/react';
 import React from 'react';
 import { CallingComponents } from './CallingComponents';
 import { ChatComponents } from './ChatComponents';
+import { registerIcons } from '@fluentui/react';
+import {
+  DEFAULT_COMPONENT_ICONS
+} from '@azure/communication-react';
 
 function CompletedComponentsApp(): JSX.Element {
   const stackStyle = {
@@ -10,6 +14,8 @@ function CompletedComponentsApp(): JSX.Element {
       width: '100%'
     }
   };
+
+  registerIcons({ icons: DEFAULT_COMPONENT_ICONS });
 
   return (
     <FluentThemeProvider>
