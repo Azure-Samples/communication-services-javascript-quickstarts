@@ -1,9 +1,13 @@
-import { Request, Response } from "express";
+import { Router } from "express";
 
 const callingServerCallbackRoute = "/CallingServerAPICallbacks";
+const router = Router();
 
-function callingServerCallbackHandler(req: Request, res: Response) {
+router.post(callingServerCallbackRoute, (req, res) => {
 
-}
+});
 
-export { callingServerCallbackHandler, callingServerCallbackRoute };
+export {
+    router as callingServerCallbackHandler,
+    callingServerCallbackRoute
+};

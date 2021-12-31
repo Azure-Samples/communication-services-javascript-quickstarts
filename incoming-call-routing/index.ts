@@ -1,6 +1,6 @@
 import express from "express";
-import { callingServerCallbackHandler, callingServerCallbackRoute } from "./controllers/callingServerCallbackController";
-import { incomingCallHandler, incomingCallRoute } from "./controllers/incomingCallController";
+import { callingServerCallbackHandler } from "./controllers/callingServerCallbackController";
+import { incomingCallHandler } from "./controllers/incomingCallController";
 
 const port = 3000;
 const app = express();
@@ -9,6 +9,6 @@ app.listen(port, () => {
     console.log("hello world!")
 });
 
-app.get(incomingCallRoute, incomingCallHandler);
-app.get(callingServerCallbackRoute, callingServerCallbackHandler);
-
+app.use(express.json());
+app.use(incomingCallHandler);
+app.use(callingServerCallbackHandler);
