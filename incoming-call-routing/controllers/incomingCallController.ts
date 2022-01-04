@@ -1,5 +1,6 @@
 import { EventGridDeserializer, SubscriptionValidationEventData } from "@azure/eventgrid";
 import { Router } from "express";
+import { report } from "../incomingCallHandler";
 
 const incomingCallRoute = "/OnIncomingCall";
 const router = Router();
@@ -21,11 +22,14 @@ router.post(incomingCallRoute, async (req, res) => {
             }
 
             if (eventType === "Microsoft.Communication.IncomingCall") {
-                console.log(data);
+                // TODO: find correct type
+                const incomingCallData = data as any;
+
+                report(incomingCallData?.incomingCallContext);
             }
         }
 
-        return res.status(200);
+        return res.sendStatus(200);
     } catch (e) {
         return res.status(500).send(e);
     }
