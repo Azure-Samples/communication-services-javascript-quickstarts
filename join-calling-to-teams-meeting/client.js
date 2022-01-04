@@ -32,8 +32,8 @@ teamsMeetingJoinButton.addEventListener("click", () => {
         callStateElement.innerText = call.state;
     })
 
-    call.api(Features.Recording).on('isRecordingActiveChanged', () => {
-        if (call.api(Features.Recording).isRecordingActive) {
+    call.feature(Features.Recording).on('isRecordingActiveChanged', () => {
+        if (call.feature(Features.Recording).isRecordingActive) {
             recordingStateElement.innerText = "This call is being recorded";
         }
         else {
