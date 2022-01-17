@@ -1,6 +1,8 @@
-import { EventGridDeserializer } from "@azure/eventgrid";
+import { CloudEvent, EventGridDeserializer } from "@azure/eventgrid";
 import { Router } from "express";
 import { authorize } from "../eventHandlers/eventAuthHandler";
+import { processNotification } from "../eventHandlers/notificationHandler";
+import { IncomingCallEvent } from "../incomingCallEvent";
 
 const callingServerCallbackRoute = "/CallingServerAPICallbacks";
 const router = Router();
@@ -13,9 +15,8 @@ router.post(callingServerCallbackRoute, async (req, res) => {
         if (authorize(secret)) {
             const events = await deserializer.deserializeCloudEvents(req.body[0]);
 
-            for (const { type: eventType, data } of events) {
-                console.log(eventType);
-                console.log(data);
+            for (const event of events) {
+                processNotification(event as CloudEvent<IncomingCallEvent>);
             }
 
             return res.sendStatus(200);

@@ -1,3 +1,4 @@
+import config from "../appsettings.json";
 import { EventGridDeserializer, SubscriptionValidationEventData } from "@azure/eventgrid";
 import { Router } from "express";
 import { report } from "../incomingCallHandler";
@@ -22,10 +23,11 @@ router.post(incomingCallRoute, async (req, res) => {
             }
 
             if (eventType === "Microsoft.Communication.IncomingCall") {
-                // TODO: find correct type
-                const incomingCallData = data as any;
+                const { incomingCallContext, to } = data as any;
 
-                report(incomingCallData?.incomingCallContext);
+                if (config.allowedRecipientList.includes(to?.communicationUser?.id)) {
+                    report(incomingCallContext);
+                }
             }
         }
 
