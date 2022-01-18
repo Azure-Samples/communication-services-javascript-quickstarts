@@ -9,7 +9,7 @@ products:
 
 # Add 1 on 1 phone calling to your application
 
-This code sample walks through the process of integration Azure Communication Services phone calling into your Javascript application.
+This code sample walks through the process of integration Azure Communication Services phone calling into your JavaScript application.
 
 This quickstart sample includes the code that is explained as part of [this document](https://docs.microsoft.com/azure/communication-services/quickstarts/voice-video-calling/pstn-call?pivots=platform-web). See that document for additional details on how this sample works.
 

@@ -1,0 +1,26 @@
+{
+  "name": "incoming-call-routing",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rimraf bin && tsc",
+    "start": "npm run build && node bin/index.js",
+    "dev": "nodemon -e ts --exec ts-node index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/node": "^17.0.5",
+    "nodemon": "^2.0.15",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.2"
+  },
+  "dependencies": {
+    "@azure/eventgrid": "^4.5.0",
+    "express": "^4.17.2"
+  }
+}

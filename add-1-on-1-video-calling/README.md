@@ -9,7 +9,7 @@ products:
 
 # Add 1 on 1 video calling to your application
 
-This code sample walks through the process of integration Azure Communication Services video calling into your Javascript application.
+This code sample walks through the process of integration Azure Communication Services video calling into your JavaScript application.
 
 This quickstart sample includes the code that is explained as part of [this document](https://docs.microsoft.com/azure/communication-services/quickstarts/voice-video-calling/get-started-with-video-calling). See that document for additional details on how this sample works.
 
@@ -22,7 +22,8 @@ This quickstart sample includes the code that is explained as part of [this docu
 
 ## Run the code
 1. Run `npm i` on the directory of the project to install dependencies
-2. Use the webpack-dev-server to build and run your app. Run the following command to bundle application host in on a local webserver:
+2. Add a [user access token](https://docs.microsoft.com/azure/communication-services/quickstarts/access-tokens?pivots=programming-language-javascript) in line 54 of the `client.js`.
+3. Use the webpack-dev-server to build and run your app. Run the following command to bundle application host in on a local webserver:
 
         npx webpack-dev-server --entry ./client.js --output bundle.js --debug --devtool inline-source-map
 
