@@ -10,7 +10,7 @@
     "dev": "nodemon -e ts --exec ts-node index.ts"
   },
   "author": "",
-  "license": "MIT",
+  "license": "ISC",
   "devDependencies": {
     "@types/express": "^4.17.13",
     "@types/node": "^17.0.5",
