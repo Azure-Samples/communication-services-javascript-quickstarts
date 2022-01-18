@@ -16,6 +16,9 @@ router.post(callingServerCallbackRoute, async (req, res) => {
             const events = await deserializer.deserializeCloudEvents(req.body[0]);
 
             for (const event of events) {
+                console.log(`Incoming call event: ${event.type}`);
+                console.log(`incoming call data: ${JSON.stringify(event.data)}`);
+
                 processNotification(event as CloudEvent<IncomingCallEvent>);
             }
 

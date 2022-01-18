@@ -5,9 +5,7 @@ import { incomingCallHandler } from "./controllers/incomingCallController";
 const port = 3000;
 const app = express();
 
-app.listen(port, () => {
-    console.log("hello world 2!")
-});
+app.listen(port);
 
 app.use(express.json());
 app.use(incomingCallHandler);

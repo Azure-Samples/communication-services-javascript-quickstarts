@@ -12,6 +12,9 @@ router.post(incomingCallRoute, async (req, res) => {
         const events = await deserializeEventGridEvents(req.body[0]);
 
         for (const { eventType, data } of events) {
+            console.log(`Incoming call event: ${eventType}`);
+            console.log(`incoming call data: ${JSON.stringify(data)}`);
+
             if (eventType === "Microsoft.EventGrid.SubscriptionValidationEvent") {
                 const validationEventData = data as SubscriptionValidationEventData;
 

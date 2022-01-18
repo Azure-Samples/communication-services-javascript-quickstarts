@@ -18,7 +18,7 @@ async function processNotification(event: CloudEvent<IncomingCallEvent>) {
 
     if (notificationCallback !== undefined) {
         await notificationCallback(eventData);
-        
+
         return true;
     }
 
@@ -34,6 +34,14 @@ function subscribe(
 
 function unsubscribe(eventKey: string) {
     notificationCallbacks.delete(eventKey);
+}
+
+function unsubscribeAll(eventKeyPrefix: string) {
+    notificationCallbacks.forEach((_, key, map) => {
+        if (key.includes(eventKeyPrefix)) {
+            map.delete(key);
+        }
+    });
 }
 
 function buildEventKey(eventContext: string, eventType: string) {
@@ -57,6 +65,7 @@ function hasOperationContext(eventData: IncomingCallEvent): eventData is AddPart
 export {
     subscribe,
     unsubscribe,
+    unsubscribeAll,
     processNotification,
     buildEventKey,
 };

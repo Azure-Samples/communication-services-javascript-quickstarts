@@ -1,21 +1,34 @@
 import { CallingServerEventTypeValue } from "@azure/communication-calling-server";
 import { CallConnectionStateChangedEvent, KnownCallConnectionState } from "@azure/communication-calling-server/src/generated/src/models";
-import { getCallingServerClient } from "../clients/callingServerClient";
 import { IncomingCallEvent } from "../incomingCallEvent";
-import { subscribe } from "./notificationHandler";
+import { subscribe, unsubscribeAll } from "./notificationHandler";
 
 function registerCallConnectionDisconnectedEvent(callConnectionId: string) {
     subscribe(callConnectionId, CallingServerEventTypeValue.CallConnectionStateChangedEvent, async (eventData: IncomingCallEvent) => {
-        const callConnectionEvent = eventData as CallConnectionStateChangedEvent;
+        const { callConnectionState } = eventData as CallConnectionStateChangedEvent;
 
-        if (callConnectionEvent.callConnectionState === KnownCallConnectionState.Disconnected) {
-            const callConnection = getCallingServerClient().getCallConnection(callConnectionId);
-
-            await callConnection.hangUp();
-        } else {
-            registerCallConnectionDisconnectedEvent(callConnectionId);
+        if (callConnectionState === KnownCallConnectionState.Disconnected) {
+            unsubscribeAll(callConnectionId);
         }
     });
 }
 
-export { registerCallConnectionDisconnectedEvent }
+function registerCallConnectionConnectedEvent(callConnecionId: string, notifyConnectionState: (value :boolean) => void) {
+    subscribe(callConnecionId, CallingServerEventTypeValue.CallConnectionStateChangedEvent, async (eventData: IncomingCallEvent) => {
+        const { callConnectionState } = eventData as CallConnectionStateChangedEvent;
+
+        if (callConnectionState === KnownCallConnectionState.Connected) {
+            notifyConnectionState(true);
+        }
+    });
+}
+
+function establishConnection(callConnecionId: string) {
+    return new Promise<boolean>(resolver => registerCallConnectionConnectedEvent(callConnecionId, resolver));
+}
+
+export { 
+    registerCallConnectionDisconnectedEvent,
+    registerCallConnectionConnectedEvent,
+    establishConnection
+ }

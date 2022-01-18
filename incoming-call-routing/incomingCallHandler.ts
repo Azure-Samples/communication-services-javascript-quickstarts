@@ -1,11 +1,10 @@
-import config from "./appsettings.json";
 import { AnswerCallOptions, } from "@azure/communication-calling-server";
 import { getCallingServerClient } from "./clients/callingServerClient";
 import { getCallbackUrl } from "./utils/callbackUrl";
 import { registerDtmfToneEvent } from "./eventHandlers/dtmfEventHandler";
 import { playAudio, registerPlayAudioCompletionEvent, registerPlayAudioRunningEvent, startPlayAudioEvent } from "./eventHandlers/playAudioHandler";
 import { KnownCallingOperationStatus } from "@azure/communication-calling-server/src/generated/src/models";
-import { registerCallConnectionDisconnectedEvent } from "./eventHandlers/callConnectionHandler";
+import { establishConnection, registerCallConnectionDisconnectedEvent } from "./eventHandlers/callConnectionHandler";
 
 async function report(incomingCallContext: string) {
     try {
@@ -22,12 +21,20 @@ async function report(incomingCallContext: string) {
             throw new Error("Call was not established");
         }
 
+        const callEstablished = await establishConnection(callConnectionId);
+
+        if (!callEstablished) {
+            throw new Error("Call was not established");
+        }
+
         const res = await playAudio(callConnectionId);
 
         if (res?.status === KnownCallingOperationStatus.Running) {
             registerEventHandlers(callConnectionId);
             startPlayAudioEvent(callConnectionId);
         } else {
+            console.log(`Unable to play audio: ${res?.resultDetails?.message}`);
+
             await callingServerClient.getCallConnection(callConnectionId).hangUp();
         }
     } catch (e) {
