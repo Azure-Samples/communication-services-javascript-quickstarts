@@ -1,0 +1,23 @@
+{
+  "name": "ui-library-with-call-recording",
+  "version": "1.0.0",
+  "description": "A sample to showcase ACS app built with @azure/communication-react with call recording feature",
+  "scripts": {
+    "start": "swa start app/build --api ./api",
+    "start:dev": "swa start http://localhost:3000 --api http://localhost:7071",
+    "build": "cd app && npm build && cd .. && cd api && npm build",
+    "lint": "eslint */**/*.{ts,tsx} --max-warnings 0",
+    "lint:fix": "eslint */**/*.{ts,tsx} --fix  --max-warnings 0",
+    "prettier:check": "npx prettier --check .",
+    "prettier": "npx prettier --write ."
+  },
+  "devDependencies": {
+    "@azure/static-web-apps-cli": "^0.6.1",
+    "@typescript-eslint/eslint-plugin": "^4.28.3",
+    "azure-functions-core-tools": "^3.0.3568",
+    "eslint": "^7.30.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-header": "^3.1.1",
+    "prettier": "2.3.2"
+  }
+}

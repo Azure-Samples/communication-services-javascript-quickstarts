@@ -18,8 +18,25 @@ npm install -g @azure/static-web-apps-cli
 
 ## Local development
 
+There are two ways to run this project locally:
+
+**With prebuilt static app**
+
 - Build the static app:
   ```cd app && npm run build```
 
 - Serve the backend API as well as the static app:
-  ```swa --api-location ./api ./app/build```
+  ```npm start```
+
+**Separately start each service**
+
+This option allows you to debug each service separately, but requires some orchestration. You'll need three terminals:
+
+- Start the azure functions backend:
+  ```cd api && npm start```
+- Start the static app server:
+  ```cd app && npm start```
+- Start the Static Web Apps proxy (this assumes that default ports were used to run the servers in the previous steps):
+  ```npm run start:dev```
+
+In either case, navigate to your app at `localhost:4280`.

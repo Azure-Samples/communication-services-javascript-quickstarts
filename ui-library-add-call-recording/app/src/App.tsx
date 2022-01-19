@@ -20,7 +20,7 @@ function DisplayApiResponse(props: { method: string }) {
   const [data, setData] = useState('NO RESPONSE YET');
   useEffect(() => {
     (async function () {
-      const text = await (await fetch(`/api/${method}`, { method: 'POST', body: JSON.stringify({ 'callId': 'dummy' }) })).text();
+      const { text } = await (await fetch(`/api/${method}`, { method: 'POST', body: JSON.stringify({ 'callId': 'dummy' }) })).json();
       console.log(method, text)
       setData(text);
     })();
