@@ -14,7 +14,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
     context.res = {
         status: 200,
-        body: `Would have started recording for ${callId}`
+        body: JSON.stringify({text: `Would have started recording for ${callId}`})
     };
 };
 
