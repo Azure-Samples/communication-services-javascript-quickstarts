@@ -10,9 +10,9 @@ using Newtonsoft.Json;
 
 namespace Contoso
 {
-    public static class startRecording
+    public static class stopRecording
     {
-        [FunctionName("startRecording")]
+        [FunctionName("stopRecording")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
             ILogger log)
@@ -25,7 +25,7 @@ namespace Contoso
             {
                 return new BadRequestObjectResult("`serverCallId` not set");
             }
-            return new OkObjectResult($"Would have started call recording for {serverCallId}");
+            return new OkObjectResult($"Would have stopped call recording for {serverCallId}");
         }
     }
 }
