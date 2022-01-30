@@ -7,6 +7,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Azure.Communication.CallingServer;
 
 namespace Contoso
 {
@@ -20,6 +21,10 @@ namespace Contoso
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
             string serverCallId = data?.serverCallId;
+
+            CallingServerClient callingServerClient = new CallingServerClient(Settings.GetACSConnectionString());
+
+            log.LogInformation($"ACS Connection String: {Settings.GetACSConnectionString()}");
 
             if (string.IsNullOrEmpty(serverCallId))
             {
