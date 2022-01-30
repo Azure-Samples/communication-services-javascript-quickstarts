@@ -25,7 +25,7 @@ namespace Contoso
             {
                 return new BadRequestObjectResult("`serverCallId` not set");
             }
-            return new OkObjectResult($"Would have started call recording for {serverCallId}");
+            return new OkObjectResult(JsonConvert.SerializeObject(new Result { text = $"Would have started call recording for {serverCallId}" }));
         }
     }
 }
