@@ -26,11 +26,11 @@ namespace Contoso
                 return new BadRequestObjectResult("`serverCallId` not set");
             }
 
-            // TODO inject from configuration.
-            var uri = new Uri("localhost:3000");
             CallingServerClient callingServerClient = new CallingServerClient(Settings.GetACSConnectionString());
-            var startRecordingResponse = await callingServerClient.InitializeServerCall(serverCallId).StartRecordingAsync(uri).ConfigureAwait(false);
+            // We don't need status updates about an ongoing call, so we pass in a dummy callback URI.
+            var startRecordingResponse = await callingServerClient.InitializeServerCall(serverCallId).StartRecordingAsync(new Uri("")).ConfigureAwait(false);
             var recordingId = startRecordingResponse.Value.RecordingId;
+            log.LogInformation($"Started recording for {serverCallId}: {recordingId}");
 
             return new OkObjectResult(JsonConvert.SerializeObject(new Result { text = $"Started recording for {serverCallId}: {recordingId}" }));
         }

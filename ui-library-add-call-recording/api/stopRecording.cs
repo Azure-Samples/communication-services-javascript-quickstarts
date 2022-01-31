@@ -7,6 +7,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Azure.Communication.CallingServer;
 
 namespace Contoso
 {
@@ -17,15 +18,24 @@ namespace Contoso
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
+
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
             string serverCallId = data?.serverCallId;
-
             if (string.IsNullOrEmpty(serverCallId))
             {
                 return new BadRequestObjectResult("`serverCallId` not set");
             }
-            return new OkObjectResult(JsonConvert.SerializeObject(new Result { text = $"Would have stoped call recording for {serverCallId}" }));
+            string recordingId = data?.recordingId;
+            if (string.IsNullOrEmpty(recordingId))
+            {
+                return new BadRequestObjectResult("`recordingId` not set");
+            }
+
+            CallingServerClient callingServerClient = new CallingServerClient(Settings.GetACSConnectionString());
+            var stopRecordingReponse = await callingServerClient.InitializeServerCall(serverCallId).StopRecordingAsync(recordingId).ConfigureAwait(false);
+            log.LogInformation($"Stopped recording for {serverCallId}: {recordingId}");
+            return new OkObjectResult(JsonConvert.SerializeObject(new Result { text = $"Stopped recording for {serverCallId}: {recordingId}" }));
         }
     }
 }
