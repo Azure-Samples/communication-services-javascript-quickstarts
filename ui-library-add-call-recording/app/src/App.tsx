@@ -19,7 +19,7 @@ function DisplayApiResponse(props: { method: string }) {
       const { text } = await (
         await fetch(`/api/${method}`, {
           method: "POST",
-          body: JSON.stringify({ callId: "dummy" }),
+          body: JSON.stringify({ serverCallId: "dummy" }),
         })
       ).json();
       console.log(method, text);
