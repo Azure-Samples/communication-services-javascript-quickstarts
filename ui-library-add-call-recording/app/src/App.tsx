@@ -5,7 +5,9 @@ import {
   CallComposite,
   CallAdapter,
   createAzureCommunicationCallAdapter,
-  fromFlatCommunicationIdentifier
+  fromFlatCommunicationIdentifier,
+  CustomCallControlButtonCallbackArgs,
+  CustomCallControlButtonProps
 } from '@azure/communication-react';
 import { ACS_TOKEN, ACS_USER_ID } from './Secrets';
 
@@ -49,10 +51,16 @@ function App(): JSX.Element {
     createAdapter();
   }, []);
 
+  const callCompositeOptions = useMemo(() => ({
+    callControls: {
+      onFetchCustomButtonProps: [recordingButton]
+    }
+  }), []);
+
   if (!!callAdapter) {
     return (
       <div style={{ height: '100vh', display: 'flex' }}>
-        <CallComposite adapter={callAdapter} />
+        <CallComposite adapter={callAdapter} options={callCompositeOptions} />
       </div>
     );
   }
@@ -62,4 +70,10 @@ function App(): JSX.Element {
   return <h3>Initializing...</h3>;
 }
 
+const recordingButton = (args: CustomCallControlButtonCallbackArgs): CustomCallControlButtonProps => ({
+  placement: 'afterCameraButton',
+  showLabel: true,
+  labelKey: 'recordingButtonLabel',
+
+})
 export default App;
