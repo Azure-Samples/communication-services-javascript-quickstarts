@@ -135,7 +135,7 @@ const startRecording = async (serverCallId: string): Promise<StartRecordingRespo
 const stopRecording = async (serverCallId: string, recordingId: string): Promise<void> => {
   await fetch(`/api/stopRecording`, {
     method: "POST",
-    body: JSON.stringify({ serverCallId: serverCallId }),
+    body: JSON.stringify({ serverCallId, recordingId }),
   })
   console.log(`Stopped recording for ${serverCallId}: ${recordingId}`);
 }
