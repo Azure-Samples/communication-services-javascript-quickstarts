@@ -128,8 +128,8 @@ const startRecording = async (serverCallId: string): Promise<StartRecordingRespo
       body: JSON.stringify({ serverCallId: serverCallId }),
     })
   ).json();
-  console.log(`Started recording for ${serverCallId}: ${response['RecordingId']}`);
-  return { recordingId: response['RecordingId'] };
+  console.log(`Started recording for ${serverCallId}: ${response['recordingId']}`);
+  return { recordingId: response['recordingId'] };
 }
 
 const stopRecording = async (serverCallId: string, recordingId: string): Promise<void> => {

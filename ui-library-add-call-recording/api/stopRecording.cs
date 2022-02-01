@@ -27,35 +27,33 @@ namespace Contoso
             {
                 return new BadRequestObjectResult("null POST body");
             }
-            if (string.IsNullOrEmpty(requestBody))
-            {
-                return new BadRequestObjectResult("empty POST body");
-            }
 
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            if (data.GetType().GetProperty("serverCallId") == null)
+            var request = JsonConvert.DeserializeObject<StopRecordingRquest>(requestBody, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+            if (request == null)
+            {
+                return new BadRequestObjectResult("malformed JSON");
+            }
+            if (string.IsNullOrEmpty(request.ServerCallId))
             {
                 return new BadRequestObjectResult("`serverCallId` not set");
             }
-            string serverCallId = data?.serverCallId;
-            if (string.IsNullOrEmpty(serverCallId))
-            {
-                return new BadRequestObjectResult("empty `serverCallId` set");
-            }
-            if (data.GetType().GetProperty("recordingId") == null)
+            if (string.IsNullOrEmpty(request.RecordingId))
             {
                 return new BadRequestObjectResult("`recordingId` not set");
             }
-            string recordingId = data?.recordingId;
-            if (string.IsNullOrEmpty(serverCallId))
-            {
-                return new BadRequestObjectResult("empty `recordingId` set");
-            }
 
             CallingServerClient callingServerClient = new CallingServerClient(Settings.GetACSConnectionString());
-            var stopRecordingReponse = await callingServerClient.InitializeServerCall(serverCallId).StopRecordingAsync(recordingId).ConfigureAwait(false);
-            log.LogInformation($"Stopped recording for {serverCallId}: {recordingId}");
+            var stopRecordingReponse = await callingServerClient.InitializeServerCall(request.ServerCallId).StopRecordingAsync(request.RecordingId).ConfigureAwait(false);
+            log.LogInformation($"Stopped recording for {request.ServerCallId}: {request.RecordingId}");
             return new OkResult();
         }
+    }
+
+    class StopRecordingRquest
+    {
+        [JsonProperty("serverCallId")]
+        public string ServerCallId { get; set; }
+        [JsonProperty("recordingId")]
+        public string RecordingId { get; set; }
     }
 }

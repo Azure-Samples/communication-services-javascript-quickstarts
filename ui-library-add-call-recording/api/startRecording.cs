@@ -27,34 +27,36 @@ namespace Contoso
             {
                 return new BadRequestObjectResult("null POST body");
             }
-            if (string.IsNullOrEmpty(requestBody))
-            {
-                return new BadRequestObjectResult("empty POST body");
-            }
 
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            if (data.GetType().GetProperty("serverCallId") == null)
+            var request = JsonConvert.DeserializeObject<StartRecordingRquest>(requestBody, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+            if (request == null)
+            {
+                return new BadRequestObjectResult("malformed JSON");
+            }
+            if (string.IsNullOrEmpty(request.ServerCallId))
             {
                 return new BadRequestObjectResult("`serverCallId` not set");
-            }
-            string serverCallId = data?.serverCallId;
-            if (string.IsNullOrEmpty(serverCallId))
-            {
-                return new BadRequestObjectResult("empty `serverCallId` set");
             }
 
             CallingServerClient callingServerClient = new CallingServerClient(Settings.GetACSConnectionString());
             // We don't need status updates about an ongoing call, so we pass in a dummy callback URI.
-            var startRecordingResponse = await callingServerClient.InitializeServerCall(serverCallId).StartRecordingAsync(new Uri("http://dummy.uri")).ConfigureAwait(false);
+            var startRecordingResponse = await callingServerClient.InitializeServerCall(request.ServerCallId).StartRecordingAsync(new Uri("http://dummy.uri")).ConfigureAwait(false);
             var recordingId = startRecordingResponse.Value.RecordingId;
-            log.LogInformation($"Started recording for {serverCallId}: {recordingId}");
+            log.LogInformation($"Started recording for {request.ServerCallId}: {recordingId}");
 
             return new OkObjectResult(JsonConvert.SerializeObject(new StartRecordingResponse { RecordingId = recordingId }));
         }
     }
 
+    class StartRecordingRquest
+    {
+        [JsonProperty("serverCallId")]
+        public string ServerCallId { get; set; }
+    }
+
     class StartRecordingResponse
     {
+        [JsonProperty("recordingId")]
         public string RecordingId { get; set; }
     }
 }
