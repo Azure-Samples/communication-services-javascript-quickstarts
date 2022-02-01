@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Azure.Communication.CallingServer;
+using Azure;
 
 namespace Contoso
 {
@@ -28,7 +29,7 @@ namespace Contoso
                 return new BadRequestObjectResult("null POST body");
             }
 
-            var request = JsonConvert.DeserializeObject<StopRecordingRquest>(requestBody, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+            var request = JsonConvert.DeserializeObject<StopRecordingRequest>(requestBody, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
             if (request == null)
             {
                 return new BadRequestObjectResult("malformed JSON");
@@ -42,14 +43,24 @@ namespace Contoso
                 return new BadRequestObjectResult("`recordingId` not set");
             }
 
-            CallingServerClient callingServerClient = new CallingServerClient(Settings.GetACSConnectionString());
-            var stopRecordingReponse = await callingServerClient.InitializeServerCall(request.ServerCallId).StopRecordingAsync(request.RecordingId).ConfigureAwait(false);
+            var callingServerClient = new CallingServerClient(Settings.GetACSConnectionString());
+            var serverCall = callingServerClient.InitializeServerCall(request.ServerCallId);
+            try
+            {
+                await serverCall.StopRecordingAsync(request.RecordingId).ConfigureAwait(false);
+            }
+            catch (RequestFailedException e)
+            {
+                log.LogWarning($"Failed to stop recording for ({request.ServerCallId}, {request.RecordingId}): {e}");
+                return new StatusCodeResult(e.Status);
+            }
+
             log.LogInformation($"Stopped recording for {request.ServerCallId}: {request.RecordingId}");
             return new OkResult();
         }
     }
 
-    class StopRecordingRquest
+    class StopRecordingRequest
     {
         [JsonProperty("serverCallId")]
         public string ServerCallId { get; set; }
