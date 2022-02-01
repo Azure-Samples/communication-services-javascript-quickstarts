@@ -102,7 +102,7 @@ function App(): JSX.Element {
     callControls: {
       onFetchCustomButtonProps: [recordingButton]
     }
-  }), []);
+  }), [recordingButton]);
 
   if (!!callAdapter) {
     return (
