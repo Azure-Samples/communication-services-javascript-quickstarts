@@ -11,19 +11,36 @@ using Azure.Communication.CallingServer;
 
 namespace Contoso
 {
-    public static class startRecording
+    public static class StartRecording
     {
         [FunctionName("startRecording")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            string requestBody = "";
+            try
+            {
+                requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            }
+            catch (ArgumentNullException)
+            {
+                return new BadRequestObjectResult("null POST body");
+            }
+            if (string.IsNullOrEmpty(requestBody))
+            {
+                return new BadRequestObjectResult("empty POST body");
+            }
+
             dynamic data = JsonConvert.DeserializeObject(requestBody);
+            if (data.GetType().GetProperty("serverCallId") == null)
+            {
+                return new BadRequestObjectResult("`serverCallId` not set");
+            }
             string serverCallId = data?.serverCallId;
             if (string.IsNullOrEmpty(serverCallId))
             {
-                return new BadRequestObjectResult("`serverCallId` not set");
+                return new BadRequestObjectResult("empty `serverCallId` set");
             }
 
             CallingServerClient callingServerClient = new CallingServerClient(Settings.GetACSConnectionString());
