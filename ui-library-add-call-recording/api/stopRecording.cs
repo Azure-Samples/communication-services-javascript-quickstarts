@@ -7,25 +7,64 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Azure.Communication.CallingServer;
+using Azure;
 
 namespace Contoso
 {
-    public static class stopRecording
+    public static class StopRecording
     {
         [FunctionName("stopRecording")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            string serverCallId = data?.serverCallId;
+            string requestBody = "";
+            try
+            {
+                requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            }
+            catch (ArgumentNullException)
+            {
+                return new BadRequestObjectResult("null POST body");
+            }
 
-            if (string.IsNullOrEmpty(serverCallId))
+            var request = JsonConvert.DeserializeObject<StopRecordingRequest>(requestBody, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+            if (request == null)
+            {
+                return new BadRequestObjectResult("malformed JSON");
+            }
+            if (string.IsNullOrEmpty(request.ServerCallId))
             {
                 return new BadRequestObjectResult("`serverCallId` not set");
             }
-            return new OkObjectResult(JsonConvert.SerializeObject(new Result { text = $"Would have stoped call recording for {serverCallId}" }));
+            if (string.IsNullOrEmpty(request.RecordingId))
+            {
+                return new BadRequestObjectResult("`recordingId` not set");
+            }
+
+            var callingServerClient = new CallingServerClient(Settings.GetACSConnectionString());
+            var serverCall = callingServerClient.InitializeServerCall(request.ServerCallId);
+            try
+            {
+                await serverCall.StopRecordingAsync(request.RecordingId).ConfigureAwait(false);
+            }
+            catch (RequestFailedException e)
+            {
+                log.LogWarning($"Failed to stop recording for ({request.ServerCallId}, {request.RecordingId}): {e}");
+                return new StatusCodeResult(e.Status);
+            }
+
+            log.LogInformation($"Stopped recording for {request.ServerCallId}: {request.RecordingId}");
+            return new OkResult();
         }
+    }
+
+    class StopRecordingRequest
+    {
+        [JsonProperty("serverCallId")]
+        public string ServerCallId { get; set; }
+        [JsonProperty("recordingId")]
+        public string RecordingId { get; set; }
     }
 }
