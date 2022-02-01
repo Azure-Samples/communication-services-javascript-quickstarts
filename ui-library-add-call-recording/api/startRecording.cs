@@ -28,11 +28,16 @@ namespace Contoso
 
             CallingServerClient callingServerClient = new CallingServerClient(Settings.GetACSConnectionString());
             // We don't need status updates about an ongoing call, so we pass in a dummy callback URI.
-            var startRecordingResponse = await callingServerClient.InitializeServerCall(serverCallId).StartRecordingAsync(new Uri("")).ConfigureAwait(false);
+            var startRecordingResponse = await callingServerClient.InitializeServerCall(serverCallId).StartRecordingAsync(new Uri("http://dummy.uri")).ConfigureAwait(false);
             var recordingId = startRecordingResponse.Value.RecordingId;
             log.LogInformation($"Started recording for {serverCallId}: {recordingId}");
 
-            return new OkObjectResult(JsonConvert.SerializeObject(new Result { text = $"Started recording for {serverCallId}: {recordingId}" }));
+            return new OkObjectResult(JsonConvert.SerializeObject(new StartRecordingResponse { RecordingId = recordingId }));
         }
+    }
+
+    class StartRecordingResponse
+    {
+        public string RecordingId { get; set; }
     }
 }

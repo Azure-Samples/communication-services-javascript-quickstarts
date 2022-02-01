@@ -122,14 +122,14 @@ interface StartRecordingResponse {
 }
 
 const startRecording = async (serverCallId: string): Promise<StartRecordingResponse> => {
-  const { recordingId } = await (
+  const response = await (
     await fetch(`/api/startRecording`, {
       method: "POST",
       body: JSON.stringify({ serverCallId: serverCallId }),
     })
   ).json();
-  console.log(`Started recording for ${serverCallId}: ${recordingId}`);
-  return { recordingId };
+  console.log(`Started recording for ${serverCallId}: ${response['RecordingId']}`);
+  return { recordingId: response['RecordingId'] };
 }
 
 const stopRecording = async (serverCallId: string, recordingId: string): Promise<void> => {

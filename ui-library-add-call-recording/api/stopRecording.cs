@@ -35,7 +35,7 @@ namespace Contoso
             CallingServerClient callingServerClient = new CallingServerClient(Settings.GetACSConnectionString());
             var stopRecordingReponse = await callingServerClient.InitializeServerCall(serverCallId).StopRecordingAsync(recordingId).ConfigureAwait(false);
             log.LogInformation($"Stopped recording for {serverCallId}: {recordingId}");
-            return new OkObjectResult(JsonConvert.SerializeObject(new Result { text = $"Stopped recording for {serverCallId}: {recordingId}" }));
+            return new OkResult();
         }
     }
 }
