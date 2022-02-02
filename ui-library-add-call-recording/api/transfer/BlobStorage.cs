@@ -10,6 +10,8 @@ namespace Contoso
     {
         class BlobStorage
         {
+            private ILogger log;
+            private BlobContainerClient containerClient;
 
             public BlobStorage(ILogger log, string connectionString, string containerName)
             {
@@ -17,6 +19,7 @@ namespace Contoso
                 var serviceClient = new BlobServiceClient(connectionString);
                 this.containerClient = serviceClient.GetBlobContainerClient(containerName);
             }
+
             public async Task<bool> UploadFileAsync(string blobName, Stream inStream)
             {
                 if (!await this.containerClient.ExistsAsync())
@@ -34,9 +37,6 @@ namespace Contoso
                 await blobClient.UploadAsync(inStream);
                 return true;
             }
-
-            private ILogger log;
-            private BlobContainerClient containerClient;
         }
     }
 
