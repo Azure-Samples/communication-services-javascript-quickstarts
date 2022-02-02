@@ -13,6 +13,7 @@ using Newtonsoft.Json.Linq;
 using Microsoft.Azure.EventGrid.Models;
 using System.Collections.Generic;
 using Azure.Communication.CallingServer;
+using System.Text.RegularExpressions;
 
 // https://communication-services-javascript-694ggr9pjh4gv5-7071.githubpreview.dev/api/onRecordingFileStatusUpdated
 
@@ -26,6 +27,7 @@ namespace Contoso
             ILogger log)
         {
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            log.LogInformation($"onRecordingFileStatusUpdated: {requestBody}");
             var e = JsonConvert.DeserializeObject<EventGridEvent[]>(requestBody).FirstOrDefault();
 
             if (IsValidationMessage(e))
@@ -44,6 +46,7 @@ namespace Contoso
 
         static void DownloadRecording(EventGridEvent e, ILogger log)
         {
+            var serverCallId = ExtractServerCallIDOrDie(e.Subject);
             var payload = JsonConvert.DeserializeObject<RecordingFileStatusUpdatedPayload>(e.Data.ToString(), new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
             var callingServerClient = new CallingServerClient(Settings.GetACSConnectionString());
 
@@ -53,7 +56,7 @@ namespace Contoso
                 using (var outStream = new MemoryStream())
                 {
                     response.Value.CopyTo(outStream);
-                    log.LogInformation($"Downloaded {outStream.Length} bytes from {chunk.ContentLocation}/{chunk.DocumentId}#{chunk.Index}.");
+                    log.LogInformation($"Downloaded {outStream.Length} bytes from {chunk.ContentLocation}/{chunk.DocumentId}#{chunk.Index} for call {serverCallId}.");
                 }
             }
         }
@@ -82,6 +85,19 @@ namespace Contoso
         {
             return string.Equals(e.EventType, "Microsoft.Communication.RecordingFileStatusUpdated", StringComparison.OrdinalIgnoreCase);
         }
+
+        static string ExtractServerCallIDOrDie(string subject)
+        {
+            var match = serverCallIdExtractionPattern.Match(subject);
+            var serverCallId = match.Groups["serverCallId"].Value;
+            if (string.IsNullOrEmpty(serverCallId))
+            {
+                throw new Exception($"Failed parse serverCallId from {subject}");
+            }
+            return serverCallId;
+        }
+
+        static Regex serverCallIdExtractionPattern = new Regex(@".*serverCallId/(?<serverCallId>[^/]*)/recordingId/.*");
     }
 
     class RecordingFileStatusUpdatedPayload
