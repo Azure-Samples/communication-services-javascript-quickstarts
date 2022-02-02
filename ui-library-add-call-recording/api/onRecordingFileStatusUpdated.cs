@@ -27,7 +27,6 @@ namespace Contoso
             ILogger log)
         {
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            log.LogInformation($"onRecordingFileStatusUpdated: {requestBody}");
             var e = JsonConvert.DeserializeObject<EventGridEvent[]>(requestBody).FirstOrDefault();
 
             if (IsValidationMessage(e))
@@ -40,25 +39,31 @@ namespace Contoso
                 log.LogInformation($"Rejecting event of type ${e.EventType}");
                 return new BadRequestResult();
             }
-            DownloadRecording(e, log);
+            await TransferRecording(e, log);
             return new OkResult();
         }
 
-        static void DownloadRecording(EventGridEvent e, ILogger log)
+        static async Task TransferRecording(EventGridEvent e, ILogger log)
         {
             var serverCallId = ExtractServerCallIDOrDie(e.Subject);
             var payload = JsonConvert.DeserializeObject<RecordingFileStatusUpdatedPayload>(e.Data.ToString(), new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
-            var callingServerClient = new CallingServerClient(Settings.GetACSConnectionString());
 
-            foreach (var chunk in payload.RecordingStorageInfo.RecordingChunks)
+            var callingServerClient = new CallingServerClient(Settings.GetACSConnectionString());
+            var storageClient = new BlobStorage(log, Settings.GetRecordingStoreConnectionString(), Settings.GetRecordingStoreContainerName());
+
+            var chunks = payload.RecordingStorageInfo.RecordingChunks;
+            var blobStorePaths = new List<string>();
+            foreach (var chunk in chunks)
             {
-                var response = callingServerClient.DownloadStreaming(new Uri(chunk.ContentLocation));
-                using (var outStream = new MemoryStream())
+                var name = blobName(serverCallId, chunk);
+                var inStream = callingServerClient.DownloadStreaming(new Uri(chunk.ContentLocation)).Value;
+                if (await storageClient.UploadFileAsync(name, inStream))
                 {
-                    response.Value.CopyTo(outStream);
-                    log.LogInformation($"Downloaded {outStream.Length} bytes from {chunk.ContentLocation}/{chunk.DocumentId}#{chunk.Index} for call {serverCallId}.");
+                    blobStorePaths.Add(name);
+                    log.LogInformation($"Transferred {name}");
                 }
             }
+            log.LogInformation($"Uploaded {blobStorePaths.Count} chunks for {serverCallId}");
         }
 
         static ActionResult ValidationMessageResponse(EventGridEvent e)
@@ -95,6 +100,11 @@ namespace Contoso
                 throw new Exception($"Failed parse serverCallId from {subject}");
             }
             return serverCallId;
+        }
+
+        static string blobName(string serverCallId, RecordingChunk chunk)
+        {
+            return $"call_{serverCallId}/chunk_{chunk.DocumentId}_{chunk.Index}.mov";
         }
 
         static Regex serverCallIdExtractionPattern = new Regex(@".*serverCallId/(?<serverCallId>[^/]*)/recordingId/.*");
