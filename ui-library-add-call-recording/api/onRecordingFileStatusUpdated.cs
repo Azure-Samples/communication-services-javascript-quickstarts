@@ -15,8 +15,6 @@ using System.Collections.Generic;
 using Azure.Communication.CallingServer;
 using System.Text.RegularExpressions;
 
-// https://communication-services-javascript-694ggr9pjh4gv5-7071.githubpreview.dev/api/onRecordingFileStatusUpdated
-
 namespace Contoso
 {
     public static class onRecordingFileStatusUpdated
