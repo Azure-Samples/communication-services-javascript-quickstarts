@@ -12,6 +12,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using Microsoft.Azure.EventGrid.Models;
 using System.Collections.Generic;
+using Azure.Communication.CallingServer;
 
 // https://communication-services-javascript-694ggr9pjh4gv5-7071.githubpreview.dev/api/onRecordingFileStatusUpdated
 
@@ -25,7 +26,6 @@ namespace Contoso
             ILogger log)
         {
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            log.LogInformation($"onRecordingFileStatusUpdated: ${requestBody}");
             var e = JsonConvert.DeserializeObject<EventGridEvent[]>(requestBody).FirstOrDefault();
 
             if (IsValidationMessage(e))
@@ -38,16 +38,24 @@ namespace Contoso
                 log.LogInformation($"Rejecting event of type ${e.EventType}");
                 return new BadRequestResult();
             }
-            PrintAvailableChunks(e, log);
+            DownloadRecording(e, log);
             return new OkResult();
         }
 
-        static void PrintAvailableChunks(EventGridEvent e, ILogger log)
+        static void DownloadRecording(EventGridEvent e, ILogger log)
         {
-            log.LogInformation($"Data: {e.Data}");
             var payload = JsonConvert.DeserializeObject<RecordingFileStatusUpdatedPayload>(e.Data.ToString(), new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
-            log.LogInformation($"Parsed payload: {payload}");
-            log.LogInformation($"Num chunks: {payload.RecordingStorageInfo.RecordingChunks.Count}");
+            var callingServerClient = new CallingServerClient(Settings.GetACSConnectionString());
+
+            foreach (var chunk in payload.RecordingStorageInfo.RecordingChunks)
+            {
+                var response = callingServerClient.DownloadStreaming(new Uri(chunk.ContentLocation));
+                using (var outStream = new MemoryStream())
+                {
+                    response.Value.CopyTo(outStream);
+                    log.LogInformation($"Downloaded {outStream.Length} bytes from {chunk.ContentLocation}/{chunk.DocumentId}#{chunk.Index}.");
+                }
+            }
         }
 
         static ActionResult ValidationMessageResponse(EventGridEvent e)
@@ -102,5 +110,9 @@ namespace Contoso
         public int Index { get; set; }
         [JsonProperty("endReason")]
         public string EndReason { get; set; }
+        [JsonProperty("contentLocation")]
+        public string ContentLocation { get; set; }
+        [JsonProperty("metadataLocation")]
+        public string MetadataLocation { get; set; }
     }
 }
