@@ -15,6 +15,8 @@ import { ACS_TOKEN, ACS_USER_ID } from './Secrets';
 import { initializeIcons } from '@fluentui/react';
 import { Record20Regular, RecordStop20Filled } from '@fluentui/react-icons';
 import { recordingButtonPropsCallback } from './RecordingButton';
+import { Stack } from '@azure/communication-react/node_modules/@fluentui/react';
+import { RecordingList } from './RecordingList';
 
 
 initializeIcons();
@@ -79,9 +81,15 @@ function App(): JSX.Element {
 
   if (!!callAdapter) {
     return (
-      <div style={{ height: '100vh', display: 'flex' }}>
-        <CallComposite adapter={callAdapter} options={callCompositeOptions} />
-      </div>
+      <Stack>
+        <Stack.Item grow>
+          <div style={{ height: '80vh', display: 'flex' }}>
+            <CallComposite adapter={callAdapter} options={callCompositeOptions} />
+          </div>
+        </Stack.Item>
+        <RecordingList serverCallId={serverCallId} />
+      </Stack>
+
     );
   }
   if (credential === undefined) {
