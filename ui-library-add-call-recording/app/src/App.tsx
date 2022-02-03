@@ -14,6 +14,7 @@ import {
 import { ACS_TOKEN, ACS_USER_ID } from './Secrets';
 import { initializeIcons } from '@fluentui/react';
 import { Record20Regular, RecordStop20Filled } from '@fluentui/react-icons';
+import { recordingButtonPropsCallback } from './RecordingButton';
 
 
 initializeIcons();
@@ -66,43 +67,15 @@ function App(): JSX.Element {
     createAdapter();
   }, []);
 
-  const recordingButton = useCallback((args: CustomCallControlButtonCallbackArgs): CustomCallControlButtonProps => ({
-    placement: 'afterCameraButton',
-    showLabel: true,
-    labelKey: 'recordingButtonLabel',
-    strings: {
-      offLabel: "Start Recording",
-      onLabel: "Stop Recording",
-      tooltipOffContent: "Start Recording",
-      tooltipOnContent: "Stop Recording",
-    },
-    onRenderOffIcon: (): JSX.Element => (<Record20Regular />),
-    onRenderOnIcon: (): JSX.Element => (<RecordStop20Filled />),
-    checked: !!recordingId,
-    onClick: async () => {
-      if (!serverCallId) {
-        console.warn('Recording buton: No serverCallId yet!');
-        return;
+  const callCompositeOptions = useMemo(() => {
+    return {
+      callControls: {
+        onFetchCustomButtonProps: [
+          recordingButtonPropsCallback(serverCallId, recordingId, setRecordingId)
+        ]
       }
-
-      if (!!recordingId) {
-        // stop the recording
-        await stopRecording(serverCallId, recordingId);
-        setRecordingId('');
-        return
-      }
-
-      // start the recording
-      const { recordingId: newRecordingId } = await startRecording(serverCallId);
-      setRecordingId(newRecordingId);
-    }
-  }), [serverCallId, recordingId]);
-
-  const callCompositeOptions = useMemo(() => ({
-    callControls: {
-      onFetchCustomButtonProps: [recordingButton]
-    }
-  }), [recordingButton]);
+    };
+  }, [serverCallId, recordingId, setRecordingId]);
 
   if (!!callAdapter) {
     return (
@@ -117,26 +90,4 @@ function App(): JSX.Element {
   return <h3>Initializing...</h3>;
 }
 
-interface StartRecordingResponse {
-  recordingId: string;
-}
-
-const startRecording = async (serverCallId: string): Promise<StartRecordingResponse> => {
-  const response = await (
-    await fetch(`/api/startRecording`, {
-      method: "POST",
-      body: JSON.stringify({ serverCallId: serverCallId }),
-    })
-  ).json();
-  console.log(`Started recording for ${serverCallId}: ${response['recordingId']}`);
-  return { recordingId: response['recordingId'] };
-}
-
-const stopRecording = async (serverCallId: string, recordingId: string): Promise<void> => {
-  await fetch(`/api/stopRecording`, {
-    method: "POST",
-    body: JSON.stringify({ serverCallId, recordingId }),
-  })
-  console.log(`Stopped recording for ${serverCallId}: ${recordingId}`);
-}
 export default App;
