@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
@@ -36,6 +37,18 @@ namespace Contoso
 
                 await blobClient.UploadAsync(inStream);
                 return true;
+            }
+
+            public string[] GetBlobUris(string prefix)
+            {
+                var pages = this.containerClient.GetBlobs(Azure.Storage.Blobs.Models.BlobTraits.None, Azure.Storage.Blobs.Models.BlobStates.None, prefix);
+                var response = new List<string>();
+                foreach (var blob in pages)
+                {
+                    var blobClient = this.containerClient.GetBlobClient(blob.Name);
+                    response.Add(blobClient.Uri.ToString());
+                }
+                return response.ToArray();
             }
         }
     }
