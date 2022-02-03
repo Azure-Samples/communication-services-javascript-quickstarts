@@ -27,7 +27,7 @@ namespace Contoso
             var storageClient = new BlobStorage(log, Settings.GetRecordingStoreConnectionString(), Settings.GetRecordingStoreContainerName());
             var response = new ListRecordingsResponse
             {
-                Urls = storageClient.GetBlobUris($"call_{serverCallId}")
+                Blobs = storageClient.GetBlobs($"call_{serverCallId}")
             };
             return new OkObjectResult(JsonConvert.SerializeObject(response));
         }
@@ -35,7 +35,7 @@ namespace Contoso
 
     class ListRecordingsResponse
     {
-        [JsonProperty("urls")]
-        public string[] Urls { get; set; }
+        [JsonProperty("blobs")]
+        public string[] Blobs { get; set; }
     }
 }
