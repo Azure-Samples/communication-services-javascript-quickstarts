@@ -27,10 +27,11 @@ export function RecordingList(props: RecordingListProps): JSX.Element {
     }, [serverCallId, blobs, setBlobs]);
 
     return (<Stack className={mergeStyles({
-        background: '#EEEEEE',
-        margin: '1rem',
+        background: '#252423',
+        color: '#D2D2D2',
         padding: '1rem',
-        borderRadius: '0.625rem'
+        // The recording names tend to be overly long.
+        wordBreak: 'break-word'
     })}>
         {blobs.length === 0 && <h3>No recordings yet!</h3>}
         {blobs.length > 0 && (<>

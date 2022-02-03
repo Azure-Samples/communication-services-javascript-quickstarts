@@ -1,21 +1,18 @@
 import { v1 } from 'uuid';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { AzureCommunicationTokenCredential, CommunicationUserIdentifier } from '@azure/communication-common';
 import {
   CallComposite,
   CallAdapter,
-  createAzureCommunicationCallAdapter,
   fromFlatCommunicationIdentifier,
-  CustomCallControlButtonCallbackArgs,
-  CustomCallControlButtonProps,
   createStatefulCallClient,
-  createAzureCommunicationCallAdapterFromClient
+  createAzureCommunicationCallAdapterFromClient,
+  darkTheme
 } from '@azure/communication-react';
 import { ACS_TOKEN, ACS_USER_ID } from './Secrets';
 import { initializeIcons } from '@fluentui/react';
-import { Record20Regular, RecordStop20Filled } from '@fluentui/react-icons';
 import { recordingButtonPropsCallback } from './RecordingButton';
-import { Stack } from '@azure/communication-react/node_modules/@fluentui/react';
+import { mergeStyles, Stack } from '@fluentui/react';
 import { RecordingList } from './RecordingList';
 
 
@@ -81,10 +78,15 @@ function App(): JSX.Element {
 
   if (!!callAdapter) {
     return (
-      <Stack>
+      <Stack
+        tokens={{ childrenGap: '1rem' }}
+        className={mergeStyles({
+          margin: '2rem'
+        })}
+      >
         <Stack.Item grow>
-          <div style={{ height: '80vh', display: 'flex' }}>
-            <CallComposite adapter={callAdapter} options={callCompositeOptions} />
+          <div style={{ height: '70vh', display: 'flex' }}>
+            <CallComposite adapter={callAdapter} options={callCompositeOptions} fluentTheme={darkTheme} />
           </div>
         </Stack.Item>
         <RecordingList serverCallId={serverCallId} />
