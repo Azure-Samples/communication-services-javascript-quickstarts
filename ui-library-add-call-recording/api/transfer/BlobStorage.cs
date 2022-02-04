@@ -39,15 +39,15 @@ namespace Contoso
                 return true;
             }
 
-            public string[] GetBlobs(string prefix)
+            public string[] GetBlobNames(string prefix)
             {
-                var pages = this.containerClient.GetBlobs(Azure.Storage.Blobs.Models.BlobTraits.None, Azure.Storage.Blobs.Models.BlobStates.None, prefix);
-                var response = new List<string>();
-                foreach (var blob in pages)
+                var blobs = this.containerClient.GetBlobs(Azure.Storage.Blobs.Models.BlobTraits.None, Azure.Storage.Blobs.Models.BlobStates.None, prefix);
+                var names = new List<string>();
+                foreach (var blob in blobs)
                 {
-                    response.Add(blob.Name);
+                    names.Add(blob.Name);
                 }
-                return response.ToArray();
+                return names.ToArray();
             }
         }
     }
