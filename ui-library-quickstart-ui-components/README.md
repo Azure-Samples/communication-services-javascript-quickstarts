@@ -19,8 +19,7 @@ For full instructions on how to build this code sample from scratch, look at [Qu
 ## Run the code
 
 1. Run `npm i` on the directory of the project to install dependencies
-2. Swap placeholders for identifiers in the code
-3. Run `npm run start`
+2. Run `npm run start`
 
 Open your browser to ` http://localhost:3000`. You should see the following:
 ![Components End State](../media/ComponentsEnd.png)
