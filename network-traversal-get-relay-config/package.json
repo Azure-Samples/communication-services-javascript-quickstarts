@@ -24,7 +24,7 @@
   "homepage": "https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/communication/communication-network-traversal",
   "dependencies": {
     "@azure/communication-identity": "latest",
-    "@azure/communication-network-traversal": "latest",
+    "@azure/communication-network-traversal": "1.0.0-beta.3",
     "dotenv": "latest"
   }
 }
