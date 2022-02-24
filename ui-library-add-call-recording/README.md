@@ -62,7 +62,7 @@ Once you have these resources setup, you need to update a couple files with auth
   * Enter the [connection string for the Azure Communication Service resource](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/create-communication-resource?tabs=windows&pivots=platform-azp#access-your-connection-strings-and-service-endpoints).
   * Enter the [connection string for the Azure Storage account](https://docs.microsoft.com/en-us/azure/storage/common/storage-configure-connection-string).
   * Enter the name of the Blob Storage container you created.
-* [app/Secrets.ts]
+* [app/src/Secrets.ts](./app/src/Secrets.ts)
   * [Generate a Azure Communication Service user and token](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/identity/quick-create-identity) in your Azure Communication Services resource with VOIP scope and enter the details.
 
 ### Prerequisites - Developement Environment
