@@ -60,8 +60,12 @@ function App(): JSX.Element {
   if (!!callAdapter && !!chatAdapter) {
     return (
       <>
-        <ChatComposite adapter={chatAdapter} />
-        <CallComposite adapter={callAdapter} />
+        <div style={containerStyle}>
+          <ChatComposite adapter={chatAdapter} />
+        </div>
+        <div style={containerStyle}>
+          <CallComposite adapter={callAdapter} />
+        </div>
       </>
     );
   }
@@ -70,5 +74,9 @@ function App(): JSX.Element {
   }
   return <h3>Initializing...</h3>;
 }
+
+const containerStyle = {
+  height: '50%',
+};
 
 export default App;
