@@ -17,6 +17,7 @@ These sample programs show how to use the JavaScript client libraries for Azure 
 | [getRelayConfiguration.js][getrelayconfiguration] | Issue a new Relay configuration |
 | [getRelayConfigurationWithIdentity.js][getrelayconfiguration] | Issue a new Relay configuration |
 | [getRelayConfigurationWithRouteType.js][getrelayconfiguration] | Issue a new Relay configuration |
+| [getRelayConfigurationWithTtl.js][getrelayconfiguration] | Issue a new Relay configuration |
 
 ## Prerequisites
 
