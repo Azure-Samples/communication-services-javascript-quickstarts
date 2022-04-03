@@ -28,7 +28,7 @@ async function main() {
   const relayClient = new CommunicationRelayClient(connectionString);
   console.log("Getting relay configuration");
 
-  const config = await relayClient.getRelayConfiguration(user);
+  const config = await relayClient.getRelayConfiguration({user: user});
   console.log("RelayConfig", config);
 
 }
