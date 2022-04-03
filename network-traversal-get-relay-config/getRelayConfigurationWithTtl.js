@@ -5,8 +5,7 @@
  * @summary Issue a new Relay configuration passing a Communication Identity
  */
 
-const { CommunicationIdentityClient } = require("@azure/communication-identity");
-const { CommunicationRelayClient } = require("@azure/communication-network-traversal");
+const { CommunicationRelayClient, GetRelayConfigurationOptions } = require("@azure/communication-network-traversal");
 
 // Load the .env file if it exists
 const dotenv = require("dotenv");
@@ -19,16 +18,13 @@ const connectionString =
 async function main() {
   console.log("\n== Get Relay configuration Sample ==\n");
 
-  const identityClient = new CommunicationIdentityClient(connectionString);
-
   // Create user
   console.log("Creating User");
-  const user = await identityClient.createUser();
 
   const relayClient = new CommunicationRelayClient(connectionString);
-  console.log("Getting relay configuration");
+  console.log("Getting relay configuration setting a ttl");
 
-  const config = await relayClient.getRelayConfiguration({user: user});
+  const config = await relayClient.getRelayConfiguration({ ttl:4000 });
   console.log("RelayConfig", config);
 
 }
