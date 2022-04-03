@@ -10,18 +10,18 @@ import {
 import React, { useEffect, useMemo, useState } from 'react';
 
 function App(): JSX.Element {
+  // Common variables
   const endpointUrl = '<Azure Communication Services Resource Endpoint>';
   const userId = '<Azure Communication Services Identifier>';
   const displayName = '<Display Name>';
   const token = '<Azure Communication Services Access Token>';
-
-  //Calling Variables
-  //For Group Id, developers can pass any GUID they can generate
+  // Calling Variables
+  // Provide any valid UUID for `groupId`.
   const groupId = '<Developer generated GUID>';
-  const [callAdapter, setCallAdapter] = useState<CallAdapter>();
-
-  //Chat Variables
+  // Chat Variables
   const threadId = '<Get thread id from chat service>';
+
+  const [callAdapter, setCallAdapter] = useState<CallAdapter>();
   const [chatAdapter, setChatAdapter] = useState<ChatAdapter>();
 
   // We can't even initialize the Chat and Call adapters without a well-formed token.
@@ -38,8 +38,8 @@ function App(): JSX.Element {
     const createAdapter = async (): Promise<void> => {
       setChatAdapter(
         await createAzureCommunicationChatAdapter({
-          endpointUrl,
-          userId: { kind: 'communicationUser', communicationUserId: userId },
+          endpoint: endpointUrl,
+          userId: { communicationUserId: userId },
           displayName,
           credential: new AzureCommunicationTokenCredential(token),
           threadId
@@ -47,7 +47,7 @@ function App(): JSX.Element {
       );
       setCallAdapter(
         await createAzureCommunicationCallAdapter({
-          userId: { kind: 'communicationUser', communicationUserId: userId },
+          userId: { communicationUserId: userId },
           displayName,
           credential: new AzureCommunicationTokenCredential(token),
           locator: { groupId }
@@ -60,8 +60,12 @@ function App(): JSX.Element {
   if (!!callAdapter && !!chatAdapter) {
     return (
       <>
-        <ChatComposite adapter={chatAdapter} />
-        <CallComposite adapter={callAdapter} />
+        <div style={containerStyle}>
+          <ChatComposite adapter={chatAdapter} />
+        </div>
+        <div style={containerStyle}>
+          <CallComposite adapter={callAdapter} />
+        </div>
       </>
     );
   }
@@ -70,5 +74,9 @@ function App(): JSX.Element {
   }
   return <h3>Initializing...</h3>;
 }
+
+const containerStyle = {
+  height: '50%',
+};
 
 export default App;
