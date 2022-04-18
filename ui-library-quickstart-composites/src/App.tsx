@@ -11,7 +11,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 function App(): JSX.Element {
   // Common variables
-  const endpointUrl = 'https://acs-demo-1.communication.azure.com';
+  const endpointUrl = 'ENDPOINT_URL';
   const userId = '';
   const displayName = 'User 1';
   const token = '';
