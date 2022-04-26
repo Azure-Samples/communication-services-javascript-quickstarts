@@ -20,6 +20,11 @@ This quickstart sample includes the code that is explained as part of [this docu
 - A User Access Token to instantiate the call client. [Learn how to create and manage user access tokens](https://docs.microsoft.com/azure/communication-services/quickstarts/access-tokens?pivots=programming-language-javascript).
 - Create three ACS Users and issue them a user access token [User Access Token](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/access-tokens?pivots=programming-language-javascript). Be sure to set the scope to chat, and note the token string as well as the userId string. The full demo creates a thread with two initial participants and then adds a third participant to the thread.
 
+## Install the NPM modules
+npm install
+
+## Build the code
+npm build
 
 ## Run the code
 npm run start
