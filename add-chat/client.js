@@ -16,8 +16,8 @@ async function createChatThread() {
     const createChatThreadOptions = {
         participants: [
             {
-                id: { communicationUserId: '8:acs:e8b99949-6ab8-4e24-b8cb-c1ad4e170961_00000011-0695-fee6-2c8a-0848220064bc' },
-                displayName: 'Corey'
+                id: { communicationUserId: '<USER_ID>' },
+                displayName: '<USER_DISPLAY_NAME'
             }
         ]
     };
@@ -73,8 +73,8 @@ createChatThread().then(async threadId => {
     {
         participants: [
             {
-                id: { communicationUserId: '8:acs:e8b99949-6ab8-4e24-b8cb-c1ad4e170961_00000011-06a2-3ddd-740a-113a0d00bd70' },
-                displayName: 'Jane'
+                id: { communicationUserId: '<ANOTHER_USER_ID>' },
+                displayName: '<ANOTHER_USER_DISPLAY_NAME>'
             }
         ]
     };
@@ -87,7 +87,7 @@ createChatThread().then(async threadId => {
     }
 
     // <Remove user from a chat thread>
-    await chatThreadClient.removeParticipant({ communicationUserId: '8:acs:e8b99949-6ab8-4e24-b8cb-c1ad4e170961_00000011-06a2-3ddd-740a-113a0d00bd70' });
+    await chatThreadClient.removeParticipant({ communicationUserId: '<USER_ID>' });
     const users = chatThreadClient.listParticipants();
     for await (const user of users) {
         console.log(`participants in thread available:${user.id.communicationUserId}`);
