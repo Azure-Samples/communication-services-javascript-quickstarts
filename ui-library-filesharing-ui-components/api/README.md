@@ -1,4 +1,4 @@
-# Function App for Uploading Files to Azure Storage
+# UI Library Sample - File Sharing using UI Components (Azure Function)
 
 Please follow the below steps to run the application locally.
 - Run `npm install`

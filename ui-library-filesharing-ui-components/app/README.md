@@ -1,4 +1,4 @@
-# UI Library Components Sample React App
+# UI Library Sample - File Sharing using UI Components (React App)
 
 Please follow the below steps to run this sample app.
 
