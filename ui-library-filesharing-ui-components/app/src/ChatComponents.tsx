@@ -11,71 +11,70 @@ import Form from "form-data";
 import { v4 } from "uuid";
 
 function ChatComponents(): JSX.Element {
-  const messageThreadProps = usePropsFor(MessageThread);
-  const sendBoxProps = usePropsFor(SendBox);
   const allActiveFileUploads = React.useRef<ActiveFileUpload[] | []>([]);
+  const completedFileUploads = React.useRef<FileMetadata[] | []>([]);
   const [files, setFiles] = React.useState<File[] | []>();
   const [activeFileUploads, setActiveFileUploads] = React.useState<
     ActiveFileUpload[] | []
   >([]);
-  const completedFileUploads = React.useRef<FileMetadata[] | []>([]);
+
+  const updateFileUploadProgress = (
+    fileId: string,
+    progress: number,
+    complete: boolean = false
+  ) => {
+    const updatedData = allActiveFileUploads.current.map((active) => {
+      if (active.id === fileId) {
+        return {
+          ...active,
+          progress,
+          uploadComplete: complete,
+        };
+      }
+      return active;
+    });
+    allActiveFileUploads.current = updatedData;
+    setActiveFileUploads(updatedData);
+  };
+
+  const uploadFile = async (file: File): Promise<void> => {
+    const extension = file.name.split(".").pop() || "";
+    const uniqueFileName = `${v4()}-${file.name}`;
+    const data = new Form();
+    data.append("file", file);
+
+    axios
+      .request({
+        method: "post",
+        url: `/api/UploadFileToAzureBlobStore?filename=${uniqueFileName}`,
+        data: data,
+        onUploadProgress: (p) => {
+          updateFileUploadProgress(file.name, p.loaded / p.total);
+        },
+      })
+      .then((res) => {
+        updateFileUploadProgress(file.name, 1, true);
+        completedFileUploads.current = [
+          ...completedFileUploads.current,
+          {
+            name: file.name,
+            extension,
+            url: res.data.url,
+          },
+        ];
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   React.useEffect(() => {
-    const updateFileUploadProgress = (
-      fileId: string,
-      progress: number,
-      complete: boolean = false
-    ) => {
-      const updatedData = allActiveFileUploads.current.map((active) => {
-        if (active.id === fileId) {
-          return {
-            ...active,
-            progress,
-            uploadComplete: complete,
-          };
-        }
-        return active;
-      });
-      allActiveFileUploads.current = updatedData;
-      setActiveFileUploads(updatedData);
-    };
-
-    const uploadFile = async (file: File): Promise<void> => {
-      const extension = file.name.split(".").pop() || "";
-      const uniqueFileName = `${v4()}-${file.name}`;
-      const data = new Form();
-      data.append("file", file);
-
-      axios
-        .request({
-          method: "post",
-          url: `/api/UploadFileToAzureBlobStore?filename=${uniqueFileName}`,
-          data: data,
-          onUploadProgress: (p) => {
-            updateFileUploadProgress(file.name, p.loaded / p.total);
-          },
-        })
-        .then((res) => {
-          updateFileUploadProgress(file.name, 1, true);
-          completedFileUploads.current = [
-            ...completedFileUploads.current,
-            {
-              name: file.name,
-              extension,
-              url: res.data.url,
-            },
-          ];
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    };
-
     if (files?.length) {
       files.forEach((file) => {
         uploadFile(file);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [files]);
 
   const onChange = (files: FileList | null) => {
@@ -89,9 +88,11 @@ function ChatComponents(): JSX.Element {
     setActiveFileUploads(allActiveFileUploads.current);
   };
 
+  const messageThreadProps = usePropsFor(MessageThread);
+  const sendBoxProps = usePropsFor(SendBox);
+
   return (
     <div style={{ height: "100%", width: "100%" }}>
-      {/*Props are updated asynchronously, so only render the component once props are populated.*/}
       {messageThreadProps && <MessageThread {...messageThreadProps} />}
       {sendBoxProps && (
         <SendBox
@@ -106,7 +107,9 @@ function ChatComponents(): JSX.Element {
           onSendMessage={async (message: string) => {
             sendBoxProps.onSendMessage(message, {
               metadata: {
-                fileSharingMetadata: JSON.stringify(completedFileUploads.current),
+                fileSharingMetadata: JSON.stringify(
+                  completedFileUploads.current
+                ),
               },
             });
 
