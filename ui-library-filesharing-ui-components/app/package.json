@@ -6,10 +6,13 @@
     "@azure/communication-calling": "^1.4.4",
     "@azure/communication-chat": "^1.1.0",
     "@azure/communication-react": "^1.2.2-alpha-202204230012.0",
+    "axios": "^0.26.0",
+    "form-data": "^4.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
     "typescript": "^4.6.3",
+    "uuid": "^8.3.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -37,12 +40,15 @@
     ]
   },
   "devDependencies": {
-    "@types/react-dom": "^17.0.15",
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.1.1",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/axios": "^0.14.0",
+    "@types/form-data": "^2.5.0",
     "@types/jest": "^27.4.1",
     "@types/node": "^16.11.29",
     "@types/react": "^17.0.30",
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.1.1",
-    "@testing-library/user-event": "^13.5.0"
+    "@types/react-dom": "^17.0.15",
+    "@types/uuid": "^8.3.4"
   }
 }

@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "swa start app/build --api-location ./api",
+    "start:dev": "swa start http://localhost:3000 --api-location http://localhost:7071",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Anjul Garg <anjulgarg@live.com>",
