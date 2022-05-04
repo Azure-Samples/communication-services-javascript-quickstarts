@@ -1,0 +1,18 @@
+{
+  "name": "ui-library-filesharing-ui-components",
+  "version": "1.0.0",
+  "description": "A quickstart sample showcasing the implementation of file sharing using UI components",
+  "scripts": {
+    "start": "swa start app/build --api-location ./api",
+    "start:dev": "swa start http://localhost:3000 --api-location http://localhost:7071",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@azure/static-web-apps-cli": "^0.8.3",
+    "azure-functions-core-tools": "^4.0.4483"
+  },
+  "prettier": {
+    "printWidth": 120
+  }
+}
