@@ -17,7 +17,7 @@ async function createChatThread() {
         participants: [
             {
                 id: { communicationUserId: '<USER_ID>' },
-                displayName: '<USER_DISPLAY_NAME'
+                displayName: '<USER_DISPLAY_NAME>'
             }
         ]
     };
