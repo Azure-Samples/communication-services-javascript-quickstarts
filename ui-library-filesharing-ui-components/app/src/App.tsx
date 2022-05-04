@@ -35,12 +35,10 @@ function App(): JSX.Element {
     credential: tokenCredential,
   });
 
-  // Listen to notifications
   statefulChatClient.startRealtimeNotifications();
 
   const chatThreadClient = statefulChatClient.getChatThreadClient(threadId);
-  // Fetch thread properties, participants etc.
-  // Past messages are fetched as needed when the user scrolls to them.
+
   initializeThreadState(chatThreadClient);
 
   return (
