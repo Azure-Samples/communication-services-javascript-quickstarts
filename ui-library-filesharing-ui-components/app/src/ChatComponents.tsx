@@ -12,7 +12,9 @@ function ChatComponents(): JSX.Element {
   // We use a ref variable to keep a track of all the completed file uploads since a ref variable preserves it's state
   // across re-renders.
   const completedFileUploads = React.useRef<FileMetadata[] | []>([]);
+  // Tracks the files selected by the file input.
   const [files, setFiles] = React.useState<File[] | []>();
+  // Tracks the progress of the file uploads. Passed to SendBox component for driving file upload UI.
   const [activeFileUploads, setActiveFileUploads] = React.useState<ActiveFileUpload[]>([]);
 
   const messageThreadProps = usePropsFor(MessageThread);
@@ -64,6 +66,7 @@ function ChatComponents(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [files]);
 
+  // Triggered whenever new files are selected by the file input.
   const onChange = (files: FileList | null) => {
     if (!files) return;
     setFiles(Array.from(files));
