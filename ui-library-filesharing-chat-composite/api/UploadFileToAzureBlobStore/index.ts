@@ -7,16 +7,18 @@ import HTTP_CODES from 'http-status-enum';
 const azureStorageConnectionString = process.env['azureStorageConnectionString'];
 let storageAccountName;
 try {
-  console.log("****"+azureStorageConnectionString);
   storageAccountName = azureStorageConnectionString.match(/AccountName=([^;]+)/)[1];
 } catch {
-  console.warn('Azure storage connection string not provided');
+  console.error('Failed to parse Azure storage name from connection string');
 }
-const fileSharingUploadsContainerName = 'uploads'; // Must be in storage path value in function.json
+
+// Name of the container in Azure Storage to store all files in.
+// Make sure that this name matches the value in the 'function.json' file.
+const fileSharingUploadsContainerName = 'uploads';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<any> {
-  context.log('HTTP trigger function processed a request to upload a file to azure blob store.');
+const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<unknown> {
+  context.log('UploadFileToAzureBlobStore: Processing new request.');
 
   if (!req.body || !req.body.length) {
     context.res.body = { error: `Request body is not defined` };
@@ -24,7 +26,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     return;
   }
 
-  // `filename` is required property to use multi-part npm package
+  // `filename` is required property to correctly upload the file in the provided storage
   if (!req.query?.filename) {
     context.res.body = { error: `filename is not defined` };
     context.res.status = HTTP_CODES.BAD_REQUEST;
@@ -60,10 +62,11 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     }
 
     // filename is a required property of the parse-multipart package
-    if (parts[0]?.filename) console.log(`Original filename = ${parts[0]?.filename}`);
-    if (parts[0]?.type) console.log(`Content type = ${parts[0]?.type}`);
-    if (parts[0]?.data?.length) console.log(`Size = ${parts[0]?.data?.length}`);
-    // Passed to Storage
+    if (parts[0]?.filename) context.log(`Original filename = ${parts[0]?.filename}`);
+    if (parts[0]?.type) context.log(`Content type = ${parts[0]?.type}`);
+    if (parts[0]?.data?.length) context.log(`Size = ${parts[0]?.data?.length}`);
+
+    // Any data assigned to this binding is uploaded to azure storage by the output variable binding.
     context.bindings.storage = parts[0]?.data;
     
     context.res.body = {
