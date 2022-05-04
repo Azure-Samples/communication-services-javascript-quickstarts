@@ -38,12 +38,8 @@
     ]
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.1.1",
-    "@testing-library/user-event": "^13.5.0",
     "@types/axios": "^0.14.0",
     "@types/form-data": "^2.5.0",
-    "@types/jest": "^27.4.1",
     "@types/node": "^16.11.29",
     "@types/react": "^17.0.30",
     "@types/react-dom": "^17.0.15",
