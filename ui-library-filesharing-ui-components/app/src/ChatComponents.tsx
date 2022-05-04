@@ -4,7 +4,7 @@ import axios from "axios";
 import Form from "form-data";
 import { v4 } from "uuid";
 
-function ChatComponents(): JSX.Element {
+export default function ChatComponents(): JSX.Element {
   // We use a ref variable to keep a track of all the active file uploads and their progress.
   // Since a ref variable preserves it's value across re-renders, it ensures that modifying the progress of one file upload
   // doesn't overwrite the other file uploads.
@@ -119,8 +119,6 @@ function ChatComponents(): JSX.Element {
     </div>
   );
 }
-
-export default ChatComponents;
 
 const updateProgressForOneFile = (
   allActiveFileUploads: ActiveFileUpload[],
