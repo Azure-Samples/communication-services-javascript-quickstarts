@@ -25,6 +25,11 @@ function ChatComponents(): JSX.Element {
     setActiveFileUploads(allActiveFileUploads.current);
   };
 
+  const completeFileUpload = (fileId: string, fileMetadata: FileMetadata) => {
+    updateFileUploadProgress(fileId, 1, true);
+    completedFileUploads.current = [...completedFileUploads.current, fileMetadata];
+  };
+
   const uploadFile = async (file: File): Promise<void> => {
     const extension = file.name.split(".").pop() || "";
     const uniqueFileName = `${v4()}-${file.name}`;
@@ -41,15 +46,7 @@ function ChatComponents(): JSX.Element {
         },
       })
       .then((res) => {
-        updateFileUploadProgress(file.name, 1, true);
-        completedFileUploads.current = [
-          ...completedFileUploads.current,
-          {
-            name: file.name,
-            extension,
-            url: res.data.url,
-          },
-        ];
+        completeFileUpload(file.name, { name: file.name, extension, url: res.data.url });
       })
       .catch((err) => {
         console.log(err);
