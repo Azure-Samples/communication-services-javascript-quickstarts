@@ -1,6 +1,6 @@
 # Azure Communication Services application with file sharing
 
-This is a complete sample showcasing integration of [file sharing][file-sharing-quickstart] feature
+This is a complete sample showcasing integration of file sharing feature
 into an [Azure Communication Services][docs-root] powered [React] application.
 
 For a step-by-step guide to building this sample yourself, see the associated tutorial at MSDN.
@@ -11,7 +11,7 @@ This sample includes:
 * A React frontend built using the UI chat composite provided by the [Azure Communication Services UI library][docs-ui-library].
 * Backend API for call recording integration built using [Typescript Azure Functions][typesctipt-azure-functions].
 
-[file-sharing-quickstart]:
+
 [docs-root]: https://docs.microsoft.com/en-us/azure/communication-services/
 [docs-ui-library]: https://azure.github.io/communication-ui-library/
 [typesctipt-azure-functions]: https://docs.microsoft.com/en-us/azure/azure-functions/create-first-function-vs-code-typescript
