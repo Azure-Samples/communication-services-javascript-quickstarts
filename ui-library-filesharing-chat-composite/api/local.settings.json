@@ -1,0 +1,12 @@
+{
+    "IsEncrypted": false,
+    "Values": {
+      "FUNCTIONS_WORKER_RUNTIME": "node",
+      "azureStorageConnectionString": "<CONNECTION_STRING>"
+    },
+    "Host": {
+      "LocalHttpPort": 7071,
+      "CORS": "*",
+      "CORSCredentials": false
+    }
+  }
