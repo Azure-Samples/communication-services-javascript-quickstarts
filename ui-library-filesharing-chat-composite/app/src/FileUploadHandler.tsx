@@ -26,7 +26,7 @@ const fileUploadHandler: FileUploadHandler = (userId: string, fileUploads: FileU
       axios
         .request({
           method: 'post',
-          url: `http://localhost:7071/api/UploadFileToAzureBlobStore?filename=${uniqueFileName}`,
+          url: `/api/UploadFileToAzureBlobStore?filename=${uniqueFileName}`,
           data: formData,
           headers: {
             'Content-Type': `multipart/form-data`,
@@ -45,7 +45,7 @@ const fileUploadHandler: FileUploadHandler = (userId: string, fileUploads: FileU
           });
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
           fileUpload.notifyUploadFailed('Unable to upload file. Please try again later.');
         });
     }

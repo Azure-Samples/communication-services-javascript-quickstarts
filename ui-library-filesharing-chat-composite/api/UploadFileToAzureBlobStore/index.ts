@@ -67,6 +67,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     if (parts[0]?.data?.length) context.log(`Size = ${parts[0]?.data?.length}`);
 
     // Any data assigned to this binding is uploaded to azure storage by the output variable binding.
+    // only parts[0].data is accessed as only one file is uploaded per request, other parts are never populated.
     context.bindings.storage = parts[0]?.data;
     
     context.res.body = {

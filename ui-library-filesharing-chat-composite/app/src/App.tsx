@@ -46,12 +46,11 @@ function App(): JSX.Element {
 
   if (!!chatAdapter) {
     return (
-
       <div style={containerStyle} >
         <ChatComposite adapter={chatAdapter}
         options={{
           fileSharing: {
-            uploadHandler: (userId, fileUploads) => fileUploadHandler(userId, fileUploads),
+            uploadHandler: fileUploadHandler,
             downloadHandler: fileDownloadHandler,
             multiple: true
           }
