@@ -1,0 +1,6 @@
+Testing of JS sample attachments!
+
+If you are reading this, that means your application is running successfully.
+
+
+Cheers...
