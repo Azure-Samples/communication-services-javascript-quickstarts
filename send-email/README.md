@@ -14,7 +14,7 @@ products:
 ## Overview
 
 This is a sample email application to show how we can use the `@azure/communication-email` package to build an email experience.
-This sample sends an email to the required recipients of any domain using an [Email Communication Services resource](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/email/create-email-communication-resource).
+This sample sends an email to the selected recipients of any domain using an [Email Communication Services resource](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/email/create-email-communication-resource).
 This is a console application built using Node.js 14.
 
 Additional documentation for this sample can be found on [Microsoft Docs](https://docs.microsoft.com/en-us/azure/communication-services/concepts/email/email-overview).
@@ -43,7 +43,7 @@ Additional documentation for this sample can be found on [Microsoft Docs](https:
 
 ### Locally configuring the application
 
-3. Open the send-email.js file to configure the following settings
+3. Open the send-email.js file to configure the following settings:
   - `connectionstring`: Replace `<ACS_CONNECTION_STRING>` with the connection string found within the Azure Communication Service resource.
   - `sender`: Replace `<SENDER_EMAIL>` with the sender email obtained from Azure Communication Service.
   - `recipient`: Replace `<RECIPIENT_EMAIL>` with the recipient email.
