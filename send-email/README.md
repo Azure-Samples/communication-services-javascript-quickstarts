@@ -43,7 +43,7 @@ Additional documentation for this sample can be found on [Microsoft Docs](https:
 
 ### Locally configuring the application
 
-2. Open the send-email.js file to configure the following settings
+3. Open the send-email.js file to configure the following settings
   - `connectionstring`: Replace `<ACS_CONNECTION_STRING>` with Azure Communication Service resource's connection string.
   - `sender`: Replace `<SENDER_EMAIL>` with sender email obtained from Azure Communication Service.
   - `Line 13 - <RECIPIENT_EMAIL>`: Replace with recipient email.
@@ -51,7 +51,6 @@ Additional documentation for this sample can be found on [Microsoft Docs](https:
 
 ### Local run
 
-    - update the connection string, sender email, recipient's email.
     - `npm install` from the root directory
     - `npm start` from the root directory
 
