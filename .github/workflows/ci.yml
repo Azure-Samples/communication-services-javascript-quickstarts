@@ -1,4 +1,4 @@
-name: '1-on-1 voice call CI'
+name: '1-on-1 voice calling CI'
 
 # Controls when the workflow will run
 on:
