@@ -35,6 +35,8 @@ You need a few Azure resources before running this sample locally.
 * An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
 * An identity with Chat scope. Generate an identity using the [Azure Portal](https://docs.microsoft.com/azure/communication-services/quickstarts/identity/quick-create-identity).
 * [Azure Storage Account](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-overview)
+* [Azure Blob Storage](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-nodejs)
+  * For using azure storage in production environments, please follow the [azure storage application architecture guide](https://docs.microsoft.com/en-us/azure/architecture/guide/multitenant/service/storage) 
 
 ### Prerequisites -- Configuration
 

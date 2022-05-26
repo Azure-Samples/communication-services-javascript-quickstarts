@@ -32,7 +32,7 @@ const fileUploadHandler: FileUploadHandler = async (
       continue;
     }
 
-    const uniqueFileName = `${v4()}-${fileUpload.file?.name}`;
+    const uniqueFileName = `${userId}-${v4()}-${fileUpload.file?.name}`;
     const formData = new FormData();
     formData.append("file", fileUpload.file, fileUpload.file?.name);
 
