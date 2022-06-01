@@ -7,7 +7,7 @@ import {
   useAzureCommunicationChatAdapter
 } from '@azure/communication-react';
 import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
-import { nanoid } from 'nanoid';
+import { v4 as uuidv4 } from 'uuid';
 import { ChatClient } from '@azure/communication-chat';
 
 /**
@@ -137,7 +137,7 @@ function useAzureCommunicationServiceArgs(): {
 
   // For the quickstart, generate a random group ID.
   // The group Id must be a UUID.
-  const groupId = useRef(nanoid());
+  const groupId = useRef(uuidv4());
 
   return {
     endpointUrl: ENDPOINT_URL,
