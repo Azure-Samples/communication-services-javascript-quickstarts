@@ -6,7 +6,7 @@ import {
   useAzureCommunicationCallAdapter,
   useAzureCommunicationChatAdapter
 } from '@azure/communication-react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 import { nanoid } from 'nanoid';
 import { ChatClient } from '@azure/communication-chat';
 
@@ -79,11 +79,11 @@ function App(): JSX.Element {
 
   if (!!callAdapter && !!chatAdapter) {
     return (
-      <div style={{ height: '100vh', display: 'flex' }}>
-        <div style={{ width: '50vw' }}>
+      <div style={{ height: '100vh', display: 'flex'}}>
+        <div style={containerStyle}>
           <ChatComposite adapter={chatAdapter} />
         </div>
-        <div style={{ width: '50vw' }}>
+        <div style={containerStyle}>
           <CallComposite adapter={callAdapter} />
         </div>
       </div>
@@ -95,6 +95,11 @@ function App(): JSX.Element {
   return <h3>Initializing...</h3>;
 }
 
+const containerStyle: CSSProperties = {
+  border: 'solid 0.125rem olive',
+  margin: '0.5rem',
+  width: '50vw',
+};
 /**
  * This hook returns all the arguments required to use the Azure Communication services
  * that would be provided by your backend service after user authentication
@@ -109,7 +114,6 @@ function useAzureCommunicationServiceArgs(): {
   threadId: string;
 } {
   const [threadId, setThreadId] = useState('');
-
   // For the quickstart, create a new thread with just the local participant in it.
   useEffect(() => {
     (async () => {
@@ -131,12 +135,16 @@ function useAzureCommunicationServiceArgs(): {
     })();
   }, []);
 
+  // For the quickstart, generate a random group ID.
+  // The group Id must be a UUID.
+  const groupId = useRef(nanoid());
+
   return {
     endpointUrl: ENDPOINT_URL,
     userId: USER_ID,
     token: TOKEN,
     displayName: DISPLAY_NAME,
-    groupId: nanoid(),
+    groupId: groupId.current,
     threadId
   };
 }
