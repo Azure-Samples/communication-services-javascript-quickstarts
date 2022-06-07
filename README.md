@@ -1,10 +1,10 @@
 # Azure Communication Services Web (JS) SDK
 
-Azure Communication Services enable developers to add communication capabilities to their applications. 
+Azure Communication Services enable developers to add communication capabilities to their applications.
 
 ## Prerequisites
 
-- Create an Azure account with an active subscription. For details, see [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F). 
+- Create an Azure account with an active subscription. For details, see [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
 - Install [Node.js](https://nodejs.org/en/download/) Active LTS and Maintenance LTS versions (8.11.1 and 10.14.1 recommended).
 - Create an Azure Communication Services resource. For details, see [Create an Azure Communication Resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource?tabs=windows&pivots=platform-azp).
 
@@ -35,3 +35,5 @@ Azure Communication Services enable developers to add communication capabilities
 12. [Get Started with Chat Stateful Client](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-statefulclient--page)
 
 13. [Get Started with Call Stateful Client](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-statefulclient--page)
+
+14. [Send Email](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/email/send-email?pivots=programming-language-javascript)
