@@ -10,11 +10,11 @@ const toRecipients = {
 const fs = require("fs");
 
 // for pdf file attachment
-pdfAttachmentPath = __dirname+'\\'+`attachment.pdf`;
+pdfAttachmentPath = __dirname + "\\attachment.pdf";
 pdfAttachmentContent = fs.readFileSync(pdfAttachmentPath).toString("base64");
 
 // for text file attachment
-txtAttachmentPath = __dirname + "\\" + `attachment.txt`;
+txtAttachmentPath = __dirname + "\\attachment.txt";
 txtAttachmentContent = fs.readFileSync(txtAttachmentPath).toString("base64");
 
 const emailAttachments = [
@@ -46,9 +46,10 @@ async function main() {
     const emailMessage = {
       sender: sender,
       content: emailContent,
+      importance: 'normal',
       recipients: toRecipients,
-        attachments: emailAttachments,
-    };
+      attachments: emailAttachments,
+      };
 
     const sendResult = await client.send(emailMessage);
 

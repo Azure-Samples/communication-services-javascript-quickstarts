@@ -21,6 +21,7 @@ async function main() {
     const emailMessage = {
       sender: sender,
       content: emailContent,
+      importance: 'high',
       recipients: toRecipients,
     };
 
