@@ -122,8 +122,10 @@ const generateSASUrl = async (
     fileSharingUploadsContainerName
   );
   const blobClient = blobContainerClient.getBlobClient(filename);
+  const expiresOn = new Date();
+  expiresOn.setSeconds(expiresOn.getSeconds() + expiresInSeconds);
   const url = await blobClient.generateSasUrl({
-    expiresOn: new Date(Date.now() + expiresInSeconds),
+    expiresOn: expiresOn,
     permissions: BlobSASPermissions.parse("r"), // Read only permission to the blob
     protocol: SASProtocol.Https, // Only allow HTTPS access to the blob
   });
