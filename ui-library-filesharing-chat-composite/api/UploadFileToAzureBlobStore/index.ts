@@ -1,8 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import * as multipart from "parse-multipart";
+import {
+  BlobSASPermissions,
+  BlobServiceClient,
+  SASProtocol,
+} from "@azure/storage-blob";
 import HTTP_CODES from "http-status-enum";
+import * as multipart from "parse-multipart";
 
 const azureStorageConnectionString =
   process.env["azureStorageConnectionString"];
@@ -32,8 +37,10 @@ const httpTrigger: AzureFunction = async function (
     return;
   }
 
+  const filename = req.query?.filename;
+
   // `filename` is required property to correctly upload the file in the provided storage
-  if (!req.query?.filename) {
+  if (!filename) {
     context.res.body = { error: `filename is not defined` };
     context.res.status = HTTP_CODES.BAD_REQUEST;
     return;
@@ -49,7 +56,7 @@ const httpTrigger: AzureFunction = async function (
   }
 
   context.log(
-    `*** Uploading Filename:${req.query?.filename}, Content type:${req.headers["content-type"]}, Length:${req.body.length}`
+    `*** Uploading Filename:${filename}, Content type:${req.headers["content-type"]}, Length:${req.body.length}`
   );
 
   if (!azureStorageConnectionString) {
@@ -82,10 +89,10 @@ const httpTrigger: AzureFunction = async function (
     context.bindings.storage = parts[0]?.data;
 
     context.res.body = {
-      filename: req.query?.filename,
+      filename: filename,
       storageAccountName,
       fileSharingUploadsContainerName,
-      url: `https://${storageAccountName}.blob.core.windows.net/${fileSharingUploadsContainerName}/${req.query?.filename}`,
+      url: await generateSASUrl(filename),
     };
     return;
   } catch (err) {
@@ -96,6 +103,31 @@ const httpTrigger: AzureFunction = async function (
     context.res.status = HTTP_CODES.INTERNAL_SERVER_ERROR;
     return;
   }
+};
+
+/**
+ * Utility method for generating a secure shortlived SAS URI for a blob.
+ * To know more about SAS URIs, see: https://docs.microsoft.com/en-us/azure/storage/common/storage-sas-overview
+ * @param filename - string
+ * @param expiresInSeconds - Default is 1 hour
+ */
+const generateSASUrl = async (
+  filename: string,
+  expiresInSeconds = 1 * 60 * 60
+) => {
+  const blobServiceClient = BlobServiceClient.fromConnectionString(
+    azureStorageConnectionString
+  );
+  const blobContainerClient = blobServiceClient.getContainerClient(
+    fileSharingUploadsContainerName
+  );
+  const blobClient = blobContainerClient.getBlobClient(filename);
+  const url = await blobClient.generateSasUrl({
+    expiresOn: new Date(Date.now() + expiresInSeconds),
+    permissions: BlobSASPermissions.parse("r"), // Read only permission to the blob
+    protocol: SASProtocol.Https, // Only allow HTTPS access to the blob
+  });
+  return url;
 };
 
 export default httpTrigger;
