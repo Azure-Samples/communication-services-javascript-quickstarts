@@ -106,8 +106,8 @@ const httpTrigger: AzureFunction = async function (
 };
 
 /**
- * Utility method for generating a secure shortlived SAS URI for a blob.
- * To know more about SAS URIs, see: https://docs.microsoft.com/en-us/azure/storage/common/storage-sas-overview
+ * Utility method for generating a secure shortlived SAS URL for a blob.
+ * To know more about SAS URLs, see: https://docs.microsoft.com/en-us/azure/storage/common/storage-sas-overview
  * @param filename - string
  * @param expiresInSeconds - Default is 1 hour
  */
