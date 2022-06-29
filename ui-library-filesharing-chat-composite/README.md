@@ -1,3 +1,12 @@
+---
+page_type: sample
+languages:
+- javascript
+products:
+- azure
+- azure-communication-services
+---
+
 # UI Library Sample - File Sharing using UI Chat Composite
 
 This is a complete sample showcasing integration of file sharing feature
