@@ -1,0 +1,10 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "webpack",
+            "command": "(cd ./App && npm run webpack)",
+            "type": "shell"
+        }
+    ]
+}
