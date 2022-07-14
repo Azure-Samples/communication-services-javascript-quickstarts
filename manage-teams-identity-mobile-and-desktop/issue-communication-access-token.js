@@ -1,12 +1,14 @@
+
+require('dotenv').config({path: __dirname + '/.env' })
 const { CommunicationIdentityClient } = require('@azure/communication-identity');    
 const { PublicClientApplication, CryptoProvider } = require('@azure/msal-node');
 const express = require("express");
 
-// You will need to set environment variables and edit the following values
-const SERVER_PORT = process.env.PORT || 80;
+// You will need to set environment variables in .env
+const SERVER_PORT = process.env['SERVER_PORT'] || 80;
 const REDIRECT_URI = `http://localhost:${SERVER_PORT}/redirect`;
-const clientId = "<contoso_application_id>";
-const tenantId = "<contoso_tenant_id>"; 
+const clientId = process.env['AAD_CLIENT_ID'];
+const tenantId = process.env['AAD_TENANT_ID'];
 
 // Create configuration object that will be passed to MSAL instance on creation.
 const msalConfig = {
@@ -23,6 +25,10 @@ const provider = new CryptoProvider();
 const app = express();
 
 let pkceVerifier = "";
+const scopes = [
+            "https://auth.msft.communication.azure.com/Teams.ManageCalls",
+            "https://auth.msft.communication.azure.com/Teams.ManageChats"
+        ];
 
 app.get('/', async (req, res) => {
     // Generate PKCE Codes before starting the authorization flow
@@ -30,10 +36,7 @@ app.get('/', async (req, res) => {
     pkceVerifier = verifier;
     
     const authCodeUrlParameters = {
-        scopes: [
-            "https://auth.msft.communication.azure.com/Teams.ManageCalls",
-            "https://auth.msft.communication.azure.com/Teams.ManageChats"
-        ],
+        scopes: scopes,
         redirectUri: REDIRECT_URI,
         codeChallenge: challenge, 
         codeChallengeMethod: "S256"
@@ -48,10 +51,7 @@ app.get('/redirect', async (req, res) => {
     // Create request parameters object for acquiring the AAD token and object ID of a Teams user
     const tokenRequest = {
         code: req.query.code,
-        scopes: [
-            "https://auth.msft.communication.azure.com/Teams.ManageCalls",
-            "https://auth.msft.communication.azure.com/Teams.ManageChats"
-        ],
+        scopes: scopes,
         redirectUri: REDIRECT_URI,
         codeVerifier: pkceVerifier,
     };
