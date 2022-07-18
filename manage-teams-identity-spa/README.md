@@ -20,7 +20,7 @@ The server part of the sample is based on [Express.js](https://expressjs.com/) a
 
 - An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
 - Node.js [Active LTS version](https://nodejs.org/en/about/releases/)
-- An active Communication Services resource and connection string. Create a Communication Services resource.
+- An active Communication Services resource and connection string. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource/).
 - Azure Active Directory tenant with users that have a Teams license.
 
 ## Before running sample code
