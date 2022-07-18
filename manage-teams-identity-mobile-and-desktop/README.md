@@ -13,7 +13,7 @@ This code sample walks you through the process of acquiring a Communication Toke
 
 This sample application utilizes the [MSAL.js v2.0](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-node) (`msal-node`) package for authentication against the Azure AD and acquisition of a token with delegated permissions and [Express.js](https://expressjs.com/). The token exchange itself is facilitated by the `@azure/communication-identity` package.
 
-The initialization of a Communication credential object that can be used for Calling is achieved by the `@azure/communication-common` package.
+To be able to use the token for Calling, use it to initialize the `AzureCommunicationTokenCredential` from the `@azure/communication-common` package.
 
 ## Prerequisites
 
@@ -52,4 +52,4 @@ From a console prompt, navigate to the directory containing the `issue-communica
 1. `npm i` to install the dependencies
 2. `node ./issue-communication-access-token.js`
 
-Open your browser and navigate to `http://localhost:<PORT>/`. You should be navigated to a standard OAuth flow with Microsoft Authentication Library (MSAL). If authentication is successful, the application receives an Azure AD access token and will be redirected to `http://localhost:<PORT>/redirect` where the Azure AD access token will be exchanged for a Communication access token.
+Open your browser and navigate to `http://localhost:<PORT>/`. You will be presented with the Azure AD login form. If the authentication is successful, the application receives an Azure AD access token through a callback URI `http://localhost:<PORT>/redirect`, where the exchange for a Communication access token will also take place.
