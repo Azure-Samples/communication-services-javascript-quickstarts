@@ -1,0 +1,46 @@
+{
+  "name": "exchange-teams-token-server",
+  "version": "1.0.0",
+  "description": "A single-page application secured with MSAL.js allowing users to exchange Teams tokens for Communication access tokens.",
+  "main": "server.js",
+  "scripts": {
+    "start": "npm run webpack && node server.js",
+    "dev": "npm run webpack &&  nodemon server.js",
+    "debug": "npm run webpack &&  nodemon server.js",
+    "postinstall": "(cd ./App && npm install)",
+    "webpack": "(cd ./App && npm run webpack)"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git"
+  },
+  "keywords": [
+    "javascript",
+    "msal",
+    "authorization code",
+    "authentication",
+    "microsoft",
+    "ms-identity",
+    "single-page-app",
+    "azure-communication-services",
+    "communication-identity"
+  ],
+  "author": "derisen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Azure-Samples/communication-services-javascript-quickstarts/issues"
+  },
+  "homepage": "https://github.com/Azure-Samples/communication-services-javascript-quickstarts/exchange-teams-token#readme",
+  "dependencies": {
+    "@azure/communication-identity": "1.1.0",
+    "@azure/msal-browser": "^2.26.0",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "express-jwt": "^7.7.5",
+    "jwks-rsa": "^2.1.4",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.18"
+  }
+}
