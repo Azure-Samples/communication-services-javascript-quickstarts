@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@azure/functions": "^3.0.0",
+    "@azure/storage-blob": "^12.10.0",
     "http-status-enum": "^1.0.2",
     "parse-multipart": "^1.0.4"
   },

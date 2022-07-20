@@ -22,18 +22,20 @@ Azure Communication Services enable developers to add communication capabilities
 
 6. [Create and manage access tokens](https://docs.microsoft.com/azure/communication-services/quickstarts/access-tokens?pivots=programming-language-javascript)
 
-7. [Join your calling app to a Teams meeting](https://docs.microsoft.com/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-interop?pivots=platform-web)
+7. [Set up and manage access tokens for Teams users](https://docs.microsoft.com/azure/communication-services/quickstarts/manage-teams-identity?pivots=programming-language-javascript)
 
-8. [Call To Phone](https://docs.microsoft.com/azure/communication-services/quickstarts/voice-video-calling/pstn-call?pivots=platform-web)
+8. [Join your calling app to a Teams meeting](https://docs.microsoft.com/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-interop?pivots=platform-web)
 
-9. [Use managed identities](https://docs.microsoft.com/azure/communication-services/quickstarts/managed-identity?pivots=programming-language-javascript)
+9. [Call To Phone](https://docs.microsoft.com/azure/communication-services/quickstarts/voice-video-calling/pstn-call?pivots=platform-web)
 
-10. [Get Started with UI Components](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-uicomponents--page)
+10. [Use managed identities](https://docs.microsoft.com/azure/communication-services/quickstarts/managed-identity?pivots=programming-language-javascript)
 
-11. [Get Started with Composites](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-composites--page)
+11. [Get Started with UI Components](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-uicomponents--page)
 
-12. [Get Started with Chat Stateful Client](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-statefulclient--page)
+12. [Get Started with Composites](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-composites--page)
 
-13. [Get Started with Call Stateful Client](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-statefulclient--page)
+13. [Get Started with Chat Stateful Client](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-statefulclient--page)
 
-14. [Send Email](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/email/send-email?pivots=programming-language-javascript)
+14. [Get Started with Call Stateful Client](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-statefulclient--page)
+
+15. [Send Email](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/email/send-email?pivots=programming-language-javascript)
