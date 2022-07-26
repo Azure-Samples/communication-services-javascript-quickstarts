@@ -34,8 +34,8 @@ Azure Communication Services enable developers to add communication capabilities
 
 12. [Get Started with Composites](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-composites--page)
 
-13. [Get Started with Chat Stateful Client](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-statefulclient--page)
+13. [Get Started with Chat Stateful Client](https://azure.github.io/communication-ui-library/?path=/docs/quickstarts-statefulchatclient--page)
 
-14. [Get Started with Call Stateful Client](https://azure.github.io/communication-ui-library/?path=/story/quickstarts-statefulclient--page)
+14. [Get Started with Call Stateful Client](https://azure.github.io/communication-ui-library/?path=/docs/quickstarts-statefulcallclient--page)
 
 15. [Send Email](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/email/send-email?pivots=programming-language-javascript)
