@@ -3,7 +3,7 @@ const { RoomsClient } = require("@azure/communication-rooms");
 const { CommunicationIdentityClient } = require("@azure/communication-identity");
 
 export async function main() {
-  const connectionString = "<insert-connecction-string>";
+  const connectionString = "<insert-connection-string>";
   const identityClient = new CommunicationIdentityClient(connectionString);
   const user1 = await identityClient.createUserAndToken(["voip"]);
   const user2 = await identityClient.createUserAndToken(["voip"]);
@@ -32,14 +32,14 @@ export async function main() {
   console.log(`Created Room`);
 
   // retrieves the room with corresponding ID
-  const getRoom = await roomsClient.getRoom(roomId);
+  await roomsClient.getRoom(roomId);
   console.log(`Retrieved Room with ID ${roomId}`);
   
   validFrom.setTime(validUntil.getTime());
   validUntil.setTime(validFrom.getTime() + 5 * 60 * 1000);
 
   // request payload to update a room
-  const updateRoomRequest = {
+  const updateRoomOptions = {
     validFrom: validFrom,
     validUntil: validUntil,
     roomJoinPolicy: "CommunicationServiceUsers",
@@ -52,7 +52,7 @@ export async function main() {
   };
 
   // updates the specified room with the request payload
-  const updateRoom = await roomsClient.updateRoom(roomId, updateRoomRequest);
+  await roomsClient.updateRoom(roomId, updateRoomOptions);
   console.log(`Updated Room`);
 
   // request payload to add participants
@@ -65,7 +65,6 @@ export async function main() {
 
   // add user2 to the room with the request payload
   await roomsClient.addParticipants(roomId, addParticipantsList);
-  const addParticipants = await roomsClient.getParticipants(roomId);
   console.log(`Added Participants`);
   
   // request payload to update user1 with a new role
