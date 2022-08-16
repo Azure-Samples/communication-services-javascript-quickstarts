@@ -1,6 +1,5 @@
-import { usePropsFor, VideoGallery, ControlBar, CameraButton, MicrophoneButton, ScreenShareButton, EndCallButton } from '@azure/communication-react';
+import { usePropsFor, VideoGallery, ControlBar, CameraButton, MicrophoneButton, ScreenShareButton, EndCallButton, useCall } from '@azure/communication-react';
 import { mergeStyles, Stack } from '@fluentui/react';
-import React, { useCallback, useState } from 'react';
 
 function CallingComponents(): JSX.Element {
 
@@ -10,14 +9,9 @@ function CallingComponents(): JSX.Element {
   const screenShareProps = usePropsFor(ScreenShareButton);
   const endCallProps = usePropsFor(EndCallButton);
 
-  const [callEnded, setCallEnded] = useState(false);
+  const call = useCall();
 
-  const onHangup = useCallback(async (): Promise<void> => {
-    await endCallProps.onHangUp();
-    setCallEnded(true);
-  }, [endCallProps.onHangUp]);
-
-  if (callEnded) {
+  if (call?.state === 'Disconnected') {
     return <CallEnded />;
   }
 
@@ -31,7 +25,7 @@ function CallingComponents(): JSX.Element {
         {cameraProps && <CameraButton  {...cameraProps} />}
         {microphoneProps && <MicrophoneButton   {...microphoneProps} />}
         {screenShareProps && <ScreenShareButton  {...screenShareProps} />}
-        {endCallProps && <EndCallButton {...endCallProps} onHangUp={onHangup} />}
+        {endCallProps && <EndCallButton {...endCallProps} />}
       </ControlBar>
     </Stack>
   );
