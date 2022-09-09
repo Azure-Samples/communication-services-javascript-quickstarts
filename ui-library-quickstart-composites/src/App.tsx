@@ -72,11 +72,13 @@ function App(): JSX.Element {
       locator: {
         // Can be a phone number if you want to call a PSTN number. For example, "+18001234567"
         // alternateCallerId is required for calling phone numbers using the call composite.
+        // NOTE: Feature in public preview. Not recommended for production use.
         groupId,
       },
       // For using PSTN Calling features in CallComposite.
       // Read more about procuring a phone number from Azure
       // https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/telephony/get-phone-number
+      // NOTE: Feature in public preview. Not recommended for production use.
       alternateCallerId: "<Azure Communication Services provided Phone Number>",
     }),
     [userId, credential, displayName, groupId]
