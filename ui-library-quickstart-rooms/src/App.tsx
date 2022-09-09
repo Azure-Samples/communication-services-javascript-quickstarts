@@ -84,7 +84,7 @@ function App(): JSX.Element {
 /**
  * This hook returns all the arguments required to use the Azure Communication services
  * that would be provided by your backend service after user authentication
- * depending on the user-flow (e.g. which chat thread to use).
+ * depending on the user-flow.
  */
 function useAzureCommunicationServiceArgs(): {
   userId: string;

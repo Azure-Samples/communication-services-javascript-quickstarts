@@ -9,7 +9,7 @@ products:
 
 # Get Started with Rooms Call
 
-For full Information on Rooms and how to create/manage a room resource, look at [Rooms overview](https://docs.microsoft.com/en-us/azure/communication-services/concepts/rooms/room-concept)
+For more information on Rooms and how to create/manage a Rooms resource, look at [Rooms overview](https://docs.microsoft.com/en-us/azure/communication-services/concepts/rooms/room-concept)
 
 ## Prerequisites
 
@@ -29,8 +29,3 @@ For full Information on Rooms and how to create/manage a room resource, look at 
     - Optional: You can update the display name to match a string value of your choice.
     - Save the file.
 4. Run `npm run start`
-
-Open your browser to ` http://localhost:3000`. You should see the following:
-![Composite End State](../media/CompositeEnd.png)
-
-Feel free to style the composites to your desired size and layout inside of your application.
