@@ -8,8 +8,7 @@ products:
 ---
 
 # Get Started with Rooms Call
-
-For more information on Rooms and how to create/manage a Rooms resource, look at [Rooms overview](https://docs.microsoft.com/en-us/azure/communication-services/concepts/rooms/room-concept)
+This code sample showcases the ability to join the Rooms call using ACS UI library. Creating a Room is out of scope for this quickstart sample. For more information on how to create/manage a Rooms resource, look at [Rooms overview](https://docs.microsoft.com/en-us/azure/communication-services/concepts/rooms/room-concept)
 
 ## Prerequisites
 
