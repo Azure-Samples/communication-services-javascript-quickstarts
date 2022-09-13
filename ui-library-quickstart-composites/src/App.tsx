@@ -1,23 +1,23 @@
 import {
   AzureCommunicationTokenCredential,
   CommunicationUserIdentifier,
-} from "@azure/communication-common";
+} from '@azure/communication-common';
 import {
   CallComposite,
   ChatComposite,
   fromFlatCommunicationIdentifier,
   useAzureCommunicationCallAdapter,
   useAzureCommunicationChatAdapter,
-} from "@azure/communication-react";
+} from '@azure/communication-react';
 import React, {
   CSSProperties,
   useEffect,
   useMemo,
   useRef,
   useState,
-} from "react";
-import { v4 as uuidv4 } from "uuid";
-import { ChatClient } from "@azure/communication-chat";
+} from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { ChatClient } from '@azure/communication-chat';
 
 /**
  * Authentication information needed for your client application to use
@@ -29,9 +29,9 @@ import { ChatClient } from "@azure/communication-chat";
  * In a real application, your backend service would provide these to the client
  * application after the user goes through your authentication flow.
  */
-const ENDPOINT_URL = "<Azure Communication Services Resource Endpoint>";
-const USER_ID = "<Azure Communication Services Identifier>";
-const TOKEN = "<Azure Communication Services Access Token>";
+const ENDPOINT_URL = '<Azure Communication Services Resource Endpoint>';
+const USER_ID = '<Azure Communication Services Identifier>';
+const TOKEN = '<Azure Communication Services Access Token>';
 
 /**
  * Display name for the local participant.
@@ -39,7 +39,7 @@ const TOKEN = "<Azure Communication Services Access Token>";
  * backend services provides to the client application after the user
  * goes through your authentication flow.
  */
-const DISPLAY_NAME = "<Display Name>";
+const DISPLAY_NAME = '<Display Name>';
 
 /**
  * Entry point of your application.
@@ -55,7 +55,7 @@ function App(): JSX.Element {
     try {
       return new AzureCommunicationTokenCredential(token);
     } catch {
-      console.error("Failed to construct token credential");
+      console.error('Failed to construct token credential');
       return undefined;
     }
   }, [token]);
@@ -70,16 +70,8 @@ function App(): JSX.Element {
       displayName,
       credential,
       locator: {
-        // Can be a phone number if you want to call a PSTN number. For example, "+18001234567"
-        // alternateCallerId is required for calling phone numbers using the call composite.
-        // NOTE: Feature in public preview. Not recommended for production use.
         groupId,
       },
-      // For using PSTN Calling features in CallComposite.
-      // Read more about procuring a phone number from Azure
-      // https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/telephony/get-phone-number
-      // NOTE: Feature in public preview. Not recommended for production use.
-      alternateCallerId: "<Azure Communication Services provided Phone Number>",
     }),
     [userId, credential, displayName, groupId]
   );
@@ -103,7 +95,7 @@ function App(): JSX.Element {
 
   if (!!callAdapter && !!chatAdapter) {
     return (
-      <div style={{ height: "100vh", display: "flex" }}>
+      <div style={{ height: '100vh', display: 'flex' }}>
         <div style={containerStyle}>
           <ChatComposite adapter={chatAdapter} />
         </div>
@@ -122,9 +114,9 @@ function App(): JSX.Element {
 }
 
 const containerStyle: CSSProperties = {
-  border: "solid 0.125rem olive",
-  margin: "0.5rem",
-  width: "50vw",
+  border: 'solid 0.125rem olive',
+  margin: '0.5rem',
+  width: '50vw',
 };
 /**
  * This hook returns all the arguments required to use the Azure Communication services
@@ -139,7 +131,7 @@ function useAzureCommunicationServiceArgs(): {
   groupId: string;
   threadId: string;
 } {
-  const [threadId, setThreadId] = useState("");
+  const [threadId, setThreadId] = useState('');
   // For the quickstart, create a new thread with just the local participant in it.
   useEffect(() => {
     (async () => {
@@ -149,7 +141,7 @@ function useAzureCommunicationServiceArgs(): {
       );
       const { chatThread } = await client.createChatThread(
         {
-          topic: "Composites Quickstarts",
+          topic: 'Composites Quickstarts',
         },
         {
           participants: [
@@ -160,7 +152,7 @@ function useAzureCommunicationServiceArgs(): {
           ],
         }
       );
-      setThreadId(chatThread?.id ?? "");
+      setThreadId(chatThread?.id ?? '');
     })();
   }, []);
 
