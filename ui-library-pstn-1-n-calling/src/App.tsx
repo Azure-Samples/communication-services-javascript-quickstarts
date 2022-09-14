@@ -40,7 +40,7 @@ function App(): JSX.Element {
   const { userId, token, displayName, groupId } =
     useAzureCommunicationServiceArgs();
 
-  // A well-formed token is required to initialize the chat and calling adapters.
+  // A well-formed token is required to initialize the calling adapter.
   const credential = useMemo(() => {
     try {
       return new AzureCommunicationTokenCredential(token);
@@ -100,7 +100,7 @@ const containerStyle: CSSProperties = {
 /**
  * This hook returns all the arguments required to use the Azure Communication services
  * that would be provided by your backend service after user authentication
- * depending on the user-flow (e.g. which chat thread to use).
+ * depending on the user-flow.
  */
 function useAzureCommunicationServiceArgs(): {
   userId: string;
