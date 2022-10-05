@@ -28,10 +28,37 @@ const main = async () => {
     let identityResponse = await identityClient.createUser();
     console.log(`\nCreated an identity with ID: ${identityResponse.communicationUserId}`);
 
-    // Issue an access token with the "voip" scope for an identity
+    // Issue an access token with validity of 24 hours and the "voip" scope for an identity
     let tokenResponse = await identityClient.getToken(identityResponse, ["voip"]);
-    const { token, expiresOn } = tokenResponse;
+    let { token, expiresOn } = tokenResponse;
     console.log(`\nIssued an access token with 'voip' scope that expires at ${expiresOn}:`);
+    console.log(token);
+
+    // Issue an access token with validity of an hour and the "voip" scope for an identity
+    const tokenOptions = { tokenExpiresInMinutes: 60 };
+    tokenResponse = await identityClient.getToken(identityResponse, ["voip"], tokenOptions);
+    // Get the token and its expiration date from the response
+    ({ token, expiresOn} = tokenResponse);
+    console.log(`\nIssued an access token with 'voip' scope and custom expiration time that expires at ${expiresOn}:`);
+    console.log(token);
+
+    // Issue an identity and an access token with validity of 24 hours and the "voip" scope for the new identity
+    let identityTokenResponse = await identityClient.createUserAndToken(["voip"]);
+    let user;
+    ({token, expiresOn, user} = identityTokenResponse);
+    // print these details to the screen
+    console.log(`\nCreated an identity with ID: ${user.communicationUserId}`);
+    console.log(`\nIssued an access token with 'voip' scope that expires at ${expiresOn}:`);
+    console.log(token);
+
+    // Issue an identity and an access token with validity of an hour and the "voip" scope for the new identity
+    const userAndTokenOptions = { tokenExpiresInMinutes: 60 };
+    identityTokenResponse = await identityClient.createUserAndToken(["voip"], userAndTokenOptions);
+    // Get the token, its expiration date, and the user from the response
+    ({token, expiresOn, user} = identityTokenResponse);
+    // print these details to the screen
+    console.log(`\nCreated an identity with ID: ${user.communicationUserId}`);
+    console.log(`\nIssued an access token with 'voip' scope and custom expiration time that expires at ${expiresOn}:`);
     console.log(token);
 
     //Refresh access tokens
