@@ -19,7 +19,7 @@ For full instructions on how to build this code sample from scratch, look at [Qu
 
 ## Install the package
 
-npm install @azure/communication-identity --save
+npm install @azure/communication-identity@latest --save
 npm install @azure/identity --save
 
 ## Before running sample code
