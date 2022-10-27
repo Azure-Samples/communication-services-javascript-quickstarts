@@ -9,9 +9,17 @@ products:
 
 # Build your first Teams calling application
 
-This tutorial demonstrates step-by-step instructions to build your first Teams calling web application empowered by [Azure Communication Service](https://azure.microsoft.com/en-us/products/communication-services/#overview). 
+This tutorial demonstrates step-by-step instructions to build a video calling web application empowered by [Azure Communication Service](https://azure.microsoft.com/en-us/products/communication-services/#overview). This application connects you to a Microsoft Teams user as shown in the picture. The dark window on the right is using Microsoft Teams whereas the bright window on the left is the application we will build. The tutorial has a prerequisites section that prepares you for further development. Followed the prerequisites, we will prepare you for web development environment; give you sample code to build and run; and teach you how to use the application. 
 
 ![Render of sample application](../media/cte/1-on-1-teams-calling-application.png)
+
+## Table of Contents
+- [Prerequisites](#prerequisites)
+- [Setup development environment](#setup-development-environment)
+- [Develop the code](#develop-the-code)
+- [Run the code](#run-the-code)
+- [Use the application](#use-the-application)
+
 
 ## Prerequisites
 - Create [Microsoft Azure account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) with active subscription
@@ -88,7 +96,7 @@ npm install webpack@4.42.0 webpack-cli@3.3.11 webpack-dev-server@3.10.3 --save-d
 3. Go to your application folder and create a `client.js` file
 ![Render of application folder client.js](../media/cte/demo-create-clientjs.png)
 
-4. Open your client.js file with your favorite editor and paste the code below.
+4. Open your `client.js` file with your favorite editor and paste the code below.
 ```js
 // Make sure to install the necessary dependencies
 const { CallClient, VideoStreamRenderer, LocalVideoStream } = require('@azure/communication-calling');
