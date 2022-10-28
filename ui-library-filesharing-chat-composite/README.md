@@ -1,22 +1,27 @@
+---
+page_type: sample
+languages:
+- javascript
+products:
+- azure
+- azure-communication-services
+---
+
 # UI Library Sample - File Sharing using UI Chat Composite
 
 This is a complete sample showcasing integration of file sharing feature
 into an [Azure Communication Services][docs-root] powered [React] application.
 
-For a step-by-step guide to building this sample yourself, see the associated tutorial at MSDN.
-
-    TODO: Link to tutorial once available.
+For a step-by-step guide to building this sample yourself, see the [associated tutorial](https://docs.microsoft.com/azure/communication-services/tutorials/file-sharing-tutorial).
 
 This sample includes:
 * A React based application showcasing file sharing feature using UI chat composite provided by the [Azure Communication Services UI library][docs-ui-library].
 * Backend API for uploading file to Azure Blob Storage built using [Typescript Azure Functions][typescript-azure-functions].
 
-
 [docs-root]: https://docs.microsoft.com/en-us/azure/communication-services/
 [docs-ui-library]: https://azure.github.io/communication-ui-library/
 [typescript-azure-functions]: https://docs.microsoft.com/en-us/azure/azure-functions/create-first-function-vs-code-typescript
 [React]: https://reactjs.org/
-
 
 ## Code organization
 

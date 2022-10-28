@@ -1,0 +1,14 @@
+{
+  "name": "send-email-multiple-recipients",
+  "version": "1.0.0",
+  "description": "",
+  "main": "send-email-multiple-recipients.js",
+  "scripts": {
+    "start": "node send-email-multiple-recipients.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/communication-email": "^1.0.0-beta.1"
+  }
+}

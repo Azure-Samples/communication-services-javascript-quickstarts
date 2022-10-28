@@ -32,7 +32,7 @@ async function main() {
         return;
       }
 
-      console.log("Send email success, MessageId :", sendResult.messageId);
+      console.log("Send email success, MessageId :", messageId);
 
       let counter = 0;
       const statusInterval = setInterval(async function () {

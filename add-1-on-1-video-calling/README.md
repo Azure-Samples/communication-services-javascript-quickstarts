@@ -22,7 +22,7 @@ This quickstart sample includes the code that is explained as part of [this docu
 
 ## Run the code
 1. Run `npm i` on the directory of the project to install dependencies
-2. Add a [user access token](https://docs.microsoft.com/azure/communication-services/quickstarts/access-tokens?pivots=programming-language-javascript) in line 54 of the `client.js`.
+2. Add a [user access token](https://docs.microsoft.com/azure/communication-services/quickstarts/access-tokens?pivots=programming-language-javascript) in line 55 of the `client.js`.
 3. Use the webpack-dev-server to build and run your app. Run the following command to bundle application host in on a local webserver:
 
         npx webpack-dev-server --entry ./client.js --output bundle.js --debug --devtool inline-source-map
