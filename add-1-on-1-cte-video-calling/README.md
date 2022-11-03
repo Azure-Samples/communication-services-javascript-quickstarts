@@ -9,7 +9,7 @@ products:
 
 # Build your first Teams calling application
 
-This tutorial demonstrates step-by-step instructions to build a video calling web application empowered by [Azure Communication Service](https://azure.microsoft.com/en-us/products/communication-services/#overview). This application connects you to a Microsoft Teams user as shown in the picture. The dark window on the right is using Microsoft Teams whereas the bright window on the left is the application we will build. The tutorial has a prerequisites section that prepares you for further development. Followed the prerequisites, we will prepare you for web development environment; give you sample code to build and run; and teach you how to use the application. 
+This tutorial demonstrates step-by-step instructions to build a video calling web application empowered by [Azure Communication Service](https://azure.microsoft.com/en-us/products/communication-services/#overview). This application connects you to a Microsoft Teams user as shown in the picture. The dark window on the right is using Microsoft Teams whereas the bright window on the left is the application we will build. The tutorial has a prerequisites section that prepares you for further development. After the prerequisites section, we will prepare you for web development environment; give you sample code to build and run; and teach you how to use the application.
 
 ![Render of sample application](../media/cte/1-on-1-teams-calling-application.png)
 
@@ -19,6 +19,7 @@ This tutorial demonstrates step-by-step instructions to build a video calling we
 - [Develop the code](#develop-the-code)
 - [Run the code](#run-the-code)
 - [Use the application](#use-the-application)
+- [Ask questions]
 
 
 ## Prerequisites
@@ -403,3 +404,6 @@ npx webpack-dev-server --entry ./client.js --output bundle.js --debug --devtool 
 
 ### **Congratulations! You just set up your first Teams calling application!**
 ![Render of sample application](../media/cte/1-on-1-teams-calling-application.png)
+
+## Ask questions
+You can post your questions via our [support channels](https://learn.microsoft.com/en-us/azure/communication-services/support). 
