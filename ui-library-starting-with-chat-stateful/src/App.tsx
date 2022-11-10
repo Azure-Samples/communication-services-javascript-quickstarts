@@ -8,7 +8,10 @@ import {
 } from '@azure/communication-react';
 import React from 'react';
 import ChatComponents from './ChatComponentsStateful';
-import { registerIcons } from '@fluentui/react';
+import { initializeIcons, registerIcons } from '@fluentui/react';
+
+initializeIcons();
+registerIcons({ icons: DEFAULT_COMPONENT_ICONS });
 
 function App(): JSX.Element {
   const endpointUrl = '<Azure Communication Services Resource Endpoint>';
@@ -17,7 +20,6 @@ function App(): JSX.Element {
   const threadId = '<Get thread id from chat service>';
   const displayName = '<Display Name>';
 
-  registerIcons({ icons: DEFAULT_COMPONENT_ICONS });
 
   const tokenCredential = new AzureCommunicationTokenCredential(userAccessToken);
   //Instantiate the statefulChatClient
