@@ -19,7 +19,7 @@ This tutorial demonstrates step-by-step instructions to build a video calling we
 - [Develop the code](#develop-the-code)
 - [Run the code](#run-the-code)
 - [Use the application](#use-the-application)
-- [Ask questions]
+- [Ask questions](#ask-questions)
 
 
 ## Prerequisites
