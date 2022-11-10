@@ -10,16 +10,18 @@ import {
 } from '@azure/communication-react';
 import React, { useEffect, useState } from 'react';
 import CallingComponents from './CallingComponentsStateful';
-import { registerIcons } from '@fluentui/react';
+import { initializeIcons, registerIcons } from '@fluentui/react';
 import { Call, CallAgent } from '@azure/communication-calling';
+
+
+initializeIcons();
+registerIcons({ icons: DEFAULT_COMPONENT_ICONS });
 
 function App(): JSX.Element {
   const userAccessToken = '<Azure Communication Services Resource Access Token>';
   const userId = '<User Id associated to the token>';
   const groupId = '<Generated GUID groupd id>';
   const displayName = '<Display Name>';
-
-  registerIcons({ icons: DEFAULT_COMPONENT_ICONS });
 
   const [statefulCallClient, setStatefulCallClient] = useState<StatefulCallClient>();
   const [callAgent, setCallAgent] = useState<CallAgent>();
