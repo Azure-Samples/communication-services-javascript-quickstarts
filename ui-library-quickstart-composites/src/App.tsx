@@ -18,7 +18,6 @@ import React, {
 } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { ChatClient } from '@azure/communication-chat';
-import { initializeIcons } from '@fluentui/react';
 
 /**
  * Authentication information needed for your client application to use
@@ -41,8 +40,6 @@ const TOKEN = '<Azure Communication Services Access Token>';
  * goes through your authentication flow.
  */
 const DISPLAY_NAME = '<Display Name>';
-
-initializeIcons();
 
 /**
  * Entry point of your application.
