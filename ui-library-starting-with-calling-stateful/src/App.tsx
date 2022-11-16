@@ -10,8 +10,12 @@ import {
 } from '@azure/communication-react';
 import React, { useEffect, useState } from 'react';
 import CallingComponents from './CallingComponentsStateful';
-import { registerIcons } from '@fluentui/react';
+import { initializeIcons, registerIcons } from '@fluentui/react';
 import { Call, CallAgent } from '@azure/communication-calling';
+
+
+initializeIcons();
+registerIcons({ icons: DEFAULT_COMPONENT_ICONS });
 
 function App(): JSX.Element {
   const userAccessToken = '<Azure Communication Services Resource Access Token>';
@@ -19,33 +23,31 @@ function App(): JSX.Element {
   const groupId = '<Generated GUID groupd id>';
   const displayName = '<Display Name>';
 
-  registerIcons({ icons: DEFAULT_COMPONENT_ICONS });
-
-  const tokenCredential = new AzureCommunicationTokenCredential(userAccessToken);
-  const [statefulCallClient, setStatefulCallClient] = useState<StatefulCallClient>()
-  const [callAgent, setCallAgent] = useState<CallAgent>()
-  const [call, setCall] = useState<Call>()
+  const [statefulCallClient, setStatefulCallClient] = useState<StatefulCallClient>();
+  const [callAgent, setCallAgent] = useState<CallAgent>();
+  const [call, setCall] = useState<Call>();
 
   useEffect(() => {
     setStatefulCallClient(createStatefulCallClient({
       userId: { communicationUserId: userId }
     }));
-  }, [])
+  }, []);
 
   useEffect(() => {
-    if (callAgent === undefined && statefulCallClient) {
+    const tokenCredential = new AzureCommunicationTokenCredential(userAccessToken);
+    if (callAgent === undefined && statefulCallClient && displayName) {
       const createUserAgent = async () => {
         setCallAgent(await statefulCallClient.createCallAgent(tokenCredential, { displayName: displayName }))
       }
       createUserAgent();
     }
-  }, [statefulCallClient, tokenCredential])
+  }, [statefulCallClient, displayName, callAgent]);
 
   useEffect(() => {
-    if (callAgent != undefined) {
-      setCall(callAgent.join({ groupId }))
+    if (callAgent !== undefined) {
+      setCall(callAgent.join({ groupId }));
     }
-  }, [callAgent])
+  }, [callAgent]);
 
   return (
     <>

@@ -1,5 +1,7 @@
 ---
 page_type: sample
+languages:
+- javascript
 Platform:
 - Web
 products:
