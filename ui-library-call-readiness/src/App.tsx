@@ -1,5 +1,5 @@
 import { FluentThemeProvider } from '@azure/communication-react';
-import { initializeIcons, registerIcons, Stack } from '@fluentui/react';
+import { initializeIcons, registerIcons } from '@fluentui/react';
 import {
   DEFAULT_COMPONENT_ICONS
 } from '@azure/communication-react';
@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { checkBrowserSupport } from './utils/callReadinessChecks';
 import { BrowserUnsupportedModal } from './components/UnsupportedBrowserModal';
 import { CallClient } from '@azure/communication-calling';
+import { TestComplete } from './components/TestComplete';
 
 initializeIcons();
 registerIcons({ icons: DEFAULT_COMPONENT_ICONS });
@@ -35,7 +36,7 @@ const App = (): JSX.Element => {
   return (
     <FluentThemeProvider>
       {appState === 'runningTests' && <PreparingYourSession callTitle='Meeting name' callDescription='Some details about the meeting' />}
-      {appState === 'testsComplete' && <Stack horizontalAlign='center' verticalFill verticalAlign='center'>Test complete</Stack>}
+      {appState === 'testsComplete' && <TestComplete />}
 
       {browserSupported === false && <BrowserUnsupportedModal />}
     </FluentThemeProvider>
