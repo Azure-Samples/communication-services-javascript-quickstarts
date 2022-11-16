@@ -5,7 +5,6 @@ languages:
 products:
 - azure
 - azure-communication-services
-- azure-communication-sms
 ---
 
 
