@@ -1,11 +1,11 @@
 {
-  "name": "ui-library-quickstart",
+  "name": "ui-library-call-readiness-quickstart",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@azure/communication-calling": "1.4.4",
+    "@azure/communication-calling": "^1.8.0-beta.1",
     "@azure/communication-chat": "1.2.0",
-    "@azure/communication-react": "1.3.1",
+    "@azure/communication-react": "^1.4.2-alpha-202211160016.0",
     "@fluentui/react": "8.101.0",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",
@@ -23,7 +23,6 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

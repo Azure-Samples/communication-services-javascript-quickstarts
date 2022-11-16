@@ -7,21 +7,43 @@ products:
 - azure-communication-services
 ---
 
-# Get Started with UI Components
+# UI Library Sample - Creating a Call Readiness Experience
 
-For full instructions on how to build this code sample from scratch, look at [Quickstart: Get Started with UI Components](https://azure.github.io/communication-ui-library/?path=/docs/quickstarts-uicomponents--page)
+This is a complete sample showcasing integration of call readiness
+into an [Azure Communication Services][docs-root] powered [React] application.
 
-## Prerequisites
+For a step-by-step guide to building this sample yourself, see the [associated tutorial](todo).
 
-- An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F)  .
-- [Node.js](https://nodejs.org/en/) Active LTS and Maintenance LTS versions (8.11.1 and 10.14.1 recommended).
+This sample includes:
+
+* A React based application showcasing several Call Readiness components provided by the [Azure Communication Services UI library][docs-ui-library].
+
+[docs-root]: https://docs.microsoft.com/en-us/azure/communication-services/
+[docs-ui-library]: https://azure.github.io/communication-ui-library/
+[React]: https://reactjs.org/
+
+## Code organization
+
+TBD
+
+## Prerequisites - Azure Resources
+
+You need a few Azure resources before running this sample locally.
+
+* An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F)  .
+* [Node.js](https://nodejs.org/en/) Active LTS and Maintenance LTS versions (16.x.x is recommended).
+* An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
+* An identity with VOIP scope. Generate an identity using the [Azure Portal](https://docs.microsoft.com/azure/communication-services/quickstarts/identity/quick-create-identity).
+
+## Prerequisites -- Configuration
+
+Once you have these resources setup, you need to replace the following placeholders:
+
+* TBD
 
 ## Run the code
 
 1. Run `npm i` on the directory of the project to install dependencies
-2. Run `npm run start`
+1. Run `npm start`
 
-Open your browser to ` http://localhost:3000`. You should see the following:
-![Components End State](../media/ComponentsEnd.png)
-
-Feel free to style the components to your desired size and layout inside of your application. Check out the stateful client quickstart to learn how to connect the components to the communications data plane.
+Open your browser to <http://localhost:3000>. You should see the following: TBD

@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Call Readiness Sample",
+  "name": "Azure Communication Services - UI Library Call Readiness Sample",
   "icons": [
     {
       "src": "favicon.ico",
