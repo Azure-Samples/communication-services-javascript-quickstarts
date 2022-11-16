@@ -1,6 +1,3 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import { useTheme } from '@azure/communication-react';
 import { ISpinnerStyles, IStackItemStyles, IStackStyles, ITextStyles, ITheme, Spinner, Stack, Text } from '@fluentui/react';
 
