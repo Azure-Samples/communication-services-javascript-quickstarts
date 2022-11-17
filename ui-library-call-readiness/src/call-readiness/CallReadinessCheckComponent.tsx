@@ -1,4 +1,3 @@
-import { PreparingYourSession } from './PreparingYourSession';
 import { useEffect, useState } from 'react';
 import { BrowserUnsupportedPrompt } from './UnsupportedBrowserPrompt';
 import { CheckingDeviceAccessPrompt, PermissionsDeniedPrompt, AcceptDevicePermissionRequestPrompt } from './DevicePermissionPrompts';
@@ -68,8 +67,6 @@ const CallReadinessChecks = (props: {
 
   return (
     <>
-      {<PreparingYourSession callTitle='Meeting name' callDescription='Some details about the meeting' />}
-
       {/* We show this when the browser is unsupported */}
       <BrowserUnsupportedPrompt isOpen={currentCheckState === 'browserUnsupported'} />
 

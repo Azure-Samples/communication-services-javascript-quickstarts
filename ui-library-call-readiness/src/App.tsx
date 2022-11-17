@@ -4,8 +4,9 @@ import {
   DEFAULT_COMPONENT_ICONS
 } from '@azure/communication-react';
 import { useState } from 'react';
-import { TestComplete } from './TestComplete';
+import { TestComplete } from './pages/TestComplete';
 import CallReadinessChecks from './call-readiness/CallReadinessCheckComponent';
+import { PreparingYourSession } from './pages/PreparingYourSession';
 
 // Initializing and registering icons should only be done once per app.
 initializeIcons();
@@ -15,14 +16,24 @@ type TestingState = 'running' | 'finished';
 
 /**
  * Entry point of a React app.
- * This spawns the CallReadinessChecks.
+ *
+ * This shows a PreparingYourSession component while the CallReadinessChecks are running.
+ * Once the CallReadinessChecks are finished, the TestComplete component is shown.
  */
 const App = (): JSX.Element => {
   const [testState, setTestState] = useState<TestingState>('running');
 
   return (
     <FluentThemeProvider>
-      {testState === 'running' && <CallReadinessChecks onTestsSuccessful={() => setTestState('finished')} />}
+      {/* Show a Preparing your session screen while running the call readiness checks */}
+      {testState === 'running' && (
+        <>
+          <PreparingYourSession callTitle='Meeting name' callDescription='Some details about the meeting' />
+          <CallReadinessChecks onTestsSuccessful={() => setTestState('finished')} />
+        </>
+      )}
+
+      {/* Show a TestComplete screen when the call readiness checks are finished */}
       {testState === 'finished' && <TestComplete />}
     </FluentThemeProvider>
   );
