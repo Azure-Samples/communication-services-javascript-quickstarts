@@ -5,11 +5,10 @@ import {
 } from '@azure/communication-react';
 import { PreparingYourSession } from './components/PreparingYourSession';
 import { useEffect, useState } from 'react';
-import { checkBrowserSupport, requestCameraAndMicrophonePermissions, shouldPromptForCameraAndMicrophonePermissions } from './utils/callReadinessChecks';
 import { BrowserUnsupportedModal } from './components/UnsupportedBrowserModal';
-import { CallClient } from '@azure/communication-calling';
 import { TestComplete } from './components/TestComplete';
 import { GenericPromptWhileCheckingDeviceAccessModal, PermissionsDeniedModal, PromptForDevicePermissionAccessModal } from './components/PromptForDevicePermissionAccessModal';
+import { CallReadinessChecker } from './lib/CallReadinessChecker';
 
 initializeIcons();
 registerIcons({ icons: DEFAULT_COMPONENT_ICONS });
@@ -26,30 +25,28 @@ const App = (): JSX.Element => {
   // Run call readiness checks
   useEffect(() => {
     const runCallReadinessChecks = async (): Promise<void> => {
-      // For simplicity we are constructing a new CallClient instance here.
-      // In a production application you should reuse the same instance of CallClient that you are using for your call.
-      const callClient = new CallClient();
+      const callReadinessChecker = new CallReadinessChecker();
 
       // First we'll begin with a browser support check.
-      const browserSupport = await checkBrowserSupport(callClient);
+      const browserSupport = await callReadinessChecker.checkBrowserSupport();
       setBrowserSupported(browserSupport);
 
       // Next we will check if we need to prompt the user for camera and microphone permissions.
       // The prompt check only works if the browser supports the PermissionAPI for querying camera and microphone.
       // In the event that is not supported, we show a more generic prompt to the user.
-      const shouldDisplayPromptDialog = await shouldPromptForCameraAndMicrophonePermissions();
-      if (shouldDisplayPromptDialog === true) {
-        // We know we need to request camera and microphone permissions, so we'll show the prompt.
-        setDisplayPromptForRequestingDeviceAccess(true);
-      } else if (shouldDisplayPromptDialog === 'unknown') {
+      const devicePermissionState = await callReadinessChecker.checkDevicePermissionsState();
+      if (devicePermissionState === 'unknown') {
         // We don't know if we need to request camera and microphone permissions, so we'll show a generic prompt.
         setDisplayGenericPromptWhileCheckingDeviceAccess(true);
+      } else if (devicePermissionState.camera === 'prompt' || devicePermissionState.microphone === 'prompt') {
+        // We know we need to request camera and microphone permissions, so we'll show the prompt.
+        setDisplayPromptForRequestingDeviceAccess(true);
       }
 
       // Now the user has an appropriate prompt, we can request camera and microphone permissions.
-      const devicePermissionsState = await requestCameraAndMicrophonePermissions(callClient);
+      const devicePermissionsState = await callReadinessChecker.requestCameraAndMicrophonePermissions();
 
-      // Remove previous prompts now the user has responded.
+      // Remove previous prompts now the user has either accepted or denied device permission access.
       setDisplayPromptForRequestingDeviceAccess(false);
       setDisplayGenericPromptWhileCheckingDeviceAccess(false);
 
