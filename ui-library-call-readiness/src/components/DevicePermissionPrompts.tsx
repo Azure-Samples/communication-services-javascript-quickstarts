@@ -1,15 +1,15 @@
 import { CameraAndMicrophoneDomainPermissions } from '@azure/communication-react';
 import { Modal } from '@fluentui/react';
 
-export const PromptForDevicePermissionAccessModal = (props: { isOpen: boolean }): JSX.Element => (
+export const AcceptDevicePermissionRequestPrompt = (props: { isOpen: boolean }): JSX.Element => (
   <PermissionsModal isOpen={props.isOpen} type="request" />
 );
 
-export const GenericPromptWhileCheckingDeviceAccessModal = (props: { isOpen: boolean }): JSX.Element => (
+export const CheckingDeviceAccessPrompt = (props: { isOpen: boolean }): JSX.Element => (
   <PermissionsModal isOpen={props.isOpen} type="check" />
 )
 
-export const PermissionsDeniedModal = (props: { isOpen: boolean }): JSX.Element => (
+export const PermissionsDeniedPrompt = (props: { isOpen: boolean }): JSX.Element => (
   <PermissionsModal isOpen={props.isOpen} type="denied" />
 );
 

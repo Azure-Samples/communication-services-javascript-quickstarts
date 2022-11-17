@@ -1,4 +1,4 @@
-import { CallClient, DeviceAccess } from "@azure/communication-calling";
+import { CallClient, DeviceAccess, Features } from "@azure/communication-calling";
 
 /**
  * A helper class to perform call readiness related checks.
@@ -22,7 +22,7 @@ export class CallReadinessChecker {
    * Use the callClient's getEnvironmentInfo() method to check if the browser is supported.
    */
   public checkBrowserSupport = async (): Promise<boolean> =>
-    (await this.callClient.getEnvironmentInfo()).isSupportedBrowser;
+    (await this.callClient.feature(Features.DebugInfo).getEnvironmentInfo()).isSupportedBrowser;
 
   /**
    * Check if the user needs to be prompted for camera and microphone permissions.
