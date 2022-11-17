@@ -1,8 +1,8 @@
-import { PreparingYourSession } from './components/PreparingYourSession';
+import { PreparingYourSession } from './PreparingYourSession';
 import { useEffect, useState } from 'react';
-import { BrowserUnsupportedModal } from './components/UnsupportedBrowserModal';
-import { CheckingDeviceAccessPrompt, PermissionsDeniedPrompt, AcceptDevicePermissionRequestPrompt } from './components/DevicePermissionPrompts';
-import { CallReadinessChecker } from './lib/CallReadinessChecker';
+import { BrowserUnsupportedPrompt } from './UnsupportedBrowserPrompt';
+import { CheckingDeviceAccessPrompt, PermissionsDeniedPrompt, AcceptDevicePermissionRequestPrompt } from './DevicePermissionPrompts';
+import { CallReadinessChecker } from './CallReadinessChecker';
 
 type CallReadinessChecksState = 'runningChecks' |
   'browserUnsupported' |
@@ -71,7 +71,7 @@ const CallReadinessChecks = (props: {
       {<PreparingYourSession callTitle='Meeting name' callDescription='Some details about the meeting' />}
 
       {/* We show this when the browser is unsupported */}
-      <BrowserUnsupportedModal isOpen={currentCheckState === 'browserUnsupported'} />
+      <BrowserUnsupportedPrompt isOpen={currentCheckState === 'browserUnsupported'} />
 
       {/* We show this when we are prompting the user to accept device permissions */}
       <AcceptDevicePermissionRequestPrompt isOpen={currentCheckState === 'promptingForDeviceAccess'} />
