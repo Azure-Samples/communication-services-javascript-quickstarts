@@ -1,18 +1,24 @@
-import { FluentThemeProvider } from '@azure/communication-react';
+import { createStatefulCallClient, FluentThemeProvider } from '@azure/communication-react';
 import { initializeIcons, registerIcons } from '@fluentui/react';
 import {
   DEFAULT_COMPONENT_ICONS
 } from '@azure/communication-react';
 import { useState } from 'react';
-import { TestComplete } from './pages/TestComplete';
-import CallReadinessChecks from './call-readiness/CallReadinessCheckComponent';
+import { PreCallChecksComponent } from './call-readiness/PreCallChecksComponent';
 import { PreparingYourSession } from './pages/PreparingYourSession';
+import { DeviceSetup } from './pages/DeviceSetup';
+import { CallReadinessHelper } from './call-readiness/CallReadinessHelper';
+import { TestComplete } from './pages/TestComplete';
 
 // Initializing and registering icons should only be done once per app.
 initializeIcons();
 registerIcons({ icons: DEFAULT_COMPONENT_ICONS });
 
-type TestingState = 'running' | 'finished';
+type TestingState = 'runningPreCallChecks' | 'deviceSetup' | 'finished';
+
+const USER_ID = 'user1'; // Replace with an Azure Communication Services User ID
+const statefulCallClient = createStatefulCallClient({ userId: { communicationUserId: USER_ID } });
+const callReadinessHelper = new CallReadinessHelper(statefulCallClient);
 
 /**
  * Entry point of a React app.
@@ -21,19 +27,33 @@ type TestingState = 'running' | 'finished';
  * Once the CallReadinessChecks are finished, the TestComplete component is shown.
  */
 const App = (): JSX.Element => {
-  const [testState, setTestState] = useState<TestingState>('running');
+  const [testState, setTestState] = useState<TestingState>('runningPreCallChecks');
 
   return (
     <FluentThemeProvider>
       {/* Show a Preparing your session screen while running the call readiness checks */}
-      {testState === 'running' && (
+      {testState === 'runningPreCallChecks' && (
         <>
-          <PreparingYourSession callTitle='Meeting name' callDescription='Some details about the meeting' />
-          <CallReadinessChecks onTestsSuccessful={() => setTestState('finished')} />
+          <PreparingYourSession />
+          <PreCallChecksComponent
+            callReadinessHelper={callReadinessHelper}
+            onTestsSuccessful={() => setTestState('deviceSetup')}
+          />
         </>
       )}
 
-      {/* Show a TestComplete screen when the call readiness checks are finished */}
+      {/* After the initial checks are complete, take the user to a device setup page call readiness checks are finished */}
+      {testState === 'deviceSetup' && (
+        <DeviceSetup
+          callReadinessHelper={callReadinessHelper}
+          onDeviceSetupComplete={(userChosenDeviceState) => {
+            console.log('Device setup complete', userChosenDeviceState);
+            setTestState('finished');
+          }}
+        />
+      )}
+
+      {/* After the device setup is complete, take the user to the call. For this sample we will just show a test complete page. */}
       {testState === 'finished' && <TestComplete />}
     </FluentThemeProvider>
   );

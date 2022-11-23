@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { BrowserUnsupportedPrompt } from './UnsupportedBrowserPrompt';
 import { CheckingDeviceAccessPrompt, PermissionsDeniedPrompt, AcceptDevicePermissionRequestPrompt } from './DevicePermissionPrompts';
-import { CallReadinessChecker } from './CallReadinessChecker';
+import { CallReadinessHelper } from './CallReadinessHelper';
 
-type CallReadinessChecksState = 'runningChecks' |
+type PreCallChecksState = 'runningChecks' |
   'browserUnsupported' |
   'checkingDeviceAccess' |
   'promptingForDeviceAccess' |
@@ -11,25 +11,26 @@ type CallReadinessChecksState = 'runningChecks' |
   'finished';
 
 /**
- * This component is a demo of how to use the CallReadinessChecker with CallReadiness Components to get a user
+ * This component is a demo of how to use the CallReadinessHelper with CallReadiness Components to get a user
  * ready to join a call.
  * This component checks the browser support and if camera and microphone permissions have been granted.
  */
-const CallReadinessChecks = (props: {
+export const PreCallChecksComponent = (props: {
+  callReadinessHelper: CallReadinessHelper,
   /**
    * Callback triggered when the tests are complete and successful
    */
   onTestsSuccessful: () => void
 }): JSX.Element => {
-  const [currentCheckState, setCurrentCheckState] = useState<CallReadinessChecksState>('runningChecks');
+  const { callReadinessHelper } = props;
+  const [currentCheckState, setCurrentCheckState] = useState<PreCallChecksState>('runningChecks');
 
   // Run call readiness checks when component mounts
   useEffect(() => {
     const runCallReadinessChecks = async (): Promise<void> => {
-      const callReadinessChecker = new CallReadinessChecker();
 
       // First we'll begin with a browser support check.
-      const browserSupport = await callReadinessChecker.checkBrowserSupport();
+      const browserSupport = await callReadinessHelper.checkBrowserSupport();
       if (!browserSupport) {
         setCurrentCheckState('browserUnsupported');
         // If browser support fails, we'll stop here and display a modal to the user.
@@ -39,7 +40,7 @@ const CallReadinessChecks = (props: {
       // Next we will check if we need to prompt the user for camera and microphone permissions.
       // The prompt check only works if the browser supports the PermissionAPI for querying camera and microphone.
       // In the event that is not supported, we show a more generic prompt to the user.
-      const devicePermissionState = await callReadinessChecker.checkDevicePermissionsState();
+      const devicePermissionState = await callReadinessHelper.checkDevicePermissionsState();
       if (devicePermissionState === 'unknown') {
         // We don't know if we need to request camera and microphone permissions, so we'll show a generic prompt.
         setCurrentCheckState('checkingDeviceAccess');
@@ -49,7 +50,7 @@ const CallReadinessChecks = (props: {
       }
 
       // Now the user has an appropriate prompt, we can request camera and microphone permissions.
-      const devicePermissionsState = await callReadinessChecker.requestCameraAndMicrophonePermissions();
+      const devicePermissionsState = await callReadinessHelper.requestCameraAndMicrophonePermissions();
 
       if (!devicePermissionsState.audio || !devicePermissionsState.video) {
         // If the user denied camera and microphone permissions, we prompt the user to take corrective action.
@@ -81,5 +82,3 @@ const CallReadinessChecks = (props: {
     </>
   );
 }
-
-export default CallReadinessChecks;
