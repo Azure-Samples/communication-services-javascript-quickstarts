@@ -10,6 +10,7 @@
     auth: {
       clientId: process.env.AAD_CLIENT_ID,
       redirectUri: "http://localhost:3000/spa", // You must register this URI on Azure Portal/App Registration. Defaults to "window.location.href".
+      authority: `https://login.microsoftonline.com/${process.env.AAD_TENANT_ID}`,
     },
     cache: {
       cacheLocation: "sessionStorage", // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
