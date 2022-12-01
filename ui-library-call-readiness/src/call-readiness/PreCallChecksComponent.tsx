@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { BrowserUnsupportedPrompt } from './UnsupportedBrowserPrompt';
 import { CheckingDeviceAccessPrompt, PermissionsDeniedPrompt, AcceptDevicePermissionRequestPrompt } from './DevicePermissionPrompts';
 import { useCallClient } from '@azure/communication-react';
-import { checkBrowserSupport, checkDevicePermissionsState, requestCameraAndMicrophonePermissions } from './CallReadinessHelpers';
+import { checkBrowserSupport } from '../helpers/browserSupportUtils';
+import { checkDevicePermissionsState, requestCameraAndMicrophonePermissions } from '../helpers/devicePermissionUtils';
 
 type PreCallChecksState = 'runningChecks' |
   'browserUnsupported' |

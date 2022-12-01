@@ -1,6 +1,6 @@
 import { Dropdown } from '@fluentui/react';
 import { useEffect, useState } from 'react';
-import { useCameras, useMicrophones, useSpeakers } from './CallReadinessHelpers';
+import { useCameras, useMicrophones, useSpeakers } from '../helpers/deviceSetupHooks';
 
 export const CameraSelectionDropdown = (): JSX.Element => {
   const { cameras, selectedCamera, setSelectedCamera } = useCameras();

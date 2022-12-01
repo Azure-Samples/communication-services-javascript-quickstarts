@@ -1,35 +1,6 @@
-import { AudioDeviceInfo, DeviceAccess, Features, VideoDeviceInfo } from "@azure/communication-calling";
-import { CallClientState, StatefulCallClient, StatefulDeviceManager, useCallClient, VideoStreamRendererViewState } from "@azure/communication-react";
+import { AudioDeviceInfo, VideoDeviceInfo } from "@azure/communication-calling";
+import { CallClientState, StatefulDeviceManager, useCallClient, VideoStreamRendererViewState } from "@azure/communication-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-
-/** Use the callClient's getEnvironmentInfo() method to check if the browser is supported. */
-export const checkBrowserSupport = async (callClient: StatefulCallClient): Promise<boolean> =>
-  (await callClient.feature(Features.DebugInfo).getEnvironmentInfo()).isSupportedBrowser;
-
-/**
- * Check if the user needs to be prompted for camera and microphone permissions.
- * 
- * @remarks
- * The Permissions API we are using is not supported in Firefox, Android WebView or Safari < 16.
- * In those cases this will return 'unknown'.
- */
-export const checkDevicePermissionsState = async (): Promise<{camera: PermissionState, microphone: PermissionState} | 'unknown'> => {
-  try {
-    const [micPermissions, cameraPermissions] = await Promise.all([
-      navigator.permissions.query({ name: "microphone" } as any),
-      navigator.permissions.query({ name: "camera" } as any)
-    ]);
-    return { camera: cameraPermissions.state, microphone: micPermissions.state };
-  } catch (e) {
-    console.info("Permissions API unsupported", e);
-    return 'unknown';
-  }
-}
-
-/** Use the DeviceManager to request for permissions to access the camera and microphone. */
-export const requestCameraAndMicrophonePermissions = async (callClient: StatefulCallClient): Promise<DeviceAccess> =>
-  await (await callClient.getDeviceManager()).askDevicePermission({ audio: true, video: true });
-
 
 /** A helper hook to get and update microphone device information */
 export const useMicrophones = (): {

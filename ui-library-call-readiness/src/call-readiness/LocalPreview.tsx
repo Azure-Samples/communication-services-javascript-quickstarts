@@ -9,7 +9,7 @@ import {
 import { Stack, mergeStyles, Text, ITheme } from '@fluentui/react';
 import { VideoOff20Filled } from '@fluentui/react-icons';
 import { useEffect } from 'react';
-import { useCameras, useLocalPreview } from './CallReadinessHelpers';
+import { useCameras, useLocalPreview } from '../helpers/deviceSetupHooks';
 
 export const LocalPreview = (props: {
   cameraOn: boolean,
@@ -21,6 +21,7 @@ export const LocalPreview = (props: {
   const { localPreview, startLocalPreview, stopLocalPreview } = useLocalPreview();
   const canTurnCameraOn = useCameras().cameras.length > 0;
 
+  // Start and stop the local video preview based on if the user has turned the camera on or off and if the camera is available.
   useEffect(() => {
     if (!localPreview && cameraOn && canTurnCameraOn) {
       startLocalPreview();
