@@ -1,59 +1,57 @@
-import { AudioDeviceInfo, VideoDeviceInfo } from '@azure/communication-calling';
 import { Dropdown } from '@fluentui/react';
 import { useEffect, useState } from 'react';
+import { useCameras, useMicrophones, useSpeakers } from './CallReadinessHelpers';
 
-export const CameraSelectionDropdown = (props: {
-  cameras: VideoDeviceInfo[],
-  onSelectionChange: (camera: VideoDeviceInfo) => void
-}): JSX.Element => {
+export const CameraSelectionDropdown = (): JSX.Element => {
+  const { cameras, selectedCamera, setSelectedCamera } = useCameras();
   return (
     <DeviceSelectionDropdown
-      placeholder={props.cameras.length === 0 ? 'No cameras found' : 'Select a camera'}
+      placeholder={cameras.length === 0 ? 'No cameras found' : 'Select a camera'}
       label={'Camera'}
-      devices={props.cameras}
+      devices={cameras}
+      selectedDevice={selectedCamera}
       onSelectionChange={(selectedDeviceId) =>
-        props.onSelectionChange(props.cameras.find((camera) => camera.id === selectedDeviceId)!)
+        setSelectedCamera(cameras.find((camera) => camera.id === selectedDeviceId)!)
       }
     />
   );
 };
 
-export const MicrophoneSelectionDropdown = (props: {
-  microphones: AudioDeviceInfo[],
-  onSelectionChange: (microphone: AudioDeviceInfo) => void
-}): JSX.Element => {
+export const MicrophoneSelectionDropdown = (): JSX.Element => {
+  const { microphones, selectedMicrophone, setSelectedMicrophone } = useMicrophones();
   return (
     <DeviceSelectionDropdown
-      placeholder={props.microphones.length === 0 ? 'No microphones found' : 'Select a microphone'}
+      placeholder={microphones.length === 0 ? 'No microphones found' : 'Select a microphone'}
       label={'Microphone'}
-      devices={props.microphones}
+      devices={microphones}
+      selectedDevice={selectedMicrophone}
       onSelectionChange={(selectedDeviceId) =>
-        props.onSelectionChange(props.microphones.find((microphone) => microphone.id === selectedDeviceId)!)
+        setSelectedMicrophone(microphones.find((microphone) => microphone.id === selectedDeviceId)!)
       }
     />
   );
 };
 
-export const SpeakerSelectionDropdown = (props: {
-  speakers: AudioDeviceInfo[],
-  onSelectionChange: (speaker: AudioDeviceInfo) => void
-}): JSX.Element => {
+export const SpeakerSelectionDropdown = (): JSX.Element => {
+  const { speakers, selectedSpeaker, setSelectedSpeaker } = useSpeakers();
   return (
     <DeviceSelectionDropdown
-      placeholder={props.speakers.length === 0 ? 'No speakers found' : 'Select a speaker'}
+      placeholder={speakers.length === 0 ? 'No speakers found' : 'Select a speaker'}
       label={'Speaker'}
-      devices={props.speakers}
+      devices={speakers}
+      selectedDevice={selectedSpeaker}
       onSelectionChange={(selectedDeviceId) =>
-        props.onSelectionChange(props.speakers.find((speaker) => speaker.id === selectedDeviceId)!)
+        setSelectedSpeaker(speakers.find((speaker) => speaker.id === selectedDeviceId)!)
       }
     />
   );
 };
 
-export const DeviceSelectionDropdown = (props: {
+const DeviceSelectionDropdown = (props: {
   placeholder: string,
   label: string,
   devices: { id: string, name: string }[],
+  selectedDevice: { id: string, name: string } | undefined,
   onSelectionChange: (deviceId: string) => void
 }): JSX.Element => {
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>();

@@ -1,4 +1,4 @@
-import { createStatefulCallClient, FluentThemeProvider } from '@azure/communication-react';
+import { CallClientProvider, createStatefulCallClient, FluentThemeProvider } from '@azure/communication-react';
 import { initializeIcons, registerIcons } from '@fluentui/react';
 import {
   DEFAULT_COMPONENT_ICONS
@@ -7,7 +7,6 @@ import { useState } from 'react';
 import { PreCallChecksComponent } from './call-readiness/PreCallChecksComponent';
 import { PreparingYourSession } from './pages/PreparingYourSession';
 import { DeviceSetup } from './pages/DeviceSetup';
-import { CallReadinessHelper } from './call-readiness/CallReadinessHelper';
 import { TestComplete } from './pages/TestComplete';
 
 // Initializing and registering icons should only be done once per app.
@@ -17,8 +16,7 @@ registerIcons({ icons: DEFAULT_COMPONENT_ICONS });
 type TestingState = 'runningPreCallChecks' | 'deviceSetup' | 'finished';
 
 const USER_ID = 'user1'; // Replace with an Azure Communication Services User ID
-const statefulCallClient = createStatefulCallClient({ userId: { communicationUserId: USER_ID } });
-const callReadinessHelper = new CallReadinessHelper(statefulCallClient);
+const callClient = createStatefulCallClient({ userId: { communicationUserId: USER_ID } });
 
 /**
  * Entry point of a React app.
@@ -31,30 +29,28 @@ const App = (): JSX.Element => {
 
   return (
     <FluentThemeProvider>
-      {/* Show a Preparing your session screen while running the call readiness checks */}
-      {testState === 'runningPreCallChecks' && (
-        <>
-          <PreparingYourSession />
-          <PreCallChecksComponent
-            callReadinessHelper={callReadinessHelper}
-            onTestsSuccessful={() => setTestState('deviceSetup')}
+      <CallClientProvider callClient={callClient}>
+        {/* Show a Preparing your session screen while running the call readiness checks */}
+        {testState === 'runningPreCallChecks' && (
+          <>
+            <PreparingYourSession />
+            <PreCallChecksComponent onTestsSuccessful={() => setTestState('deviceSetup')} />
+          </>
+        )}
+
+        {/* After the initial checks are complete, take the user to a device setup page call readiness checks are finished */}
+        {testState === 'deviceSetup' && (
+          <DeviceSetup
+            onDeviceSetupComplete={(userChosenDeviceState) => {
+              console.log('Device setup complete', userChosenDeviceState);
+              setTestState('finished');
+            }}
           />
-        </>
-      )}
+        )}
 
-      {/* After the initial checks are complete, take the user to a device setup page call readiness checks are finished */}
-      {testState === 'deviceSetup' && (
-        <DeviceSetup
-          callReadinessHelper={callReadinessHelper}
-          onDeviceSetupComplete={(userChosenDeviceState) => {
-            console.log('Device setup complete', userChosenDeviceState);
-            setTestState('finished');
-          }}
-        />
-      )}
-
-      {/* After the device setup is complete, take the user to the call. For this sample we will just show a test complete page. */}
-      {testState === 'finished' && <TestComplete />}
+        {/* After the device setup is complete, take the user to the call. For this sample we will just show a test complete page. */}
+        {testState === 'finished' && <TestComplete />}
+      </CallClientProvider>
     </FluentThemeProvider>
   );
 }
