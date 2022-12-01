@@ -28,7 +28,7 @@ export const useMicrophones = (): {
 export const useSpeakers = (): {
   speakers: AudioDeviceInfo[],
   selectedSpeaker: AudioDeviceInfo | undefined,
-  setSelectedSpeaker: (Speaker: AudioDeviceInfo) => Promise<void>
+  setSelectedSpeaker: (speaker: AudioDeviceInfo) => Promise<void>
 } => {
   const callClient = useCallClient();
   useEffect(() => {

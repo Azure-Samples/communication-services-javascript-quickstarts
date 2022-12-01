@@ -1,5 +1,4 @@
 import { Dropdown } from '@fluentui/react';
-import { useEffect, useState } from 'react';
 import { useCameras, useMicrophones, useSpeakers } from '../helpers/deviceSetupHooks';
 
 export const CameraSelectionDropdown = (): JSX.Element => {
@@ -10,9 +9,12 @@ export const CameraSelectionDropdown = (): JSX.Element => {
       label={'Camera'}
       devices={cameras}
       selectedDevice={selectedCamera}
-      onSelectionChange={(selectedDeviceId) =>
-        setSelectedCamera(cameras.find((camera) => camera.id === selectedDeviceId)!)
-      }
+      onSelectionChange={(selectedDeviceId) => {
+        const newlySelectedCamera = cameras.find((camera) => camera.id === selectedDeviceId);
+        if (newlySelectedCamera) {
+          setSelectedCamera(newlySelectedCamera);
+        }
+      }}
     />
   );
 };
@@ -25,9 +27,12 @@ export const MicrophoneSelectionDropdown = (): JSX.Element => {
       label={'Microphone'}
       devices={microphones}
       selectedDevice={selectedMicrophone}
-      onSelectionChange={(selectedDeviceId) =>
-        setSelectedMicrophone(microphones.find((microphone) => microphone.id === selectedDeviceId)!)
-      }
+      onSelectionChange={(selectedDeviceId) => {
+        const newlySelectedMicrophone = microphones.find((microphone) => microphone.id === selectedDeviceId);
+        if (newlySelectedMicrophone) {
+          setSelectedMicrophone(newlySelectedMicrophone);
+        }
+      }}
     />
   );
 };
@@ -40,9 +45,12 @@ export const SpeakerSelectionDropdown = (): JSX.Element => {
       label={'Speaker'}
       devices={speakers}
       selectedDevice={selectedSpeaker}
-      onSelectionChange={(selectedDeviceId) =>
-        setSelectedSpeaker(speakers.find((speaker) => speaker.id === selectedDeviceId)!)
-      }
+      onSelectionChange={(selectedDeviceId) => {
+        const newlySelectedSpeaker = speakers.find((speaker) => speaker.id === selectedDeviceId);
+        if (newlySelectedSpeaker) {
+          setSelectedSpeaker(newlySelectedSpeaker);
+        }
+      }}
     />
   );
 };
@@ -52,32 +60,15 @@ const DeviceSelectionDropdown = (props: {
   label: string,
   devices: { id: string, name: string }[],
   selectedDevice: { id: string, name: string } | undefined,
-  onSelectionChange: (deviceId: string) => void
+  onSelectionChange: (deviceId: string | undefined) => void
 }): JSX.Element => {
-  const [selectedDeviceId, setSelectedDeviceId] = useState<string>();
-
-  // Improve the user selection by preselecting a device.
-  // When the devices are populated, select the first one as the default selected device.
-  useEffect(() => {
-    if (!selectedDeviceId && props.devices.length > 0) {
-      const selectedDeviceId = props.devices[0].id;
-      setSelectedDeviceId(selectedDeviceId);
-      props.onSelectionChange(selectedDeviceId);
-    }
-  }, [props, selectedDeviceId]);
-
   return (
     <Dropdown
       placeholder={props.placeholder}
       label={props.label}
-      onChange={(_, option) => {
-        if (option) {
-          setSelectedDeviceId(option.key as string);
-          props.onSelectionChange?.(option.key as string)
-        }
-      }}
       options={props.devices.map((device) => ({ key: device.id, text: device.name }))}
-      selectedKey={selectedDeviceId}
+      selectedKey={props.selectedDevice?.id}
+      onChange={(_, option) => props.onSelectionChange?.(option?.key as string | undefined)}
     />
   );
 };
