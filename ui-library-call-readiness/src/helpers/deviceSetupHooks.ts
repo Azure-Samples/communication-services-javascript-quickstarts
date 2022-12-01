@@ -71,14 +71,14 @@ export const useCameras = (): {
 /** A helper hook to providing functionality to create a local video preview */
 export const useLocalPreview = (): {
   localPreview: VideoStreamRendererViewState | undefined,
-  startLocalPreview: any,
-  stopLocalPreview: any
+  startLocalPreview: () => Promise<void>,
+  stopLocalPreview: () => void
 } => {
   const callClient = useCallClient();
   const state = useCallClientStateChange();
   const localPreview = state.deviceManager.unparentedViews[0];
 
-  const startLocalPreview = useCallback(async (): Promise<VideoStreamRendererViewState | undefined> => {
+  const startLocalPreview = useCallback(async () => {
     const selectedCamera = state.deviceManager.selectedCamera;
     if (!selectedCamera) {
       console.warn('no camera selected to start preview with');
@@ -122,7 +122,7 @@ export const useLocalPreview = (): {
 }
 
 /** A helper hook to act when changes to the stateful client occur */
-const useCallClientStateChange = () => {
+const useCallClientStateChange = (): CallClientState => {
   const callClient = useCallClient();
   const [state, setState] = useState<CallClientState>(callClient.getState());
   useEffect(() => {

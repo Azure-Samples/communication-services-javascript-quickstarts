@@ -11,8 +11,8 @@ import { StatefulCallClient } from "@azure/communication-react";
 export const checkDevicePermissionsState = async (): Promise<{camera: PermissionState, microphone: PermissionState} | 'unknown'> => {
   try {
     const [micPermissions, cameraPermissions] = await Promise.all([
-      navigator.permissions.query({ name: "microphone" } as any),
-      navigator.permissions.query({ name: "camera" } as any)
+      navigator.permissions.query({ name: "microphone" as PermissionName }),
+      navigator.permissions.query({ name: "camera" as PermissionName })
     ]);
     return { camera: cameraPermissions.state, microphone: micPermissions.state };
   } catch (e) {
