@@ -4,7 +4,7 @@ import {
   DEFAULT_COMPONENT_ICONS
 } from '@azure/communication-react';
 import { useState } from 'react';
-import { PreCallChecksComponent } from './call-readiness/PreCallChecksComponent';
+import { PreCallChecksComponent } from './components/PreCallChecksComponent';
 import { PreparingYourSession } from './pages/PreparingYourSession';
 import { DeviceSetup } from './pages/DeviceSetup';
 import { TestComplete } from './pages/TestComplete';

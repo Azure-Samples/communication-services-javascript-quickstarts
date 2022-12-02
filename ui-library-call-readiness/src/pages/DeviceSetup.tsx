@@ -1,7 +1,7 @@
 import { PrimaryButton, Stack } from '@fluentui/react';
 import { useState } from 'react';
-import { CameraSelectionDropdown, MicrophoneSelectionDropdown, SpeakerSelectionDropdown } from '../call-readiness/DeviceSelectionComponents';
-import { LocalPreview } from '../call-readiness/LocalPreview';
+import { CameraSelectionDropdown, MicrophoneSelectionDropdown, SpeakerSelectionDropdown } from '../components/DeviceSelectionComponents';
+import { LocalPreview } from '../components/LocalPreview';
 
 export const DeviceSetup = (props: {
   /** Callback to let the parent component know what the chosen user device settings were */
