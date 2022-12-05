@@ -1,6 +1,6 @@
 import { AzureCommunicationTokenCredential } from '@azure/communication-common';
 import { welcomeUser, renderToken, initUI } from './ui.js';
-import { msalConfig } from './authConfig.js';
+import { msalConfig, teamsUserLoginRequest, teamsUserRequest } from './authConfig.js';
 import jwt_decode from "jwt-decode";
 
 // Create the main myMSALObj instance
@@ -75,10 +75,7 @@ const signIn = function () {
    * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/request-response-object.md#request
    */
 
-  myMSALObj.loginPopup({
-    scopes: ["openid"], // By default, MSAL.js will add OIDC scopes (openid, profile, email) to any login request.
-    prompt: 'select_account'
-  })
+  myMSALObj.loginPopup(teamsUserLoginRequest)
     .then(handleResponse)
     .catch(error => {
       console.log(error);
@@ -142,13 +139,7 @@ const getCommunicationTokenForTeamsUser = async function () {
   let apiAccessToken = await acquireAadToken({ scopes: [`${msalConfig.auth.clientId}/.default`] })
 
   // Acquire a token with delegated permissions Teams.ManageCalls and Teams.ManageChats
-  let teamsUserAccessToken = await acquireAadToken({
-    scopes:
-      [
-        "https://auth.msft.communication.azure.com/Teams.ManageCalls",
-        "https://auth.msft.communication.azure.com/Teams.ManageChats"
-      ]
-  });
+  let teamsUserAccessToken = await acquireAadToken(teamsUserRequest);
 
   // Call the backend API for token exchange
   if (apiAccessToken !== null && teamsUserAccessToken !== null) {
