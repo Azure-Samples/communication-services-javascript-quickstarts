@@ -12,8 +12,6 @@ products:
 This is a complete sample showcasing integration of call readiness
 into an [Azure Communication Services][docs-root] powered [React] application.
 
-For a step-by-step guide to building this sample yourself, see the [associated tutorial](todo).
-
 This sample includes:
 
 * A React based application showcasing several Call Readiness components provided by the [Azure Communication Services UI library][docs-ui-library].
@@ -21,6 +19,10 @@ This sample includes:
 [docs-root]: https://docs.microsoft.com/en-us/azure/communication-services/
 [docs-ui-library]: https://azure.github.io/communication-ui-library/
 [React]: https://reactjs.org/
+
+## Sample Preview
+
+![Gif showing sample running end to end](./example-user-flow.gif)
 
 ## Code organization
 
