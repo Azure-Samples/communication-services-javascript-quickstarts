@@ -8,12 +8,13 @@ import { PreCallChecksComponent } from './components/PreCallChecksComponent';
 import { PreparingYourSession } from './pages/PreparingYourSession';
 import { DeviceSetup } from './pages/DeviceSetup';
 import { TestComplete } from './pages/TestComplete';
+import { EnvironmentChecksComponent } from './components/EnvironmentChecksComponent';
 
 // Initializing and registering icons should only be done once per app.
 initializeIcons();
 registerIcons({ icons: DEFAULT_COMPONENT_ICONS });
 
-type TestingState = 'runningPreCallChecks' | 'deviceSetup' | 'finished';
+type TestingState = 'runningEnvironmentChecks' | 'runningDeviceAccessChecks' | 'deviceSetup' | 'finished';
 
 const USER_ID = 'user1'; // Replace with an Azure Communication Services User ID
 const callClient = createStatefulCallClient({ userId: { communicationUserId: USER_ID } });
@@ -25,13 +26,20 @@ const callClient = createStatefulCallClient({ userId: { communicationUserId: USE
  * Once the CallReadinessChecks are finished, the TestComplete component is shown.
  */
 const App = (): JSX.Element => {
-  const [testState, setTestState] = useState<TestingState>('runningPreCallChecks');
+  const [testState, setTestState] = useState<TestingState>('runningEnvironmentChecks');
 
   return (
     <FluentThemeProvider>
       <CallClientProvider callClient={callClient}>
+        {testState === 'runningEnvironmentChecks' && (
+          <>
+            <PreparingYourSession />
+            <EnvironmentChecksComponent onTestsSuccessful={() => setTestState('runningDeviceAccessChecks')} />
+          </>
+        )}
+        
         {/* Show a Preparing your session screen while running the call readiness checks */}
-        {testState === 'runningPreCallChecks' && (
+        {testState === 'runningDeviceAccessChecks' && (
           <>
             <PreparingYourSession />
             <PreCallChecksComponent onTestsSuccessful={() => setTestState('deviceSetup')} />

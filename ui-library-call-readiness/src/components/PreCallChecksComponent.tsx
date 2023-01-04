@@ -5,14 +5,11 @@ import { useCallClient } from '@azure/communication-react';
 import { checkBrowserSupport } from '../helpers/browserSupportUtils';
 import { checkDevicePermissionsState, requestCameraAndMicrophonePermissions } from '../helpers/devicePermissionUtils';
 
-type PreCallChecksState = 'runningChecks' |
-  'operatingSystemUnsupported' |
-  'browserUnsupported' |
-  'browserVersionUnsupported' |
+export type DevicesAccessChecksState = 'runningDeviceAccessChecks' |
+  'runningDeviceAccessChecks' |
   'checkingDeviceAccess' |
   'promptingForDeviceAccess' |
-  'deniedDeviceAccess' |
-  'finished';
+  'deniedDeviceAccess';
 
 /**
  * This component is a demo of how to use the StatefulCallClient with CallReadiness Components to get a user
@@ -25,21 +22,13 @@ export const PreCallChecksComponent = (props: {
    */
   onTestsSuccessful: () => void
 }): JSX.Element => {
-  const [currentCheckState, setCurrentCheckState] = useState<PreCallChecksState>('runningChecks');
+  const [currentCheckState, setCurrentCheckState] = useState<DevicesAccessChecksState>('runningDeviceAccessChecks');
+  
 
   // Run call readiness checks when component mounts
   const callClient = useCallClient();
   useEffect(() => {
     const runCallReadinessChecks = async (): Promise<void> => {
-
-      // First we'll begin with a browser support check.
-      const browserSupport = await checkBrowserSupport(callClient);
-      
-      if (!browserSupport) {
-        setCurrentCheckState('browserUnsupported');
-        // If browser support fails, we'll stop here and display a modal to the user.
-        return;
-      }
 
       // Next we will check if we need to prompt the user for camera and microphone permissions.
       // The prompt check only works if the browser supports the PermissionAPI for querying camera and microphone.
@@ -60,7 +49,6 @@ export const PreCallChecksComponent = (props: {
         // If the user denied camera and microphone permissions, we prompt the user to take corrective action.
         setCurrentCheckState('deniedDeviceAccess');
       } else {
-        setCurrentCheckState('finished');
         // Test finished successfully, trigger callback to parent component to take user to the next stage of the app.
         props.onTestsSuccessful();
       }
@@ -72,13 +60,6 @@ export const PreCallChecksComponent = (props: {
 
   return (
     <>
-      <OperatingSystemUnsupportedPrompt isOpen={currentCheckState === 'operatingSystemUnsupported'}/>
-      {/* We show this when the browser is unsupported */}
-      <BrowserUnsupportedPrompt isOpen={currentCheckState === 'browserUnsupported'} />
-
-      {/* We show this when the browser version is unsupported */}
-      <BrowserVersionUnsupportedPrompt isOpen={currentCheckState === 'browserVersionUnsupported'} />
-
       {/* We show this when we are prompting the user to accept device permissions */}
       <AcceptDevicePermissionRequestPrompt isOpen={currentCheckState === 'promptingForDeviceAccess'} />
 

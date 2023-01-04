@@ -1,5 +1,6 @@
 import { UnsupportedBrowser, UnsupportedOperatingSystem, UnsupportedBrowserVersion } from '@azure/communication-react';
 import { Modal } from '@fluentui/react';
+import { EnvironmentChecksState } from './EnvironmentChecksComponent';
 
 export const BrowserUnsupportedPrompt = (props: { isOpen: boolean }): JSX.Element => (
   <Modal isOpen={props.isOpen}>
@@ -21,11 +22,11 @@ export const OperatingSystemUnsupportedPrompt = (props: { isOpen: boolean }): JS
 );
 
 
-export const BrowserVersionUnsupportedPrompt = (props: { isOpen: boolean }): JSX.Element => (
+export const BrowserVersionUnsupportedPrompt = (props: { isOpen: boolean, onContinueAnyway:() => void }): JSX.Element => (
   <Modal isOpen={props.isOpen}>
     <UnsupportedBrowserVersion
       onTroubleshootingClick={() => alert('This callback should be used to take the user to further troubleshooting')}
-      onContinueAnywayClick={() => alert('This callback should be used to allow the user to continue into the calling application')}
+      onContinueAnywayClick={() => props.onContinueAnyway()}
       strings={undefined as any} /* remove when API is fixed */
     />
   </Modal>
