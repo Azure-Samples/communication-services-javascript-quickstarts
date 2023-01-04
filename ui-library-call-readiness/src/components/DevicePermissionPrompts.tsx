@@ -1,4 +1,4 @@
-import { CameraAndMicrophoneDomainPermissions } from '@azure/communication-react';
+import { CameraAndMicrophoneSitePermissions } from '@azure/communication-react';
 import { Modal } from '@fluentui/react';
 
 export const AcceptDevicePermissionRequestPrompt = (props: { isOpen: boolean }): JSX.Element => (
@@ -15,7 +15,7 @@ export const PermissionsDeniedPrompt = (props: { isOpen: boolean }): JSX.Element
 
 const PermissionsModal = (props: { isOpen: boolean, type: "denied" | "request" | "check" }): JSX.Element => (
   <Modal isOpen={props.isOpen}>
-    <CameraAndMicrophoneDomainPermissions
+    <CameraAndMicrophoneSitePermissions
       appName={'this site'}
       type={props.type}
       onTroubleshootingClick={() => alert('This callback should be used to take the user to further troubleshooting')}
