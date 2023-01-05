@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BrowserUnsupportedPrompt, BrowserVersionUnsupportedPrompt, OperatingSystemUnsupportedPrompt } from './UnsupportedEvironmentPrompts';
+import { BrowserUnsupportedPrompt, BrowserVersionUnsupportedPrompt, OperatingSystemUnsupportedPrompt } from './UnsupportedEnvironmentPrompts';
 import { CheckingDeviceAccessPrompt, PermissionsDeniedPrompt, AcceptDevicePermissionRequestPrompt } from './DevicePermissionPrompts';
 import { useCallClient } from '@azure/communication-react';
 import { checkBrowserSupport } from '../helpers/browserSupportUtils';
