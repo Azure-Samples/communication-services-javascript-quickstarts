@@ -28,7 +28,7 @@ export const PreCallChecksComponent = (props: {
   // Run call readiness checks when component mounts
   const callClient = useCallClient();
   useEffect(() => {
-    const runCallReadinessChecks = async (): Promise<void> => {
+    const runDeviceAccessChecks = async (): Promise<void> => {
 
       // Next we will check if we need to prompt the user for camera and microphone permissions.
       // The prompt check only works if the browser supports the PermissionAPI for querying camera and microphone.
@@ -54,7 +54,7 @@ export const PreCallChecksComponent = (props: {
       }
     };
 
-    runCallReadinessChecks();
+    runDeviceAccessChecks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
