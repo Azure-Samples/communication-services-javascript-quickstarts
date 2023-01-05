@@ -6,7 +6,6 @@ export const BrowserUnsupportedPrompt = (props: { isOpen: boolean }): JSX.Elemen
   <Modal isOpen={props.isOpen}>
     <UnsupportedBrowser
       onTroubleshootingClick={() => alert('This callback should be used to take the user to further troubleshooting')}
-      strings={undefined as any} /* remove when API is fixed */
     />
   </Modal>
 );
@@ -16,7 +15,6 @@ export const OperatingSystemUnsupportedPrompt = (props: { isOpen: boolean }): JS
   <Modal isOpen={props.isOpen}>
     <UnsupportedOperatingSystem
       onTroubleshootingClick={() => alert('This callback should be used to take the user to further troubleshooting')}
-      strings={undefined as any} /* remove when API is fixed */
     />
   </Modal>
 );
@@ -27,7 +25,6 @@ export const BrowserVersionUnsupportedPrompt = (props: { isOpen: boolean, onCont
     <UnsupportedBrowserVersion
       onTroubleshootingClick={() => alert('This callback should be used to take the user to further troubleshooting')}
       onContinueAnywayClick={() => props.onContinueAnyway()}
-      strings={undefined as any} /* remove when API is fixed */
     />
   </Modal>
 );

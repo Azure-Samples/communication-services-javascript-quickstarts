@@ -5,7 +5,7 @@
   "dependencies": {
     "@azure/communication-calling": "^1.9.1-beta.1",
     "@azure/communication-chat": "1.2.0",
-    "@azure/communication-react": "^1.4.3-alpha-202301040014.0",
+    "@azure/communication-react": "^1.4.2-alpha-202301052137",
     "@fluentui/react": "8.101.0",
     "@fluentui/react-icons": "^2.0.187",
     "@testing-library/jest-dom": "^5.14.1",
