@@ -99,7 +99,7 @@ export const useLocalPreview = (): {
 
   const stopLocalPreview = useCallback(() => {
     if (!localPreview) {
-      console.warn('no local preview ti dispose');
+      console.warn('no local preview to dispose');
       return;
     }
     callClient.disposeView(undefined, undefined, localPreview)
