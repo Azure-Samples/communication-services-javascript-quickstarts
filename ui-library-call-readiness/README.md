@@ -9,12 +9,15 @@ products:
 
 # UI Library Sample - Creating a Call Readiness Experience
 
-This is a complete sample showcasing integration of call readiness
-into an [Azure Communication Services][docs-root] powered [React] application.
+This is a complete sample showcasing integration of call readiness into an [Azure Communication Services][docs-root] powered [React] application.
 
-This sample includes:
+You can view the accompanying tutorial for this sample code [here](https://learn.microsoft.com/en-us/azure/communication-services/tutorials/call-readiness/call-readiness-overview).
 
-* A React based application showcasing several Call Readiness components provided by the [Azure Communication Services UI library][docs-ui-library].
+This sample includes a React based application showcasing several Call Readiness components provided by the [Azure Communication Services UI library][docs-ui-library]. It has three primary stages:
+
+1. Check the user is on a supported platform/browser
+2. Prompt the user to provide camera and microphone access
+3. Allow the user to choose their camera, microphone and speaker setup
 
 [docs-root]: https://docs.microsoft.com/en-us/azure/communication-services/
 [docs-ui-library]: https://azure.github.io/communication-ui-library/
@@ -26,26 +29,19 @@ This sample includes:
 
 ## Code organization
 
-TBD
+* `index.tsx` - The entry point of the React App
+* `App.tsx` - The functional starting point of your App. This houses the logic of switching between pages.
+* `pages/` - The different pages displayed throughout stages of the App.
+* `components/` - Individual components used in the pages.
+* `helpers/` - Helper functions that grab data rendered in the pages and components.
 
-## Prerequisites - Azure Resources
+## Prerequisites
 
-You need a few Azure resources before running this sample locally.
-
-* An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F)  .
-* [Node.js](https://nodejs.org/en/) Active LTS and Maintenance LTS versions (16.x.x is recommended).
-* An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
-* An identity with VOIP scope. Generate an identity using the [Azure Portal](https://docs.microsoft.com/azure/communication-services/quickstarts/identity/quick-create-identity).
-
-## Prerequisites -- Configuration
-
-Once you have these resources setup, you need to replace the following placeholders:
-
-* TBD
+* [Node.js](https://nodejs.org/en/) must be installed (16.x.x is recommended).
 
 ## Run the code
 
 1. Run `npm i` on the directory of the project to install dependencies
 1. Run `npm start`
 
-Open your browser to <http://localhost:3000>. You should see the following: TBD
+Open your browser to <http://localhost:3000>.
