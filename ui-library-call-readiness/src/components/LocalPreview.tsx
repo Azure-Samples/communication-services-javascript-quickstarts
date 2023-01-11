@@ -11,6 +11,7 @@ import { VideoOff20Filled } from '@fluentui/react-icons';
 import { useEffect } from 'react';
 import { useCameras, useLocalPreview } from '../helpers/deviceSetupHooks';
 
+/** LocalPreview component has a camera and microphone toggle buttons, along with a video preview of the local camera. */
 export const LocalPreview = (props: {
   cameraOn: boolean,
   microphoneOn: boolean,
@@ -34,7 +35,7 @@ export const LocalPreview = (props: {
   const shouldShowLocalVideo = canTurnCameraOn && cameraOn && localPreview;
   return (
     <Stack verticalFill verticalAlign="center">
-      <Stack className={localPreviewContainerMergedStyles(theme)}>
+      <Stack className={localPreviewContainerStyles(theme)}>
         <VideoTile
           renderElement={shouldShowLocalVideo ? <StreamMedia videoStreamElement={localPreview.target} /> : undefined}
           onRenderPlaceholder={() => <CameraOffPlaceholder />}
@@ -59,6 +60,7 @@ export const LocalPreview = (props: {
   );
 };
 
+/** Placeholder shown in the local preview window when the camera is off */
 const CameraOffPlaceholder = (): JSX.Element => {
   const theme = useTheme();
   return (
@@ -73,7 +75,8 @@ const CameraOffPlaceholder = (): JSX.Element => {
   );
 };
 
-const localPreviewContainerMergedStyles = (theme: ITheme): string =>
+/** Default styles for the local preview container */
+const localPreviewContainerStyles = (theme: ITheme): string =>
   mergeStyles({
     minWidth: '25rem',
     maxHeight: '18.75rem',
