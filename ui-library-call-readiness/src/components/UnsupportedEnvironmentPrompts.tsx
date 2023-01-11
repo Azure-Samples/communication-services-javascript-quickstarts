@@ -1,6 +1,5 @@
 import { UnsupportedBrowser, UnsupportedOperatingSystem, UnsupportedBrowserVersion } from '@azure/communication-react';
 import { Modal } from '@fluentui/react';
-import { EnvironmentChecksState } from './EnvironmentChecksComponent';
 
 export const BrowserUnsupportedPrompt = (props: { isOpen: boolean }): JSX.Element => (
   <Modal isOpen={props.isOpen}>
