@@ -1,6 +1,7 @@
 import { useTheme } from '@azure/communication-react';
 import { ISpinnerStyles, IStackStyles, ITextStyles, ITheme, Spinner, Stack, Text } from '@fluentui/react';
 
+/** This page displays a spinner to the user. This is used to show the user that background checks are being performed. */
 export const PreparingYourSession = (): JSX.Element => {
   const theme = useTheme();
   return (
@@ -9,14 +10,8 @@ export const PreparingYourSession = (): JSX.Element => {
         <Spinner styles={spinnerStyles} />
       </Stack>
       <Stack horizontalAlign="center">
-        <Stack.Item>
-          <Text styles={headingStyles} variant="large">
-            Preparing your session
-          </Text>
-        </Stack.Item>
-        <Stack.Item>
-          <Text variant="medium">Please be patient</Text>
-        </Stack.Item>
+        <Text styles={headingStyles} variant="large">Preparing your session</Text>
+        <Text variant="medium">Please be patient</Text>
       </Stack>
     </Stack>
   );

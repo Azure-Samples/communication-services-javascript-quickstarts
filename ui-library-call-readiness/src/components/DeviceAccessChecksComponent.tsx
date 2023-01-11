@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
-import { BrowserUnsupportedPrompt, BrowserVersionUnsupportedPrompt, OperatingSystemUnsupportedPrompt } from './UnsupportedEnvironmentPrompts';
 import { CheckingDeviceAccessPrompt, PermissionsDeniedPrompt, AcceptDevicePermissionRequestPrompt } from './DevicePermissionPrompts';
 import { useCallClient } from '@azure/communication-react';
-import { checkBrowserSupport } from '../helpers/browserSupportUtils';
 import { checkDevicePermissionsState, requestCameraAndMicrophonePermissions } from '../helpers/devicePermissionUtils';
 
 export type DevicesAccessChecksState = 'runningDeviceAccessChecks' |

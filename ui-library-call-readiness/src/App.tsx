@@ -22,7 +22,7 @@ const USER_ID = 'user1';
 const callClient = createStatefulCallClient({ userId: { communicationUserId: USER_ID } });
 
 /**
- * Entry point of a React app.
+ * Entry point of the React app.
  *
  * This shows a PreparingYourSession component while the CallReadinessChecks are running.
  * Once the CallReadinessChecks are finished, the TestComplete component is shown.

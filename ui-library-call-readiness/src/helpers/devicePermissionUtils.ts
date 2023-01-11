@@ -14,7 +14,7 @@ export const checkDevicePermissionsState = async (): Promise<{camera: Permission
       navigator.permissions.query({ name: "microphone" as PermissionName }),
       navigator.permissions.query({ name: "camera" as PermissionName })
     ]);
-    console.info([micPermissions, cameraPermissions]); // view console logs in the browser to see what the PermissionsAPI info is returned
+    console.info('PermissionAPI results', [micPermissions, cameraPermissions]); // view console logs in the browser to see what the PermissionsAPI info is returned
     return { camera: cameraPermissions.state, microphone: micPermissions.state };
   } catch (e) {
     console.warn("Permissions API unsupported", e);
@@ -25,6 +25,6 @@ export const checkDevicePermissionsState = async (): Promise<{camera: Permission
 /** Use the DeviceManager to request for permissions to access the camera and microphone. */
 export const requestCameraAndMicrophonePermissions = async (callClient: StatefulCallClient): Promise<DeviceAccess> => {
   const response = await (await callClient.getDeviceManager()).askDevicePermission({ audio: true, video: true });
-  console.info(response); // view console logs in the browser to see what device access info is returned
+  console.info('AskDevicePermission response', response); // view console logs in the browser to see what device access info is returned
   return response
 }
