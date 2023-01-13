@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react';
-import { BrowserUnsupportedPrompt, BrowserVersionUnsupportedPrompt, OperatingSystemUnsupportedPrompt } from './UnsupportedEnvironmentPrompts';
 import { CheckingDeviceAccessPrompt, PermissionsDeniedPrompt, AcceptDevicePermissionRequestPrompt } from './DevicePermissionPrompts';
 import { useCallClient } from '@azure/communication-react';
-import { checkBrowserSupport } from '../helpers/browserSupportUtils';
 import { checkDevicePermissionsState, requestCameraAndMicrophonePermissions } from '../helpers/devicePermissionUtils';
 
 export type DevicesAccessChecksState = 'runningDeviceAccessChecks' |
-  'runningDeviceAccessChecks' |
   'checkingDeviceAccess' |
   'promptingForDeviceAccess' |
   'deniedDeviceAccess';
@@ -16,21 +13,20 @@ export type DevicesAccessChecksState = 'runningDeviceAccessChecks' |
  * ready to join a call.
  * This component checks the browser support and if camera and microphone permissions have been granted.
  */
-export const PreCallChecksComponent = (props: {
+export const DeviceAccessChecksComponent = (props: {
   /**
    * Callback triggered when the tests are complete and successful
    */
   onTestsSuccessful: () => void
 }): JSX.Element => {
   const [currentCheckState, setCurrentCheckState] = useState<DevicesAccessChecksState>('runningDeviceAccessChecks');
-  
 
   // Run call readiness checks when component mounts
   const callClient = useCallClient();
   useEffect(() => {
     const runDeviceAccessChecks = async (): Promise<void> => {
 
-      // Next we will check if we need to prompt the user for camera and microphone permissions.
+      // First we will check if we need to prompt the user for camera and microphone permissions.
       // The prompt check only works if the browser supports the PermissionAPI for querying camera and microphone.
       // In the event that is not supported, we show a more generic prompt to the user.
       const devicePermissionState = await checkDevicePermissionsState();

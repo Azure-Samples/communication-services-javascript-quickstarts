@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BrowserUnsupportedPrompt, BrowserVersionUnsupportedPrompt, OperatingSystemUnsupportedPrompt } from './UnsupportedEnvironmentPrompts';
 import { useCallClient } from '@azure/communication-react';
-import { checkBrowserSupport } from '../helpers/browserSupportUtils';
+import { checkEnvironmentSupport } from '../helpers/browserSupportUtils';
 
 export type EnvironmentChecksState = 'runningEnvironmentChecks' |
   'operatingSystemUnsupported' |
@@ -28,7 +28,7 @@ export const EnvironmentChecksComponent = (props: {
     const runEnvironmentChecks = async (): Promise<void> => {
 
       // First we will get the environment information from the calling SDK.
-      const environmentInfo = await checkBrowserSupport(callClient);
+      const environmentInfo = await checkEnvironmentSupport(callClient);
 
       if (!environmentInfo.isSupportedPlatform) {
         setCurrentCheckState('operatingSystemUnsupported');
