@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BrowserUnsupportedPrompt, BrowserVersionUnsupportedPrompt, OperatingSystemUnsupportedPrompt } from './UnsupportedEnvironmentPrompts';
 import { useCallClient } from '@azure/communication-react';
-import { checkEnvironmentSupport } from '../helpers/browserSupportUtils';
+import { checkEnvironmentSupport } from '../helpers/environmentSupportUtils';
 
 export type EnvironmentChecksState = 'runningEnvironmentChecks' |
   'operatingSystemUnsupported' |
