@@ -3,6 +3,10 @@ import { useState } from 'react';
 import { CameraSelectionDropdown, MicrophoneSelectionDropdown, SpeakerSelectionDropdown } from '../components/DeviceSelectionComponents';
 import { LocalPreview } from '../components/LocalPreview';
 
+/**
+ * This page displays a dropdown for the user to select their camera, microphone, and speaker, alongside
+ * a preview of their camera and microphone. The user can toggle their camera and microphone on and off.
+ */
 export const DeviceSetup = (props: {
   /** Callback to let the parent component know what the chosen user device settings were */
   onDeviceSetupComplete: (userChosenDeviceState: { cameraOn: boolean; microphoneOn: boolean }) => void

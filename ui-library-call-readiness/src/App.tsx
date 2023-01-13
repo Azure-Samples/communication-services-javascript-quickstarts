@@ -16,11 +16,13 @@ registerIcons({ icons: DEFAULT_COMPONENT_ICONS });
 
 type TestingState = 'runningEnvironmentChecks' | 'runningDeviceAccessChecks' | 'deviceSetup' | 'finished';
 
-const USER_ID = 'user1'; // Replace with an Azure Communication Services User ID
+// UserId is required for creating the stateful call client. In a production app this would not be `user id`, but instead
+// retreived from a running service that can create Azure Communication Services users and credential tokens that have VOIP capabilities.
+const USER_ID = 'user1';
 const callClient = createStatefulCallClient({ userId: { communicationUserId: USER_ID } });
 
 /**
- * Entry point of a React app.
+ * Entry point of the React app.
  *
  * This shows a PreparingYourSession component while the CallReadinessChecks are running.
  * Once the CallReadinessChecks are finished, the TestComplete component is shown.

@@ -1,6 +1,7 @@
 import { Dropdown } from '@fluentui/react';
 import { useCameras, useMicrophones, useSpeakers } from '../helpers/deviceSetupHooks';
 
+/** Dropdown that allows the user to choose their desired camera */
 export const CameraSelectionDropdown = (): JSX.Element => {
   const { cameras, selectedCamera, setSelectedCamera } = useCameras();
   return (
@@ -19,6 +20,7 @@ export const CameraSelectionDropdown = (): JSX.Element => {
   );
 };
 
+/** Dropdown that allows the user to choose their desired microphone */
 export const MicrophoneSelectionDropdown = (): JSX.Element => {
   const { microphones, selectedMicrophone, setSelectedMicrophone } = useMicrophones();
   return (
@@ -37,6 +39,7 @@ export const MicrophoneSelectionDropdown = (): JSX.Element => {
   );
 };
 
+/** Dropdown that allows the user to choose their desired speaker */
 export const SpeakerSelectionDropdown = (): JSX.Element => {
   const { speakers, selectedSpeaker, setSelectedSpeaker } = useSpeakers();
   return (
