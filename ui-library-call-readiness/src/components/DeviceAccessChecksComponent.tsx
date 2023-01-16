@@ -21,7 +21,7 @@ export const DeviceAccessChecksComponent = (props: {
 }): JSX.Element => {
   const [currentCheckState, setCurrentCheckState] = useState<DevicesAccessChecksState>('runningDeviceAccessChecks');
 
-  // Run call readiness checks when component mounts
+  // Run device access checks when component mounts.
   const callClient = useCallClient();
   useEffect(() => {
     const runDeviceAccessChecks = async (): Promise<void> => {
