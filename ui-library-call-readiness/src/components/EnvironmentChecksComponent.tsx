@@ -32,7 +32,7 @@ export const EnvironmentChecksComponent = (props: {
 
       if (!environmentInfo.isSupportedPlatform) {
         setCurrentCheckState('operatingSystemUnsupported');
-        // if the platform or operating system is not supported we'll stop here and display a modal to the user.
+        // If the platform or operating system is not supported we'll stop here and display a modal to the user.
         return;
       } else if (!environmentInfo.isSupportedBrowser) {
         setCurrentCheckState('browserUnsupported');
