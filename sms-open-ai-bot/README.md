@@ -47,7 +47,7 @@ Finally, we configure SMS events through Event Grid in your Azure Communication 
 
 ```bash
 
-az eventgrid event-subscription create --name "<<EVENT_SUBSCRIPTION_NAME>>" --endpoint-type webhook --endpoint "<<NGROK URL/runtime/webhooks/EventGrid?functionName=FUNCTION NAME>> " --source-resource-id "<<RESOURCE_ID>>"  --included-event-types Microsoft.Communication.SMSReceived
+az eventgrid event-subscription create --name "<<EVENT_SUBSCRIPTION_NAME>>" --endpoint-type webhook --endpoint "<<NGROK URL/runtime/webhooks/EventGrid?functionName=sms-open-ai-bot>> " --source-resource-id "<<RESOURCE_ID>>"  --included-event-types Microsoft.Communication.SMSReceived
 
 ```
 
