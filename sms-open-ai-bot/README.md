@@ -30,7 +30,8 @@ This application leverages [Azure Event Grid](https://learn.microsoft.com/azure/
 2. Open a terminal and navigate to the repository directory
 3. Run `cd sms-open-ai-bot` to get in the same directory as the function
 4. Run `npm i` which will install the dependencies for the sample
-5. In Visual Studio Code, click into the `index.js` file and press `F5`
+5. Update the values in the code to add your Azure Communication Services connection string and Azure Open AI key.
+6. In Visual Studio Code, click into the `index.js` file and press `F5`
 
 We use [ngrok](https://ngrok.com/) to hook our locally running Azure Function with Azure Event Grid. You will need to [download ngrok](https://ngrok.com/download) for your environment. Once the function is running, we will configure ngrok.
 
