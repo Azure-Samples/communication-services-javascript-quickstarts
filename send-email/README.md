@@ -22,13 +22,15 @@ Additional documentation for this sample can be found on [Microsoft Docs](https:
 
 ## Prerequisites
 
-- [Visual Studio Code (Stable Build)](https://code.visualstudio.com/download).
 - [Node.js (~14)](https://nodejs.org/download/release/v14.19.1/).
-- Create an Azure account with an active subscription. For details, see [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
-- Create an Azure Communication Services resource. For details, see [Create an Azure Communication Resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource). You'll need to record your resource **connection string** for this quickstart.
-- Create an [Azure Email Communication Services resource](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/email/create-email-communication-resource) to start sending emails.
+- An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
+- An Azure Email Communication Services resource created and ready with a provisioned domain. [Get started with creating an Email Communication Resource](../create-email-communication-resource.md).
+- An active Azure Communication Services resource connected to an Email Domain and its connection string. [Get started by connecting an Email Communication Resource with a Azure Communication Resource](../connect-email-communication-resource.md).
 
-> Note: We can send an email from our own verified domain also [Add custom verified domains to Email Communication Service](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/email/add-custom-verified-domains).
+> Note: We can also send an email from our own verified domain. [Add custom verified domains to Email Communication Service](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/email/add-custom-verified-domains).
+
+### Prerequisite check
+- To view the domains verified with your Email Communication Services resource, sign in to the [Azure portal](https://portal.azure.com/). Locate your Email Communication Services resource and open the **Provision domains** tab from the left navigation pane.
 
 
 ## Code structure
@@ -44,10 +46,9 @@ Additional documentation for this sample can be found on [Microsoft Docs](https:
 ### Locally configuring the application
 
 3. Open the send-email.js file to configure the following settings:
-  - `connectionstring`: Replace `<ACS_CONNECTION_STRING>` with the connection string found within the Azure Communication Service resource.
-  - `sender`: Replace `<SENDER_EMAIL>` with the sender email obtained from Azure Communication Service.
-  - `recipient`: Replace `<RECIPIENT_EMAIL>` with the recipient email.
-  - `emailContent`: Either use PlainText or Html to set the email content.
+  - `connectionString`: Replace `<ACS_CONNECTION_STRING>` with the connection string found within the 'Keys' blade of the Azure Communication Service resource.
+  - `senderAddress`: Replace `<SENDER_EMAIL_ADDRESS>` with the sender email address obtained from the linked domain resource.
+  - `recipientAddress`: Replace `<RECIPIENT_EMAIL_ADDRESS>` with the recipient email address.
 
 ### Local run
 

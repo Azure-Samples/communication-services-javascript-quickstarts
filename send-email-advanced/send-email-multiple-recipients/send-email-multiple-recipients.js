@@ -1,61 +1,58 @@
-const { EmailClient } = require("@azure/communication-email");
+const { EmailClient, KnownEmailSendStatus } = require("@azure/communication-email");
 
 const connectionString = "<ACS_CONNECTION_STRING>";
-const sender = "<SENDER_EMAIL>";
-const toRecipients = {
-    to: [
-        { email: "<alice@contoso.com>", displayName: "Alice" },
-        { email: "<bob@contoso.com>", displayName: "Bob" },
-    ],
-};
+const senderAddress = "<SENDER_EMAIL_ADDRESS>"
+const recipientAddress = "<RECIPIENT_EMAIL_ADDRESS>"
 
-const client = new EmailClient(connectionString);
-const emailContent = {
-  subject: "Send email multiple recipients- JS sample",
-  plainText: "Test Email from JS Send Email Sample Application\n\n This email is part of testing of email communication service. \\n Best wishes",
-  html: "<html><head><title>ACS Email as a Service</title></head><body><h1>ACS Email as a Service - Html body</h1><h2>This email is part of testing of email communication service</h2></body></html>",
-};
 
 async function main() {
+  const POLLER_WAIT_TIME = 10
+
+  const message = {
+    senderAddress: senderAddress,
+    recipients: {
+      to: [{ address: recipientAddress }, { address: recipientAddress }],
+      cc: [{ address: recipientAddress }],
+      bcc: [{ address: recipientAddress }],
+    },
+    content: {
+      subject: "Test email from JS Sample",
+      plainText: "This is plaintext body of test email.",
+      html: "<html><h1>This is the html body of test email.</h1></html>",
+    },
+  }
+
   try {
-    const emailMessage = {
-      sender: sender,
-      content: emailContent,
-      importance: 'high',
-      recipients: toRecipients,
-    };
+    const client = new EmailClient(connectionString);
 
-    const sendResult = await client.send(emailMessage);
+    const poller = await client.beginSend(message);
 
-    if (sendResult && sendResult.messageId) {
-      const messageId = sendResult.messageId;
-        if (messageId === null || messageId === undefined) {
-        console.log("Message Id not found.");
-        return;
-      }
-
-      console.log("Send email success, MessageId :", messageId);
-
-      let counter = 0;
-      const statusInterval = setInterval(async function () {
-        counter++;
-        try {
-            const sendStatusResult = await client.getSendStatus(messageId);
-            if (sendStatusResult) {
-                console.log(`Email status for {${messageId}} : [${sendStatusResult.status}]`);
-                if (sendStatusResult.status.toLowerCase() !== "queued" || counter > 12) {
-              clearInterval(statusInterval);
-            }
-          }
-        } catch (e) {
-          console.log("Error in checking send mail status: ",e);
-        }
-      }, 5000);
-    } else {
-      console.error("Something went wrong when trying to send this email: ", sendResult);
+    if (!poller.getOperationState().isStarted) {
+      throw "Poller was not started."
     }
-  } catch (e) {
-      console.log("################### Exception occurred while sending email #####################", e);
+
+    let timeElapsed = 0;
+    while(!poller.isDone()) {
+      poller.poll();
+      console.log("Email send polling in progress");
+
+      await new Promise(resolve => setTimeout(resolve, POLLER_WAIT_TIME * 1000));
+      timeElapsed += 10;
+
+      if(timeElapsed > 18 * POLLER_WAIT_TIME) {
+        throw "Polling timed out.";
+      }
+    }
+
+    if(poller.getResult().status === KnownEmailSendStatus.Succeeded) {
+      console.log(`Successfully sent the email (operation id: ${poller.getResult().id})`);
+    }
+    else {
+      throw poller.getResult().error;
+    }
+  }
+  catch(ex) {
+    console.error(ex);
   }
 }
 
