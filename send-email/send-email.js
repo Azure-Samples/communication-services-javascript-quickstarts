@@ -1,59 +1,55 @@
-const { EmailClient } = require("@azure/communication-email");
+const { EmailClient, KnownEmailSendStatus } = require("@azure/communication-email");
 
 const connectionString = "<ACS_CONNECTION_STRING>";
-const client = new EmailClient(connectionString);
-const sender = "<SENDER_EMAIL>";
-const emailContent = {
-  subject: "Send email quick start test- JS sample",
-  plainText: "Test Email from JS Send Email Sample Application\n\n This email is part of testing of email communication service. \\n Best wishes",
-  html: "<html><head><title>ACS Email as a Service</title></head><body><h1>ACS Email as a Service - Html body</h1><h2>This email is part of testing of email communication service</h2></body></html>",
-};
-const toRecipients = {
-  to: [
-    { email: "<RECIPIENT_EMAIL>", displayName: "<RECIPIENT_DISPLAY_NAME>" },
-  ],
-};
+const senderAddress = "<SENDER_EMAIL_ADDRESS>"
+const recipientAddress = "<RECIPIENT_EMAIL_ADDRESS>"
 
 async function main() {
+  const POLLER_WAIT_TIME = 10
+
+  const message = {
+    senderAddress: senderAddress,
+    recipients: {
+      to: [{ address: recipientAddress }],
+    },
+    content: {
+      subject: "Test email from JS Sample",
+      plainText: "This is plaintext body of test email.",
+      html: "<html><h1>This is the html body of test email.</h1></html>",
+    },
+  }
+
   try {
-    const emailMessage = {
-      sender: sender,
-      content: emailContent,
-      recipients: toRecipients,
-    };
+    const client = new EmailClient(connectionString);
 
-    const sendResult = await client.send(emailMessage);
+    const poller = await client.beginSend(message);
 
-    if (sendResult && sendResult.messageId) {
-      // check mail status, wait for 5 seconds, check for 60 seconds.
-      const messageId = sendResult.messageId;
-      if (messageId === null) {
-        console.log("Message Id not found.");
-        return;
-      }
-
-      console.log("Send email success, MessageId :", messageId);
-
-      let counter = 0;
-      const statusInterval = setInterval(async function () {
-        counter++;
-        try {
-          const response = await client.getSendStatus(messageId);
-          if (response) {
-            console.log(`Email status for {${messageId}} : [${response.status}]`);
-            if (response.status.toLowerCase() !== "queued" || counter > 12) {
-              clearInterval(statusInterval);
-            }
-          }
-        } catch (e) {
-          console.log("Error in checking send mail status: ",e);
-        }
-      }, 5000);
-    } else {
-      console.error("Something went wrong when trying to send this email: ", sendResult);
+    if (!poller.getOperationState().isStarted) {
+      throw "Poller was not started."
     }
-  } catch (e) {
-    console.log("################### Exception occoured while sending email #####################", e);
+
+    let timeElapsed = 0;
+    while(!poller.isDone()) {
+      poller.poll();
+      console.log("Email send polling in progress");
+
+      await new Promise(resolve => setTimeout(resolve, POLLER_WAIT_TIME * 1000));
+      timeElapsed += 10;
+
+      if(timeElapsed > 18 * POLLER_WAIT_TIME) {
+        throw "Polling timed out.";
+      }
+    }
+
+    if(poller.getResult().status === KnownEmailSendStatus.Succeeded) {
+      console.log(`Successfully sent the email (operation id: ${poller.getResult().id})`);
+    }
+    else {
+      throw poller.getResult().error;
+    }
+  }
+  catch(ex) {
+    console.error(ex);
   }
 }
 
