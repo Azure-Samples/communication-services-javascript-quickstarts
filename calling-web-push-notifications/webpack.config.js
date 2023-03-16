@@ -6,7 +6,7 @@ const axios = require('axios');
 const bodyParser = require('body-parser');
 
 if (!config || !config.connectionString || config.connectionString.indexOf('endpoint=') === -1) {
-    throw new Error("Update `config.json` with connection string");
+    throw new Error("Update `./serverConfig.json` with connection string");
 }
 
 const communicationIdentityClient = new  CommunicationIdentityClient(config.connectionString);
