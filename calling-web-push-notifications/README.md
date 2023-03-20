@@ -48,7 +48,9 @@ OneSignal is one of many web push providers. It is a tool that you can use to se
 ![](./assets/createOneSignalApp5.png)
 
 ### Create your IncomingCall event listener Function App
-We will set up an azure function app to subscribe to our ACS EventGrid IncomingCall event and then call OneSignal's "Create Notification" REST API to send the Incoming Call web push notification to the callee. In our function app will also keep a static mapping of our OneSignalRegistrationTokens to ACS communicationUserIds. For the purposes of this quickstart demo and easier explanation, we will create our function app to handle this logic. <b><i>It is best to use a function app for this so we can call OneSignal directly from Azure so that the callee can receive the web push notification as fast as possible. Do not do this logic from a backend server or performance wont be at its best.</i></b>
+We will set up an azure function app to subscribe to our ACS EventGrid IncomingCall event and then call OneSignal's "Create Notification" REST API to send the Incoming Call web push notification to the callee. In our function app will also keep a static mapping of our OneSignalRegistrationTokens to ACS communicationUserIds. For the purposes of this quickstart demo and easier explanation, we will create our function app to handle this logic.
+> **Note**
+> <b><i>It is best to use an Azure Function App for this logic so we can call OneSignal directly from Azure so that the callee can receive the web push notification as fast as possible. Do not do this logic from a backend server.</i></b>
 - From the Azure portal, search for "function app" and click on the "+" button to create a new Function App. Or go to "Function App" services and click on "+ Create" button:
 ![](./assets/createFunctionApp1.png) 
 <br></br>
