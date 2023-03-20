@@ -3,16 +3,17 @@
 }
 
 .navbar {
-    height: 5em;
+    height: 6em;
 }
 
 .navbar > div > img {
-    height: 5em;
-    line-height: 2.5em;
+    height: 6em;
+    line-height: 3em;
 }
 
 .navbar > div > div {
-    line-height: 2.5em;
+    line-height: 3em;
+    height: 6em;
     font-size: 1.8em;;
     margin-left: 0.5em;
     font-weight: 100;
