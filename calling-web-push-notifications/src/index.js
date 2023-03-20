@@ -2,10 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import { FluentProvider, teamsLightTheme } from '@fluentui/react-components';
+import { FluentProvider, webLightTheme } from '@fluentui/react-components';
 
 ReactDOM.render(
-    <FluentProvider theme={teamsLightTheme}>
+    <FluentProvider theme={webLightTheme}>
         <App/>,
     </FluentProvider>,
     document.getElementById('root')

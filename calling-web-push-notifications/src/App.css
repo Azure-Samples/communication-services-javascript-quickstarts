@@ -1,3 +1,43 @@
+.body {
+    margin: 0 !important;
+}
+
+.navbar {
+    height: 5em;
+}
+
+.navbar > div > img {
+    height: 5em;
+    line-height: 2.5em;
+}
+
+.navbar > div > div {
+    line-height: 2.5em;
+    font-size: 1.8em;;
+    margin-left: 0.5em;
+    font-weight: 100;
+}
+
+.login {
+    margin: 1em;
+}
+
+.place-call {
+    margin: 1em;
+}
+
+.place-call-title, .login-title {
+    font-size: 1.4em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    font-weight: 100;
+}
+
+.place-call-1-to-n-title, .place-call-group-call-title {
+    font-size: 1.2em;
+}
+
+
 /*********************************
 *        Width and Height        *
 *********************************/

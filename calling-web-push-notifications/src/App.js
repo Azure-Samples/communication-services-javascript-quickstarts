@@ -4,6 +4,7 @@ import './bootstrap-grid.min.css';
 import { CallClient, LocalVideoStream } from '@azure/communication-calling';
 import { AzureCommunicationTokenCredential } from '@azure/communication-common';
 import { Button, Label, Input, Divider } from "@fluentui/react-components";
+import { Alert} from '@fluentui/react-components/unstable';
 import CallComponent from './main/CallComponent'
 import { LoginComponent } from './main/LoginComponent';
 import IncomingCallComponent from "./main/IncomingCallComponent";
@@ -239,34 +240,23 @@ export default class App extends React.Component {
       `;
         return (
             <div>
+                <div className="navbar row">
+                    <div className="col-8 col-sm-8 col-md-10">
+                        <div>ACS Calling Web Push Notifications</div>
+                    </div>
+                    <div className="col-2 col-sm-2 col-md-2">
+                        <img src="acsIcon.png"></img>
+                    </div>
+                </div>
+                <Divider className="mb-2" inset/>
                 <LoginComponent onLoggedIn={this.handleLogIn} ref={this.logInComponentRef}/>
-                <Divider className="mt-5 mb-5" inset/>
+                <Divider className="mt-4 mb-4" inset/>
                 {
-                <div className="card">
-                    <div className="ms-Grid">
-                        <div className="ms-Grid-row">
-                            <div className="ms-Grid-col ms-lg6 ms-sm6 mb-4">
-                                <h3>Placing and receiving calls</h3>
-                                <div>{`Permissions audio: ${this.state.permissions.audio} video: ${this.state.permissions.video}`}</div>
-                            </div>
-                            {
-                            /*<div className="ms-Grid-col ms-lg6 ms-sm6 text-right">
-                                <Button
-                                    text={`${this.state.showCallSampleCode ? 'Hide' : 'Show'} code`}
-                                    onClick={() => this.setState({ showCallSampleCode: !this.state.showCallSampleCode })}>
-                                </Button>
-                            </div>*/
-                            }
-                        </div>
-                        <div className="mb-2">Having provisioned an ACS Identity and initialized the Calling SDK from the section above, you are now ready to place calls, join group calls, and receiving calls.</div>
-                        {
-                            this.state.showCallSampleCode &&
-                            <pre>
-                                <code style={{ color: '#b3b0ad' }}>
-                                    {handlePushNotificationCode}
-                                </code>
-                            </pre>
-                        }
+                <div className="place-call">
+                    <div className="place-call-title">
+                        <div>Placing and receiving calls</div>
+                    </div>
+                    <div className="place-call-alert">
                         {
                             this.state.callError &&
                             <Alert
@@ -283,93 +273,105 @@ export default class App extends React.Component {
                                 <b>{this.state.deviceManagerWarning}</b>
                             </Alert>
                         }
-                        {
-                            !this.state.incomingCall && !this.state.call &&
-                            <div>
-                                <div className="ms-Grid-row mt-3">
-                                    <div className="call-input-panel mb-5 ms-Grid-col ms-sm12 ms-lg12 ms-xl12 ms-xxl4">
-                                        <h3 className="mb-1">Place a call</h3>
-                                        <div>Enter an Identity to make a call to.</div>
-                                        <div>You can specify multiple Identities to call by using "," separated values.</div>
-                                        <div>If calling a Phone Identity, your Alternate Caller Id must be specified. </div>
-                                        <div>
-                                            <div>
-                                                <Label htmlFor={'calleesInput'} disabled={this.state.call || !this.state.loggedIn} style={{fontSize: "12px"}}>
-                                                    Destination Identity or Identities
-                                                </Label>
-                                            </div>
-                                            <div>
-                                                <Input id={'calleesInput'}  onChange={(e) => { this.destinationUserIds = e.target.value }}/>
-                                            </div>
-                                        </div>
-                                        <Button
-                                            className="mt-2 mr-2"
-                                            disabled={this.state.call || !this.state.loggedIn}
-                                            onClick={() => this.placeCall(false)}>
-                                            Place call audio only
-                                        </Button>
-                                        <Button
-                                            className="mt-2"
-                                            disabled={this.state.call || !this.state.loggedIn}
-                                            onClick={() => this.placeCall(true)}>
-                                            Place call with video
-                                        </Button>
-                                    </div>
-                                    <div className="call-input-panel mb-5 ms-Grid-col ms-sm12 ms-lg12 ms-xl12 ms-xxl4">
-                                        <h3 className="mb-1">Join a group call</h3>
-                                        <div>Group Id must be in GUID format.</div>
-                                        <div>
-                                            <div>
-                                                <Label htmlFor={'groupIdInput'} disabled={this.state.call || !this.state.loggedIn} style={{fontSize: "12px"}}>
-                                                    Group Id
-                                                </Label>
-                                            </div>
-                                            <div>
-                                                <Input id={'groupIdInput'}
-                                                    onChange={(e) => { this.destinationGroup = e.target.value }}
-                                                    placeholder="29228d3e-040e-4656-a70e-890ab4e173e5"
-                                                    defaultValue="29228d3e-040e-4656-a70e-890ab4e173e5"/>
-                                            </div>
-                                        </div>
-                                        <Button
-                                            className="mt-2 mr-2"
-                                            disabled={this.state.call || !this.state.loggedIn}
-                                            onClick={() => this.joinGroup(false)}>
-                                            Join group call audio only
-                                        </Button>
-                                        <Button
-                                            className="mt-2"
-                                            disabled={this.state.call || !this.state.loggedIn}
-                                            onClick={() => this.joinGroup(true)}>
-                                            Join group call with video
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-
-                        }
-                        {
-                            this.state.call &&
-                            <CallComponent
-                                call={this.state.call}
-                                deviceManager={this.deviceManager}
-                                selectedCameraDeviceId={this.state.selectedCameraDeviceId}
-                                cameraDeviceOptions={this.state.cameraDeviceOptions}
-                                speakerDeviceOptions={this.state.speakerDeviceOptions}
-                                microphoneDeviceOptions={this.state.microphoneDeviceOptions}
-                                onShowCameraNotFoundWarning={(show) => { this.setState({ showCameraNotFoundWarning: show }) }}
-                                onShowSpeakerNotFoundWarning={(show) => { this.setState({ showSpeakerNotFoundWarning: show }) }}
-                                onShowMicrophoneNotFoundWarning={(show) => { this.setState({ showMicrophoneNotFoundWarning: show }) }} />
-                        }
-                        {
-                            this.state.incomingCall && !this.state.call &&
-                            <IncomingCallComponent
-                                incomingCall={this.state.incomingCall}
-                                acceptCallOptions={async () => await this.getCallOptions()}
-                                acceptCallWithVideoOptions={async () => await this.getCallOptions(true)}
-                                onReject={() => { this.setState({ incomingCall: undefined }) }} />
-                        }
                     </div>
+                    <div className="place-call-description mb-2 mt-2">
+                        Having provisioned an ACS Identity and initialized the Calling SDK from the section above, you are now ready to place calls, join group calls, and receiving calls.
+                    </div>
+                    {
+                        !this.state.incomingCall && !this.state.call &&
+                        <div className="place-call-inputs">
+                            <div className="row">
+                                <div className="place-call-1-to-n col-12 col-sm-12 col-md-4 offset-md-1">
+                                    <div className="place-call-1-to-n-title mb-1">Place a call</div>
+                                    <div>
+                                        <div>
+                                            <Label
+                                                htmlFor={'calleesInput'}
+                                                disabled={this.state.call || !this.state.loggedIn}
+                                                style={{fontSize: "12px"}}>
+                                                Callee Identity. You can enter multiple using "," separated values.
+                                            </Label>
+                                        </div>
+                                        <div>
+                                            <Input
+                                                style={{width: '100%'}}
+                                                disabled={this.state.call || !this.state.loggedIn}
+                                                id={'calleesInput'}
+                                                onChange={(e) => { this.destinationUserIds = e.target.value }}/>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        className="mt-2 mr-2"
+                                        disabled={this.state.call || !this.state.loggedIn}
+                                        onClick={() => this.placeCall(false)}>
+                                        Place call audio only
+                                    </Button>
+                                    <Button
+                                        className="mt-2"
+                                        disabled={this.state.call || !this.state.loggedIn}
+                                        onClick={() => this.placeCall(true)}>
+                                        Place call with video
+                                    </Button>
+                                </div>
+                                <div className="place-call-group-call col-12 col-sm-12 col-md-4 offset-md-2">
+                                    <div className="place-call-group-call-title mb-1">Join a group call</div>
+                                    <div>
+                                        <div>
+                                            <Label
+                                                htmlFor={'groupIdInput'}
+                                                disabled={this.state.call || !this.state.loggedIn}
+                                                style={{fontSize: "12px"}}>
+                                                Group Id. Must be in GUID format.
+                                            </Label>
+                                        </div>
+                                        <div>
+                                            <Input
+                                                style={{width: '100%'}}
+                                                id={'groupIdInput'}
+                                                disabled={this.state.call || !this.state.loggedIn}
+                                                onChange={(e) => { this.destinationGroup = e.target.value }}
+                                                placeholder="29228d3e-040e-4656-a70e-890ab4e173e5"
+                                                defaultValue="29228d3e-040e-4656-a70e-890ab4e173e5"/>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        className="mt-2 mr-2"
+                                        disabled={this.state.call || !this.state.loggedIn}
+                                        onClick={() => this.joinGroup(false)}>
+                                        Join group call audio only
+                                    </Button>
+                                    <Button
+                                        className="mt-2"
+                                        disabled={this.state.call || !this.state.loggedIn}
+                                        onClick={() => this.joinGroup(true)}>
+                                        Join group call with video
+                                    </Button>
+                                </div>
+                                <div className="place-call-1-to-n col-0 col-sm-0 col-md-1"></div>
+                            </div>
+                        </div>
+                    }
+                    {
+                        this.state.call &&
+                        <CallComponent
+                            call={this.state.call}
+                            deviceManager={this.deviceManager}
+                            selectedCameraDeviceId={this.state.selectedCameraDeviceId}
+                            cameraDeviceOptions={this.state.cameraDeviceOptions}
+                            speakerDeviceOptions={this.state.speakerDeviceOptions}
+                            microphoneDeviceOptions={this.state.microphoneDeviceOptions}
+                            onShowCameraNotFoundWarning={(show) => { this.setState({ showCameraNotFoundWarning: show }) }}
+                            onShowSpeakerNotFoundWarning={(show) => { this.setState({ showSpeakerNotFoundWarning: show }) }}
+                            onShowMicrophoneNotFoundWarning={(show) => { this.setState({ showMicrophoneNotFoundWarning: show }) }} />
+                    }
+                    {
+                        this.state.incomingCall && !this.state.call &&
+                        <IncomingCallComponent
+                            incomingCall={this.state.incomingCall}
+                            acceptCallOptions={async () => await this.getCallOptions()}
+                            acceptCallWithVideoOptions={async () => await this.getCallOptions(true)}
+                            onReject={() => { this.setState({ incomingCall: undefined }) }} />
+                    }
                 </div>
                 }
             </div>

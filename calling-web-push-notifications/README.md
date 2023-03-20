@@ -216,13 +216,13 @@ We will set up an azure function app to subscribe to our ACS EventGrid IncomingC
     - If the web app is already up and running and the ACS Web calling SDK's CallAgent is already initialized, then there is no need to call the CallAgent.handlePushNotification() API. This API is to be used only when the CallAgent is not yet initialized.
     - For a given browser instance(even if two windows of that same browser are opened, it is still considered one browser instance), it is always the last identity that logged into the web calling sdk that will be signaled with the Incoming Call web push notification. For example, lets say im using windows chrome and i login to one tab with userA I then log into a second tab with userB. userA will not be able to be signaled because userB has taken over the browser registration.
 
-There are known limitation in Web Push Notifications:
-Android Chrome is the only browser where we support handling push notifications when the browser is completely closed.
-In iOS safari there is no web push notifications supported hence there are no test cases for iOS safari. OneSignal will be adding support for it
-In MacOS safari / iOS Safari(once supported), the web calling sample must be up and running with the CallAgent initialized in order to receive notification and be able to answer/decline the incoming call.
-In Windows Chrome, Windows Edge, Android Chrome and MacOS Chrome, we can test notifications when the web sample is not opened in any tab but the browser is still opened.
-In Windows Chrome, Windows Edge, Android Chrome and MacOS Chrome, we can test notifications when the web sample is opened in a tab and the call agent is not initialized.
-All platforms support handling incoming call push notifications while the browser is up and running and the web sample is opened with the Call Agent initialized.  
+- There are known limitation in Web Push Notifications:
+    - Android Chrome is the only browser where we support handling push notifications when the browser is completely closed.
+    - In iOS Safari, there is no web push notifications supported hence there are no test cases for iOS safari. OneSignal will be adding support for it
+    - In MacOS safari / iOS Safari(once supported), the web client app must be up and running in the safari browser with the ACS Web Calling SDK's CallAgent initialized in order to receive notification and be able to answer/decline the incoming call.
+    - In Windows Chrome, Windows Edge, Android Chrome and MacOS Chrome, we can test notifications when the web client app is not opened in any tab, and the ACS Web Calling SDK's CallAgent is not initialized, and the browser is opened.
+    - In Windows Chrome, Windows Edge, Android Chrome and MacOS Chrome, we can test notifications when the web client app is opened in a tab and the call agent is not initialized.
+All platforms support handling incoming call push notifications while the browser is up and running and the web client app is opened with the ACS Web Calling SDK's CallAgent initialized.
 
 
 
