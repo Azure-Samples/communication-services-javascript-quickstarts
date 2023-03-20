@@ -30,7 +30,9 @@ OneSignal is one of many web push providers. It is a tool that you can use to se
 - You will now be at the "Web Configuration" page:
     - For "1. Choose Integration". select "Custom Code".
     - For "SITE NAME", it can be anything you want.
-    - For "SITE URL", you must use the <b style='color: red'>exact url origin</b> of where you will be deploying this quickstart application to, for example something like "https://webpushnotificationsquickstart.azurewebsites.net". We will show you how to deploy to azure app service later. Web push notifications only work in trusted https protocol hence you will have to run this quickstart application in https. <i>For this quickstart we'll refer to "https://webpushnotificationsquickstart.azurewebsites.net" as the origin url where we'll deploy this application to later on. Obviously we wouldnt be able to use this URL if someone else in the world is already using it and youll use your own URL that you want to use.</i>
+    - For "SITE URL", you must use the exact url origin of where you will be deploying this quickstart application to, for example something like "https://webpushnotificationsquickstart.azurewebsites.net". We will show you how to deploy to azure app service later. Web push notifications only work in trusted https protocol hence you will have to run this quickstart application in https. <i>For this quickstart we'll refer to "https://webpushnotificationsquickstart.azurewebsites.net" as the origin url where we'll deploy this application to later on. Obviously we wouldnt be able to use this URL if someone else in the world is already using it and youll use your own URL that you want to use.</i>
+      > **Note**
+      > You must use the exact url origin of where you will be deploying this quickstart application to
     - Click the "Save" button to create your OneSignal service app.
 ![](./assets/createOneSignalApp3.png)
 <br></br>
@@ -39,7 +41,10 @@ OneSignal is one of many web push providers. It is a tool that you can use to se
 ![](./assets/createOneSignalApp4.png)
 <br></br>
 <br></br>
-- Navigate to your "Settings" -> "Keys & IDs" menu, take note of you `Rest API Key` because we will use it later in our backend. <b style='color:red'><i>Keep this key safe in the backend only, do not share with anyone and do not send it to your client apps</i></b>. You can also get your `app Id` from this menu:
+- Navigate to your "Settings" -> "Keys & IDs" menu, take note of you `Rest API Key` because we will use it later in our backend. You can also get your `app Id` from this menu:
+> **Warning**
+> <b><i>Keep this key safe in the backend only, do not share with anyone and do not send it to your client apps</i></b>
+
 ![](./assets/createOneSignalApp5.png)
 
 ### Create your IncomingCall event listener Function App
@@ -52,7 +57,9 @@ We will set up an azure function app to subscribe to our ACS EventGrid IncomingC
     - Choose your ACS subscription.
     - Choose your ACS resoruce group. This is the resource that we will be subscribing to for IncomingCall events. When a user in this ACS resource makes an outgoing call or adds a participant to a call, an IncomingCall event will be emitted to our function app.
     - Give your Function App a name. Give it any name you want. <i>For this quickstart, we'll use the name "IncomingCallListener" to refer to our Function App. Obviously we wouldnt be able to use this name if someone else in the world is already using it and youll use your own name that you want to use.</i>
-    - <b style='color:red'><i>For "Runtime stack" and "Version", make sure to choose NodeJS version 16LTS or 18LTS as we will be using Javascript in our Function app.</i></b> 
+    - For "Runtime stack" and "Version", make sure to choose NodeJS version 16LTS or 18LTS.
+      > **Note**
+      > Make sure you choose NodeJS for this because we are using Javascript in our Function App.
     - Choose the region where you want this function app to be deployed.
     - <b><i>For plan type, choose "App Service plan" and choose your plan. Make sure the plan is at least Basic B1. It is necessary to have this for the purpose of this quickstart because we will be setting our function app to always be on for long running testing purposes. If your function app is not running continuously, then its static OneSignalRegistrationToken to commnunicationUserId mapping will get reset every 20 minutes, and users will have to get a new one signal registration token. Hence we will set our function to always be on so that our mapping doesnt reset for testing purposes. We'll set this setting in a later step below once our function app is created.</i></b>
 ![](./assets/createFunctionApp2.png)
@@ -67,7 +74,9 @@ We will set up an azure function app to subscribe to our ACS EventGrid IncomingC
 ![](./assets/createFunctionApp4.png)
 <br></br>
 - From our calling-web-push-notifications folder in Visual Sutdio Code. Open the `./IncomingCallListener_FunctionApp/HandleIncomingCallEvent/index.js` file:
-    - Replace \<Your OneSignal REST API Key\> with your OneSignal Rest API key. Use "Basic " before the key as shown in the screenshot below. <b style="color:red"><i>Do not ever expose this REST API key anywhere to the public. Do not check it into public repos, do not send it to your client apps. This is your OneSignal REST API key and should be kept secured in a back-end service at all times.</i></b>
+    - Replace \<Your OneSignal REST API Key\> with your OneSignal Rest API key. Use "Basic " before the key as shown in the screenshot below.
+      > **Warning** 
+      > <b><i>Do not ever expose this REST API key anywhere to the public. Do not check it into public repos, do not send it to your client apps. This is your OneSignal REST API key and should be kept secured in a back-end service at all times.</i></b>
     - Replace \<Your OneSignal app Id\> with your OneSignal app Id.
     - If you dont have and dont remember your OneSignal rest api key and OneSignal app id, you can get both of these from your OneSignal app's dashboard in the "Settings" -> "Keys & IDs". We generated these on the ealier steps when we created our OneSignal app.
     - Replace \<Your website's URL\> with the URL origin where you will be deploying this quickstart's front-end client and webpack.config server. The url must start with "https://". For the purposes of this quickstart demo, we are using "https://webpushnotificationsquickstart.azurewebsites.net", obviously this url doesnt belong to you, so you will enter your own, same one you specified in your OneSignal app's settings from the beginning of this quickstart. This woul be the URL where you would be deploying this quickstart application.
@@ -100,7 +109,8 @@ We will set up an azure function app to subscribe to our ACS EventGrid IncomingC
         - function.json - config file.
         - index.js - This is a REST api end point to receive OneSignalRegistrationTokens for our users. Our application server in webpack.config.js of this project, will generate the OneSignalRegistrationToken for a communicationUserId and send it here to this rest api end point which we will then store it in our mapping which is in /Shared/OneSignalRegistrationTokens.js
     - /Shared/OneSignalRegistrationTokens.js - Contains the static mapping of OneSignalRegistrationTokens to communicationUserIds. <b><i>Make sure your function app is set to "Always on" during testing purposes of this quickstart or this mapping will be reset every 20 minutes. You can set this option in "Settings Configuration" menu of the function app, then "General settings" tab. We have also explained above with a screenshot of where to set this option.</i></b>
-    - <b style='color:red'><i>Important: The reason to use randomly generated OneSignal registration tokens for our communication users, is for security purposes. Do not use communication user ids to identify the end user devices for signaling. You must use randomly generated OneSignalRegistrationTokens to signal the end users. Each end user will only know about their own OneSignalRegistrationToken. Users will not know about other users' OneSignalRegistrationTokens. These tokens will be generated in our webpack.config server when creating user tokens.</i></b>
+    - > **Warning**
+      > <b><i>Important: The reason to use randomly generated OneSignal registration tokens for our communication users, is for security purposes. Do not use communication user ids to identify the end user devices for signaling. You must use randomly generated OneSignalRegistrationTokens to signal the end users. Each end user will only know about their own OneSignalRegistrationToken. Users will not know about other users' OneSignalRegistrationTokens. These tokens will be generated in our webpack.config server when creating user tokens.</i></b>
 <br></br>
 <br></br>
 - From the Azure portal, go to the HandleIncomingCallEvent sub function function under your "Functions" menu. If you dont see it yet, just wait a couple minutes or fresh the page until you see it. It will show up soon enough:
