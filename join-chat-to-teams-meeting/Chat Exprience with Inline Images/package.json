@@ -1,0 +1,24 @@
+{
+  "name": "chat-interop-quickstart",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/communication-calling": "^1.1.0",
+    "@azure/communication-chat": "file:///Users/john/Documents/john/azure-sdk-for-js/sdk/communication/communication-chat",
+    "@azure/communication-common": "^1.1.0",
+    "@azure/communication-identity": "^1.0.0",
+    "@azure/communication-signaling": "file:///Users/john/Documents/ado-repos/async_spool_core/SDK/js/packages/communicationservices-signaling"
+  },
+  "devDependencies": {
+    "webpack": "^4.42.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
+  }
+}
