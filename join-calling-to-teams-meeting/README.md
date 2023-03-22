@@ -10,7 +10,7 @@ products:
 ---
 
 
-# Add Chat to your Application
+# Join a Teams meeting call
 
 For full instructions on how to build this code sample from scratch, look at [Quickstart: Join your calling app to a Teams meeting](https://docs.microsoft.com/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-interop?pivots=platform-web)
 
