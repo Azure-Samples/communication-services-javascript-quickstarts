@@ -52,9 +52,11 @@
             max-width: 300px;
          }
          
-         .sent > p > img {
+         .received img {
             cursor: pointer;
             pointer-events: auto;
+            max-width: 100%;
+            height: auto;
          }
 
          .received {
@@ -114,8 +116,13 @@
          }
          
          .overlay img {
+            display: fixed;
             display: block;
-            margin: 30px auto;
+            max-height: 90%;
+            max-width: 90%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
          }
          
          #message-box {
@@ -159,8 +166,8 @@
       
       <div class="overlay" id="overlay-img">
          <div class="content">
-            <fluent-progress-ring></fluent-progress-ring>
-            <img id="imgBig" src="https://as2.ftcdn.net/v2/jpg/01/87/47/59/1000_F_187475954_KuDIRQZbGTwwyMTXZeRmojQH9YeSjrWt.jpg" alt="" />
+            <fluent-progress-ring id="full-scale-image-loading"></fluent-progress-ring>
+            <img id="full-scale-image" src="" alt="" />
          </div>
       </div>
 
