@@ -3,9 +3,10 @@
 This quickstart will showcase how to set up a web push notification architecture for the ACS Web Calling SDK. We will walk through the set up steps necessary to set up the architecture. For this architecture, we will be sending the web push notifications via OneSignal, a trusted web push service provider (You can also use this tutorial as a guidance if you want to use your own web push notification provider).
 
 - Prerequisites:
-    - Must use ACS Web Calling SDK version 1.12.0-beta.1+ (@azure/communication-calling in npmjs.org)
+    - Obtain an Azure account with an active subscription. [Create an account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
+    - Create an active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource). [Learn how to create and manage user access tokens](https://docs.microsoft.com/azure/communication-services/quickstarts/access-tokens?pivots=programming-language-javascript).
+    - Must use ACS Web Calling SDK version 1.12.0-beta.2+ (@azure/communication-calling in npmjs.org)
     - Clone this repo into your local machine for development/set up of this architecture.
-    - An Azure Communication Services subscription and resource.
     - A OneSignal account. You can create one at OneSignal.com
 
 Main components of this web push notification architecture are:
@@ -48,7 +49,7 @@ OneSignal is one of many web push providers. It is a tool that you can use to se
 ![](./assets/createOneSignalApp5.png)
 
 ### Create your IncomingCall event listener Function App
-We will set up an azure function app to subscribe to our ACS EventGrid IncomingCall event and then call OneSignal's "Create Notification" REST API to send the Incoming Call web push notification to the callee. In our function app will also keep a static mapping of our OneSignalRegistrationTokens to ACS communicationUserIds. For the purposes of this quickstart demo and easier explanation, we will create our function app to handle this logic.
+We will set up an azure function app to subscribe to our ACS EventGrid IncomingCall event and then call OneSignal's "Create Notification" REST API to send the Incoming Call web push notification to the callee. In our function app will also keep a static mapping of our OneSignalRegistrationTokens to ACS communicationUserIds. For the purposes of this quickstart demo and easier explanation, we will create our function app to handle this logic. Youll be able to log into azure portal and make changes to your function app if ever needed. Only the webpack.config back end server will make authenticated requests to the function app.
 > **Note**
 > <b><i>It is best to use an Azure Function App for this logic so we can call OneSignal directly from Azure so that the callee can receive the web push notification as fast as possible. Do not do this logic from a backend server.</i></b>
 - From the Azure portal, search for "function app" and click on the "+" button to create a new Function App. Or go to "Function App" services and click on "+ Create" button:
@@ -109,7 +110,7 @@ We will set up an azure function app to subscribe to our ACS EventGrid IncomingC
         - index.js - This is the logic that will listen for the IncomingCall event from ACS EventGrid, and will then call OneSignal's "Create Notification" Rest API to deliver the Incoming Call web push notification to the callee. It will use the callee's OneSignalRegistrationToken to signal the callee's devices. We are storing the OneSignalRegistrationTokens for our users in /Shared/OneSignalRegistrationTokens.js
     - /setOneSignalRegistrationTokenForUser (sub function)
         - function.json - config file.
-        - index.js - This is a REST api end point to receive OneSignalRegistrationTokens for our users. Our application server in webpack.config.js of this project, will generate the OneSignalRegistrationToken for a communicationUserId and send it here to this rest api end point which we will then store it in our mapping which is in /Shared/OneSignalRegistrationTokens.js
+        - index.js - This is a REST api end point to receive OneSignalRegistrationTokens for our users. Our application server in webpack.config.js of this project, will generate the OneSignalRegistrationToken for a communicationUserId and send it here to this rest api end point which we will then store it in our mapping which is in /Shared/OneSignalRegistrationTokens.js. Only our webpack.config server will make authenticated requests to this endpoint using an api key in the url.
     - /Shared/OneSignalRegistrationTokens.js - Contains the static mapping of OneSignalRegistrationTokens to communicationUserIds. <b><i>Make sure your function app is set to "Always on" during testing purposes of this quickstart or this mapping will be reset every 20 minutes. You can set this option in "Settings Configuration" menu of the function app, then "General settings" tab. We have also explained above with a screenshot of where to set this option.</i></b>
     - > **Warning**
       > <b><i>Important: The reason to use randomly generated OneSignal registration tokens for our communication users, is for security purposes. Do not use communication user ids to identify the end user devices for signaling. You must use randomly generated OneSignalRegistrationTokens to signal the end users. Each end user will only know about their own OneSignalRegistrationToken. Users will not know about other users' OneSignalRegistrationTokens. These tokens will be generated in our webpack.config server when creating user tokens.</i></b>
@@ -140,6 +141,8 @@ We will set up an azure function app to subscribe to our ACS EventGrid IncomingC
     ![](./assets/functionAppOneSignalTokenRegistrationUrl.png)
     - Enter the values for "connectionString" and "functionAppOneSignalTokenRegistrationUrl" in `./serverConfig` file:
     ![](./assets/serverConfig.png)
+    - > **Warning**
+      > Both the connectionString and functionAppOneSignalTokenRegistrationUrl are strings used for making authenticated requests from webpack.config back end server. These strings are to be stored in back end server only. Do not ever send these strings to a client app.
 - Open the `./webpack.config.js` file:
     - Ensure the code line for port is like so: `const port = process.env.port || 8080;`
     - Ensure `devServer` includes these options: `contentBase:'./public'` and `allowedHosts:['.azurewebsites.net']`
@@ -198,9 +201,13 @@ We will set up an azure function app to subscribe to our ACS EventGrid IncomingC
 - The Visual Studio Code output window will open up and you can see the current deployment status. Once deplyoment finishes successfully, youll see a final "Deployment to \<app name\> completed" message at the end of the output:
 ![](./assets/azureAppServiceDeploymentCompleted.png)
 - Navigate to the app URL, in our case https://webpushnotificationsquickstart.azurewebsites.net. If you dont see the app or see errors, try restarting and redeploying the app service.
+#### Add authentication to your Azure App Service web app
+You can add authentication to you Azure App Service web app (webpushnotificationsquickstart.azurewebsites.net in our case) by going to the Authentication menu and adding an Identity provider. This will allow only certain users to have access your Azure App Service web app:
+![](./assets/azureAppServiceAddAuth.png)
+
 
 ### Using the client app to test our web push notifications architecture
-- Now that the calling web app has been deployed. Navigate to iton a browser.
+- Now that the calling web app has been deployed. Navigate to it on a browser.
 - Youll be prompted to subscribe to notifications. Click on allow:
 ![](./assets/allowWebPushNotifications.png)
 <br></br>
@@ -209,6 +216,10 @@ We will set up an azure function app to subscribe to our ACS EventGrid IncomingC
 <br></br>
 - And if you hover your mouse over the bell, it will show a pop up that says "Your're subscribed to notifications":
 ![](./assets/subscribedBellHover.png)
+- Log into the ACS Web Calling SDK and initialize the CallAgent by clicking on the "Provision user and initialize SDK" button on the web UI. Wait for it to load and youll be logged in with a new ACS communication User Id:
+![](./assets//yourCommunicationUserId.png).
+- From another web calling app window, make a call to your ACS Communication User Id that you just provisioned and you will get an ACS incoming call and an Incoming Call notification. You can accept or decline the incoming call:
+![](./assets/incomingCallNotification.png)
 
 ### Troubleshooting
 - Browsers supported for web push notifications using the ACS Web Calling SDK:
@@ -221,20 +232,43 @@ We will set up an azure function app to subscribe to our ACS EventGrid IncomingC
 - Make sure you allow notifications for your site in the brower settings. Different browsers have this setting in different places.
 - For MacOS, make sure to allow for Safari and Chrome from the System Settings menu.
 - Id edge you may see this "notifications blocked" pop up. Just click on allow:
-![](./assets/edgeAllow.png")
+![](./assets/edgeAllow.png)
+- Make sure you dont block your website in the browser's tracking settings.
+- Web app must be running in https and not http.
+- Make sure strings are correct in the ./clientConfig.json file and ./serverConfig.json file
+
 #### Supported Scenarios and known web push notification limitations
 - Note:
-    - When testing with CallAgent not initialized yet / app closed, there is about ~10 seconds for the callagent to be initialized in callee side, other wise the call would be considered a "missed call". So for example, in a scenario like where the callee doesnt have the web sample app running, and he gets the incoming call notification, he has about 10 seconds to click on the notifications for the web sample to open up automatically and raise the incoming call obj to be accepted/declined, other wise this would be a "missed call". If a call is missed in such scenario, youll see "Missed call" error in the browser console logs. The "Missed Call" error will also be throw by the CallAgent.handlePushNotification() API from the ACS Web Calling SDK.
+    - When testing with CallAgent not initialized yet / app closed, there is about ~10 seconds for the callagent to be initialized in callee side, other wise the call would be considered a "Missed call". So for example, in a scenario like where the callee doesnt have the web sample app running, and he gets the incoming call notification, he has about 10 seconds to click on the notifications for the web sample to open up automatically and raise the incoming call obj to be accepted/declined, other wise this would be a "missed call". If a call is missed in such scenario, youll see "Missed call" error in the browser console logs. The "Missed Call" error will also be throw by the CallAgent.handlePushNotification() API from the ACS Web Calling SDK.
     - If the web app is already up and running and the ACS Web calling SDK's CallAgent is already initialized, then there is no need to call the CallAgent.handlePushNotification() API. This API is to be used only when the CallAgent is not yet initialized.
     - For a given browser instance(even if two windows of that same browser are opened, it is still considered one browser instance), it is always the last identity that logged into the web calling sdk that will be signaled with the Incoming Call web push notification. For example, lets say im using windows chrome and i login to one tab with userA I then log into a second tab with userB. userA will not be able to be signaled because userB has taken over the browser registration.
-
-- There are known limitation in Web Push Notifications:
+    - You can log into the app with the same ACS Communication User Token from multiple devices. And if someone calls you, you will receive incoming call notifications on all your devices. You can grab your ACS User Access Token and ACS Communication User Id from th browser console after loging in:
+    ![](./assets/loginResponseLog.png)
+    You can enter your "token" and "communicationUserId" in the web app's user provisining window, then click "Provision user and intitialize SDK" button:
+    ![](./assets//existingTokenLogin.png)
+<br></br>
+<br></br>
+- There are known limitations in Web Push Notifications:
     - Android Chrome is the only browser where we support handling push notifications when the browser is completely closed.
     - In iOS Safari, there is no web push notifications supported hence there are no test cases for iOS safari. OneSignal will be adding support for it
     - In MacOS safari / iOS Safari(once supported), the web client app must be up and running in the safari browser with the ACS Web Calling SDK's CallAgent initialized in order to receive notification and be able to answer/decline the incoming call.
     - In Windows Chrome, Windows Edge, Android Chrome and MacOS Chrome, we can test notifications when the web client app is not opened in any tab, and the ACS Web Calling SDK's CallAgent is not initialized, and the browser is opened.
     - In Windows Chrome, Windows Edge, Android Chrome and MacOS Chrome, we can test notifications when the web client app is opened in a tab and the call agent is not initialized.
 All platforms support handling incoming call push notifications while the browser is up and running and the web client app is opened with the ACS Web Calling SDK's CallAgent initialized.
+- Debugging:
+    - Alot of errors can be found on the browser's console logs, so keep an eye out on the logs for warnings and errors. It can contain useful web app errors and onesignal client side sdk errors.
+    - On Chrome, you can open chrome://gcm-internals to see if push notifications are really coming into the browser. If you see expected entries in the "Receive Message Log" table for your website URL, then notifications are coming in as expected for your URL:
+    ![](./assets/chromeGcmInternals.png)
+    - From the OneSignal app's delivery dashboard, we can see information about notifications that we are sending. Our dash board will show us if notifications are succeeding to be delivered or if theyre failing. You can click on each notification to see more detailed information about the notification delivery:
+    ![](./assets/onesignaldeliverydashboard.png)
+    - From your IncomingCallListener's HandleIncomingCallEvent sub function, you can use the monitor logs to:
+        - See the response from the request to the OneSignal's Create notification API. The response can be a success or an error. If error, it means the notification was not delivered to the callee. Check the error detials and debug further.
+        - If there was no OneSignalRegistrationToken found for the Communication User Id callee, an error will be logged. This means the end user failed to register their device. Check the flow of the back end webpack.config server making the authenticated requests to /setOneSignalRegistrationTokenForUser. Make sure these requests are succeeding as expected.
+        ![](./assets//handleIncomingCallEventSubFunctionLogs.png)
+    - The IncomingCallListener's setOneSignalRegistrationTokenForUser sub function, also has logs to monitor:
+        - When a communication user id is successfully registered with a OneSignalRegistrationToken, it will show in the log.
+        ![](./assets/setOneSignalRegistrationTokenForUserSubFunctionLogs.png)
+
 
 
 

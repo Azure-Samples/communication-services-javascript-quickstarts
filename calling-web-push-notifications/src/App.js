@@ -60,7 +60,7 @@ export default class App extends React.Component {
                 const tokenCredential = new AzureCommunicationTokenCredential(userDetails.token);
                 this.tokenCredential = tokenCredential;
                 setLogLevel('verbose');
-                this.callClient = new CallClient({ diagnostics: { appName: 'azure-communication-services web push notifications quickstart', appVersion: '1.12.0-beta.1', tags: ["javascript_calling_sdk", `#clientTag:${userDetails.clientTag}`] } });
+                this.callClient = new CallClient({ diagnostics: { appName: 'azure-communication-services web push notifications quickstart', appVersion: '1.12.0-beta.2', tags: ["javascript_calling_sdk", `#clientTag:${userDetails.clientTag}`] } });
                 this.callAgent = await this.callClient.createCallAgent(tokenCredential, { displayName: userDetails.displayName });
                 this.callAgent.on('callsUpdated', e => {
                   console.log(`CallAgent: callsUpdated, added=${e.added}, removed=${e.removed}`);
