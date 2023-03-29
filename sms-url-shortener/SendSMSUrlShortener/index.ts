@@ -2,9 +2,9 @@ import { AzureFunction, Context, HttpRequest } from "@azure/functions"
 import { SmsClient }  from "@azure/communication-sms"
 
 // Initialize required variables
-const connectionString = "INSERT YOUR AZURE COMMUNICATION SERVICES CONNECTION STRING";
-const phoneNumber = "INSERT YOUR AZURE COMMUNICATION SERVICES PHONE NUMBER" // Ex. +15555555555
-const urlShortener = "INSERT YOUR URL SHORTENER API ENDPOINT" // Ex. https://<Azure Function URL>/api/UrlCreate
+const connectionString =  process.env.ACS_CONNECTIONSTRING
+const phoneNumberFrom = process.env.ACS_PHONE_NUMBER
+const urlShortener = process.env.URL_SHORTENER
 
 // Instantiate the SMS client.
 const smsClient = new SmsClient(connectionString);
@@ -22,7 +22,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     .then(async data => {
       const url = data["ShortUrl"]
       const sendResults = await smsClient.send({
-        from: phoneNumber,
+        from: phoneNumberFrom,
         to: [to],
         message: "Join your scheduled appointment here: " + url
       }, {
