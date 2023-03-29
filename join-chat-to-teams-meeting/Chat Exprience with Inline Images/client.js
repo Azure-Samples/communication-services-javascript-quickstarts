@@ -11,6 +11,7 @@ let chatThreadClient;
 
 const meetingLinkInput = document.getElementById('teams-link-input');
 const displayNameInput = document.getElementById('name-string-input');
+const connectionInput = document.getElementById('connection-string-input');
 const callButton = document.getElementById('join-meeting-button');
 const hangUpButton = document.getElementById('hang-up-button');
 const callStateElement = document.getElementById('call-state');
@@ -23,22 +24,20 @@ const overlayImg = document.getElementById('overlay-img');
 const messageBlock = document.getElementById('message');
 const setupBlock = document.getElementById('setup');
 const callingStatusLabel = document.getElementById('status-bar');
+const loadingOverlay = document.getElementById('full-scale-image-loading');
+const loadingImageOverlay = document.getElementById('full-scale-image');
 
 let userId;
-let _token;
-// eslint-disable-next-line max-len
-const placeholderImg = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mM88B8AAoUBwfkGMTcAAAAASUVORK5CYII=';
-
+let tokenString;
+let connectionString;
 
 /**
  * Initialize Calling and Chat with given connection string and endpoint URL.
  *
  */
 async function init() {
-  // replace your conenction string here
-  const connectionString = '';
-
   overlayImg.style.display = 'block';
+  connectionString = connectionInput.value;
   // 1. get identify
   const endpointUrl = _getEndpointURL(connectionString);
   const identityClient = new CommunicationIdentityClient(connectionString);
@@ -49,94 +48,104 @@ async function init() {
     'chat',
   ]);
   const {token, expiresOn} = tokenResponse;
-
   console.log(`\nIssued an access token that expires at: ${expiresOn}`);
   console.log(token);
-  _token = token;
+  tokenString = token;
 
   // 2. setup Call
   const callClient = new CallClient();
-  const tokenCredential = new AzureCommunicationTokenCredential(token);
+  const tokenCredential = new AzureCommunicationTokenCredential(tokenString);
   callAgent = await callClient.createCallAgent(tokenCredential);
   callButton.disabled = false;
 
   // 3. setup Chat
   chatClient = new ChatClient(
       endpointUrl,
-      new AzureCommunicationTokenCredential(token),
+      new AzureCommunicationTokenCredential(tokenString),
   );
   console.log('Azure Communication Chat client created!');
   overlayImg.style.display = 'none';
 }
 
-init();
-
 callButton.addEventListener('click', async () => {
+  await init();
   // join with meeting link
   call = callAgent.join({meetingLink: meetingLinkInput.value}, {});
-
   call.on('stateChanged', () => {
     callStateElement.innerText = call.state;
-    if (call.state === 'Connected') {
-      callingStatusLabel.style.display = 'none';
-      setupBlock.style.display = 'none';
-      messageBlock.style.display = 'block';
-    } else if (call.state === 'Disconnected') {
-      callingStatusLabel.style.display = 'none';
-      setupBlock.style.display = 'block';
-    }
+    _setCallingView(call.state);
   });
-  callingStatusLabel.style.display = 'block';
-  // toggle button and chat box states
-  chatBox.style.display = 'block';
-  hangUpButton.disabled = false;
-  callButton.disabled = true;
-
-  messagesContainer.innerHTML = '';
-
+  _initChatView();
   // open notifications channel
   await chatClient.startRealtimeNotifications();
 
-  const threadId = await _getThreadID(meetingLinkInput.value);
-
   // subscribe to new message notifications
   chatClient.on('chatMessageReceived', (e) => {
-    console.log('Notification chatMessageReceived!');
-
-    // check whether the notification is intended for the current thread
-    if (e.sender.communicationUserId != userId) {
-      renderReceivedMessage(e);
-    } else {
-      renderSentMessage(e);
-    }
-    fetchImages(e.attachments);
+    handleRecievedMessages(e);
   });
 
   chatClient.on('participantsAdded', (e) => {
-    console.log(e.communicationUserId, userId);
-    const arr = e.participantsAdded;
-    arr.forEach((e) => {
-      if (e.id.communicationUserId === userId) {
-        e.displayName = 'You';
-      }
-    });
-    const list = arr.map((e) => e.displayName).join(', ');
-    renderSysMessage(list + ' joined the chat.');
+    handleParticipantAddedMessages(e);
   });
 
   chatClient.on('participantsRemoved', (e) => {
-    console.log(e.communicationUserId, userId);
-    const arr = e.participantsAdded;
-    arr.forEach((e) => {
-      if (e.id.communicationUserId === userId) {
-        e.displayName = 'You';
-      }
-    });
-    const list = arr.map((e) => e.displayName).join(', ');
-    renderSysMessage(list + ' left the chat.');
+    handleParticipantRemovedMessages(e);
   });
+  // setup chat thread
+  const threadId = _getThreadID(meetingLinkInput.value);
   chatThreadClient = await chatClient.getChatThreadClient(threadId);
 });
+
+/**
+ * Handle Incoming Messages Event
+ *
+ * @param {ChatMessageReceivedEvent} e - the event object that contains data
+ */
+function handleRecievedMessages(e) {
+  console.log('Notification chatMessageReceived!');
+  // check whether the notification is intended for the current thread
+  if (e.sender.communicationUserId != userId) {
+    renderReceivedMessage(e);
+  } else {
+    renderSentMessage(e);
+  }
+  fetchImages(e.attachments);
+}
+
+/**
+ * Handle Participant Added Event
+ *
+ * @param {ParticipantsAddedEvent} e - the event object for added participants
+ */
+function handleParticipantAddedMessages(e) {
+  console.log(e.communicationUserId, userId);
+  const arr = e.participantsAdded;
+  arr.forEach((e) => {
+    if (e.id.communicationUserId === userId) {
+      e.displayName = 'You';
+      overlayImg.style.display = 'none';
+    }
+  });
+  const list = arr.map((e) => e.displayName).join(', ');
+  renderSysMessage(list + ' joined the chat.');
+}
+
+/**
+ * Handle Participant Removed Event
+ *
+ * @param {ParticipantsRemovedEvent} e - the event object for added participants
+ */
+function handleParticipantRemovedMessages(e) {
+  console.log(e.communicationUserId, userId);
+  const arr = e.participantsAdded;
+  arr.forEach((e) => {
+    if (e.id.communicationUserId === userId) {
+      e.displayName = 'You';
+    }
+  });
+  const list = arr.map((e) => e.displayName).join(', ');
+  renderSysMessage(list + ' left the chat.');
+}
 
 
 /**
@@ -169,7 +178,7 @@ function renderReceivedMessage(e) {
   card.appendChild(content);
   messagesContainer.appendChild(card);
   const imageAttachments = e.attachments.filter((e) =>
-    e.attachmentType === 'TeamsInlineImage');
+    e.attachmentType.toLowerCase() === 'teamsinlineimage');
   setImgListeners(card, imageAttachments);
 }
 
@@ -191,37 +200,17 @@ function renderSentMessage(e) {
   messagesContainer.appendChild(card);
 }
 
-function _getThreadID(val) {
-  if (/(http(s?)):\/\//i.test(val)) {
-    const base = val.split('/meetup-join/')[1];
-    let thread = base.split('thread.v2/')[0];
-    thread += 'thread.v2';
-    return decodeURIComponent(thread);
-  }
-  return val;
-}
-
-function _getEndpointURL(val) {
-  const str = val.replace('endpoint=', '');
-  return str.split('/;accesskey=')[0];
-}
 
 async function fetchImages(attachments) {
   if (!attachments || Object.keys(attachments).length === 0) {
     return;
   }
-  const headers = new Headers();
-  headers.append('Authorization', 'Bearer ' + _token);
-  const opts = {
-    method: 'GET',
-    headers: headers,
-  };
   const result = await Promise.all(
       attachments.map(async (attachment) => {
         const response = await fetch(await walkaround(attachment.previewUrl), {
           method: 'GET',
           headers: {
-            'Authorization': 'Bearer ' + _token,
+            'Authorization': 'Bearer ' + tokenString,
           },
         });
         return {
@@ -237,37 +226,102 @@ async function fetchImages(attachments) {
   });
 }
 
-async function walkaround(url) {
-  return url.replace('threads//', 'threads/' + await _getThreadID(meetingLinkInput.value) + '/');
+function walkaround(url) {
+  const string1 = url.replace('threads//', 'threads/' + _getThreadID(meetingLinkInput.value) + '/');
+  return string1.replace('https://global.chat.prod.communication.microsoft.com', _getEndpointURL(connectionString));
 }
 
 async function setImgListeners(element, imageAttachments) {
   if (!imageAttachments.length > 0) {
     return;
   }
-
   const imgs = element.getElementsByTagName('img');
   for (const img of imgs) {
-    // placeholder img
-    img.src = 'data:image/png;base64,' + placeholderImg;
-    img.addEventListener('click', async (e) => {
-      const link = imageAttachments.filter((attachment) =>
-        attachment.id === e.srcElement.id)[0].url;
-      document.getElementById('full-scale-image').src = '';
-      fetch(await walkaround(link), {
-        method: 'GET',
-        headers: {'Authorization': 'Bearer ' + _token},
-      }).then(async (result) => {
-        const content = await result.blob();
-        const urlCreator = window.URL || window.webkitURL;
-        const url = urlCreator.createObjectURL(content);
-        document.getElementById('full-scale-image').src = url;
-        document.getElementById('full-scale-image-loading').style.display = 'none';
-      });
-      document.getElementById('full-scale-image-loading').style.display = 'block';
-      overlayImg.style.display = 'block';
+    img.addEventListener('click', (e) => {
+      fetchFullScaleImage(e, imageAttachments);
     });
   }
+}
+
+/**
+ * An UI helper function
+ *
+ * @param {Event} e an object from click event
+ * @param {ChatAttachment[]} imageAttachments an array of attachment
+ */
+function fetchFullScaleImage(e, imageAttachments) {
+  const link = imageAttachments.filter((attachment) =>
+    attachment.id === e.target.id)[0].url;
+  loadingImageOverlay.src = '';
+  fetch(walkaround(link), {
+    method: 'GET',
+    headers: {'Authorization': 'Bearer ' + tokenString},
+  }).then(async (result) => {
+    const content = await result.blob();
+    const urlCreator = window.URL || window.webkitURL;
+    const url = urlCreator.createObjectURL(content);
+    loadingImageOverlay.src = url;
+    loadingOverlay.style.display = 'none';
+  });
+  loadingOverlay.style.display = 'block';
+  overlayImg.style.display = 'block';
+}
+
+/**
+ * An UI helper function
+ *
+ * @param {string} val an string that nees to be parsed
+ * @return {string} the thread ID
+ */
+function _getThreadID(val) {
+  if (/(http(s?)):\/\//i.test(val)) {
+    const base = val.split('/meetup-join/')[1];
+    let thread = base.split('thread.v2/')[0];
+    thread += 'thread.v2';
+    return decodeURIComponent(thread);
+  }
+  return val;
+}
+
+/**
+ * An UI helper function
+ *
+ * @param {string} val an string that nees to be parsed
+ * @return {string} the endpoint URL
+ */
+function _getEndpointURL(val) {
+  const str = val.replace('endpoint=', '');
+  return str.split('/;accesskey=')[0];
+}
+
+/**
+ * An UI helper function
+ *
+ * @param {string} callState an string to indicate call state
+ */
+function _setCallingView(callState) {
+  if (callState === 'Connected') {
+    callingStatusLabel.style.display = 'none';
+    setupBlock.style.display = 'none';
+    messageBlock.style.display = 'block';
+    overlayImg.style.display = 'block';
+  } else if (callState === 'Disconnected') {
+    callingStatusLabel.style.display = 'none';
+    setupBlock.style.display = 'block';
+  }
+}
+
+/**
+ * An UI helper function
+ *
+ */
+function _initChatView() {
+  callingStatusLabel.style.display = 'block';
+  // toggle button and chat box states
+  chatBox.style.display = 'block';
+  hangUpButton.disabled = false;
+  callButton.disabled = true;
+  messagesContainer.innerHTML = '';
 }
 
 hangUpButton.addEventListener('click', async () => {

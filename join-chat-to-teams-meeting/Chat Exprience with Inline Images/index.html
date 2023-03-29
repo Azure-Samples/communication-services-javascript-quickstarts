@@ -53,6 +53,9 @@
          }
          
          .received img {
+            background-image: url("data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mM88B8AAoUBwfkGMTcAAAAASUVORK5CYII=");
+            background-size: cover;
+            display: block;
             cursor: pointer;
             pointer-events: auto;
             max-width: 100%;
@@ -177,6 +180,16 @@
          <p class="ms-fontSize-20">Chat Experience with Inline Image Support</p>
       
          <div class="ms-stack" id="setup">
+
+            <div class="ms-TextField">
+               <div class="ms-TextField-wrapper">
+                  <label for="connection-string-input" class="ms-Label">Connection String:</label>
+                  <div class="ms-TextField-fieldGroup">
+                     <input type="text" id="connection-string-input" placeholder="endpoint=https://..." class="ms-TextField-field" value=""/>
+                  </div>
+               </div>
+            </div>
+
             <div class="ms-TextField">
                <div class="ms-TextField-wrapper">
                   <label for="name-string-input" class="ms-Label">Display Name:</label>
