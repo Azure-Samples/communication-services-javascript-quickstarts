@@ -45,11 +45,6 @@ The advanced version of send-email includes the following sub samples.
 - ./send-email-advanced/send-email-multiple-recipients/package.json
 - ./send-email-advanced/send-email-multiple-recipients/send-email-multiple-recipients.js
 
-### Send email as plain text
-
-- ./send-email-advanced/send-email-plaintext/package.json
-- ./send-email-advanced/send-email-plaintext/send-email-plaintext.js
-
 ## Before running the sample for the first time
 
 1. Open an instance of PowerShell, Windows Terminal, Command Prompt or equivalent program and navigate to the directory that you'd like to clone the sample to.
