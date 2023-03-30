@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npx webpack-dev-server --entry ./client.js --output bundle.js --debug --devtool inline-source-map",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,10 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "@azure/communication-calling": "^1.1.0",
-    "@azure/communication-chat": "file:///Users/john/Documents/john/azure-sdk-for-js/sdk/communication/communication-chat",
+    "@azure/communication-chat": "^1.3.2-beta.1",
     "@azure/communication-common": "^1.1.0",
     "@azure/communication-identity": "^1.0.0",
-    "@azure/communication-signaling": "file:///Users/john/Documents/ado-repos/async_spool_core/SDK/js/packages/communicationservices-signaling"
+    "@azure/communication-signaling": "^1.0.0-beta.17"
   },
   "devDependencies": {
     "webpack": "^4.42.0",

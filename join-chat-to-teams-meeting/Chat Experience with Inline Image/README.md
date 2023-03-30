@@ -12,18 +12,21 @@ products:
 
 # Join your chat app to a Teams meeting
 
-This code sample walks through the process to join your chat app to a Teams meeting.
+This code sample demonstrates how you can support Teams inline image interoperability with the Azure Chat SDK for JavaScript  
 
-This quickstart sample includes the code that is explained as part of [this document](https://docs.microsoft.com/azure/communication-services/quickstarts/chat/meeting-interop). See that document for additional details on how this sample works.
+This sample includes the code that is explained as part of [this tutorial](https://docs.microsoft.com/azure/communication-services/tutorials/chat-interop/meeting-interop-features-inline-image), which includes a step by step explanation on how to enable inline image support. 
+
 
 ## Prerequisites
 - An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
 - A Working [Communication Services chat web app](https://docs.microsoft.com/azure/communication-services/quickstarts/chat/get-started?pivots=programming-language-javascript). 
-- A [Teams deployment](https://docs.microsoft.com/deployoffice/teams-install)
+- A Teams meeting link that was set up by a Teams business account.
+- A clear understanding from previous QuickStart - [Join your chat app to a Teams meeting](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/chat/meeting-interop?pivots=platform-web).
+- Chat SDK for JavaScript ([@azure/communication-chat](https://www.npmjs.com/package/@azure/communication-chat)) 1.3.2-beta.1 or latest
 
 ## Code Structure
 
-- **./join-chat-to-teams-meeting/index.html:** to configure a basic layout that will allow the user to join a teams meeting.
+- **./join-chat-to-teams-meeting/index.html:** contains a basic layout that will allow the user to join a teams meeting.
 - **./join-chat-to-teams-meeting/client.js:** contain the application logic.
 
 ## Before running sample code
@@ -50,8 +53,11 @@ This quickstart sample includes the code that is explained as part of [this docu
 ## Run the code
 Webpack users can use the **webpack-dev-server** to build and run your app. Run the following command to bundle your application host on a local webserver:
 
+```
 npx webpack-dev-server --entry ./client.js --output bundle.js --debug --devtool inline-source-map
+```
 
 open your browser and navigate to http://localhost:8080/. You should see the following:
 
-![Render of sample application](../media/acs-join-teams-meeting-chat-quickstart.png)
+![Render of sample application with preview image](../media/meeting-interop-features-inline-1.png)
+![Render of sample application with full scale image](../media/meeting-interop-features-inline-2.png)
