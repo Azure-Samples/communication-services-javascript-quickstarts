@@ -1,19 +1,14 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
 import { SmsClient }  from "@azure/communication-sms"
 
-// Initialize required variables
-const connectionString =  process.env.ACS_CONNECTIONSTRING
-const phoneNumberFrom = process.env.ACS_PHONE_NUMBER
-const urlShortener = process.env.URL_SHORTENER
-
-// Instantiate the SMS client.
-const smsClient = new SmsClient(connectionString);
-
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
+    //Parse Query Parameters
     let to = req.query.phoneNumber; // Get phone number to send SMS to
     let urlToShorten =  req.query.url; // Get URL to shorten
-    const body =  JSON.stringify({ "Url": urlToShorten})
 
+    //Get short URL from Azure URL Shortener
+    const body =  JSON.stringify({ "Url": urlToShorten})
+    const urlShortener = process.env.URL_SHORTENER
     await fetch(urlShortener, {
       method: 'POST',
       body: body
@@ -21,6 +16,9 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     .then(res => res.json())
     .then(async data => {
       const url = data["ShortUrl"]
+      const connectionString =  process.env.ACS_CONNECTIONSTRING
+      const phoneNumberFrom = process.env.ACS_PHONE_NUMBER
+      const smsClient = new SmsClient(connectionString);
       const sendResults = await smsClient.send({
         from: phoneNumberFrom,
         to: [to],
