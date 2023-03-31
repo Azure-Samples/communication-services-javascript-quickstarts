@@ -52,7 +52,7 @@ The advanced version of send-email includes the following sub samples.
 
 Open the corresponding js file of the sample to configure the following settings:
 
-- `connectionstring`: Replace `<ACS_CONNECTION_STRING>` with the connection string found within the Azure Communication Service resource.
+- `connectionString`: Replace `<ACS_CONNECTION_STRING>` with the connection string found within the Azure Communication Service resource.
 - `sender`: Replace `<SENDER_EMAIL>` with the sender email obtained from Azure Communication Service.
 - `recipient`: Replace `<RECIPIENT_EMAIL>` with the recipient email.
 - `emailContent`: Either use PlainText or Html to set the email content.
