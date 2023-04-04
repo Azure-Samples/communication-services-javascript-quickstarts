@@ -49,7 +49,7 @@ const httpTrigger: AzureFunction = async function (
   // Content type is required to know how to parse multi-part form
   if (!req.headers || !req.headers["content-type"]) {
     context.res.body = {
-      error: `Content type is not sent in header 'content-type'`,
+      error: `Content type is not set in header 'content-type'`,
     };
     context.res.status = HTTP_CODES.BAD_REQUEST;
     return;
