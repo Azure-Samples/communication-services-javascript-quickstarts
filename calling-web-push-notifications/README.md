@@ -18,6 +18,7 @@ This quickstart will showcase how to set up a web push notification architecture
     - Must use ACS Web Calling SDK version 1.12.0-beta.2+ (@azure/communication-calling in npmjs.org)
     - Clone this repo into your local machine for development/set up of this architecture.
     - A OneSignal account. You can create one at OneSignal.com
+    - Only supported for ACS identities. Teams identities and PSTN are not supported for web push notifications.
 
 Main components of this web push notification architecture are:
 - Back-end:
