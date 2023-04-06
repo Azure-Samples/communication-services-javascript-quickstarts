@@ -1,7 +1,8 @@
 import {
   ServerCallLocator,
   StartRecordingOptions,
-  RecordingChannel
+  RecordingChannel,
+  CallRecording
 } from "@azure/communication-call-automation";
 import { Request, Response } from "express";
 import * as fs from "fs";
@@ -19,7 +20,7 @@ const { EventGridDeserializer } = require("@azure/eventgrid");
 const { BlobStorageHelper } = require("../../BlobStorageHelper");
 const { Logger, MessageType } = require("../../Logger");
 
-const client = new CallAutomationClient.CallAutomationClient(connectionString);
+const client = new CallAutomationClient.CallAutomationClient(connectionString)
 
 let recordingData = new Map<string, string>();
 let recFileFormat: FileFormat = FileFormat.mp4;
@@ -39,7 +40,8 @@ exports.startRecording = async function (req: Request, res: Response) {
       "Start recording API called with serverCallId =  " + serverCallId
     );
     var locator: ServerCallLocator = { id: serverCallId };
-    var output = await client.startRecording(locator, callbackUri);
+    var options:StartRecordingOptions={callLocator:locator}
+    var output = await client.getCallRecording().startRecording(options)
 
     recordingData.set(serverCallId, output.recordingId);
     return res.json(output);
@@ -91,7 +93,7 @@ exports.startRecordingWithOptions = async function (req: Request, res: Response)
       recordingFormat: format,
       callLocator: locator
     };
-    var output = await client.startRecording(locator, callbackUri, options);
+    var output = await client.getCallRecording().startRecording(locator, callbackUri, options);
 
     recordingData.set(serverCallId, output.recordingId);
     return res.json(output);
@@ -123,7 +125,7 @@ exports.pauseRecording = async function (req: Request, res: Response) {
         recordingId
     );
 
-    var output = await client.pauseRecording(recordingId);
+    var output = await client.getCallRecording().pauseRecording(recordingId);
     if (output) {
       return res.json("Ok");
     } else {
@@ -158,7 +160,7 @@ exports.resumeRecording = async function (req: Request, res: Response) {
         recordingId
     );
 
-    var output = await client.resumeRecording(recordingId);
+    var output = await client.getCallRecording().resumeRecording(recordingId);
     if (output) {
       return res.json("Ok");
     } else {
@@ -193,7 +195,7 @@ exports.stopRecording = async function (req: Request, res: Response) {
         recordingId
     );
 
-    var output = await client.stopRecording(recordingId);
+    var output = await client.getCallRecording().stopRecording(recordingId);
     if (output) {
       return res.json("Ok");
     } else {
@@ -228,7 +230,7 @@ exports.getRecordingState = async function (req: Request, res: Response) {
         recordingId
     );
 
-    var output = await client.getRecordingProperties(recordingId);
+    var output = await client.getCallRecording().getRecordingProperties(recordingId);
     if (output && output.recordingState) {
       return res.json(output.recordingState);
     } else {

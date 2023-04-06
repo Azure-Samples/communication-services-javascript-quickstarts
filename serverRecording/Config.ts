@@ -1,6 +1,6 @@
-var config = module.exports = { ConnectionString: '', BlobStorageConnectionString: '', ContainerName: '', CallbackUri: '', StorageAccountName: '', StorageAccountKey: '', NgrokExePath:'' };
+var config = module.exports = { ConnectionString: '', BlobStorageConnectionString: '', ContainerName: '', CallbackUri: '', StorageAccountName: '', StorageAccountKey: ''};
 
-config = { 'ConnectionString': '', 'BlobStorageConnectionString': '', 'ContainerName': '', 'CallbackUri': '', 'StorageAccountName': '', 'StorageAccountKey': '','NgrokExePath':'' };
+config = { 'ConnectionString': '', 'BlobStorageConnectionString': '', 'ContainerName': '', 'CallbackUri': '', 'StorageAccountName': '', 'StorageAccountKey': ''};
 
 config.ConnectionString = '';
 config.BlobStorageConnectionString = '';
