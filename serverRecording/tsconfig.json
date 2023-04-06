@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        // "rootDir": "./",
+        // "outDir": "./build",
+        "noImplicitAny": true,
+        "removeComments": false,
+        "preserveConstEnums": true,
+        "sourceMap": true
+        // "esModuleInterop": true,
+        // "strict": true   
+    },
+    "files": [
+        "Logger.ts",
+        "BlobStorageHelper.ts", 
+        "api/controllers/CallRecordingController.ts",
+        "api/routes/CallRecordingRoutes.ts", 
+        "Server.ts", 
+        "Config.ts",
+      ]
+}
