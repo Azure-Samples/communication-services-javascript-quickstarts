@@ -125,14 +125,23 @@ exports.pauseRecording = async function (req: Request, res: Response) {
         recordingId
     );
 
-    var output = await client.getCallRecording().pauseRecording(recordingId);
-    if (output) {
+    try{
+      await client.getCallRecording().pauseRecording(recordingId)
       return res.json("Ok");
-    } else {
-      return res
-        .status(output.statusCode ? output.statusCode : "500")
-        .json(output.message);
+    }catch(e){
+      return res.json(e)
+      // .status(output.statusCode ? output.statusCode : "500")
+      // .json(output.message);
     }
+
+    // var output = await client.getCallRecording().pauseRecording(recordingId);
+    // if (await client.getCallRecording().pauseRecording(recordingId)) {
+    //   return res.json("Ok");
+    // } else {
+    //   return res
+    //     .status(output.statusCode ? output.statusCode : "500")
+    //     .json(output.message);
+    // }
   } catch (e) {
     var output = BlobStorageHelper.getExecptionDetails(e);
     return res.status(output.statusCode).json(String(output.output));
@@ -159,15 +168,22 @@ exports.resumeRecording = async function (req: Request, res: Response) {
         " and recordingId =  " +
         recordingId
     );
-
-    var output = await client.getCallRecording().resumeRecording(recordingId);
-    if (output) {
-      return res.json("Ok");
-    } else {
-      return res
-        .status(output.statusCode ? output.statusCode : "500")
-        .json(output.message);
-    }
+      try{
+        await client.getCallRecording().resumeRecording(recordingId)
+        return res.json("Ok");
+      }catch(e){
+        return res.json(e)
+        // .status(output.statusCode ? output.statusCode : "500")
+        // .json(output.message);
+      }
+    // var output = await client.getCallRecording().resumeRecording(recordingId);
+    // if (await client.getCallRecording().resumeRecording(recordingId)) {
+    //   return res.json("Ok");
+    // } else {
+    //   return res
+    //     .status(output.statusCode ? output.statusCode : "500")
+    //     .json(output.message);
+    // }
   } catch (e) {
     var output = BlobStorageHelper.getExecptionDetails(e);
     return res.status(output.statusCode).json(String(output.output));
@@ -195,14 +211,23 @@ exports.stopRecording = async function (req: Request, res: Response) {
         recordingId
     );
 
-    var output = await client.getCallRecording().stopRecording(recordingId);
-    if (output) {
+    try{
+      await client.getCallRecording().stopRecording(recordingId)
       return res.json("Ok");
-    } else {
-      return res
-        .status(output.statusCode ? output.statusCode : "500")
-        .json(output.message);
+    }catch(e){
+      return res.json(e)
+      // .status(output.statusCode ? output.statusCode : "500")
+      // .json(output.message);
     }
+
+    // var output = await client.getCallRecording().stopRecording(recordingId);
+    // if (output) {
+    //   return res.json("Ok");
+    // } else {
+    //   return res
+    //     .status(output.statusCode ? output.statusCode : "500")
+    //     .json(output.message);
+    // }
   } catch (e) {
     var output = BlobStorageHelper.getExecptionDetails(e);
     return res.status(output.statusCode).json(String(output.output));
@@ -229,8 +254,7 @@ exports.getRecordingState = async function (req: Request, res: Response) {
         " and recordingId =  " +
         recordingId
     );
-
-    var output = await client.getCallRecording().getRecordingProperties(recordingId);
+    var output = await client.getCallRecording().getRecordingState(recordingId)
     if (output && output.recordingState) {
       return res.json(output.recordingState);
     } else {
