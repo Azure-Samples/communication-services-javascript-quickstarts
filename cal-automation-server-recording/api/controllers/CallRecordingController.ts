@@ -189,9 +189,9 @@ exports.stopRecording = async function (req: Request, res: Response) {
         " and recordingId =  " +
         recordingId
     );
-
     try{
       await client.getCallRecording().stopRecording(recordingId)
+      Logger.logMessage("stopRecord response")
       return res.json("Ok");
     }catch(e){
       return res.json(e)
@@ -244,15 +244,18 @@ exports.getRecordingFile = async function (req: Request, res: Response) {
       MessageType.INFORMATION,
       "Request data ---- >" + JSON.stringify(data)
     );
-    const deserializedData =
-      await new EventGridDeserializer().deserializeEventGridEvents(data[0]);
+    while (true) {
+      data=req.body;
+      if (data !== undefined) break
+      await new Promise(resolve => setTimeout(resolve, 500))
+    }
+    const deserializedData =await new EventGridDeserializer().deserializeEventGridEvents(data[0]);
     const event = deserializedData[0];
 
     Logger.logMessage(
       MessageType.INFORMATION,
       "Event type is  ---->" + event.eventType
     );
-
     if (event.eventType == "Microsoft.EventGrid.SubscriptionValidationEvent") {
       try {
         if (event.data && event.data.validationCode) {

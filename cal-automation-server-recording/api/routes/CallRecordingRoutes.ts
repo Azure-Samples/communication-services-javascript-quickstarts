@@ -1,7 +1,6 @@
 'use strict';
 module.exports = function (app: any) {
   var controller = require('../controllers/callRecordingController');
-debugger;
   app.route('/')
     .get(controller.startUp)
 
