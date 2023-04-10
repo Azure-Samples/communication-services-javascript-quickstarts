@@ -358,3 +358,4 @@ MigrationBackup/
 .env.production.local
 
 .DS_Store
+dist/
