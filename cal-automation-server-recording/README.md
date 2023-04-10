@@ -49,7 +49,8 @@ A separate branch with end to end implementation is [available](https://github.c
 1. Go to ServerRecording folder and open terminal window in Visual Studio code
 2. Run command `tsc -w` in the terminal. After all the .ts files are converted to .js files, close the build using command `ctrl + c`
 3. Run command `npm run start` in the terminal
-3. Use postman or any debugging tool and open url -http://localhost:3000/
+3. Use ngrok url for tunneling for ex: https://6b77-43-239-201-140.ngrok-free.app
+4. Use postman or any debugging tool and open url -http://localhost:3000/
 
 ## Deploying the sample app on Azure
 
