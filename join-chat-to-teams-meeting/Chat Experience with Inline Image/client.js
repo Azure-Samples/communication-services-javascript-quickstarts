@@ -181,8 +181,10 @@ async function setImgHandler(element, imageAttachments) {
 }
 
 async function renderSentMessage(message) {
-    messages += '<div class="container darker">' + message + '</div>';
-    messagesContainer.innerHTML = messages;
+    const card = document.createElement('div');
+    card.className = 'container darker';
+    card.innerHTML = message;
+    messagesContainer.appendChild(card);
 }
 
 hangUpButton.addEventListener("click", async () => {
