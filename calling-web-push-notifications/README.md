@@ -240,8 +240,7 @@ You can add authentication to you Azure App Service web app (webpushnotification
     - MacOS Chrome
     - MacOS Safari
     - iOS Safari - Not supported yet but will soon be supported in iOS 16.4+
-- Make sure you allow notifications for your site in the brower settings. Different browsers have this setting in different places.
-- For MacOS, make sure to allow for Safari and Chrome from the System Settings menu.
+- Make sure you allow notifications for your site in the brower settings and in the system settins. Different OSs/browsers have this setting in different places.
 - Id edge you may see this "notifications blocked" pop up. Just click on allow:
 ![](./assets/edgeAllow.png)
 - Make sure you dont block your website in the browser's tracking settings.
