@@ -34,7 +34,7 @@ var tokenString = '';
 
 async function init() {
     const connectionString = "<YOU_CONNECTION_STRING>";
-    const endpointUrl = "<YOU_ENDPOINT_URL>>";
+    const endpointUrl = "<YOU_ENDPOINT_URL>";
 
     const identityClient = new CommunicationIdentityClient(connectionString);
 
