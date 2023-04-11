@@ -23,13 +23,15 @@ This sample showcases how Call Composites can be used for making outbound calls 
 
 1. Run `npm i` on the directory of the project to install dependencies
 2. Swap placeholders for identifiers in the code.
-    - Go to the `src` folder and find the `App.tsx` file.
-    - There input values for the the `USER_ID` and `TOKEN` for the identity you created.
-    - Optional: You can update the display name to match a string value of your choice.
+    - Go to the `src` folder and find the `INPUTS.tsx` file.
+    - Replace the values for the the `userIdentity` and `userToken` for the identity you created in Azure Portal in the `Prerequisites` step.
+    - Replace the `participantIds` with the identity or phone number of the user(s) you want to call.
+      - If you are calling a phone number, replace the `callerId` value as well.
+    - Update the display name to a name of your choice.
     - Save the file.
-4. Run `npm run start`
+3. Run `npm run start`
 
-Open your browser to ` http://localhost:3000`. You should see the following:
-![Composite End State](../media/CompositeEnd.png)
+Open your browser to <http://localhost:3000>. You should see the following:
+![Composite Loaded State](../media/pstn-1-to-n-loaded.png).
 
-Feel free to style the composites to your desired size and layout inside of your application.
+Finally, click `Start Call` to start the call.
