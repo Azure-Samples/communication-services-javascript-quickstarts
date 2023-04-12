@@ -12,7 +12,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using Microsoft.Azure.EventGrid.Models;
 using System.Collections.Generic;
-using Azure.Communication.CallingServer;
+using Azure.Communication.CallAutomation;
 using System.Text.RegularExpressions;
 using Contoso.Transfer;
 
@@ -47,7 +47,7 @@ namespace Contoso
             var serverCallId = ExtractServerCallIDOrDie(e.Subject);
             var payload = JsonConvert.DeserializeObject<RecordingFileStatusUpdatedPayload>(e.Data.ToString(), new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 
-            var callingServerClient = new CallingServerClient(Settings.GetACSConnectionString());
+            var callAutomationClient = new CallAutomationClient(Settings.GetACSConnectionString());
             var storageClient = new BlobStorage(log, Settings.GetRecordingStoreConnectionString(), Settings.GetRecordingStoreContainerName());
 
             var chunks = payload.RecordingStorageInfo.RecordingChunks;
@@ -55,7 +55,7 @@ namespace Contoso
             foreach (var chunk in chunks)
             {
                 var name = blobName(serverCallId, chunk);
-                var inStream = callingServerClient.DownloadStreaming(new Uri(chunk.ContentLocation)).Value;
+                var inStream = callAutomationClient.GetCallRecording().DownloadStreaming(new Uri(chunk.ContentLocation)).Value;
                 if (await storageClient.UploadFileAsync(name, inStream))
                 {
                     blobStorePaths.Add(name);

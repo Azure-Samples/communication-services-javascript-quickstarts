@@ -4,8 +4,8 @@ import { startRecording, stopRecording } from "./Api";
 
 export const recordingButtonPropsCallback = (serverCallId: string, recordingId: string, setRecordingId: (recordingId: string) => void): CustomCallControlButtonCallback => {
     return (args: CustomCallControlButtonCallbackArgs) => ({
-        placement: 'afterCameraButton',
-        showLabel: true,
+        placement: 'primary',
+        showLabel: args.displayType !== 'compact',
         labelKey: 'recordingButtonLabel',
         strings: {
             offLabel: "Start Recording",
