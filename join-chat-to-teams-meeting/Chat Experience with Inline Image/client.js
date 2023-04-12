@@ -141,7 +141,7 @@ function fetchPreviewImages(attachments) {
     }
     Promise.all(
         attachments.map(async (attachment) => {
-            const response = await fetch(await walkaround(attachment.previewUrl), {
+            const response = await fetch(attachment.previewUrl, {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + tokenString,
@@ -161,11 +161,6 @@ function fetchPreviewImages(attachments) {
     }).catch((e) => {
         console.log('error fetching preview images');
     });
-}
-
-function walkaround(url) {
-    return url.replace('threads//', 'threads/123/');
-    // return string1.replace('https://global.chat.prod.communication.microsoft.com', _getEndpointURL(connectionString));
 }
 
 async function setImgHandler(element, imageAttachments) {
@@ -227,7 +222,7 @@ function fetchFullScaleImage(e, imageAttachments) {
     loadingImageOverlay.src = '';
 
     // fetch the image
-    fetch(walkaround(link), {
+    fetch(link, {
         method: 'GET',
         headers: {
             'Authorization': 'Bearer ' + tokenString
