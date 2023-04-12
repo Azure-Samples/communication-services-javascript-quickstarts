@@ -10,6 +10,9 @@ products:
 
 # ACS Web Calling SDK - Web push notifications architecture quickstart
 
+> **Note**
+> ACS Web Calling SDK - Web push notifications is in public preview and available as part of version 1.12.0-beta.2+.
+
 This quickstart will showcase how to set up a web push notification architecture for the ACS Web Calling SDK. We will walk through the set up steps necessary to set up the architecture. For this architecture, we will be sending the web push notifications via OneSignal, a trusted web push service provider (You can also use this tutorial as a guidance if you want to use your own web push notification provider).
 
 - Prerequisites:
