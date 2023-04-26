@@ -62,7 +62,8 @@ function App(): JSX.Element {
       userId: fromFlatCommunicationIdentifier(userId) as CommunicationUserIdentifier,
       displayName,
       credential,
-      locator: { roomId }
+      locator: { roomId },
+      options: { roleHint: ROLE }
     }),
     [userId, credential, displayName, roomId]
   );
@@ -71,7 +72,7 @@ function App(): JSX.Element {
   if (!!callAdapter) {
     return (
       <div style={{ height: '100vh', display: 'flex'}}>
-          <CallComposite adapter={callAdapter} role={ROLE}/>
+          <CallComposite adapter={callAdapter}/>
       </div>
     );
   }
