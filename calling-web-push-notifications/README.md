@@ -10,6 +10,9 @@ products:
 
 # ACS Web Calling SDK - Web push notifications architecture quickstart
 
+> **Note**
+> ACS Web Calling SDK - Web push notifications is in public preview and available as part of version 1.12.0-beta.2+.
+
 This quickstart will showcase how to set up a web push notification architecture for the ACS Web Calling SDK. We will walk through the set up steps necessary to set up the architecture. For this architecture, we will be sending the web push notifications via OneSignal, a trusted web push service provider (You can also use this tutorial as a guidance if you want to use your own web push notification provider).
 
 - Prerequisites:
@@ -27,6 +30,8 @@ Main components of this web push notification architecture are:
     - `webpack.config.js` - Backend server for this application. From this server you will generate ACS CommunicationUserTokens for front end client apps to log into(create CallAgent objects) the ACS Web Calling SDK. We will also generate OneSignal Registration Tokens to map them to ACS CommunicationUserTokens. We will keep this mapping here on our backend server.
 - Front-end:
     - `./src` - Contains files for the front end application to demo web push notifications. This front-end application will use the ACS Web Calling SDK for web calling functionality. The fron end will also register its device to our OneSignal app so that it can receive web push notifications!
+- Sequence diagram:
+![](./assets/sequenceDiagram.png)
 
 
 ### Create your OneSignal service app
@@ -240,8 +245,7 @@ You can add authentication to you Azure App Service web app (webpushnotification
     - MacOS Chrome
     - MacOS Safari
     - iOS Safari - Not supported yet but will soon be supported in iOS 16.4+
-- Make sure you allow notifications for your site in the brower settings. Different browsers have this setting in different places.
-- For MacOS, make sure to allow for Safari and Chrome from the System Settings menu.
+- Make sure you allow notifications for your site in the brower settings and in the system settins. Different OSs/browsers have this setting in different places.
 - Id edge you may see this "notifications blocked" pop up. Just click on allow:
 ![](./assets/edgeAllow.png)
 - Make sure you dont block your website in the browser's tracking settings.

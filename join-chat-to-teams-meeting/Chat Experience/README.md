@@ -23,8 +23,8 @@ This quickstart sample includes the code that is explained as part of [this docu
 
 ## Code Structure
 
-- **./join-chat-to-teams-meeting/index.html:** to configure a basic layout that will allow the user to join a teams meeting.
-- **./join-chat-to-teams-meeting/client.js:** contain the application logic.
+- **./index.html:** to configure a basic layout that will allow the user to join a teams meeting.
+- **./client.js:** contain the application logic.
 
 ## Before running sample code
 
@@ -54,4 +54,4 @@ npx webpack-dev-server --entry ./client.js --output bundle.js --debug --devtool 
 
 open your browser and navigate to http://localhost:8080/. You should see the following:
 
-![Render of sample application](../media/acs-join-teams-meeting-chat-quickstart.png)
+![Render of sample application](../../media/acs-join-teams-meeting-chat-quickstart.png)
