@@ -3,7 +3,7 @@ const { EmailClient, KnownEmailSendStatus } = require("@azure/communication-emai
 const connectionString = "<ACS_CONNECTION_STRING>";
 const senderAddress = "<SENDER_EMAIL_ADDRESS>"
 const recipientAddress = "<RECIPIENT_EMAIL_ADDRESS>"
-
+const replyToAddress = "<REPLY_TO_EMAIL_ADDRESS>"
 
 async function main() {
   const POLLER_WAIT_TIME = 10
@@ -15,6 +15,7 @@ async function main() {
       cc: [{ address: recipientAddress }],
       bcc: [{ address: recipientAddress }],
     },
+    replyTo: [{ address: replyToAddress }],
     content: {
       subject: "Test email from JS Sample",
       plainText: "This is plaintext body of test email.",
