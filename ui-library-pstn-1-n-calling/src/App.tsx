@@ -9,7 +9,9 @@ import {
 } from "@azure/communication-react";
 import React, { useMemo } from "react";
 import { INPUTS } from "./INPUTS";
+import { initializeIcons } from '@fluentui/react'
 
+initializeIcons();
 /**
  * Entry point of your application.
  */
