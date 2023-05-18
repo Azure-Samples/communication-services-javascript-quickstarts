@@ -9,11 +9,11 @@ import { AdapterArgs, getStartSessionFromURL } from './utils/AppUtils';
 import { ClickToCallScreen } from './views/ClickToCallScreen';
 import { SameOriginCallScreen } from './views/NewWindowCallScreen';
 import { Spinner, Stack, initializeIcons, registerIcons } from '@fluentui/react';
-import { Dismiss20Regular } from '@fluentui/react-icons';
+import { CallAdd20Regular, Dismiss20Regular } from '@fluentui/react-icons';
 
 type AppPages = 'click-to-call' | 'same-origin-call';
 
-registerIcons({ icons: { dismiss: <Dismiss20Regular /> } });
+registerIcons({ icons: { dismiss: <Dismiss20Regular />, callAdd: <CallAdd20Regular /> } });
 initializeIcons();
 function App() {
 
@@ -22,12 +22,12 @@ function App() {
   /**
    * Token for local user.
    */
-  const token = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjEwNiIsIng1dCI6Im9QMWFxQnlfR3hZU3pSaXhuQ25zdE5PU2p2cyIsInR5cCI6IkpXVCJ9.eyJza3lwZWlkIjoiYWNzOmI2YWFkYTFmLTBiMWQtNDdhYy04NjZmLTkxYWFlMDBhMWQwMV8wMDAwMDAxOC1kMTBmLTkwMDctYTYxMC0yNDQ4MjIwMDExM2YiLCJzY3AiOjE3OTIsImNzaSI6IjE2ODQ0NTIyNzMiLCJleHAiOjE2ODQ1Mzg2NzMsInJnbiI6ImFtZXIiLCJhY3NTY29wZSI6ImNoYXQsdm9pcCIsInJlc291cmNlSWQiOiJiNmFhZGExZi0wYjFkLTQ3YWMtODY2Zi05MWFhZTAwYTFkMDEiLCJyZXNvdXJjZUxvY2F0aW9uIjoidW5pdGVkc3RhdGVzIiwiaWF0IjoxNjg0NDUyMjczfQ.T3ZnuJGDIk_CS9jb6KYmo1Wp3dVt6IJ07TdEp6E1w6gR9WW8yHnRpVjhrPo-YIX91gNMZLxP3Ht65tlnvb186W7pwtuMej7bP0z5MmUt3wH4pj5Ls1ghdc-KpVBDZ1WKjnTW_QUmYOJLoCwEsi3-JSLp4hLJ0EJDr11o1teK94rsel5asP7JFbOD9V4LBZlD8fQB9RhOivHIAFMTQY9Hzbl43Qm_-icdrrLLQ386VaCUSLFLtWA6dw5fy8D_7kQcSBT9VClPzw1jCIYRquJ0lQTK-eHWer8kfz4UbdldcTaOHtNdI_CX53aELDhGjNnJPz9YtapTUSOfYNc8KvKbmQ';
+  const token = 'Enter your Azure Communication Services token here';
   
   /**
    * User identifier for local user.
    */
-  const userId: CommunicationIdentifier = { communicationUserId: '8:acs:b6aada1f-0b1d-47ac-866f-91aae00a1d01_00000018-d10f-9007-a610-24482200113f'};
+  const userId: CommunicationIdentifier = { communicationUserId: '<Enter your user Id>'};
   
   /**
    * This decides where the call will be going. This supports many different calling modalities in the Call Composite.
@@ -39,7 +39,7 @@ function App() {
    * 
    * You can call teams voice apps like a Call queue with the participants locator.
    */
-  const locator: CallAdapterLocator = {participantIds: ['+14039883391']};
+  const locator: CallAdapterLocator = {participantIds: ['<Enter a Participants Id here>']};
 
   /**
    * Phone number needed from your Azure Communications resource to start a PSTN call. Can be created under the phone numbers
@@ -49,7 +49,7 @@ function App() {
    * 
    * This can be left alone if not making a PSTN call.
    */
-  const alternateCallerId = '+15125186727';
+  const alternateCallerId = '<Enter your alternate CallerId here>';
 
   /**
    * Properties needed to start an Azure Communications Call Adapter. When these are set the app will go to the Call screen for the
