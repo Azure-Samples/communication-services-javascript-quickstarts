@@ -42,8 +42,7 @@ export async function main() {
   // request payload to update a room
   const updateRoomOptions = {
     validFrom: validFrom,
-    validUntil: validUntil,
-    roomJoinPolicy: "CommunicationServiceUsers"    
+    validUntil: validUntil
   };
 
   // updates the specified room with the request payload
@@ -88,6 +87,16 @@ export async function main() {
 
   await delay(500);
 
+  // lists all active rooms
+  const listRoomsResult = await roomsClient.listRooms({});
+
+  for await (const roomModel of listRoomsResult) {
+    break;
+  }
+  console.log(`Rooms Listed`);
+
+  await delay(500);
+  
   // deletes the room for cleanup
   await roomsClient.deleteRoom(roomId);
   console.log(`Room Deleted`);
