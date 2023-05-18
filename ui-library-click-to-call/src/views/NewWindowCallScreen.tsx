@@ -64,7 +64,11 @@ export const SameOriginCallScreen = (props: {
     const adapter = useAzureCommunicationCallAdapter(args, afterCreate);
 
     if (!adapter) {
-        return <Spinner label={'Creating adapter'} ariaLive="assertive" labelPosition="top" />;
+        return (
+            <Stack verticalAlign='center' styles={{ root: { height: '100vh', width: '100vw' } }}>
+                <Spinner label={'Creating adapter'} ariaLive="assertive" labelPosition="top" />
+            </Stack>
+        );
     }
     return (
         <Stack styles={{ root: { height: '100vh', width: '100vw' } }}>
