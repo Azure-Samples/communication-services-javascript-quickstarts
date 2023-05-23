@@ -7,6 +7,7 @@ export async function main() {
   const identityClient = new CommunicationIdentityClient(connectionString);
   const user1 = await identityClient.createUserAndToken(["voip"]);
   const user2 = await identityClient.createUserAndToken(["voip"]);
+  const delay = ms => new Promise(res => setTimeout(res, ms));
 
   // create RoomsClient
   const roomsClient = new RoomsClient(connectionString);
@@ -41,14 +42,7 @@ export async function main() {
   // request payload to update a room
   const updateRoomOptions = {
     validFrom: validFrom,
-    validUntil: validUntil,
-    roomJoinPolicy: "CommunicationServiceUsers",
-    participants: [
-      {
-        id: user1.user,
-        role: "Consumer",
-      },
-    ],
+    validUntil: validUntil
   };
 
   // updates the specified room with the request payload
@@ -64,9 +58,11 @@ export async function main() {
   ];
 
   // add user2 to the room with the request payload
-  await roomsClient.addParticipants(roomId, addParticipantsList);
+  await roomsClient.addOrUpdateParticipants(roomId, addParticipantsList);
   console.log(`Added Participants`);
   
+  await delay(500);
+
   // request payload to update user1 with a new role
   const updateParticipantsList = [
     {
@@ -76,9 +72,11 @@ export async function main() {
   ];
 
   // update user1 with the request payload
-  await roomsClient.updateParticipants(roomId, updateParticipantsList);
+  await roomsClient.addOrUpdateParticipants(roomId, updateParticipantsList);
   console.log(`Updated Participants`);
   
+  await delay(500);
+
   // request payload to delete both users from the room
   // this demonstrates both objects that can be used in deleting users from rooms: RoomParticipant or CommunicationIdentifier
   const removeParticipantsList = [user1.user, user2.user];
@@ -87,6 +85,18 @@ export async function main() {
   await roomsClient.removeParticipants(roomId, removeParticipantsList);
   console.log(`Removed Participants`);
 
+  await delay(500);
+
+  // lists all active rooms
+  const listRoomsResult = await roomsClient.listRooms({});
+
+  for await (const roomModel of listRoomsResult) {
+    break;
+  }
+  console.log(`Rooms Listed`);
+
+  await delay(500);
+  
   // deletes the room for cleanup
   await roomsClient.deleteRoom(roomId);
   console.log(`Room Deleted`);
