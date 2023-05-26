@@ -550,11 +550,11 @@ export const ClickToCallScreen = (props: ClickToCallPageProps): JSX.Element => {
 ```
 Once you have done this you should see this when the app is running:
 
-![image.png](./tutorialImages/Sample-app-splash.png)
+![Sample app splash screen](./tutorialImages/Sample-app-splash.png)
 
 Then when you action the widget button you should see: 
 
-![image.png](./tutorialImages/Sample-app-widget-open.png)
+![Sample app widget open](./tutorialImages/Sample-app-widget-open.png)
 
 Next we will talk about what we need to add to make this experience start a call in a new window.
 ## Part 2 Creating a New Window Experience
