@@ -26,9 +26,9 @@ This code sample is explained as part of [this tutorial](https://docs.microsoft.
 ## Setup
 
 1. Clone this sample
-3. Run `npm install`
-4. Grab the connection string from your communication resource and replace it at line #36 in client.js ```const connectionString = "<SECRET_CONNECTION_STRING>";```.
-6. Similarly, replace the endpoint URL at line #37 in client.js ```const endpointUrl = "<ENDPOINT_URL>";```.
+2. Run `npm install`
+3. Grab the connection string from your communication resource and replace it at line #36 in ![client.js](https://github.com/Azure-Samples/communication-services-javascript-quickstarts/tree/main/join-chat-to-teams-meeting/Chat%20Experience%20with%20File%20Sharing/client.js#L36) ```const connectionString = "<SECRET_CONNECTION_STRING>";```.
+4. Similarly, replace the endpoint URL at line #37 in [client.js](https://github.com/Azure-Samples/communication-services-javascript-quickstarts/tree/main/join-chat-to-teams-meeting/Chat%20Experience%20with%20File%20Sharing/client.js#L37)  ```const endpointUrl = "<ENDPOINT_URL>";```.
 
 ## Run the code
 
