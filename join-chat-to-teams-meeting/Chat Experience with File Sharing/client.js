@@ -139,7 +139,7 @@ async function renderReceivedMessage(event) {
 }
 
 function renderImageAttachments(attachment) {
-    return `<img alt="image" src="" itemscope=\"png\" id="${attachment.id}" style="max-width: 100px">`
+    return `<img alt="image" src="" itemscope="png" id="${attachment.id}" style="max-width: 100px">`
 }
 
 function renderSentMessage(message) {
