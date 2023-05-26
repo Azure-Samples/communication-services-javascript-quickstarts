@@ -44,7 +44,8 @@ export const clicktoCallSetupContainerStyles = (theme: Theme): IStackStyles => {
       right: '1rem',
       position: 'absolute',
       overflow: 'hidden',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      background: theme.semanticColors.bodyBackground
     }
   };
 };
