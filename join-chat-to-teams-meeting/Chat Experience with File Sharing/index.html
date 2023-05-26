@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Communication Client - Calling and Chat Sample</title>
+      <style>
+         body {
+            box-sizing: border-box;
+         }
+         /* The popup chat - hidden by default */
+         .chat-popup {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            border: 3px solid #f1f1f1;
+            background-color: white;
+            z-index: 9;
+            max-height: 600px;
+            overflow-y: scroll;
+         }
+         .message-box {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 15px;
+            border: 3px solid #FFFACD;
+            z-index: 9;
+         }
+         .form-container {
+            max-width: 300px;
+            padding: 10px;
+            background-color: white;
+         }
+         .form-container textarea {
+            width: 90%;
+            padding: 15px;
+            margin: 5px 0 22px 0;
+            border: none;
+            background: #e1e1e1;
+            resize: none;
+            min-height: 50px;
+         }
+         .form-container .btn {
+            background-color: #4CAF40;
+            color: white;
+            padding: 14px 18px;
+            margin-bottom:10px;
+            opacity: 0.6;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+         }
+         .container {
+            border: 1px solid #dedede;
+            background-color: #F1F1F1;
+            border-radius: 3px;
+            padding: 8px;
+            margin: 8px 0;
+         }
+         .darker {
+            border-color: #ccc;
+            background-color: #ffdab9;
+            margin-left: 25px;
+            margin-right: 3px;
+         }
+         .lighter {
+            margin-right: 20px;
+            margin-left: 3px;
+         }
+         .container::after {
+            content: "";
+            clear: both;
+            display: table;
+         }
+         .attachment-container {
+            overflow: hidden;
+            background: #f3f2f1;
+            padding: 20px;
+            margin: 0;
+         }
+         .attachment-container img {
+            width: 50px;
+            height: 50px;
+            float: left;
+            margin: 0;
+         }
+         .attachment-container p {
+            font-weight: 700;
+            margin: 0 5px 20px 0;
+         }
+         .attachment-container {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            margin-bottom: 5px;
+         }
+         .attachment-icon {
+            content: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDQ4IDQ4IiBoZWlnaHQ9IjQ4cHgiIGlkPSJMYXllcl8xIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCA0OCA0OCIgd2lkdGg9IjQ4cHgiIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPjxwYXRoIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTM3LDQ3SDExYy0yLjIwOSwwLTQtMS43OTEtNC00VjVjMC0yLjIwOSwxLjc5MS00LDQtNGgxOC45NzMgIGMwLjAwMiwwLDAuMDA1LDAsMC4wMDcsMGgwLjAySDMwYzAuMzIsMCwwLjU5MywwLjE2MSwwLjc3NiwwLjM5NWw5LjgyOSw5LjgyOUM0MC44NCwxMS40MDcsNDEsMTEuNjgsNDEsMTJsMCwwdjAuMDIxICBjMCwwLjAwMiwwLDAuMDAzLDAsMC4wMDVWNDNDNDEsNDUuMjA5LDM5LjIwOSw0NywzNyw0N3ogTTMxLDQuMzgxVjExaDYuNjE5TDMxLDQuMzgxeiBNMzksMTNoLTljLTAuNTUzLDAtMS0wLjQ0OC0xLTFWM0gxMSAgQzkuODk2LDMsOSwzLjg5Niw5LDV2MzhjMCwxLjEwNCwwLjg5NiwyLDIsMmgyNmMxLjEwNCwwLDItMC44OTYsMi0yVjEzeiBNMzMsMzlIMTVjLTAuNTUzLDAtMS0wLjQ0Ny0xLTFjMC0wLjU1MiwwLjQ0Ny0xLDEtMWgxOCAgYzAuNTUzLDAsMSwwLjQ0OCwxLDFDMzQsMzguNTUzLDMzLjU1MywzOSwzMywzOXogTTMzLDMxSDE1Yy0wLjU1MywwLTEtMC40NDctMS0xYzAtMC41NTIsMC40NDctMSwxLTFoMThjMC41NTMsMCwxLDAuNDQ4LDEsMSAgQzM0LDMwLjU1MywzMy41NTMsMzEsMzMsMzF6IE0zMywyM0gxNWMtMC41NTMsMC0xLTAuNDQ3LTEtMWMwLTAuNTUyLDAuNDQ3LTEsMS0xaDE4YzAuNTUzLDAsMSwwLjQ0OCwxLDFDMzQsMjIuNTUzLDMzLjU1MywyMywzMywyMyAgeiIgZmlsbC1ydWxlPSJldmVub2RkIi8+PC9zdmc+");
+         }
+         .attachment-container a {
+            background-color: #dadada;
+            color: black;
+            font-size: 12px;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            text-align: center;
+            margin-right: 10px;
+            text-decoration: none;
+            margin-top: 10px;
+         }
+         .attachment-container a:hover {
+            background-color: black;
+            color: white;
+         }
+         .attachment-type {
+            position: absolute;
+            color: black;
+            border: 2px solid black;
+            background-color: white;
+            margin-top: 50px;
+            font-family: sans-serif;
+            font-weight: 400;
+            padding: 2px;
+            text-transform: uppercase;
+            font-size: 8px;
+         }
+      </style>
+   </head>
+   <body>
+      <h4>Azure Communication Services</h4>
+      <h1>Calling and Chat Quickstart</h1>
+          <input id="teams-link-input" type="text" placeholder="Teams meeting link"
+        style="margin-bottom:1em; width: 300px;" />
+          <input id="thread-id-input" type="text" placeholder="Chat thread id"
+        style="margin-bottom:1em; width: 300px;" />
+        <p>Call state <span style="font-weight: bold" id="call-state">-</span></p>
+      <div>
+        <button id="join-meeting-button" type="button">
+            Join Teams Meeting
+        </button>
+        <button id="hang-up-button" type="button" disabled="true">
+            Hang Up
+        </button>
+      </div>
+      <div class="chat-popup" id="chat-box">
+         <div id="messages-container"></div>
+         <form class="form-container">
+            <textarea placeholder="Type message.." name="msg" id="message-box" required></textarea>
+            <button type="button" class="btn" id="send-message">Send</button>
+         </form>
+      </div>
+      <script src="./bundle.js"></script>
+   </body>
+</html>
