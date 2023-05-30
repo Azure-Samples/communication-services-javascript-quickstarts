@@ -581,7 +581,7 @@ Next we will talk about what we need to add to make this experience start a call
 
 ## Part 2 Creating a New Window Experience
 
-Now that we have a running application with our widget on the home page we will talk about starting the calling experience for your users with a new window. This scenario allows you to give your customer the ability to browse while still seeing your call in a new window. This can be useful in situations where your users will use video and screensharing.
+Now that we have a running application with our widget on the home page we will talk about starting the calling experience for your users with a new window. This scenario allows you to give your customer the ability to browse while still seeing your call in a new window. This can be useful in situations similar to when your users will use video and screensharing.
 
 To start we will create a new view in the `src/views` folder called `NewWindowCallScreen.tsx`. This new screen will be used by the `App.tsx` file to go into a new call with the arguments provided to it using our CallComposite, this can be swapped with a stateful client and UI component experience if desired as well.
 
@@ -678,11 +678,21 @@ export const SameOriginCallScreen = (props: {
 
 For our CallComposite we have some configuration to do for Click to Call. Depending on your use case we have a number of customizations that can change the user experience. This sample chooses to hide the local video tile, camera, and screen sharing controls if the user opts out of video for their call. Other customizations seen include in the `afterCreate` function defined in the snippet we auto join the call, this will bypass the configuration screen and drop the user into the call with their mic live. Just remove the call to `adapter.join(true)` and the configuration screen will show as normal. Next we will talk about how to get this screen the information once we have our CallComposite configured.
 
-To do this, we will create some handlers to send post messages between the parent window and child window. See diagram:
+To do this, we will create some handlers to send post messages between the parent window and child window to signal that we want some information. See diagram:
 
-TODO ADD DIAGRAM
+```mermaid
+graph LR
+  child[Child Window]
+  parent[Parent Window]
+  
 
-To do this we will want to update the splash screen we created earlier. First we will add a reference to the new child window that we will create.
+  parent --> |2. Adapter args| child
+  child -->|1. Args please| parent
+  
+```
+This flow illustrates that if the child window has spawned it needs to ask for the arguments. This has to do with React and that if the parent window just sends a message right after creation the call adapter arguments needed are lost when the application mounts. This is because in the new window the listener is not set yet until after a render pass completes. More on where these event handlers are made to come.
+
+Now we will want to update the splash screen we created earlier. First we will add a reference to the new child window that we will create.
 
 `ClickToCallScreen.tsx`
 
