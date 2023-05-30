@@ -904,4 +904,10 @@ Now when you pass in the arguments, set your `displayName`, and click `Start Cal
 <img src='./tutorialImages/Calling-screen.png' width='800'>
 
 In this case we see a PSTN call being started with no video. 
+
+With this new window experience your users will be able to:
+- continue using other tabs in their browser or other applications and still be able to see your call
+- resize the window to fit their viewing needs such as increasing the size to better see a screen share
+
+This concludes the tutorial for click to call with a new window experience. Below will be a optional step to embed the calling surface into the app itself keeping your users on their current page.
 ## Part 3 (Optional) Embedding Your Calling Experience
