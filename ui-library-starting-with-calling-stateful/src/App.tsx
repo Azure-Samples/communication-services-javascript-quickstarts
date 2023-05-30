@@ -28,9 +28,16 @@ function App(): JSX.Element {
   const [call, setCall] = useState<Call>();
 
   useEffect(() => {
-    setStatefulCallClient(createStatefulCallClient({
+    const statefulCallClient = createStatefulCallClient({
       userId: { communicationUserId: userId }
-    }));
+    });
+
+    // Request camera and microphone access once we have access to the device manager
+    statefulCallClient.getDeviceManager().then(deviceManager => {
+      deviceManager.askDevicePermission({ video: true, audio: true });
+    });
+
+    setStatefulCallClient(statefulCallClient);
   }, []);
 
   useEffect(() => {
@@ -50,8 +57,8 @@ function App(): JSX.Element {
   }, [callAgent]);
 
   return (
-    <>
-      <FluentThemeProvider>
+    <FluentThemeProvider>
+      <>
         {statefulCallClient && <CallClientProvider callClient={statefulCallClient}>
           {callAgent && <CallAgentProvider callAgent={callAgent}>
             {call && <CallProvider call={call}>
@@ -59,8 +66,8 @@ function App(): JSX.Element {
             </CallProvider>}
           </CallAgentProvider>}
         </CallClientProvider>}
-      </FluentThemeProvider>
-    </>
+      </>
+    </FluentThemeProvider>
   );
 }
 
