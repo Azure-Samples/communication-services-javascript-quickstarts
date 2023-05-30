@@ -60,11 +60,13 @@ Following this tutorial will:
 - Allow you to control your customers Audio and video experience depending on your customer scenario
 - Move your customers call into a new window so they can continue browsing while on the call
 
+
 This tutorial will be broken down into 3 parts:
 
 - Creating your widget
-- Embed your calling experience
 - using post messaging to start a calling experience in a new window
+- Embed your calling experience
+
 
 ### Setup the project
 
@@ -901,5 +903,5 @@ Now when you pass in the arguments, set your `displayName`, and click `Start Cal
 
 <img src='./tutorialImages/Calling-screen.png' width='800'>
 
-In this case we see a PSTN call being performed with no video. 
+In this case we see a PSTN call being started with no video. 
 ## Part 3 (Optional) Embedding Your Calling Experience
