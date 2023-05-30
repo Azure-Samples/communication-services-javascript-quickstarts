@@ -898,6 +898,8 @@ Now when the application runs in a new window, it will see that it is supposed t
 - Make sure that the adapter arguments are set appropriately and start a call
 
 Now when you pass in the arguments, set your `displayName`, and click `Start Call` you should see the following:
+
 <img src='./tutorialImages/Calling-screen.png' width='800'>
+
 In this case we see a PSTN call being performed with no video. 
 ## Part 3 (Optional) Embedding Your Calling Experience
