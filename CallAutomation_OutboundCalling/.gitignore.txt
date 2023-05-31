@@ -1,9 +1,6 @@
 # Ignore node_modules directory
 node_modules/
 
-# Ignore environment variables file
-.env
-
 # Ignore build output directory
 dist/
 build/
@@ -11,6 +8,7 @@ public/assets/
 
 # Ignore IDE/Editor-specific files
 .vscode/
+.vs
 .idea/
 
 # Ignore user-specific configuration files

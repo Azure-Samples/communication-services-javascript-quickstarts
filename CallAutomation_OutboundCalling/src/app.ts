@@ -186,15 +186,15 @@ app.get('/', (req, res) => {
   res.sendFile('index.html', { root: 'src/webpage' });
 });
 
-// GET endpoint to receive phone number to call
-app.post('/submit', async (req, res) => {
+// GET endpoint to place phone call
+app.get('/call', async (req, res) => {
   callee = {
-    rawId: req.body.phoneNumber,
-    phoneNumber: req.body.phoneNumber,
+    rawId: process.env.TARGET_PHONE_NUMBER || "",
+    phoneNumber: process.env.TARGET_PHONE_NUMBER || "",
   };
 
   await createOutboundCall();
-  res.sendStatus(200);
+  res.redirect('/');
 });
 
 // Start the server
