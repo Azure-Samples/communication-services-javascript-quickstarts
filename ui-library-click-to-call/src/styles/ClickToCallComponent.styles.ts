@@ -50,6 +50,24 @@ export const clicktoCallSetupContainerStyles = (theme: Theme): IStackStyles => {
   };
 };
 
+export const clickToCallInCallContainerStyles = (theme: Theme): IStackStyles => {
+  return {
+    root: {
+      width: '35rem',
+      height: '25rem',
+      padding: '0.5rem',
+      boxShadow: theme.effects.elevation16,
+      borderRadius: theme.effects.roundedCorner6,
+      bottom: 0,
+      right: '1rem',
+      position: 'absolute',
+      overflow: 'hidden',
+      cursor: 'pointer',
+      background: theme.semanticColors.bodyBackground
+    }
+  }
+} 
+
 export const callIconStyles = (theme: Theme): IIconStyles => {
   return {
     root: { paddingTop: '0.2rem', color: theme.palette.white, transform: 'scale(1.6)' }

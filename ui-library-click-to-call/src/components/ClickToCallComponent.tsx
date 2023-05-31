@@ -9,17 +9,25 @@ import {
     clickToCallContainerStyles,
     callIconStyles,
     logoContainerStyles,
-    collapseButtonStyles
+    collapseButtonStyles,
+    clickToCallInCallContainerStyles
 } from '../styles/ClickToCallComponent.styles';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import { useState } from 'react';
+import { AdapterArgs } from '../utils/AppUtils';
+import { useAzureCommunicationCallAdapter, AzureCommunicationCallAdapterArgs, CallAdapter, CallComposite } from '@azure/communication-react';
+import { AzureCommunicationTokenCredential } from '@azure/communication-common';
 
 export interface clickToCallComponentProps {
+    /**
+     *  arguments for creating an AzureCommunicationCallAdapter for your Calling experience
+     */
+    adapterArgs: AdapterArgs;
     /**
      * if provided, will be used to create a new window for call experience. if not provided
      * will use the current window.
      */
-    onRenderStartCall: () => void;
+    onRenderStartCall?: () => void;
     /**
      * Custom render function for displaying logo.
      * @returns
@@ -42,13 +50,44 @@ export interface clickToCallComponentProps {
  * @param props
  */
 export const ClickToCallComponent = (props: clickToCallComponentProps): JSX.Element => {
-    const { onRenderStartCall, onRenderLogo, onSetDisplayName, onSetUseVideo } = props;
+    const { adapterArgs, onRenderStartCall, onRenderLogo, onSetDisplayName, onSetUseVideo } = props;
 
-    const [widgetState, setWidgetState] = useState<'new' | 'setup'>();
+    const [widgetState, setWidgetState] = useState<'new' | 'setup' | 'inCall'>('new');
     const [displayName, setDisplayName] = useState<string>();
+    const [useLocalVideo, setUseLocalVideo] = useState<boolean>(false);
     const [consentToData, setConsentToData] = useState<boolean>(false);
 
     const theme = useTheme();
+
+    const credential = useMemo(() => {
+        try {
+            return new AzureCommunicationTokenCredential(adapterArgs.token);
+        } catch {
+            console.error('Failed to construct token credential');
+            return undefined;
+        }
+    }, [adapterArgs.token]);
+
+    const callAdapterArgs = useMemo(() => {
+        return {
+            userId:adapterArgs.userId,
+            credential:  credential,
+            locator: adapterArgs.locator,
+            displayName: displayName,
+            alternateCallerId: adapterArgs.alternateCallerId
+        }
+    },[adapterArgs.alternateCallerId, adapterArgs.locator, adapterArgs.userId, credential, displayName]);
+
+    const afterCreate = useCallback(async (adapter: CallAdapter): Promise<CallAdapter> => {
+        adapter.on('callEnded',() => {
+            setDisplayName(undefined);
+            setUseLocalVideo(false);
+            setWidgetState('new')
+        });
+        return adapter;
+    },[])
+
+    const adapter = useAzureCommunicationCallAdapter(callAdapterArgs as AzureCommunicationCallAdapterArgs, afterCreate);
 
     useEffect(() => {
         if (widgetState === 'new' && onSetUseVideo) {
@@ -80,6 +119,7 @@ export const ClickToCallComponent = (props: clickToCallComponentProps): JSX.Elem
                     label={'Use video - Checking this box will enable camera controls and screen sharing'}
                     onChange={(_, checked?: boolean | undefined) => {
                         onSetUseVideo(!!checked);
+                        setUseLocalVideo(true);
                     }}
                 ></Checkbox>
                 <Checkbox
@@ -95,9 +135,12 @@ export const ClickToCallComponent = (props: clickToCallComponentProps): JSX.Elem
                 <PrimaryButton
                     styles={startCallButtonStyles(theme)}
                     onClick={() => {
-                        if (displayName && consentToData) {
+                        if (displayName && consentToData && onRenderStartCall) {
                             onSetDisplayName(displayName);
                             onRenderStartCall();
+                        } else if (displayName && consentToData && adapter) {
+                            setWidgetState('inCall');
+                            // adapter?.joinCall();
                         }
                     }}
                 >
@@ -105,6 +148,23 @@ export const ClickToCallComponent = (props: clickToCallComponentProps): JSX.Elem
                 </PrimaryButton>
             </Stack>
         );
+    }
+
+    if(widgetState === 'inCall' && adapter){
+        return(
+            <Stack styles={clickToCallInCallContainerStyles(theme)}>
+                <CallComposite adapter={adapter} options={{
+                    callControls: {
+                        cameraButton: useLocalVideo,
+                        screenShareButton: useLocalVideo,
+                        moreButton: false,
+                        peopleButton: false,
+                        displayType: 'compact'
+                    },
+                    localVideoTileOptions: { position: !useLocalVideo ? 'hidden' : 'floating' }
+                }}></CallComposite>
+            </Stack>
+        )
     }
 
     return (

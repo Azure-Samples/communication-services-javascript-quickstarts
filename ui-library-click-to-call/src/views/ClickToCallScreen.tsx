@@ -96,7 +96,7 @@ export const ClickToCallScreen = (props: ClickToCallPageProps): JSX.Element => {
             </Stack>
             <Stack horizontal tokens={{ childrenGap: '1.5rem' }} style={{ overflow: 'hidden', margin: 'auto' }}>
                 <ClickToCallComponent
-                    onRenderStartCall={startNewWindow}
+                    adapterArgs={adapterParams}
                     onRenderLogo={() => {
                         return (
                             <img
