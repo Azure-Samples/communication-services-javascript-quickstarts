@@ -84,7 +84,14 @@ npx create-react-app ui-library-click-to-call-app --template communication-react
 cd ui-library-click-to-call-app
 ```
 
-Once you have run these commands you will be in your new project ready to get started. For this tutorial we will be modifying the files in the
+Then you will need to update the dependency array in the `package.json` to include some beta and alpha packages for this to work:
+```json
+"@azure/communication-calling": "1.13.2-beta.1",
+"@azure/communication-chat": "1.3.2-beta.2",
+"@azure/communication-react": "1.5.1-alpha-202305300013",
+```
+
+Once you have run these commands and made that update you will be in your new project ready to get started. For this tutorial we will be modifying the files in the
 `src` directory.
 
 ### Initial App Setup
