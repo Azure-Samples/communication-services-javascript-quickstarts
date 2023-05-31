@@ -81,8 +81,7 @@ export const SameOriginCallScreen = (props: {
                         peopleButton: false,
                         displayType: 'compact'
                     },
-                    /** to add once the package has composite changes.. */
-                    // localVideoTileOptions: { position: !useVideo ? 'hidden' : 'floating' }
+                    localVideoTileOptions: { position: !useVideo ? 'hidden' : 'floating' }
                 }}
                 adapter={adapter}
             />
