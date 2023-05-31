@@ -65,10 +65,10 @@ async function playAudio(prompt: string) {
       terminateCall = true;
     }
 
-    const audioPrompt: FileSource = {
+    const audioPrompt: FileSource[] = [{
       url: process.env.MEDIA_CALLBACK_URI + prompt,
       kind: "fileSource",
-    };
+    }];
 
     await callConnection.getCallMedia().playToAll(audioPrompt);
   } catch (error) {
@@ -139,7 +139,7 @@ app.post("/ongoingcall", async (req: any, res: any) => {
       hangUpCall();
     }
   } else if (event.type === "Microsoft.Communication.RecognizeCompleted") {
-    const tone = event.data.collectTonesResult.tones[0];
+    const tone = event.data.dtmfResult.tones[0];
     console.log("Received RecognizeCompleted event, with following tone: " + tone);
 
     if (tone === "one") {
