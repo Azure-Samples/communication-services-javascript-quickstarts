@@ -880,12 +880,12 @@ Next we will want to add two more `useEffect` hooks to `App.tsx` these two hooks
   }, [adapterArgs]);
 ...
 ```
-Finally once we have done that we will want to add the new screen that we made earlier to the template as well. We will also want to make sure that 
+Finally once we have done that we will want to add the new screen that we made earlier to the template as well. We will also want to make sure that we do not show the Click to call screen if the `startSession` parameter is found, this will avoid a flash for the user.
 ```typescript
 ...
   switch (page) {
     case 'click-to-call': {
-      if (!token || !userId || !locator || startSession !== undefined) {
+      if (!token || !userId || !locator || startSession !== false) {
         return (
           <Stack verticalAlign='center' style={{height: '100%', width: '100%'}}>
             <Spinner label={'Getting user credentials from server'} ariaLive="assertive" labelPosition="top" />;
