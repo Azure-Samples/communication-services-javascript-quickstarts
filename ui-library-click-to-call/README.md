@@ -96,11 +96,11 @@ Once you have run these commands and made that update you will be in your new pr
 
 ### Initial App Setup
 
-To get us started we will replace the provided `app.tsx` content with a main page that will:
+To get us started we will replace the provided `App.tsx` content with a main page that will:
 
 - Store all of the Azure Communication information that we need to create a CallAdapter to power our Calling experience
 - Control the different pages of our application
-- Register the different fluent icons we use in the UI library as well as for our purposes
+- Register the different fluent icons we use in the UI library as well as some new ones for our purposes
 
 `src/App.tsx`
 
@@ -152,38 +152,37 @@ function App() {
 
   switch (page) {
     case "click-to-call": {
-      if (!token || !userId || !locator || startSession === undefined) {
-        return (
-          <Stack style={{ height: "100%", width: "100%" }}>
-            <Spinner
-              label={"Getting user credentials from server"}
-              ariaLive="assertive"
-              labelPosition="top"
-            />
-            ;
-          </Stack>
-        );
-      }
+      return (
+        <Stack verticalAlign='center' style={{ height: "100%", width: "100%" }}>
+          <Spinner
+            label={"Getting user credentials from server"}
+            ariaLive="assertive"
+            labelPosition="top"
+          />
+        </Stack>
+      );
     }
     case "same-origin-call": {
-      if (!adapterArgs) {
-        return (
-          <Stack style={{ height: "100%", width: "100%" }}>
-            <Spinner
-              label={"Getting user credentials from server"}
-              ariaLive="assertive"
-              labelPosition="top"
-            />
-            ;
-          </Stack>
-        );
-      }
+      return (
+        <Stack verticalAlign='center' style={{ height: "100%", width: "100%" }}>
+          <Spinner
+            label={"Getting user credentials from server"}
+            ariaLive="assertive"
+            labelPosition="top"
+          />
+          ;
+        </Stack>
+      );
+    }
+    default: {
+      return <>Something went wrong!</>
     }
   }
 }
 
 export default App;
 ```
+In this snippet we register two new icons `<Dismiss20Regular/>` and `<CallAdd20Regular>` these new icons will be used inside the widget component that we will be creating later.
 
 ### Running the App
 
@@ -200,6 +199,11 @@ a test message.
 ## Part 1 Creating Your Widget
 
 To get started we are going to make a new component. This component is the widget that you will use to start your calling experience.
+
+We will be using our own widget setup for this tutorial but you can exapnd the functionality to do more here, for us we will have the widget perform the following actions:
+- Display a custom logo, this can be replaced with another image or branding of your choosing. Feel free to download the image from the code if you would like to use our image.
+- Let the user decide if they want to have video on the call.
+- Have the user consent to the call possible being recorded.
 
 First we are going to make a new directory `src/components` and in this directory we are going to make a new file called `ClickToCallComponent.tsx`. For the
 purpose of this tutorial we will give this component the following properties:
@@ -447,7 +451,7 @@ export const collapseButtonStyles: IButtonStyles = {
 };
 ```
 
-These styles should be added to the widget as seen in the snippet above.
+These styles should be added to the widget as seen in the snippet above. If you added the code above as is these styles will just need importing into the `ClickToCallComponent.tsx` file.
 
 ### Adding The Widget To The App
 
@@ -468,7 +472,7 @@ export interface ClickToCallPageProps {
 }
 ```
 
-These properties will be fed by the state that we set in `App.tsx`. We will use these props to make post messages to the app when we want to start a call in a new window (More on this later).
+These properties will be fed by the values that we set in `App.tsx`. We will use these props to make post messages to the app when we want to start a call in a new window (More on this later).
 
 Next lets add the page content:
 
@@ -555,6 +559,7 @@ export const ClickToCallScreen = (props: ClickToCallPageProps): JSX.Element => {
   );
 };
 ```
+This page has some general information on it for what our calling experiences can currently do. Also as we can see it is adding the widget component that we created earlier.
 
 Once we have made this we will need to add the new view to the root of the app `App.tsx`:
 
@@ -564,9 +569,9 @@ Once we have made this we will need to add the new view to the root of the app `
     ...
     switch (page) {
         case 'click-to-call': {
-           if (!token || !userId || !locator || startSession === undefined) {
+           if (!token || !userId || !locator) {
             return (
-            <Stack style={{height: '100%', width: '100%'}}>
+            <Stack verticalAlign='center' style={{height: '100%', width: '100%'}}>
                 <Spinner label={'Getting user credentials from server'} ariaLive="assertive" labelPosition="top" />;
             </Stack>
             )
@@ -576,7 +581,7 @@ Once we have made this we will need to add the new view to the root of the app `
     ...
 ```
 
-Then if you have done this you should see this when the app is running:
+Then if you have done this and set the arguments we defined in `App.tsx` you should see this when the app is running with `npm run start`:
 
 <img src='./tutorialImages/Sample-app-splash.png' width='800'>
 
@@ -584,13 +589,13 @@ Then when you action the widget button you should see:
 
 <img src='./tutorialImages/Sample-app-widget-open.png' width='800'>
 
-Next we will talk about what we need to add to make this experience start a call in a new window.
+Yay! We have made the control surface for the widget! Next we will talk about what we need to add to make this widget start a call in a new window.
 
 ## Part 2 Creating a New Window Experience
 
 Now that we have a running application with our widget on the home page we will talk about starting the calling experience for your users with a new window. This scenario allows you to give your customer the ability to browse while still seeing your call in a new window. This can be useful in situations similar to when your users will use video and screensharing.
 
-To start we will create a new view in the `src/views` folder called `NewWindowCallScreen.tsx`. This new screen will be used by the `App.tsx` file to go into a new call with the arguments provided to it using our CallComposite, this can be swapped with a stateful client and UI component experience if desired as well.
+To start we will create a new view in the `src/views` folder called `NewWindowCallScreen.tsx`. This new screen will be used by the `App.tsx` file to go into a new call with the arguments provided to it using our `CallComposite`. The `CallComposite` can be swapped with a stateful client and UI component experience if desired as well, but that will not be covered in this tutorial. See our [storybook documentation](https://azure.github.io/communication-ui-library/?path=/docs/quickstarts-statefulcallclient--page) for more information about the stateful client.
 
 `NewWindowCallScreen.tsx`
 
@@ -683,7 +688,7 @@ export const SameOriginCallScreen = (props: {
 };
 ```
 
-For our CallComposite we have some configuration to do for Click to Call. Depending on your use case we have a number of customizations that can change the user experience. This sample chooses to hide the local video tile, camera, and screen sharing controls if the user opts out of video for their call. Other customizations seen include in the `afterCreate` function defined in the snippet we auto join the call, this will bypass the configuration screen and drop the user into the call with their mic live. Just remove the call to `adapter.join(true)` and the configuration screen will show as normal. Next we will talk about how to get this screen the information once we have our CallComposite configured.
+For our `CallComposite` we have some configuration to do for Click to Call. Depending on your use case we have a number of customizations that can change the user experience. This sample chooses to hide the local video tile, camera, and screen sharing controls if the user opts out of video for their call. We also in addition to these configurations on the `CallComposite` use the `afterCreate` function defined in the snippet we auto join the call. This will bypass the configuration screen and drop the user into the call with their mic live, as well will auto close the window when the call ends. Just remove the call to `adapter.join(true);` from the `afterCreate` function and the configuration screen will show as normal. Next we will talk about how to get this screen the information once we have our `CallComposite` configured.
 
 To do this, we will create some handlers to send post messages between the parent window and child window to signal that we want some information. See diagram:
 
@@ -713,6 +718,7 @@ Now we will want to update the splash screen we created earlier. First we will a
 
 Next we will create a handler that we pass to our widget that will create a new window that will start the process of sending the post messages.
 
+`ClickToCallScreen.tsx`
 ```typescript
     ...
     const startNewWindow = useCallback(() => {
@@ -730,6 +736,7 @@ What this handler does is start a new window position and place a new query arg 
 
 Next we will add a `useEffect` hook that is creating a event handler listening for new post messages from the child window.
 
+`ClickToCallScreen.tsx`
 ```typescript
     ...
     useEffect(() => {
@@ -873,14 +880,14 @@ Next we will want to add two more `useEffect` hooks to `App.tsx` these two hooks
   }, [adapterArgs]);
 ...
 ```
-Finally once we have done that we will want to add the new screen that we made earlier to the template as well.
+Finally once we have done that we will want to add the new screen that we made earlier to the template as well. We will also want to make sure that 
 ```typescript
 ...
   switch (page) {
     case 'click-to-call': {
-      if (!token || !userId || !locator || startSession === undefined) {
+      if (!token || !userId || !locator || startSession !== undefined) {
         return (
-          <Stack style={{height: '100%', width: '100%'}}>
+          <Stack verticalAlign='center' style={{height: '100%', width: '100%'}}>
             <Spinner label={'Getting user credentials from server'} ariaLive="assertive" labelPosition="top" />;
           </Stack>
         )
@@ -891,7 +898,7 @@ Finally once we have done that we will want to add the new screen that we made e
     case 'same-origin-call': {
       if (!adapterArgs) {
         return (
-          <Stack style={{ height: '100%', width: '100%' }}>
+          <Stack verticalAlign='center' style={{ height: '100%', width: '100%' }}>
             <Spinner label={'Getting user credentials from server'} ariaLive="assertive" labelPosition="top" />;
           </Stack>
         )

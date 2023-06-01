@@ -100,9 +100,9 @@ function App() {
 
   switch (page) {
     case 'click-to-call': {
-      if (!token || !userId || !locator || startSession === undefined) {
+      if (!token || !userId || !locator || startSession !== undefined) {
         return (
-          <Stack style={{height: '100%', width: '100%'}}>
+          <Stack verticalAlign='center' style={{height: '100%', width: '100%'}}>
             <Spinner label={'Getting user credentials from server'} ariaLive="assertive" labelPosition="top" />;
           </Stack>
         )
@@ -113,7 +113,7 @@ function App() {
     case 'same-origin-call': {
       if (!adapterArgs) {
         return (
-          <Stack style={{ height: '100%', width: '100%' }}>
+          <Stack verticalAlign='center' style={{ height: '100%', width: '100%' }}>
             <Spinner label={'Getting user credentials from server'} ariaLive="assertive" labelPosition="top" />;
           </Stack>
         )
