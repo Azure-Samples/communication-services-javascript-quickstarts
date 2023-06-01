@@ -30,7 +30,7 @@ Main components of this web push notification architecture are:
     - `webpack.config.js` - Backend server for this application. From this server you will generate ACS CommunicationUserTokens for front end client apps to log into(create CallAgent objects) the ACS Web Calling SDK. We will also generate OneSignal Registration Tokens to map them to ACS CommunicationUserTokens. We will keep this mapping here on our backend server.
 - Front-end:
     - `./src` - Contains files for the front end application to demo web push notifications. This front-end application will use the ACS Web Calling SDK for web calling functionality. The fron end will also register its device to our OneSignal app so that it can receive web push notifications!
-- Sequence diagram:
+- Sequence diagram (You can also open the ./WebPushNotificationsSequenceDiagram.drawio file in https://draw.io to view the sequence diagram):
 ![](./assets/sequenceDiagram.png)
 
 
@@ -164,7 +164,7 @@ We will set up an azure function app to subscribe to our ACS EventGrid IncomingC
     - Ensure `devServer` includes these options: `contentBase:'./public'` and `allowedHosts:['.azurewebsites.net']`
     - If your going to deploy the client app and webpack server app to somewhere else other than ".azurewebsites.net", you may have to adjust this setting. More on how to deploy to azure app serive in a later step.
 
-### Set up client side fron-end app config
+### Set up client side front-end app config
 - Open the clientConfig.json file and fill in the required fields:
     - "oneSignalAppId" - Your OneSignal app id which you created earlier.
     - "oneSignalSafariWebId": Your OneSignal safari web id which you created earlier.
