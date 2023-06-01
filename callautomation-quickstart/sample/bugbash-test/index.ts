@@ -1,5 +1,5 @@
-import { CallAutomationClient, CallInvite, CallLocator, FileSource, PlayOptions, StartRecordingOptions } from "@azure/communication-call-automation";
-import { CommunicationUserIdentifier } from "@azure/communication-common";
+import { CallAutomationClient, CallInvite, CallLocator, CallMediaRecognizeDtmfOptions, CallMediaRecognizeOptions, DtmfTone, FileSource, PlayOptions, StartRecordingOptions } from "@azure/communication-call-automation";
+import { CommunicationUserIdentifier, PhoneNumberIdentifier } from "@azure/communication-common";
 import express from "express";
 
 process.on('uncaughtException', function (err) {
@@ -10,9 +10,9 @@ process.on('uncaughtException', function (err) {
 const app = express();
 const port = 5000; // default port to listen
 app.use(express.json());
-const ngrokEndpoint = "";
-const cstring = "";
-const client = new CallAutomationClient(cstring);
+const ngrokEndpoint = "<NGROK_ENDPOINT>";
+const acsConnectionString = "<ACS_CONNECTION_STRING>";
+const client = new CallAutomationClient(acsConnectionString);
 let callConnectionId = "";
 let recordingId = "";
 let contentLocation = "";

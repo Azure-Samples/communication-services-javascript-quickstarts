@@ -82,8 +82,8 @@ Add the following snippet. This will be used to recieve incoming events and the 
 const app = express();
 const port = 5000; // default port to listen
 app.use(express.json());
-const ngrokEndpoint = "<ngrokEndpoint>";
-const cstring = "<communcationString>";
+const ngrokEndpoint = "<NGROK_ENDPOINT>";
+const cstring = "<ACS_CONNECTION_STRING>";
 const client = new CallAutomationClient(cstring);
 let callConnectionId = "";
 let recordingId = "";
