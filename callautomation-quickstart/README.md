@@ -15,7 +15,12 @@ This guide walks through simple call automation scenarios and endpoints.
 - An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
 - NodeJS. 
 - VScode. [Download VScode](https://code.visualstudio.com/).
-- ngrok
+- Dev-tunnel. download from the following [Dev-tunnel download](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started?tabs=windows)
+
+# Dev tunnels setup
+- run `.\devtunnel user login` and login with your msft account or `.\devtunnel user login -g` for github
+- run `.\devtunnel.exe host -p 5000 --allow-anonymous` to begin hosting. copy the url similar to `https://9ndqr7mn.usw2.devtunnels.ms:5000/` that is returned
+
 ## Setup empty project
 1. Create a folder for our project and in it run
     - `npm init -y`
@@ -89,7 +94,7 @@ Add the following snippet. This will be used to recieve incoming events and the 
 const app = express();
 const port = 5000; // default port to listen
 app.use(express.json());
-const ngrokEndpoint = "<NGROK_ENDPOINT>";
+const hostingEndpoint = "<HOSTING_ENDPOINT>";
 const acsConnectionString = "<ACS_CONNECTION_STRING>";
 const client = new CallAutomationClient(acsConnectionString);
 let callConnectionId = "";
@@ -100,9 +105,8 @@ let deleteLocation = "";
 
 ## Test endpoint to make sure we are okay
 
-1. Start ngrok on port 5000. From where ngrok is dowloaded, using the terminal run `./ngrok http 5000`
-2. update the ngrok endpoints. example `https://9253-2001-569-5146-9600-755d-996a-d84c-8dbf.ngrok.io`
-3. update the cstring with your connection string from your acs resrouce.
+1. update the hosting endpoint with our dev tunnel. example `https://9ndqr7mn.usw2.devtunnels.ms:5000/`
+2. update the acsConnectionString with your connection string from your acs resrouce.
 3. from the terminal run `npm run start` in our project folder"
 4. from cmd run "curl http://localhost:5000/test" and ensure you can see test endpoint being written to the console.  
 
@@ -115,7 +119,7 @@ app.get( "/startcall", async ( req, res ) => {
     const { acstarget } = req.query;
     let targetUser:CommunicationUserIdentifier = {communicationUserId:acstarget?.toString()||""};
     let callInvite:CallInvite = {targetParticipant:targetUser};
-    let call = await client.createCall(callInvite, ngrokEndpoint+"/test")
+    let call = await client.createCall(callInvite, hostingEndpoint+"/test")
     callConnectionId=call.callConnectionProperties.callConnectionId||""
     res.sendStatus(200);
 } );
@@ -171,7 +175,7 @@ app.get( "/startgroupcall", async ( req, res ) => {
     let targetUser:CommunicationUserIdentifier = {communicationUserId:(targets?.at(0)||"")};
     let targetUser2:CommunicationUserIdentifier = {communicationUserId:(targets?.at(1)||"")};
 
-    let call = await client.createGroupCall([targetUser,targetUser2], ngrokEndpoint+"/test")
+    let call = await client.createGroupCall([targetUser,targetUser2], hostingEndpoint+"/test")
     callConnectionId=call.callConnectionProperties.callConnectionId||""
     res.sendStatus(200);
 } );
@@ -247,7 +251,7 @@ app.post( "/filestatus", async ( req, res ) => {
     - enter name "filestatus"
     - select recording file status updated as the event to filter
     - add a system topic name, testevent for example
-    - under endpoint, select webhook and enter the ngrokurl/filestatus as the endpoint. 
+    - under endpoint, select webhook and enter the hostingEndpoint/filestatus as the endpoint. 
     - make sure when we register this, our app is running as the subscription validation handshake is required. 
 
 3. Now that we have completed the setup, we can stop a recording, or end a call and we will get this filestatus updated event. 
@@ -300,7 +304,7 @@ app.post( "/incomingcall", async ( req, res ) => {
     
     if(eventData && event.eventType == "Microsoft.Communication.IncomingCall") {
         var incomingCallContext = eventData.incomingCallContext;
-        var callbackUri = ngrokEndpoint + "/test";
+        var callbackUri = hostingEndpoint + "/test";
         let call = await client.answerCall(incomingCallContext,callbackUri);
         callConnectionId = call.callConnectionProperties.callConnectionId||""
         res.sendStatus(200);
@@ -313,7 +317,7 @@ app.post( "/incomingcall", async ( req, res ) => {
     - click event subscription to create a new subscription
     - enter name "call"
     - select incoming call as the event to filter
-    - under endpoint, seelct webhook and enter the ngrokurl/incomingcall as the endpoint. 
+    - under endpoint, seelct webhook and enter the hostingEndpoint/incomingcall as the endpoint. 
     - make sure when we register this, our app is running as the subscription validation handshake is required. 
 
 
@@ -347,6 +351,24 @@ app.get( "/recognize", async ( req, res ) => {
 3. you will now hear a song play (in a real case this would be an audio file containing options)
 4. you can enter 1-3 digits, and hit pound. This server will now print the options you chose to the console. 
 
+## Actions to test
+- start call
+- start group call
+- play media
+- play media to all
+- start recording
+- download recording
+- delete recording
+- *inbound pstn call
+- *dtmf recognition
+
 
 ## Additional things to test
-- TODO
+- pause recording
+- resume recording
+- hang up call
+- transfer call
+- modify start recording settings
+- *modify dtmf timing settings, tones required, and act on one specific tone
+
+# Apiview or swagger def 
