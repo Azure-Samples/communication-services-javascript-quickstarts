@@ -96,22 +96,6 @@ async function hangUpCall() {
 	callConnection.hangUp(true);
 }
 
-// POST endpoint to handle incoming call events
-app.post("/incomingcall", async (req: any, res: any) => {
-	const event = req.body[0];
-	const eventData = event.data;
-
-	if (event.eventType === "Microsoft.EventGrid.SubscriptionValidationEvent") {
-		console.log("Received SubscriptionValidation event");
-		res.status(200).json({
-			validationResponse: eventData.validationCode,
-		});
-	} 
-	else {
-		res.sendStatus(200);
-	}
-});
-
 // POST endpoint to handle ongoing call events
 app.post("/ongoingcall", async (req: any, res: any) => {
 	res.sendStatus(200);
