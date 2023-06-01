@@ -919,7 +919,7 @@ Finally once we have done that we will want to add the new screen that we made e
   }
 ...
 ```
-Now when the application runs in a new window, it will see that it is supposed to start a call so it will
+Now when the application runs in a new window, it will see that it is supposed to start a call so it will:
 - Ask for the different Adapter arguments from the parent window
 - Make sure that the adapter arguments are set appropriately and start a call
 
@@ -933,14 +933,14 @@ With this new window experience your users will be able to:
 - continue using other tabs in their browser or other applications and still be able to see your call
 - resize the window to fit their viewing needs such as increasing the size to better see a screen share
 
-This concludes the tutorial for click to call with a new window experience. Below will be a optional step to embed the calling surface into the app itself keeping your users on their current page.
+This concludes the tutorial for click to call with a new window experience. Below will be a optional step to embed the calling surface into the widget itself keeping your users on their current page.
 ## Part 3 (Optional) Embedding Your Calling Experience
 
 Finally in this optional section of the tutorial we will talk about making a embedded version of the Calling surface. We will continue from where we left off in the last section and make some modifications to our existing screens. 
 
 To start lets take a look at the props for the `ClickToCallComponent.tsx` props, these will need to be updated to have the widget hold the Calling surface. We will make two changes.
 - Add a new prop for the adapter arguments needed for the `AzureCommunicationCallAdapter`.
-- Make `onRenderStartCall` optional
+- Make `onRenderStartCall` optional, this will allow us to come back to using a new window easier in the future.
 
 `ClickToCallComponent.tsx`
 
@@ -1000,7 +1000,7 @@ Now we will need to introduce some logic to use these arguments to make sure tha
 ...
 ```
 
-Lets also add a `afterCreate` function like before to do a few things with our adapter once it is constructed. Since we are now interacting with state in the widget we will want to use a react `useCallback` just to make sure we are respecting the state of the widget for when we are creating the adapter. In our case our function will reset the widget to the `'new'` state when the call ends and clear the user's `displayName` so they can start a new session. You can however return it to the `'setup'` state with the old displayName so that can easily call again as well.
+Lets also add a `afterCreate` function like before to do a few things with our adapter once it is constructed. Since we are now interacting with state in the widget we will want to use a react `useCallback` just to make sure we are not defining this function every time we do a render pass. In our case our function will reset the widget to the `'new'` state when the call ends and clear the user's `displayName` so they can start a new session. You can however return it to the `'setup'` state with the old displayName so that can easily call again as well.
 
 `ClickToCallComponent.tsx`
 ```typescript
