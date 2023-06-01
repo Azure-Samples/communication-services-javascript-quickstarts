@@ -17,15 +17,42 @@ This guide walks through simple call automation scenarios and endpoints.
 - VScode. [Download VScode](https://code.visualstudio.com/).
 - Dev-tunnel. download from the following [Dev-tunnel download](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started?tabs=windows)
 
-# Dev tunnels setup
+## Dev tunnels setup
 - run `devtunnel user login` and login with your msft account or `devtunnel user login -g` for github
 - run `devtunnel.exe host -p 5000 --allow-anonymous` to begin hosting. copy the url similar to `https://9ndqr7mn.usw2.devtunnels.ms:5000` that is returned
 
-# *For a presistent dev tunnel
+## *For a presistent dev tunnel
 - run `devtunnel create --allow-anonymous` and note the id. Similar to 4bt7fzff.usw2
 - run `devtunnel port create -p 5000`
 - run `devtunnel host <id>` to begin hosting. copy the url similar to `https://9ndqr7mn.usw2.devtunnels.ms:5000` that is returned
 
+
+## Actions to test (included in guide and sample file)
+- start call
+- start group call
+- play media
+- play media to all
+- start recording
+- download recording
+- delete recording
+- *inbound pstn call
+- *dtmf recognition
+
+
+## Additional actions to test (must create endpoints yourself)
+- pause recording
+- resume recording
+- hang up call
+- transfer call
+- modify start recording settings
+- *modify dtmf timing settings, tones required, and act on one specific tone
+
+## Two ways to test.
+1. Follow the guide and setup the project from scratch, follow test instructuctions.
+2. Run the sample bugbash-test project.
+    - from the sample/bugbash-test folder run `npm install`
+    - update the hostingEndpoint and acsConnectionString variables
+    - run `npm run start` and follow the test instructions in the guide.
 
 ## Setup empty project
 1. Create a folder for our project and in it run
@@ -111,7 +138,7 @@ let deleteLocation = "";
 
 ## Test endpoint to make sure we are okay
 
-1. update the hosting endpoint with our dev tunnel. example `https://9ndqr7mn.usw2.devtunnels.ms:5000/`
+1. update the hosting endpoint with our dev tunnel. example `https://9ndqr7mn.usw2.devtunnels.ms:5000`
 2. update the acsConnectionString with your connection string from your acs resrouce.
 3. from the terminal run `npm run start` in our project folder"
 4. from cmd run "curl http://localhost:5000/test" and ensure you can see test endpoint being written to the console.  
@@ -357,24 +384,6 @@ app.get( "/recognize", async ( req, res ) => {
 3. you will now hear a song play (in a real case this would be an audio file containing options)
 4. you can enter 1-3 digits, and hit pound. This server will now print the options you chose to the console. 
 
-## Actions to test
-- start call
-- start group call
-- play media
-- play media to all
-- start recording
-- download recording
-- delete recording
-- *inbound pstn call
-- *dtmf recognition
 
-
-## Additional things to test
-- pause recording
-- resume recording
-- hang up call
-- transfer call
-- modify start recording settings
-- *modify dtmf timing settings, tones required, and act on one specific tone
 
 # Apiview or swagger def 
