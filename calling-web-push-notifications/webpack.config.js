@@ -2,6 +2,7 @@
 const CommunicationIdentityClient = require("@azure/communication-identity").CommunicationIdentityClient;
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const config = require("./serverConfig.json");
+const clientConfig = require("./clientConfig.json");
 const axios = require('axios');
 const bodyParser = require('body-parser');
 
@@ -24,7 +25,8 @@ const registerCommunicationUserForOneSignal = async (communicationUserToken) => 
         },
         data: JSON.stringify({
             communicationUserId: communicationUserToken.user.communicationUserId,
-            oneSignalRegistrationToken
+            oneSignalRegistrationToken,
+            oneSignalAppId: clientConfig.oneSignalAppId
         })
     }).then((response) => { return response.data });
     oneSignalRegistrationTokenToCommunicationUserTokenMap.set(oneSignalRegistrationToken, communicationUserToken);

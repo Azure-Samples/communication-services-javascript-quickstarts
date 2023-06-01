@@ -1,0 +1,429 @@
+<mxfile host="app.diagrams.net" modified="2023-06-01T14:40:45.850Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36" etag="oLIfkhhA_HJEzyUatLlA" version="21.3.4" type="device">
+  <diagram name="Page-1" id="13e1069c-82ec-6db2-03f1-153e76fe0fe0">
+    <mxGraphModel dx="2668" dy="2379" grid="0" gridSize="10" guides="0" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="E0UdxjJiglMjckeEuJum-8" value="Functions App" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" parent="1" vertex="1">
+          <mxGeometry x="-100" y="-940" width="100" height="1160" as="geometry" />
+        </mxCell>
+        <mxCell id="E0UdxjJiglMjckeEuJum-9" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" parent="E0UdxjJiglMjckeEuJum-8" vertex="1">
+          <mxGeometry x="45" y="505" width="10" height="95" as="geometry" />
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-33" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" parent="E0UdxjJiglMjckeEuJum-8" vertex="1">
+          <mxGeometry x="45" y="270" width="10" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-34" value="&lt;font style=&quot;font-size: 9px;&quot;&gt;Store oneSignalRegistrationToken&lt;br&gt;for communicationUserId&lt;/font&gt;" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;elbow=vertical;edgeStyle=orthogonalEdgeStyle;curved=1;shadow=1;" parent="E0UdxjJiglMjckeEuJum-8" edge="1">
+          <mxGeometry x="0.2262" y="32" relative="1" as="geometry">
+            <mxPoint x="55" y="320" as="sourcePoint" />
+            <mxPoint x="55" y="357.99999999999955" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="120" y="320" />
+              <mxPoint x="120" y="358" />
+            </Array>
+            <mxPoint x="30" y="-20" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-44" value="&lt;font style=&quot;font-size: 9px;&quot;&gt;Get the callee&#39;s oneSignalResitrationToken&lt;br&gt;getOneSignalRegistrationToken(eventGridEvent.data.to.rawId)&lt;/font&gt;" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;elbow=vertical;edgeStyle=orthogonalEdgeStyle;curved=1;shadow=1;" parent="E0UdxjJiglMjckeEuJum-8" edge="1">
+          <mxGeometry x="0.131" y="90" relative="1" as="geometry">
+            <mxPoint x="55" y="520" as="sourcePoint" />
+            <mxPoint x="55" y="557.9999999999995" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="120" y="520" />
+              <mxPoint x="120" y="558" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="E0UdxjJiglMjckeEuJum-10" value="Contoso&#39;s OneSignal service app" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;size=48;" parent="1" vertex="1">
+          <mxGeometry x="675" y="-940" width="100" height="1160" as="geometry" />
+        </mxCell>
+        <mxCell id="E0UdxjJiglMjckeEuJum-11" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" parent="E0UdxjJiglMjckeEuJum-10" vertex="1">
+          <mxGeometry x="45" y="580" width="10" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="E0UdxjJiglMjckeEuJum-12" value="Web client in contoso App which uses the ACS web Calling SDK and OneSignal web client SKD" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;size=62;" parent="1" vertex="1">
+          <mxGeometry x="1040" y="-955" width="185" height="1160" as="geometry" />
+        </mxCell>
+        <mxCell id="E0UdxjJiglMjckeEuJum-94" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" parent="E0UdxjJiglMjckeEuJum-12" vertex="1">
+          <mxGeometry x="87.5" y="60" width="10" height="406" as="geometry" />
+        </mxCell>
+        <mxCell id="E0UdxjJiglMjckeEuJum-20" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" parent="E0UdxjJiglMjckeEuJum-12" vertex="1">
+          <mxGeometry x="87.5" y="540" width="10" height="540" as="geometry" />
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-76" value="&lt;span style=&quot;font-size: 10px;&quot;&gt;IncomingCall.accept() or&lt;br&gt;IncomingCall.reject()&lt;/span&gt;" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;elbow=vertical;edgeStyle=orthogonalEdgeStyle;curved=1;shadow=1;" parent="E0UdxjJiglMjckeEuJum-12" edge="1">
+          <mxGeometry x="0.0127" y="23" relative="1" as="geometry">
+            <mxPoint x="97.5" y="922" as="sourcePoint" />
+            <mxPoint x="97.5" y="960" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="157" y="922" />
+              <mxPoint x="157" y="960" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="E0UdxjJiglMjckeEuJum-14" value="CallAgent" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" parent="1" vertex="1">
+          <mxGeometry x="1490" y="-941" width="160" height="1150" as="geometry" />
+        </mxCell>
+        <mxCell id="E0UdxjJiglMjckeEuJum-15" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" parent="E0UdxjJiglMjckeEuJum-14" vertex="1">
+          <mxGeometry x="75" y="772" width="10" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="E0UdxjJiglMjckeEuJum-18" value="ACS EventGrid" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" parent="1" vertex="1">
+          <mxGeometry x="-270" y="-940" width="100" height="1160" as="geometry" />
+        </mxCell>
+        <mxCell id="E0UdxjJiglMjckeEuJum-19" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" parent="E0UdxjJiglMjckeEuJum-18" vertex="1">
+          <mxGeometry x="45" y="505" width="10" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="E0UdxjJiglMjckeEuJum-22" value="" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;edgeStyle=elbowEdgeStyle;elbow=vertical;shadow=1;" parent="1" source="E0UdxjJiglMjckeEuJum-19" target="E0UdxjJiglMjckeEuJum-9" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-120" y="-395" as="sourcePoint" />
+            <Array as="points">
+              <mxPoint x="-200" y="-430" />
+              <mxPoint x="-240" y="-405" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-47" value="&lt;font face=&quot;Verdana&quot;&gt;&lt;span style=&quot;background-color: rgb(251, 251, 251);&quot;&gt;IncomingCallEvent&amp;nbsp;&lt;/span&gt;&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="E0UdxjJiglMjckeEuJum-22" vertex="1" connectable="0">
+          <mxGeometry x="0.0904" y="2" relative="1" as="geometry">
+            <mxPoint x="-10" y="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="E0UdxjJiglMjckeEuJum-24" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="1118" y="-1025" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="E0UdxjJiglMjckeEuJum-26" value="" style="endArrow=classic;html=1;rounded=0;shadow=1;entryX=1.002;entryY=0.622;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" target="1Ck8toekbnQWWB040wu6-3" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1127.5" y="-870" as="sourcePoint" />
+            <mxPoint x="917" y="-870" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="930" y="-870" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-43" value="OneSignal.init(oneSignalAppId)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="E0UdxjJiglMjckeEuJum-26" vertex="1" connectable="0">
+          <mxGeometry x="-0.119" y="-2" relative="1" as="geometry">
+            <mxPoint x="-22" y="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="E0UdxjJiglMjckeEuJum-28" value="&lt;font style=&quot;&quot;&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;OneSignal.setExternalUserId(oneSignalRegistrationToken&lt;span style=&quot;text-align: left;&quot;&gt;);&lt;/span&gt;&lt;/font&gt;&lt;br&gt;&lt;/font&gt;" style="endArrow=classic;html=1;rounded=0;shadow=1;" parent="1" source="E0UdxjJiglMjckeEuJum-94" target="1Ck8toekbnQWWB040wu6-5" edge="1">
+          <mxGeometry x="-0.0099" y="-2" width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="860" y="-690" as="sourcePoint" />
+            <mxPoint x="934" y="-516" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1098" y="-496" />
+              <mxPoint x="950" y="-496" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="E0UdxjJiglMjckeEuJum-33" value="CallClient" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" parent="1" vertex="1">
+          <mxGeometry x="1330" y="-940" width="131" height="1155" as="geometry" />
+        </mxCell>
+        <mxCell id="E0UdxjJiglMjckeEuJum-34" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" parent="E0UdxjJiglMjckeEuJum-33" vertex="1">
+          <mxGeometry x="61" y="718" width="10" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-1" value="Contoso Service" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" parent="1" vertex="1">
+          <mxGeometry x="220" y="-940" width="110" height="1160" as="geometry" />
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-2" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" parent="THWNswUqI7GnDkiS81va-1" vertex="1">
+          <mxGeometry x="50" y="60" width="10" height="370" as="geometry" />
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-30" value="&lt;font style=&quot;font-size: 10px;&quot;&gt;Verify username and password&lt;/font&gt;" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;elbow=vertical;edgeStyle=orthogonalEdgeStyle;curved=1;shadow=1;" parent="THWNswUqI7GnDkiS81va-1" source="THWNswUqI7GnDkiS81va-2" target="THWNswUqI7GnDkiS81va-1" edge="1">
+          <mxGeometry x="0.0413" y="40" relative="1" as="geometry">
+            <mxPoint x="64.99999999999955" y="90.02999999999997" as="sourcePoint" />
+            <mxPoint x="55" y="128" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="120" y="118" />
+              <mxPoint x="120" y="150" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-31" value="" style="endArrow=classic;html=1;rounded=0;" parent="THWNswUqI7GnDkiS81va-1" source="THWNswUqI7GnDkiS81va-2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="50" y="290" as="sourcePoint" />
+            <mxPoint x="-265" y="290" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="30" y="290" />
+              <mxPoint x="-42" y="290" />
+              <mxPoint x="-230" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-32" value="&lt;font style=&quot;font-size: 9px;&quot;&gt;PUT https://&amp;lt;FunctionsApp&amp;gt;azurewebsites.net/&lt;br&gt;api/setOneSignalRegistrationTokenForUser&lt;br&gt;&lt;br&gt;communicationUserId&lt;br&gt;oneSignalRegistrationToken&lt;br&gt;&lt;br&gt;&lt;/font&gt;" style="edgeLabel;resizable=0;html=1;align=center;verticalAlign=middle;" parent="THWNswUqI7GnDkiS81va-31" connectable="0" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-6" y="-2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-7" value="" style="endArrow=classic;html=1;rounded=0;shadow=1;" parent="1" source="E0UdxjJiglMjckeEuJum-94" target="THWNswUqI7GnDkiS81va-1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1110" y="-838" as="sourcePoint" />
+            <mxPoint x="498.25000000000045" y="-837.8399999999997" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="868.2500000000005" y="-837.8400000000001" />
+              <mxPoint x="618.2500000000005" y="-837.8400000000001" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-8" value="User logs in / authenticates to contoso service&lt;br&gt;with username and password" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Verdana;fontSize=10;shadow=1;" parent="THWNswUqI7GnDkiS81va-7" vertex="1" connectable="0">
+          <mxGeometry x="0.0594" y="-8" relative="1" as="geometry">
+            <mxPoint x="264" y="12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-9" value="ComunicationIdentityClient&lt;br&gt;from&lt;br&gt;communication-common SDK" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" parent="1" vertex="1">
+          <mxGeometry x="402.5" y="-940" width="240" height="1160" as="geometry" />
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-11" value="" style="endArrow=classic;html=1;rounded=0;shadow=1;" parent="THWNswUqI7GnDkiS81va-9" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-122.5" y="165" as="sourcePoint" />
+            <mxPoint x="115" y="165" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="-62.5" y="165" />
+              <mxPoint x="37.5" y="165" />
+              <mxPoint x="77.5" y="165" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-14" value="createUser()" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="THWNswUqI7GnDkiS81va-11" vertex="1" connectable="0">
+          <mxGeometry x="-0.393" relative="1" as="geometry">
+            <mxPoint x="47" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-18" value="" style="endArrow=classic;html=1;rounded=0;shadow=1;startArrow=none;" parent="THWNswUqI7GnDkiS81va-9" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="115" y="185" as="sourcePoint" />
+            <mxPoint x="-122.5" y="185" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="-82.5" y="185" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-25" value="communication user ID" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="THWNswUqI7GnDkiS81va-18" vertex="1" connectable="0">
+          <mxGeometry x="-0.0517" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-15" value="" style="endArrow=classic;html=1;rounded=0;shadow=1;" parent="THWNswUqI7GnDkiS81va-9" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-122.5" y="205" as="sourcePoint" />
+            <mxPoint x="115" y="205" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="-62.5" y="205" />
+              <mxPoint x="97.5" y="205" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-17" value="getToken()" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="THWNswUqI7GnDkiS81va-15" vertex="1" connectable="0">
+          <mxGeometry x="-0.393" relative="1" as="geometry">
+            <mxPoint x="47" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-28" value="" style="endArrow=classic;html=1;rounded=0;" parent="THWNswUqI7GnDkiS81va-9" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="119.5" y="225" as="sourcePoint" />
+            <mxPoint x="-122.5" y="225" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="27.5" y="225" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-29" value="AccessToken for communication user ID" style="edgeLabel;resizable=0;html=1;align=center;verticalAlign=middle;" parent="THWNswUqI7GnDkiS81va-28" connectable="0" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="4" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-40" value="&lt;font style=&quot;font-size: 9px;&quot;&gt;generate oneSignalRegistrationToken&lt;/font&gt;" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;elbow=vertical;edgeStyle=orthogonalEdgeStyle;curved=1;shadow=1;" parent="THWNswUqI7GnDkiS81va-9" edge="1">
+          <mxGeometry x="0.119" y="45" relative="1" as="geometry">
+            <mxPoint x="-122.5" y="236" as="sourcePoint" />
+            <mxPoint x="-122.5" y="273.99999999999955" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="-57.5" y="236" />
+              <mxPoint x="-57.5" y="274" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-21" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" parent="THWNswUqI7GnDkiS81va-9" vertex="1">
+          <mxGeometry x="115" y="145" width="10" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-36" value="" style="endArrow=classic;html=1;rounded=0;shadow=1;" parent="1" source="THWNswUqI7GnDkiS81va-33" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-47.5" y="-530" as="sourcePoint" />
+            <mxPoint x="267.5" y="-530" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="7.5" y="-530" />
+              <mxPoint x="167.5" y="-530" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-37" value="200 OK" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="THWNswUqI7GnDkiS81va-36" vertex="1" connectable="0">
+          <mxGeometry x="-0.393" relative="1" as="geometry">
+            <mxPoint x="47" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-41" value="" style="endArrow=classic;html=1;rounded=0;fontSize=10;" parent="1" source="THWNswUqI7GnDkiS81va-2" target="E0UdxjJiglMjckeEuJum-94" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="280" y="-520" as="sourcePoint" />
+            <mxPoint x="380" y="-520" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="420" y="-520" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-42" value="200 OK, AccessToken and oneSignalRegistrationToken" style="edgeLabel;resizable=0;html=1;align=center;verticalAlign=middle;fontSize=10;" parent="THWNswUqI7GnDkiS81va-41" connectable="0" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="211" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-48" value="" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;edgeStyle=elbowEdgeStyle;elbow=vertical;shadow=1;" parent="1" source="E0UdxjJiglMjckeEuJum-9" target="E0UdxjJiglMjckeEuJum-11" edge="1">
+          <mxGeometry x="-0.6364" y="-30" relative="1" as="geometry">
+            <mxPoint x="-34.69" y="-350" as="sourcePoint" />
+            <Array as="points">
+              <mxPoint x="150.31" y="-350" />
+              <mxPoint x="110.31" y="-325" />
+            </Array>
+            <mxPoint x="774.999304517663" y="-360" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-50" value="&lt;span style=&quot;border-color: var(--border-color); font-family: Verdana; background-color: rgb(251, 251, 251);&quot;&gt;POST https://onesignal.com/api/v1/notifications&lt;/span&gt;&lt;br style=&quot;border-color: var(--border-color); font-family: Verdana; background-color: rgb(251, 251, 251);&quot;&gt;&lt;span style=&quot;border-color: var(--border-color); font-family: Verdana; background-color: rgb(251, 251, 251);&quot;&gt;&lt;br&gt;&quot;data&quot;: {incomingCallContext: cc}&amp;nbsp;&lt;/span&gt;&lt;br style=&quot;border-color: var(--border-color); font-family: Verdana; background-color: rgb(251, 251, 251);&quot;&gt;&lt;span style=&quot;border-color: var(--border-color); font-family: Verdana; background-color: rgb(251, 251, 251);&quot;&gt;&quot;include_external_user_ids&quot;:[calleesOneSignalRegistrationToken]&lt;/span&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;shadow=0;" parent="THWNswUqI7GnDkiS81va-48" vertex="1" connectable="0">
+          <mxGeometry x="0.0653" relative="1" as="geometry">
+            <mxPoint x="115" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-54" value="" style="endArrow=classic;html=1;rounded=0;fontSize=10;entryX=0;entryY=0.125;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="E0UdxjJiglMjckeEuJum-11" target="1Ck8toekbnQWWB040wu6-14" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="-320" as="sourcePoint" />
+            <mxPoint x="866" y="-339" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="755" y="-340" />
+              <mxPoint x="852" y="-339" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-55" value="&lt;font style=&quot;font-size: 8px;&quot;&gt;Send incoming call notification with&lt;br&gt;incomingCallContext in the notification payload&lt;/font&gt;" style="edgeLabel;resizable=0;html=1;align=center;verticalAlign=middle;fontSize=10;" parent="THWNswUqI7GnDkiS81va-54" connectable="0" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="11" y="-3" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="E0UdxjJiglMjckeEuJum-35" value="" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;edgeStyle=elbowEdgeStyle;elbow=vertical;shadow=1;" parent="1" target="E0UdxjJiglMjckeEuJum-34" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1137.4999999999995" y="-200.0600000000004" as="sourcePoint" />
+            <Array as="points">
+              <mxPoint x="1193.1799999999998" y="-200.05999999999995" />
+            </Array>
+            <mxPoint x="1394.9999999999995" y="-200.0600000000004" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-60" value="&lt;span style=&quot;font-family: Verdana; background-color: rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;callClient.createCallAgent(AccessToken)&lt;/font&gt;&lt;/span&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="E0UdxjJiglMjckeEuJum-35" vertex="1" connectable="0">
+          <mxGeometry x="0.6327" y="2" relative="1" as="geometry">
+            <mxPoint x="-68" y="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-61" value="" style="endArrow=classic;html=1;rounded=0;fontSize=10;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1390" y="-175" as="sourcePoint" />
+            <mxPoint x="1137.5" y="-175" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1300" y="-175" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-62" value="return CallAgent" style="edgeLabel;resizable=0;html=1;align=center;verticalAlign=middle;fontSize=10;" parent="THWNswUqI7GnDkiS81va-61" connectable="0" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-65" value="" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;edgeStyle=elbowEdgeStyle;elbow=vertical;shadow=1;" parent="1" target="E0UdxjJiglMjckeEuJum-15" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1137.5" y="-140.19999999999982" as="sourcePoint" />
+            <Array as="points" />
+            <mxPoint x="1567.94" y="-140.1299200000003" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-66" value="&lt;span style=&quot;font-family: Verdana; background-color: rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;callAgent.on(&#39;incomingCall&#39;, listener)&lt;/font&gt;&lt;/span&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="THWNswUqI7GnDkiS81va-65" vertex="1" connectable="0">
+          <mxGeometry x="0.6327" y="2" relative="1" as="geometry">
+            <mxPoint x="-208" y="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-67" value="" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;edgeStyle=elbowEdgeStyle;elbow=vertical;shadow=1;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1137.5000000000005" y="-110.9859154929577" as="sourcePoint" />
+            <Array as="points" />
+            <mxPoint x="1564.9999999999995" y="-110.9859154929577" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-68" value="&lt;span style=&quot;font-family: Verdana; background-color: rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;callAgent.handlePushNotification(event.data)&lt;/font&gt;&lt;/span&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="THWNswUqI7GnDkiS81va-67" vertex="1" connectable="0">
+          <mxGeometry x="0.6327" y="2" relative="1" as="geometry">
+            <mxPoint x="-143" y="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-74" value="" style="endArrow=classic;html=1;rounded=0;fontSize=10;" parent="1" source="E0UdxjJiglMjckeEuJum-15" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1560" y="-50" as="sourcePoint" />
+            <mxPoint x="1137.5" y="-50" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1465" y="-50" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="THWNswUqI7GnDkiS81va-75" value="raise IncomingCall event with IncomingCall object" style="edgeLabel;resizable=0;html=1;align=center;verticalAlign=middle;fontSize=10;" parent="THWNswUqI7GnDkiS81va-74" connectable="0" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-74" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qgXGgKciv6OEB4hZPJv0-1" value="alt" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;" parent="1" vertex="1">
+          <mxGeometry x="1007" y="-238" width="584" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="qgXGgKciv6OEB4hZPJv0-3" value="[ if CallAgent has&lt;br&gt;not been created ]" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="1009" y="-208" width="115" height="41" as="geometry" />
+        </mxCell>
+        <mxCell id="1Ck8toekbnQWWB040wu6-2" value="OneSignal web &lt;br&gt;client SDK" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;size=45;" vertex="1" parent="1">
+          <mxGeometry x="821" y="-942" width="100" height="1160" as="geometry" />
+        </mxCell>
+        <mxCell id="1Ck8toekbnQWWB040wu6-3" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" vertex="1" parent="1Ck8toekbnQWWB040wu6-2">
+          <mxGeometry x="45" y="55" width="10" height="27" as="geometry" />
+        </mxCell>
+        <mxCell id="1Ck8toekbnQWWB040wu6-5" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" vertex="1" parent="1Ck8toekbnQWWB040wu6-2">
+          <mxGeometry x="45" y="438" width="10" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="1Ck8toekbnQWWB040wu6-6" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" vertex="1" parent="1Ck8toekbnQWWB040wu6-2">
+          <mxGeometry x="46" y="645" width="10" height="27" as="geometry" />
+        </mxCell>
+        <mxCell id="1Ck8toekbnQWWB040wu6-7" value="" style="endArrow=classic;html=1;rounded=0;fontSize=10;exitX=1.064;exitY=0.553;exitDx=0;exitDy=0;exitPerimeter=0;entryX=-0.028;entryY=0.153;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="877.6400000000001" y="-284.995" as="sourcePoint" />
+            <mxPoint x="1127.22" y="-284.73000000000013" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1001" y="-284.35" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1Ck8toekbnQWWB040wu6-8" value="&lt;span style=&quot;font-size: 8px;&quot;&gt;Emit (notificationDisplay&#39;, event) event&lt;/span&gt;" style="edgeLabel;resizable=0;html=1;align=center;verticalAlign=middle;fontSize=10;" connectable="0" vertex="1" parent="1Ck8toekbnQWWB040wu6-7">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-1" y="-3" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1Ck8toekbnQWWB040wu6-11" value="Google/Apple&lt;br&gt;notifications&lt;br&gt;service" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;size=45;" vertex="1" parent="1">
+          <mxGeometry x="932" y="-946" width="100" height="1160" as="geometry" />
+        </mxCell>
+        <mxCell id="1Ck8toekbnQWWB040wu6-14" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=1;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" vertex="1" parent="1Ck8toekbnQWWB040wu6-11">
+          <mxGeometry x="45" y="603" width="10" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="1Ck8toekbnQWWB040wu6-15" value="" style="endArrow=classic;html=1;rounded=0;fontSize=10;exitX=1.064;exitY=0.553;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.016;entryY=0.162;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1Ck8toekbnQWWB040wu6-11" target="E0UdxjJiglMjckeEuJum-20">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="56" y="618" as="sourcePoint" />
+            <mxPoint x="189" y="618" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="179.3599999999999" y="618.645" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1Ck8toekbnQWWB040wu6-16" value="&lt;span style=&quot;font-size: 8px;&quot;&gt;Display the Incoming Call&lt;br&gt;notification&lt;/span&gt;" style="edgeLabel;resizable=0;html=1;align=center;verticalAlign=middle;fontSize=10;" connectable="0" vertex="1" parent="1Ck8toekbnQWWB040wu6-15">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-3" y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
