@@ -10,7 +10,7 @@ process.on('uncaughtException', function (err) {
 const app = express();
 const port = 5000; // default port to listen
 app.use(express.json());
-const ngrokEndpoint = "<NGROK_ENDPOINT>";
+const hostingEndpoint = "<HOSTING_ENDPOINT>";
 const acsConnectionString = "<ACS_CONNECTION_STRING>";
 const client = new CallAutomationClient(acsConnectionString);
 let callConnectionId = "";
@@ -43,7 +43,7 @@ app.get( "/startcall", async ( req, res ) => {
     const { acstarget } = req.query;
     let targetUser:CommunicationUserIdentifier = {communicationUserId:acstarget?.toString()||""};
     let callInvite:CallInvite = {targetParticipant:targetUser};
-    let call = await client.createCall(callInvite, ngrokEndpoint+"/test")
+    let call = await client.createCall(callInvite, hostingEndpoint+"/test")
     callConnectionId=call.callConnectionProperties.callConnectionId||""
     res.sendStatus(200);
 } );
@@ -76,7 +76,7 @@ app.get( "/startgroupcall", async ( req, res ) => {
     let targetUser:CommunicationUserIdentifier = {communicationUserId:(targets?.at(0)||"")};
     let targetUser2:CommunicationUserIdentifier = {communicationUserId:(targets?.at(1)||"")};
 
-    let call = await client.createGroupCall([targetUser,targetUser2], ngrokEndpoint+"/test")
+    let call = await client.createGroupCall([targetUser,targetUser2], hostingEndpoint+"/test")
     callConnectionId=call.callConnectionProperties.callConnectionId||""
     res.sendStatus(200);
 } );
@@ -139,6 +139,7 @@ app.get( "/delete", async ( req, res ) => {
     res.sendStatus(200);
 } );
 
+//****only for those wih a pstn number
 app.post( "/incomingcall", async ( req, res ) => {
     console.log( "incomingcall endpoint" );
     const event = req.body[0];
@@ -151,13 +152,14 @@ app.post( "/incomingcall", async ( req, res ) => {
     
     if(eventData && event.eventType == "Microsoft.Communication.IncomingCall") {
         var incomingCallContext = eventData.incomingCallContext;
-        var callbackUri = ngrokEndpoint + "/test";
+        var callbackUri = hostingEndpoint + "/test";
         let call = await client.answerCall(incomingCallContext,callbackUri);
         callConnectionId = call.callConnectionProperties.callConnectionId||""
         res.sendStatus(200);
     }
 });
 
+//****only for those wih a pstn number
 app.get( "/recognize", async ( req, res ) => {
     console.log( "recognize endpoint" );
     const callConnection = client.getCallConnection(callConnectionId);

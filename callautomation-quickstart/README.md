@@ -18,8 +18,14 @@ This guide walks through simple call automation scenarios and endpoints.
 - Dev-tunnel. download from the following [Dev-tunnel download](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started?tabs=windows)
 
 # Dev tunnels setup
-- run `.\devtunnel user login` and login with your msft account or `.\devtunnel user login -g` for github
-- run `.\devtunnel.exe host -p 5000 --allow-anonymous` to begin hosting. copy the url similar to `https://9ndqr7mn.usw2.devtunnels.ms:5000/` that is returned
+- run `devtunnel user login` and login with your msft account or `devtunnel user login -g` for github
+- run `devtunnel.exe host -p 5000 --allow-anonymous` to begin hosting. copy the url similar to `https://9ndqr7mn.usw2.devtunnels.ms:5000` that is returned
+
+# *For a presistent dev tunnel
+- run `devtunnel create --allow-anonymous` and note the id. Similar to 4bt7fzff.usw2
+- run `devtunnel port create -p 5000`
+- run `devtunnel host <id>` to begin hosting. copy the url similar to `https://9ndqr7mn.usw2.devtunnels.ms:5000` that is returned
+
 
 ## Setup empty project
 1. Create a folder for our project and in it run
