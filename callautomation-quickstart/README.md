@@ -41,8 +41,8 @@ This guide walks through simple call automation scenarios and endpoints.
 2. create the initial index.ts file
 
 ```typescript
-import { CallAutomationClient, CallInvite, CallLocator, FileSource, PlayOptions, StartRecordingOptions } from "@azure/communication-call-automation";
-import { CommunicationUserIdentifier } from "@azure/communication-common";
+import { CallAutomationClient, CallInvite, CallLocator, CallMediaRecognizeDtmfOptions, DtmfTone, FileSource, PlayOptions, StartRecordingOptions } from "@azure/communication-call-automation";
+import { CommunicationUserIdentifier, PhoneNumberIdentifier } from "@azure/communication-common";
 import express from "express";
 
 process.on('uncaughtException', function (err) {
@@ -53,15 +53,22 @@ process.on('uncaughtException', function (err) {
 const app = express();
 const port = 5000; // default port to listen
 
-// get route
 app.get( "/test", ( req, res ) => {
     console.log( "test endpoint" );
     res.sendStatus(200);
 } );
 
-// get route
+//This will be used for callbacks, for example, here we are listening for a RecognizeCompleted event. we can add additional events here
 app.post( "/test", ( req, res ) => {
     console.log( "test post endpoint" );
+    const event = req.body[0];
+    const eventData = event.data;
+
+    if(event.type=="Microsoft.Communication.RecognizeCompleted")
+    {
+        let toneList:DtmfTone[] = eventData.dtmfResult.tones
+        console.log(toneList)
+    }
     res.sendStatus(200);
 
 } );
@@ -83,8 +90,8 @@ const app = express();
 const port = 5000; // default port to listen
 app.use(express.json());
 const ngrokEndpoint = "<NGROK_ENDPOINT>";
-const cstring = "<ACS_CONNECTION_STRING>";
-const client = new CallAutomationClient(cstring);
+const acsConnectionString = "<ACS_CONNECTION_STRING>";
+const client = new CallAutomationClient(acsConnectionString);
 let callConnectionId = "";
 let recordingId = "";
 let contentLocation = "";
@@ -276,6 +283,69 @@ app.get( "/delete", async ( req, res ) => {
 ```
 2. the previous endpoint has been setup so after we get the filestatus updated event, we update the delete location. 
 3. to download the file, you only need to call `curl http://localhost:5000/delete`
+
+
+## **Inbound pstn call
+1. insert the following code snippets above `// start the Express server`,rerun the server, and end existing calls. 
+```typescript
+app.post( "/incomingcall", async ( req, res ) => {
+    console.log( "incomingcall endpoint" );
+    const event = req.body[0];
+    const eventData = event.data;
+  
+    if (event.eventType === "Microsoft.EventGrid.SubscriptionValidationEvent") {
+      console.log("Received SubscriptionValidation event");
+      res.status(200).send({ "ValidationResponse": eventData.validationCode });
+    }
+    
+    if(eventData && event.eventType == "Microsoft.Communication.IncomingCall") {
+        var incomingCallContext = eventData.incomingCallContext;
+        var callbackUri = ngrokEndpoint + "/test";
+        let call = await client.answerCall(incomingCallContext,callbackUri);
+        callConnectionId = call.callConnectionProperties.callConnectionId||""
+        res.sendStatus(200);
+    }
+});
+```
+2. First we need to register an event handler with our acs resource. 
+    - go to your acs resource in portal https://portal.azure.com/signin/index/
+    - click on events from the left side bar
+    - click event subscription to create a new subscription
+    - enter name "call"
+    - select incoming call as the event to filter
+    - under endpoint, seelct webhook and enter the ngrokurl/incomingcall as the endpoint. 
+    - make sure when we register this, our app is running as the subscription validation handshake is required. 
+
+
+
+## **Dtmf recogntion
+1. insert the following code snippets above `// start the Express server`,rerun the server, and end existing calls. 
+```typescript
+app.get( "/recognize", async ( req, res ) => {
+    console.log( "recognize endpoint" );
+    const callConnection = client.getCallConnection(callConnectionId);
+    const callMedia = callConnection.getCallMedia();
+    const filesource:FileSource = {url:"https://acstestapp1.azurewebsites.net/audio/bot-hold-music-1.wav", kind:"fileSource"}
+
+    let num:PhoneNumberIdentifier = {phoneNumber:"<enter your pstn caller number starting with +1>"} 
+
+    let recognizeOptions:CallMediaRecognizeDtmfOptions =  {kind:"callMediaRecognizeDtmfOptions",
+    interruptCallMediaOperation: true,
+    interToneTimeoutInSeconds:10,
+    stopDtmfTones: [DtmfTone.Pound],
+    initialSilenceTimeoutInSeconds:5,
+    interruptPrompt:true,
+    playPrompt:filesource
+};
+
+    callMedia.startRecognizing(num, 3, recognizeOptions);
+
+    res.sendStatus(200);
+} );
+```
+2. once an inbound pstn call has been established, run `curl http://localhost:5000/recognize`. and ensure you have prepopulated the pstnNumber variable with the calling number.  
+3. you will now hear a song play (in a real case this would be an audio file containing options)
+4. you can enter 1-3 digits, and hit pound. This server will now print the options you chose to the console. 
 
 
 ## Additional things to test
