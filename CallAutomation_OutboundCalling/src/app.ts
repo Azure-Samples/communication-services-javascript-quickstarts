@@ -19,6 +19,7 @@ let callConnection: CallConnection;
 let serverCallId: string;
 let callee: PhoneNumberIdentifier;
 let acsClient: CallAutomationClient;
+let recordingStream: NodeJS.ReadableStream;
 
 async function createAcsClient() {
 	const connectionString = process.env.CONNECTION_STRING || "";
@@ -105,7 +106,8 @@ app.post("/incomingcall", async (req: any, res: any) => {
 		res.status(200).json({
 			validationResponse: eventData.validationCode,
 		});
-	} else {
+	} 
+	else {
 		res.sendStatus(200);
 	}
 });
@@ -123,29 +125,57 @@ app.post("/ongoingcall", async (req: any, res: any) => {
 		serverCallId = eventData.serverCallId;
 		callConnection = acsClient.getCallConnection(callConnectionId);
 
-		await startToneRecognition();
 		await startRecording();
-	} else if (event.type === "Microsoft.Communication.ParticipantsUpdated") {
+		await startToneRecognition();
+	} 
+	else if (event.type === "Microsoft.Communication.ParticipantsUpdated") {
 		console.log("Received ParticipantUpdated event");
-	} else if (event.type === "Microsoft.Communication.PlayCompleted") {
+	} 
+	else if (event.type === "Microsoft.Communication.PlayCompleted" || event.type === "Microsoft.Communication.playFailed") {
 		console.log("Received PlayCompleted event");
 		hangUpCall();
-		
-	} else if (event.type === "Microsoft.Communication.RecognizeCompleted") {
+	} 
+	else if (event.type === "Microsoft.Communication.RecognizeCompleted") {
 		const tone = event.data.dtmfResult.tones[0];
 		console.log("Received RecognizeCompleted event, with following tone: " + tone);
 
 		if (tone === "one")
 			await playAudio("Confirmed.wav");
-		else
+		else if (tone === "two")
 			await playAudio("Goodbye.wav");
-	} else if (event.type === "Microsoft.Communication.CallDisconnected") {
+		else
+			await playAudio("Invalid.wav");
+	} 
+	else if (event.type === "Microsoft.Communication.RecognizeFailed") {
+		await playAudio("Timeout.wav");
+	}
+	else if (event.type === "Microsoft.Communication.CallDisconnected") {
 		console.log("Received CallDisconnected event");
-	} else {
+	} 
+	else {
 		const eventType = event.type;
 		console.log("Received Unexpected event: " + eventType + ". Terminating Call.");
 		hangUpCall();
 	}
+});
+
+// POST endpoint to serve the webpage
+app.post('/recording', async (req, res) => {
+	const event = req.body[0];
+	const eventData = event.data;
+
+	if (event.eventType === "Microsoft.EventGrid.SubscriptionValidationEvent") {
+		console.log("Received SubscriptionValidation event");
+		res.status(200).json({
+			validationResponse: eventData.validationCode,
+		});
+	}
+	else if(event.eventType === "Microsoft.Communication.RecordingFileStatusUpdated") {
+		console.log("Received RecordingFileStatusUpdated event");
+		const recordingLocation = eventData.recordingStorageInfo.recordingChunks[0].contentLocation
+		recordingStream = await acsClient.getCallRecording().downloadStreaming(recordingLocation);
+	}
+	res.sendStatus(200);
 });
 
 // GET endpoint to serve the audio file
@@ -186,6 +216,16 @@ app.get('/call', async (req, res) => {
 
 	await createOutboundCall();
 	res.redirect('/');
+});
+
+// GET endpoint to download call audio
+app.get('/download', async (req, res) => {
+    // Set the appropriate response headers for the file download
+    res.setHeader('Content-Disposition', 'attachment; filename="recording.wav"');
+    res.setHeader('Content-Type', 'audio/wav');
+    
+    // Pipe the recording stream to the response object
+    recordingStream.pipe(res);
 });
 
 // Start the server
