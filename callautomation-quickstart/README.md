@@ -21,7 +21,7 @@ This guide walks through simple call automation scenarios and endpoints.
 - run `devtunnel user login` and login with your msft account or `devtunnel user login -g` for github
 - run `devtunnel.exe host -p 5000 --allow-anonymous` to begin hosting. copy the url similar to `https://9ndqr7mn.usw2.devtunnels.ms:5000` that is returned
 
-## *For a presistent dev tunnel
+## *For a persistent dev tunnel
 - run `devtunnel create --allow-anonymous` and note the id. Similar to 4bt7fzff.usw2
 - run `devtunnel port create -p 5000`
 - run `devtunnel host <id>` to begin hosting. copy the url similar to `https://9ndqr7mn.usw2.devtunnels.ms:5000` that is returned
@@ -48,7 +48,7 @@ This guide walks through simple call automation scenarios and endpoints.
 - *modify dtmf timing settings, tones required, and act on one specific tone
 
 ## Two ways to test.
-1. Follow the guide and setup the project from scratch, follow test instructuctions.
+1. Follow the guide and setup the project from scratch, follow test instructions.
 2. Run the sample bugbash-test project.
     - from the sample/bugbash-test folder run `npm install`
     - update the hostingEndpoint and acsConnectionString variables
@@ -355,7 +355,7 @@ app.post( "/incomingcall", async ( req, res ) => {
 
 
 
-## **Dtmf recogntion
+## **Dtmf recognition
 1. insert the following code snippets above `// start the Express server`,rerun the server, and end existing calls. 
 ```typescript
 app.get( "/recognize", async ( req, res ) => {
