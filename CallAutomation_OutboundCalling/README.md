@@ -16,7 +16,7 @@ This sample application is also capable of making multiple concurrent outbound c
 ## Prerequisites
 
 - Create an Azure account with an active subscription. For details, see [Create an account for free](https://azure.microsoft.com/free/)
-- [Visual Studio Code (2022 v17.4.0 and above)](https://code.visualstudio.com/download)
+- [Visual Studio Code](https://code.visualstudio.com/download) installed
 - [Node.js](https://nodejs.org/en/download) installed
 - Create an Azure Communication Services resource. For details, see [Create an Azure Communication Resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource). You will need to record your resource **connection string** for this sample.
 - Get a phone number for your new Azure Communication Services resource. For details, see [Get a phone number](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/telephony/get-phone-number?tabs=windows&pivots=programming-language-csharp)
