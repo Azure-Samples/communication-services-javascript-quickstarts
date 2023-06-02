@@ -13,7 +13,7 @@ This guide walks through simple call automation scenarios and endpoints.
 ## Prerequisites
 - An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
 - An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
-- NodeJS. 
+- NodeJS  V7 or later.  
 - VScode. [Download VScode](https://code.visualstudio.com/).
 - Dev-tunnel. download from the following [Dev-tunnel download](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started?tabs=windows).
 
@@ -27,8 +27,8 @@ This guide walks through simple call automation scenarios and endpoints.
 ## Actions to test (included in guide and sample file)
 - start call
 - start group call
-- play media
-- play media to all
+- play media (audio will not be recorded)
+- play media to all (audio will be recorded)
 - start recording
 - download recording
 - delete recording
@@ -317,7 +317,7 @@ app.get( "/delete", async ( req, res ) => {
 } );
 ```
 2. the previous endpoint has been setup so after we get the filestatus updated event, we update the delete location. 
-3. to download the file, you only need to call `curl http://localhost:5000/delete`
+3. to delete the file, you only need to call `curl http://localhost:5000/delete`
 
 
 ## **Inbound pstn call
