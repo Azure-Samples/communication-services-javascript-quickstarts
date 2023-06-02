@@ -10,9 +10,9 @@ with your financial advisor. The goal of this tutorial is to help you make you o
 
 If you want to just try it out follow the instructions below. If you are interested in information on how to build it into your application and how this sample is constructed continue to the tutorial section below.
 
-## Just Try It Out
+## Try It Out
 
-In the project directory, run:
+To just run the completed code, In the project directory, run:
 
 ### `npm install`
 
@@ -89,6 +89,8 @@ Then you will need to update the dependency array in the `package.json` to inclu
 "@azure/communication-calling": "1.13.2-beta.1",
 "@azure/communication-chat": "1.3.2-beta.2",
 "@azure/communication-react": "1.5.1-alpha-202305300013",
+"@azure/communication-calling-effects": "1.0.1",
+"@fluentui/react-icons": "~2.0.203",
 ```
 
 Once you have run these commands and made that update you will be in your new project ready to get started. For this tutorial we will be modifying the files in the
@@ -108,6 +110,7 @@ To get us started we will replace the provided `App.tsx` content with a main pag
 // imports needed
 import { CallAdapterLocator } from '@azure/communication-react';
 import './App.css';
+import { useEffect, useMemo, useState } from 'react';
 import { CommunicationIdentifier, CommunicationUserIdentifier } from '@azure/communication-common';
 import { Spinner, Stack, initializeIcons, registerIcons } from '@fluentui/react';
 import { CallAdd20Regular, Dismiss20Regular } from '@fluentui/react-icons';
@@ -198,6 +201,9 @@ In this snippet we register two new icons `<Dismiss20Regular/>` and `<CallAdd20R
 We can then test to see that this is working by running:
 
 ```bash
+# Install the newe dependencies
+npm install
+
 # run the React app
 npm run start
 ```
@@ -219,6 +225,18 @@ purpose of this tutorial we will give this component the following properties:
 
 `ClickToCallComponent.tsx`
 
+First we will set up the widget component with some imports:
+
+`ClickToCallComponent.tsx`
+```typescript
+// imports needed
+import { IconButton, PrimaryButton, Stack, TextField, useTheme, Checkbox, Icon } from '@fluentui/react';
+import React, { useEffect, useState } from 'react';
+```
+
+Now we will introduce a interface contianing the props that the component will use.
+
+`ClickToCallComponent.tsx`
 ```typescript
 export interface clickToCallComponentProps {
   /**
@@ -251,15 +269,9 @@ Each of these callbacks will control different behaviors for the calling experie
 - `onSetDisplayName` - We will use this callback to set the `displayName` of the participant when they are calling your support center.
 - `onSetUseVideo` - Finally, this callback will be used to control for our tutorial whether the user will have camera and screen sharing controls (more on that later).
 
-Next we will set up the widget component:
+Finally we will add the body of the component.
 
 `ClickToCallComponent.tsx`
-```typescript
-// imports needed
-import { IconButton, PrimaryButton, Stack, TextField, useTheme, Checkbox, Icon } from '@fluentui/react';
-import React, { useEffect, useState } from 'react';
-```
-
 ```typescript
 /**
  * Widget for Click to Call
@@ -376,6 +388,14 @@ Once you have your component you will need some styles to give it some looks. Fo
 `ClickToCallComponent.styles.ts`
 
 ```typescript
+// needed imports
+import { IButtonStyles, ICheckboxStyles, IIconStyles, IStackStyles, Theme } from '@fluentui/react';
+```
+
+Now lets add the component's styles.
+
+`ClickToCallComponent.styles.ts`
+```typescript
 export const checkboxStyles = (theme: Theme): ICheckboxStyles => {
   return {
     label: {
@@ -469,7 +489,7 @@ These styles should be added to the widget as seen in the snippet above. If you 
 
 `ClickToCallComponent.tsx`
 ```typescript
-...
+
 // add to other imports
 import {
     clicktoCallSetupContainerStyles,
@@ -480,7 +500,7 @@ import {
     logoContainerStyles,
     collapseButtonStyles
 } from '../styles/ClickToCallComponent.styles';
-...
+
 ```
 
 ### Adding The Widget To The App
@@ -496,7 +516,7 @@ export interface ClickToCallPageProps {
   token: string;
   userId:
     | CommunicationUserIdentifier
-    | /* @conditional-compile-remove(teams-identity-support) */ MicrosoftTeamsUserIdentifier;
+    | MicrosoftTeamsUserIdentifier;
   callLocator: CallAdapterLocator;
   alternateCallerId?: string;
 }
@@ -580,6 +600,7 @@ export const ClickToCallScreen = (props: ClickToCallPageProps): JSX.Element => {
         style={{ overflow: "hidden", margin: "auto" }}
       >
         <ClickToCallComponent
+        onRenderStartCall={() => {}}
           onRenderLogo={() => {
             return (
               <img
@@ -599,30 +620,29 @@ export const ClickToCallScreen = (props: ClickToCallPageProps): JSX.Element => {
 ```
 This page has some general information on it for what our calling experiences can currently do. Also as we can see it is adding the widget component that we created earlier.
 
-Once we have made this we will need to add the new view to the root of the app `App.tsx`:
+Once we have made this we will need to add the new view to the root of the app `App.tsx` by updating our existing `'click-to-call'` case:
 
 `App.tsx`
 ```typescript
 // add this with the other imports
-...
+
 import { ClickToCallScreen } from './views/ClickToCallScreen';
-...
+
 ```
 
 ```typescript
-    ...
-    switch (page) {
-        case 'click-to-call': {
-           if (!token || !userId || !locator) {
-            return (
-            <Stack verticalAlign='center' style={{height: '100%', width: '100%'}}>
-                <Spinner label={'Getting user credentials from server'} ariaLive="assertive" labelPosition="top" />;
-            </Stack>
-            )
-        }
-        return <ClickToCallScreen token={token} userId={userId} callLocator={locator} alternateCallerId={alternateCallerId}/>;
+    
+    case 'click-to-call': {
+        if (!token || !userId || !locator) {
+        return (
+        <Stack verticalAlign='center' style={{height: '100%', width: '100%'}}>
+            <Spinner label={'Getting user credentials from server'} ariaLive="assertive" labelPosition="top" />;
+        </Stack>
+        )
     }
-    ...
+    return <ClickToCallScreen token={token} userId={userId} callLocator={locator} alternateCallerId={alternateCallerId}/>;
+}
+    
 ```
 
 Then if you have done this and set the arguments we defined in `App.tsx` you should see this when the app is running with `npm run start`:
@@ -764,18 +784,18 @@ Now we will want to update the splash screen we created earlier. First we will a
 `ClickToCallScreen.tsx`
 
 ```typescript
-    ...
+    
     const [userDisplayName, setUserDisplayName] = useState<string>();
-    const newWindowRef = React.useRef<Window | null>(null);
+    const newWindowRef = useRef<Window | null>(null);
     const [useVideo, setUseVideo] = useState<boolean>(false);
-    ...
+    
 ```
 
 Next we will create a handler that we pass to our widget that will create a new window that will start the process of sending the post messages.
 
 `ClickToCallScreen.tsx`
 ```typescript
-    ...
+    
     const startNewWindow = useCallback(() => {
         const startNewSessionString = 'newSession=true';
         newWindowRef.current = window.open(
@@ -784,7 +804,7 @@ Next we will create a handler that we pass to our widget that will create a new 
             'width=500, height=450'
         );
     }, []);
-    ...
+    
 ```
 
 What this handler does is start a new window position and place a new query arg in the window URL so that the main application knows that it is time to start a new call.
@@ -793,7 +813,7 @@ Next we will add a `useEffect` hook that is creating a event handler listening f
 
 `ClickToCallScreen.tsx`
 ```typescript
-    ...
+    
     useEffect(() => {
         window.addEventListener('message', (event) => {
             if (event.origin !== window.origin) {
@@ -813,15 +833,16 @@ Next we will add a `useEffect` hook that is creating a event handler listening f
             }
         });
     }, [adapterParams, adapterParams.locator, adapterParams.displayName, useVideo]);
-    ...
+    
 ```
 
 This handler will listen for events from the child window, (**NOTE: make sure that if the origin of the message is not from your app then return**) if the child window asks for arguments we will send it the arguments needed to construct a `AzureCommunicationsCallAdapter`.
 
 Finally on this screen we will add the `startNewWindow` handler to the widget so that it knows to create the new window.
 
+`ClickToCallScreen.tsx`
 ```typescript
-    ...
+    
     <Stack horizontal tokens={{ childrenGap: '1.5rem' }} style={{ overflow: 'hidden', margin: 'auto' }}>
         <ClickToCallComponent
             onRenderStartCall={startNewWindow}
@@ -838,14 +859,14 @@ Finally on this screen we will add the `startNewWindow` handler to the widget so
             onSetUseVideo={setUseVideo}
         />
     </Stack>
-    ...
+    
 ```
 
 Next we will need to update the `App.tsx` file to listen for and ask for the messages from what would be the parent window. First to start, you might recall that we added a new query parameter to the URL of the application `newSession=true`. To use this and have our app look for that in the URL we will need to create a utility function to parse out that parameter so our application will behave differently when it is received.
 
 To do that lets add a new folder `src/utils` and in this folder we will add the file `AppUtils.ts`. In this file we will put the following function:
-`AppUtils.ts`
 
+`AppUtils.ts`
 ```typescript
 /**
  * get go ahead to request for adapter args from url
@@ -861,6 +882,7 @@ This function will take a look into our applications URL and see if the param we
 
 As well we will want to add a new type in here to track the different pieces needed to create a `AzureCommunicationCallAdapter`. This type can also be simplified if you are using our calling stateful client, this approach will not be covered in this tutorial though.
 
+`AppUtils.ts`
 ```typescript
 /**
  * Properties needed to create a call screen for a Azure Communications CallComposite.
@@ -881,22 +903,36 @@ First thing we will want to do is update `App.tsx` to use that new utility funct
 `App.tsx`
 ```typescript
 // you will need to add these imports
-...
+
 import { AdapterArgs, getStartSessionFromURL } from './utils/AppUtils';
-...
+
 ```
 
 ```typescript
-...
+
   const startSession = useMemo(() => {
     return getStartSessionFromURL();
   }, []);
-...
+
 ```
+
+Following this we will want to add some state to make sure that we are tracking the new args for the adapter. We will pass these to the `SameOriginCallScreen.tsx` that we made earlier so it can construct an adapter. As well state to track whether the user wants to use video controls or not.
+
+`App.tsx`
+```typescript
+/**
+   * Properties needed to start an Azure Communications Call Adapter. When these are set the app will go to the Call screen for the
+   * Click to Call scenario. Call screen should create the credential that will be used in the call for the user.
+   */
+  const [adapterArgs, setAdapterArgs] = useState<AdapterArgs | undefined>();
+  const [useVideo, setUseVideo] = useState<boolean>(false);
+```
+
 Then, after we have added that we will want to add a event listener like we did earlier to the `ClickToCallScreen.tsx` to the `App.tsx` listening for post messages. Like before we will put it in a `useEffect` hook, this time though we will leave the dependency array empty so that we only add this listener one time on the initial render.
 
+`App.tsx`
 ```typescript
-...
+
   useEffect(() => {
     window.addEventListener('message', (event) => {
       if (event.origin !== window.location.origin) {
@@ -916,14 +952,15 @@ Then, after we have added that we will want to add a event listener like we did 
       }
     });
   }, []);
-...
+
 ```
 Next we will want to add two more `useEffect` hooks to `App.tsx` these two hooks will
 - Ask the parent window of the application for arguments for the `AzureCommunicationCallAdapter`, we will use the `window.opener` reference provided since this hook will be checking to see if it is the child window.
 - Checks to see if we have the arguments appropriately set from the event listener above to start a call and change the app page to be the call screen.
 
+`App.tsx`
 ```typescript
-...
+
   useEffect(() => {
     if (startSession) {
       console.log('asking for args');
@@ -939,18 +976,20 @@ Next we will want to add two more `useEffect` hooks to `App.tsx` these two hooks
       setPage('same-origin-call');
     }
   }, [adapterArgs]);
-...
+
 ```
 Finally once we have done that we will want to add the new screen that we made earlier to the template as well. We will also want to make sure that we do not show the Click to call screen if the `startSession` parameter is found, this will avoid a flash for the user.
+
+`App.tsx`
 ```typescript
 // add with other imports
-...
+
 import { SameOriginCallScreen } from './views/NewWindowCallScreen';
-...
+
 ```
 
 ```typescript
-...
+
   switch (page) {
     case 'click-to-call': {
       if (!token || !userId || !locator || startSession !== false) {
@@ -985,7 +1024,7 @@ import { SameOriginCallScreen } from './views/NewWindowCallScreen';
       );
     }
   }
-...
+
 ```
 Now when the application runs in a new window, it will see that it is supposed to start a call so it will:
 - Ask for the different Adapter arguments from the parent window
@@ -1007,7 +1046,7 @@ This concludes the tutorial for click to call with a new window experience. Belo
 Finally in this optional section of the tutorial we will talk about making a embedded version of the Calling surface. We will continue from where we left off in the last section and make some modifications to our existing screens. 
 
 To start lets take a look at the props for the `ClickToCallComponent.tsx` props, these will need to be updated to have the widget hold the Calling surface. We will make two changes.
-- Add a new prop for the adapter arguments needed for the `AzureCommunicationCallAdapter`.
+- Add a new prop for the adapter arguments needed for the `AzureCommunicationCallAdapter` we will call this `adapterArgs`.
 - Make `onRenderStartCall` optional, this will allow us to come back to using a new window easier in the future.
 
 `ClickToCallComponent.tsx`
@@ -1046,7 +1085,7 @@ Now we will need to introduce some logic to use these arguments to make sure tha
 `ClickToCallComponent.tsx`
 ```typescript
 // add this to the other imports
-...
+
 import { CommunicationUserIdentifier, AzureCommunicationTokenCredential } from '@azure/communication-common';
 import {
     CallAdapter,
@@ -1055,10 +1094,13 @@ import {
     useAzureCommunicationCallAdapter,
     AzureCommunicationCallAdapterArgs
 } from '@azure/communication-react';
-...
+import { AdapterArgs } from '../utils/AppUtils';
+// lets update our react imports as well
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
 ```
 ```typescript
-...
+
     const credential = useMemo(() => {
         try {
             return new AzureCommunicationTokenCredential(adapterArgs.token);
@@ -1074,18 +1116,19 @@ import {
             credential:  credential,
             locator: adapterArgs.locator,
             displayName: displayName,
+            alternateCallerId: adapterArgs.alternateCallerId
         }
     },[adapterArgs.locator, adapterArgs.userId, credential, displayName])
 
     const adapter = useAzureCommunicationCallAdapter(callAdapterArgs as AzureCommunicationCallAdapterArgs);
-...
+
 ```
 
 Lets also add a `afterCreate` function like before to do a few things with our adapter once it is constructed. Since we are now interacting with state in the widget we will want to use a react `useCallback` just to make sure we are not defining this function every time we do a render pass. In our case our function will reset the widget to the `'new'` state when the call ends and clear the user's `displayName` so they can start a new session. You can however return it to the `'setup'` state with the old displayName so that can easily call again as well.
 
 `ClickToCallComponent.tsx`
 ```typescript
-...
+
     const afterCreate = useCallback(async (adapter: CallAdapter): Promise<CallAdapter> => {
         adapter.on('callEnded',() => {
             setDisplayName(undefined);
@@ -1095,23 +1138,23 @@ Lets also add a `afterCreate` function like before to do a few things with our a
     },[])
 
     const adapter = useAzureCommunicationCallAdapter(callAdapterArgs as AzureCommunicationCallAdapterArgs, afterCreate);
-...
+
 ```
 
 Once we again have an adapter we will need to update the template to account for a new widget state, so on that note we will also need to add to the different modes that the widget itself can hold. We will add a new `'inCall'` state like so:
 
 `ClickToCallComponent.tsx`
 ```typescript
-...
+
 const [widgetState, setWidgetState] = useState<'new' | 'setup' | 'inCall'>('new');
-...
+
 ```
 
 Then we will need to add a new logic to our Start Call button in the widget that will check to see which mode it will start the call, new window or embedded. That logic is as follows:
 
 `ClickToCallComponent.tsx`
 ```typescript
-...
+
     <PrimaryButton
         styles={startCallButtonStyles(theme)}
         onClick={() => {
@@ -1126,7 +1169,37 @@ Then we will need to add a new logic to our Start Call button in the widget that
     >
         StartCall
     </PrimaryButton>
-...
+
+```
+
+We will also want to introduce some interal state to the widget about the local user's video controls.
+
+`ClickToCallComponent.tsx`
+```typescript
+const [useLocalVideo, setUseLocalVideo] = useState<boolean>(false);
+```
+
+Then lets go back to our style sheet for the wdiget. We will need to add new styles to allow the `CallComposite` to grow to its minimum size.
+
+`ClickToCallComponent.styles.ts`
+```typescript
+export const clickToCallInCallContainerStyles = (theme: Theme): IStackStyles => {
+  return {
+    root: {
+      width: '35rem',
+      height: '25rem',
+      padding: '0.5rem',
+      boxShadow: theme.effects.elevation16,
+      borderRadius: theme.effects.roundedCorner6,
+      bottom: 0,
+      right: '1rem',
+      position: 'absolute',
+      overflow: 'hidden',
+      cursor: 'pointer',
+      background: theme.semanticColors.bodyBackground
+    }
+  }
+}
 ```
 
 Finally in the widget we will need to add a section to the template that is when the widget is in the `'inCall'` state that we added earlier. So now we should have our template looking as follows:
@@ -1232,7 +1305,7 @@ That looks like this:
 
 `ClickToCallScreen.tsx`
 ```typescript
-...
+
     <Stack horizontal tokens={{ childrenGap: '1.5rem' }} style={{ overflow: 'hidden', margin: 'auto' }}>
         <ClickToCallComponent
             adapterArgs={adapterParams}
@@ -1249,7 +1322,7 @@ That looks like this:
             onSetUseVideo={setUseVideo}
         />
     </Stack>
-...
+
 ```
 Now that we have made these changes we can start our app again if it is shut down with `npm run start`. If we go through the start call process like we did before we should see the following when starting the call: 
 
@@ -1258,6 +1331,3 @@ Now that we have made these changes we can start our app again if it is shut dow
 Like before this is a call starting with the video controls enabled. 
 
 Thanks for following the different tutorials here. This concludes the quickstart for Click-to-Call in the Azure Communications UI Library.
-
-### Call Transfer
-If you are interested in learning about Call transfer please check out our documentation on how that works here: LINK to come

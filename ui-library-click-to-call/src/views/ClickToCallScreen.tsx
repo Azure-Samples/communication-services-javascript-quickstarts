@@ -4,7 +4,7 @@
 import { CommunicationUserIdentifier, MicrosoftTeamsUserIdentifier } from '@azure/communication-common';
 import { CallAdapterLocator } from '@azure/communication-react';
 import { Stack, Text } from '@fluentui/react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { ClickToCallComponent } from '../components/ClickToCallComponent';
 import hero from '../hero.svg';
 
@@ -21,7 +21,7 @@ export const ClickToCallScreen = (props: ClickToCallPageProps): JSX.Element => {
     const { token, userId, callLocator, alternateCallerId } = props;
 
     const [userDisplayName, setUserDisplayName] = useState<string>();
-    const newWindowRef = React.useRef<Window | null>(null);
+    const newWindowRef = useRef<Window | null>(null);
     const [useVideo, setUseVideo] = useState<boolean>(false);
 
     // we also want to make this memoized version of the args for the new window.
