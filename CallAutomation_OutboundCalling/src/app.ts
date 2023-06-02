@@ -204,19 +204,25 @@ app.get('/call', async (req, res) => {
 
 // GET endpoint to download call audio
 app.get('/download', async (req, res) => {
-	try {
-		// Set the appropriate response headers for the file download
-		res.setHeader('Content-Disposition', 'attachment; filename="recording.wav"');
-		res.setHeader('Content-Type', 'audio/wav');
-		const recordingStream = await acsClient.getCallRecording().downloadStreaming(recordingLocation);
 
-			// Pipe the recording stream to the response object
-		recordingStream.pipe(res);
-	} catch (error) {
-		console.error("Error downloading recording. Ensure recording webhook is setup correctly.", error);
+	if(recordingLocation === null || recordingLocation === undefined) {
+		console.log("Failed to download, recordingLocation is invalid.")
+		res.redirect('/')
 	}
-
-	res.redirect('/');
+	else {
+		try {
+			// Set the appropriate response headers for the file download
+			res.setHeader('Content-Disposition', 'attachment; filename="recording.wav"');
+			res.setHeader('Content-Type', 'audio/wav');
+	
+			const recordingStream = await acsClient.getCallRecording().downloadStreaming(recordingLocation);
+	
+			// Pipe the recording stream to the response object
+			recordingStream.pipe(res);
+		} catch (error) {
+			console.error("Error downloading recording. Ensure recording webhook is setup correctly.", error);
+		}
+	}
 });
 
 // Start the server
