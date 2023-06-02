@@ -11,8 +11,7 @@ import {
     logoContainerStyles,
     collapseButtonStyles
 } from '../styles/ClickToCallComponent.styles';
-import React, { useEffect } from 'react';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export interface clickToCallComponentProps {
     /**

@@ -105,6 +105,15 @@ To get us started we will replace the provided `App.tsx` content with a main pag
 `src/App.tsx`
 
 ```typescript
+// imports needed
+import { CallAdapterLocator } from '@azure/communication-react';
+import './App.css';
+import { CommunicationIdentifier, CommunicationUserIdentifier } from '@azure/communication-common';
+import { Spinner, Stack, initializeIcons, registerIcons } from '@fluentui/react';
+import { CallAdd20Regular, Dismiss20Regular } from '@fluentui/react-icons';
+```
+
+```typescript
 type AppPages = "click-to-call" | "same-origin-call";
 
 registerIcons({
@@ -245,6 +254,11 @@ Each of these callbacks will control different behaviors for the calling experie
 Next we will set up the widget component:
 
 `ClickToCallComponent.tsx`
+```typescript
+// imports needed
+import { IconButton, PrimaryButton, Stack, TextField, useTheme, Checkbox, Icon } from '@fluentui/react';
+import React, { useEffect, useState } from 'react';
+```
 
 ```typescript
 /**
@@ -453,6 +467,22 @@ export const collapseButtonStyles: IButtonStyles = {
 
 These styles should be added to the widget as seen in the snippet above. If you added the code above as is these styles will just need importing into the `ClickToCallComponent.tsx` file.
 
+`ClickToCallComponent.tsx`
+```typescript
+...
+// add to other imports
+import {
+    clicktoCallSetupContainerStyles,
+    checkboxStyles,
+    startCallButtonStyles,
+    clickToCallContainerStyles,
+    callIconStyles,
+    logoContainerStyles,
+    collapseButtonStyles
+} from '../styles/ClickToCallComponent.styles';
+...
+```
+
 ### Adding The Widget To The App
 
 Now we will create a new folder `src/views` and add a new file for one of our pages `ClickToCallScreen.tsx`. This screen will act as our home page for the app where the user can start a new call.
@@ -477,7 +507,15 @@ These properties will be fed by the values that we set in `App.tsx`. We will use
 Next lets add the page content:
 
 `ClickToCallScreen.tsx`
-
+```typescript
+// imports needed
+import { CommunicationUserIdentifier, MicrosoftTeamsUserIdentifier } from '@azure/communication-common';
+import { Stack, Text } from '@fluentui/react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ClickToCallComponent } from '../components/ClickToCallComponent';
+import { CallAdapterLocator } from '@azure/communication-react';
+import hero from '../hero.svg';
+```
 ```typescript
 export const ClickToCallScreen = (props: ClickToCallPageProps): JSX.Element => {
   const { token, userId, callLocator, alternateCallerId } = props;
@@ -564,6 +602,12 @@ This page has some general information on it for what our calling experiences ca
 Once we have made this we will need to add the new view to the root of the app `App.tsx`:
 
 `App.tsx`
+```typescript
+// add this with the other imports
+...
+import { ClickToCallScreen } from './views/ClickToCallScreen';
+...
+```
 
 ```typescript
     ...
@@ -598,7 +642,18 @@ Now that we have a running application with our widget on the home page we will 
 To start we will create a new view in the `src/views` folder called `NewWindowCallScreen.tsx`. This new screen will be used by the `App.tsx` file to go into a new call with the arguments provided to it using our `CallComposite`. The `CallComposite` can be swapped with a stateful client and UI component experience if desired as well, but that will not be covered in this tutorial. See our [storybook documentation](https://azure.github.io/communication-ui-library/?path=/docs/quickstarts-statefulcallclient--page) for more information about the stateful client.
 
 `NewWindowCallScreen.tsx`
-
+```typescript
+// imports needed
+import { CommunicationUserIdentifier, AzureCommunicationTokenCredential } from '@azure/communication-common';
+import {
+    CallAdapter,
+    CallAdapterLocator,
+    CallComposite,
+    useAzureCommunicationCallAdapter
+} from '@azure/communication-react';
+import { Spinner, Stack } from '@fluentui/react';
+import React, { useMemo } from 'react';
+```
 ```typescript
 export const SameOriginCallScreen = (props: {
   adapterArgs: {
@@ -824,6 +879,12 @@ Once we have added these two things we can go back to the `App.tsx` file to make
 First thing we will want to do is update `App.tsx` to use that new utility function that we created above, we will want to use a `useMemo` hook for this so that it is fetched exactly once and not at every render. That is done like so:
 
 `App.tsx`
+```typescript
+// you will need to add these imports
+...
+import { AdapterArgs, getStartSessionFromURL } from './utils/AppUtils';
+...
+```
 
 ```typescript
 ...
@@ -881,6 +942,13 @@ Next we will want to add two more `useEffect` hooks to `App.tsx` these two hooks
 ...
 ```
 Finally once we have done that we will want to add the new screen that we made earlier to the template as well. We will also want to make sure that we do not show the Click to call screen if the `startSession` parameter is found, this will avoid a flash for the user.
+```typescript
+// add with other imports
+...
+import { SameOriginCallScreen } from './views/NewWindowCallScreen';
+...
+```
+
 ```typescript
 ...
   switch (page) {
@@ -976,6 +1044,19 @@ export interface clickToCallComponentProps {
 Now we will need to introduce some logic to use these arguments to make sure that we are starting a call appropriately. This will include adding state to create an `AzureCommunicationCallAdapter` inside the widget itself so it will look a lot like the logic in `NewWindowCallScreen.tsx` adding the adapter to the widget will look something like this:
 
 `ClickToCallComponent.tsx`
+```typescript
+// add this to the other imports
+...
+import { CommunicationUserIdentifier, AzureCommunicationTokenCredential } from '@azure/communication-common';
+import {
+    CallAdapter,
+    CallAdapterLocator,
+    CallComposite,
+    useAzureCommunicationCallAdapter,
+    AzureCommunicationCallAdapterArgs
+} from '@azure/communication-react';
+...
+```
 ```typescript
 ...
     const credential = useMemo(() => {
