@@ -143,7 +143,7 @@ app.post("/ongoingcall", async (req: any, res: any) => {
 	}
 });
 
-// POST endpoint to serve the webpage
+// POST endpoint to receive recording events
 app.post('/recording', async (req, res) => {
 	const event = req.body[0];
 	const eventData = event.data;
