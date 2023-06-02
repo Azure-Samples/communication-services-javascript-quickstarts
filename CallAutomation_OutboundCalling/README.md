@@ -47,13 +47,12 @@ Open the `.env` file to configure the following settings
 2. `ACS_RESOURCE_PHONE_NUMBER`: Phone number associated with the Azure Communication Service resource. For e.g. "+1425XXXAAAA"
 3. `TARGET_PHONE_NUMBER`: Target phone number to add in the call. For e.g. "+1425XXXAAAA"
 4. `CALLBACK_URI`: Base url of the app. (For local development replace the dev tunnel url)
-5. `MEDIA_CALLBACK_URI`: Url where audio file is served.
 
 ### Run app locally
 
 1. Open a new Powershell window, cd into the `CallAutomation_OutboundCalling` folder and run `npm run dev`
 2. Browser should pop up with the below page. If not navigate it to `http://localhost:8080/`
 3. To initiate the call, click on the `Place a call!` button or make a Http get request to https://<CALLBACK_URI>/call
-4. To downaload the call audio, click on the `Download Recording!` button or make a Http get request to https://<CALLBACK_URI>/download. Ensure the call has ended before attempting to download
+4. To download the call audio, click on the `Download Recording!` button or make a Http get request to https://<CALLBACK_URI>/download. Ensure the call has ended before attempting to download
 
 ![design](./data/Webpage.png)

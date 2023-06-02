@@ -13,6 +13,7 @@ app.use(express.static('webpage'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+const MEDIA_CALLBACK_URI = process.env.CALLBACK_URI + "audioprompt/"
 let callConnectionId: string;
 let recordingId: string;
 let callConnection: CallConnection;
@@ -62,7 +63,7 @@ async function startRecording() {
 async function playAudio(prompt: string) {
 	try {
 		const audioPrompt: FileSource[] = [{
-			url: process.env.MEDIA_CALLBACK_URI + prompt,
+			url: MEDIA_CALLBACK_URI + prompt,
 			kind: "fileSource",
 		}];
 
@@ -75,7 +76,7 @@ async function playAudio(prompt: string) {
 async function startToneRecognition() {
 	try {
 		const audioPrompt: FileSource = {
-			url: process.env.MEDIA_CALLBACK_URI + "MainMenu.wav",
+			url: MEDIA_CALLBACK_URI + "MainMenu.wav",
 			kind: "fileSource",
 		};
 
