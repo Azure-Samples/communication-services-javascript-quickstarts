@@ -47,6 +47,7 @@ This guide walks through simple call automation scenarios and endpoints.
 ## Two ways to test.
 1. Follow the guide and setup the project from scratch, follow test instructions.
 2. Run the sample bugbash-test project.
+    - run `npm install -g typescript`
     - from the sample/bugbash-test folder run `npm install`
     - update the hostingEndpoint and acsConnectionString variables
     - run `npm run start` and follow the test instructions in the guide.
