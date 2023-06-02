@@ -23,7 +23,7 @@ app.get( "/test", ( req, res ) => {
     res.sendStatus(200);
 } );
 
-//This will be used for callbacks, for example, here we are listening for a RecognizeCompleted event. we can add additional events here
+//This will be used for callbacks, for example, here we are listening for a RecognizeCompleted event. We can add additional events here
 app.post( "/test", ( req, res ) => {
     console.log( "test post endpoint" );
     const event = req.body[0];

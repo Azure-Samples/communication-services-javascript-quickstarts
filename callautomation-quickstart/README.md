@@ -15,16 +15,13 @@ This guide walks through simple call automation scenarios and endpoints.
 - An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
 - NodeJS. 
 - VScode. [Download VScode](https://code.visualstudio.com/).
-- Dev-tunnel. download from the following [Dev-tunnel download](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started?tabs=windows)
+- Dev-tunnel. download from the following [Dev-tunnel download](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started?tabs=windows).
 
-## Dev tunnels setup
-- run `devtunnel user login` and login with your msft account or `devtunnel user login -g` for github
-- run `devtunnel.exe host -p 5000 --allow-anonymous` to begin hosting. copy the url similar to `https://9ndqr7mn.usw2.devtunnels.ms:5000` that is returned
-
-## *For a persistent dev tunnel
-- run `devtunnel create --allow-anonymous` and note the id. Similar to 4bt7fzff.usw2
-- run `devtunnel port create -p 5000`
-- run `devtunnel host <id>` to begin hosting. copy the url similar to `https://9ndqr7mn.usw2.devtunnels.ms:5000` that is returned
+## Setup dev tunnel
+- Run `devtunnel user login` and login with your msft account or `devtunnel user login -g` for github.
+- Run `devtunnel create --allow-anonymous`.
+- Run `devtunnel port create -p 5000`.
+- Run `devtunnel host` to begin hosting. Copy the url similar to `https://9ndqr7mn.usw2.devtunnels.ms:5000` that is returned. This will be the hostingEndpoint variable.
 
 
 ## Actions to test (included in guide and sample file)
@@ -385,5 +382,5 @@ app.get( "/recognize", async ( req, res ) => {
 4. you can enter 1-3 digits, and hit pound. This server will now print the options you chose to the console. 
 
 
-
-# Apiview or swagger def 
+# Api view
+- https://apiview.dev/Assemblies/Review/504cb86240de44cab0ba7849ad5a8603
