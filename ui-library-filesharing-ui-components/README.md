@@ -8,6 +8,8 @@ products:
 ---
 # UI Library Sample - File Sharing using UI Components
 
+>This Quickstart for FileSharing is not to be confused with the Teams Interopability feature where a ACS user can receive [SharePoint files](https://learn.microsoft.com/microsoft-365/solutions/microsoft-365-limit-sharing?view=o365-worldwide) with proper file permissions shared by a Teams user. This feature is currently available in Public Preview, for more information please refer to [Supplemental Terms of Use for Microsoft Azure Previews.](https://azure.microsoft.com/support/legal/preview-supplemental-terms/)
+
 ## Prerequisites
 
 - An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F)  .
