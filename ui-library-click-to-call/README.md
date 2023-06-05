@@ -770,9 +770,17 @@ graph LR
   parent[Parent Window]
   
 
-  parent --> |2. Adapter args| child
   child -->|1. Args please| parent
   
+```
+
+```mermaid
+graph LR
+  child[Child Window]
+  parent[Parent Window]
+  
+
+  parent --> |2. Adapter args| child
 ```
 This flow illustrates that if the child window has spawned it needs to ask for the arguments. This has to do with React and that if the parent window just sends a message right after creation the call adapter arguments needed are lost when the application mounts. This is because in the new window the listener is not set yet until after a render pass completes. More on where these event handlers are made to come.
 
