@@ -140,7 +140,7 @@ function App() {
   /**
    * This decides where the call will be going. This supports many different calling modalities in the Call Composite.
    *
-   * - teams meeting locator: {meetingLike: 'url to join link for a meeting'}
+   * - teams meeting locator: {meetingLink: 'url to join link for a meeting'}
    * - Azure communications group call: {groupId: 'GUID that defines the call'}
    * - Azure Communications Rooms call: {roomId: 'guid that represents a rooms call'}
    * - teams adhoc, Azure communications 1:n, PSTN calls all take a participants locator: {participantIds: ['Array of participant id's to call']}
@@ -933,7 +933,7 @@ Following this we will want to add some state to make sure that we are tracking 
   const [useVideo, setUseVideo] = useState<boolean>(false);
 ```
 
-Then, after we have added that we will want to add a event listener like we did earlier to the `ClickToCallScreen.tsx` to the `App.tsx` listening for post messages. Like before we will put it in a `useEffect` hook, this time though we will leave the dependency array empty so that we only add this listener one time on the initial render.
+We now want to add an event listener to `App.tsx` to listen for post messages. Insert a `useEffect` hook with an empty dependency array so that we add the listener only once on the initial render.
 
 `App.tsx`
 ```typescript
