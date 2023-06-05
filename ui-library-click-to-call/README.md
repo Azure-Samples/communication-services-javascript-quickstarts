@@ -214,9 +214,9 @@ a test message.
 
 To get started, we are going to make a new component. This component is the widget that you will use to start your calling experience.
 
-We will be using our own widget setup for this tutorial but you can exapnd the functionality to do more here, for us we will have the widget perform the following actions:
+We will be using our own widget setup for this tutorial but you can expand the functionality to do more here. For us we will have the widget perform the following actions:
 - Display a custom logo, this can be replaced with another image or branding of your choosing. Feel free to download the image from the code if you would like to use our image.
-- Let the user decide if they want to have video on the call.
+- Let the user decide if they want to have video in the call.
 - Have the user consent to the call possible being recorded.
 
 First, we are going to make a new directory `src/components` and in this directory we are going to make a new file called `ClickToCallComponent.tsx`. For the
@@ -269,7 +269,7 @@ Each of these callbacks will control different behaviors for the calling experie
 
 Finally, we will add the body of the component.
 
-`ClickToCallComponent.tsx`
+`src/views/ClickToCallComponent.tsx`
 ```typescript
 /**
  * Widget for Click to Call
@@ -383,7 +383,7 @@ export const ClickToCallComponent = (
 
 Once you have your component you will need some styles to give it some looks. For this we will create a new folder `src/styles` here we will create a new file called `ClickToCallComponent.styles.ts` and we will add the following styles.
 
-`ClickToCallComponent.styles.ts`
+`src/styles/ClickToCallComponent.styles.ts`
 
 ```typescript
 // needed imports
@@ -616,7 +616,7 @@ export const ClickToCallScreen = (props: ClickToCallPageProps): JSX.Element => {
   );
 };
 ```
-This page has some general information on it for what our calling experiences can currently do. Also as we can see it is adding the widget component that we created earlier.
+This page has some general information on it for what our calling experiences can currently do. We can also see that it is adding the widget component that we created earlier.
 
 Once we have this we will need to add the new view to the root of the app `App.tsx` by updating our existing `'click-to-call'` case:
 
@@ -659,7 +659,7 @@ Now that we have a running application with our widget on the home page, we will
 
 To start we will create a new view in the `src/views` folder called `NewWindowCallScreen.tsx`. This new screen will be used by the `App.tsx` file to go into a new call with the arguments provided to it using our `CallComposite`. The `CallComposite` can be swapped with a stateful client and UI component experience if desired as well, but that will not be covered in this tutorial. See our [storybook documentation](https://azure.github.io/communication-ui-library/?path=/docs/quickstarts-statefulcallclient--page) for more information about the stateful client.
 
-`NewWindowCallScreen.tsx`
+`src/views/NewWindowCallScreen.tsx`
 ```typescript
 // imports needed
 import { CommunicationUserIdentifier, AzureCommunicationTokenCredential } from '@azure/communication-common';
@@ -712,7 +712,6 @@ export const SameOriginCallScreen = (props: {
     adapterArgs.alternateCallerId,
   ]);
 
-  console.log(args);
 
   const afterCreate = (adapter: CallAdapter): Promise<CallAdapter> => {
     adapter.on("callEnded", () => {
@@ -1050,7 +1049,7 @@ To start lets take a look at the props for the `ClickToCallComponent.tsx` props,
 `ClickToCallComponent.tsx`
 
 ```typescript
-export interface clickToCallComponentProps {
+export interface ClickToCallComponentProps {
     /**
      *  arguments for creating an AzureCommunicationCallAdapter for your Calling experience
      */
