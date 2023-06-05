@@ -214,7 +214,7 @@ a test message.
 
 To get started, we are going to make a new component. This component is the widget that you will use to start your calling experience.
 
-We will be using our own widget setup for this tutorial but you can exapnd the functionality to do more here, for us we will have the widget perform the following actions:
+We will be using our own widget setup for this tutorial but you can expand the functionality to do more here. For us we will have the widget perform the following actions:
 - Display a custom logo, this can be replaced with another image or branding of your choosing. Feel free to download the image from the code if you would like to use our image.
 - Let the user decide if they want to have video on the call.
 - Have the user consent to the call possible being recorded.
