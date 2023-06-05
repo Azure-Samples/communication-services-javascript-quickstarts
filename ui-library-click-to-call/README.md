@@ -5,8 +5,7 @@
 This project is aimed to teach developers on how to create a Click to Call experience using the Azure Communication UI Library.
 
 Depending on your needs, you might need to create an experience for your customers to be able to get a hold of you with minimal setup on their part.
-Click to call is a concept that is meant for allowing instant interaction with your support, or other customer facing teams. Whether that is reaching out to customer support, a quick call
-with your financial advisor. The goal of this tutorial is to help you make you one click away from your customers.
+Click to call is a concept that is meant for allowing instant interaction, whether that is reaching out to customer support, having a quick call with your financial advisor, or other customer facing teams. The goal of this tutorial is to help you make you one click away from your customers.
 
 If you want to just try it out follow the instructions below. If you are interested in information on how to build it into your application and how this sample is constructed continue to the tutorial section below.
 
@@ -57,7 +56,7 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 
 Following this tutorial will:
 
-- Allow you to control your customers Audio and video experience depending on your customer scenario
+- Allow you to control your customers audio and video experience depending on your customer scenario
 - Move your customers call into a new window so they can continue browsing while on the call
 
 
@@ -73,7 +72,7 @@ This tutorial will be broken down into 3 parts:
 If you are not creating a new application you can skip this step.
 
 To setup the react App, we will use the create-react-app template. This `create-react-app` command
-creates an easy to run Typescript application powered by React. This command will also install the
+creates an easy to run TypeScript application powered by React. This command will also install the
 Azure Communication Services packages that we need to run the sample as well.
 
 ```bash
@@ -93,7 +92,7 @@ Then you will need to update the dependency array in the `package.json` to inclu
 "@fluentui/react-icons": "~2.0.203",
 ```
 
-Once you have run these commands and made that update you will be in your new project ready to get started. For this tutorial we will be modifying the files in the
+Once you have run these commands, you will be in your new project ready to get started. For this tutorial, we will be modifying the files in the
 `src` directory.
 
 ### Initial App Setup
@@ -129,7 +128,7 @@ function App() {
   /**
    * Token for local user.
    */
-  const token = "Enter your Azure Communication Services token here";
+  const token = "<Enter your Azure Communication Services token here>";
 
   /**
    * User identifier for local user.
@@ -149,7 +148,7 @@ function App() {
    * You can call teams voice apps like a Call queue with the participants locator.
    */
   const locator: CallAdapterLocator = {
-    participantIds: ["<Enter a Participants Id here>"],
+    participantIds: ["<Enter Participant Id's here>"],
   };
 
   /**
@@ -208,24 +207,24 @@ npm install
 npm run start
 ```
 
-once the app is running you can see it on `http://localhost:3000` in your browser. You should see a little spinner saying: `getting credentials from server` as
+Once the app is running you can see it on `http://localhost:3000` in your browser. You should see a little spinner saying: `getting credentials from server` as
 a test message.
 
 ## Part 1 Creating Your Widget
 
-To get started we are going to make a new component. This component is the widget that you will use to start your calling experience.
+To get started, we are going to make a new component. This component is the widget that you will use to start your calling experience.
 
 We will be using our own widget setup for this tutorial but you can exapnd the functionality to do more here, for us we will have the widget perform the following actions:
 - Display a custom logo, this can be replaced with another image or branding of your choosing. Feel free to download the image from the code if you would like to use our image.
 - Let the user decide if they want to have video on the call.
 - Have the user consent to the call possible being recorded.
 
-First we are going to make a new directory `src/components` and in this directory we are going to make a new file called `ClickToCallComponent.tsx`. For the
+First, we are going to make a new directory `src/components` and in this directory we are going to make a new file called `ClickToCallComponent.tsx`. For the
 purpose of this tutorial we will give this component the following properties:
 
 `ClickToCallComponent.tsx`
 
-First we will set up the widget component with some imports:
+First, we will set up the widget component with some imports:
 
 `ClickToCallComponent.tsx`
 ```typescript
@@ -269,7 +268,7 @@ Each of these callbacks will control different behaviors for the calling experie
 - `onSetDisplayName` - We will use this callback to set the `displayName` of the participant when they are calling your support center.
 - `onSetUseVideo` - Finally, this callback will be used to control for our tutorial whether the user will have camera and screen sharing controls (more on that later).
 
-Finally we will add the body of the component.
+Finally, we will add the body of the component.
 
 `ClickToCallComponent.tsx`
 ```typescript
@@ -620,7 +619,7 @@ export const ClickToCallScreen = (props: ClickToCallPageProps): JSX.Element => {
 ```
 This page has some general information on it for what our calling experiences can currently do. Also as we can see it is adding the widget component that we created earlier.
 
-Once we have made this we will need to add the new view to the root of the app `App.tsx` by updating our existing `'click-to-call'` case:
+Once we have this we will need to add the new view to the root of the app `App.tsx` by updating our existing `'click-to-call'` case:
 
 `App.tsx`
 ```typescript
@@ -657,7 +656,7 @@ Yay! We have made the control surface for the widget! Next we will talk about wh
 
 ## Part 2 Creating a New Window Experience
 
-Now that we have a running application with our widget on the home page we will talk about starting the calling experience for your users with a new window. This scenario allows you to give your customer the ability to browse while still seeing your call in a new window. This can be useful in situations similar to when your users will use video and screensharing.
+Now that we have a running application with our widget on the home page, we will talk about starting the calling experience for your users with a new window. This scenario allows you to give your customer the ability to browse while still seeing your call in a new window. This can be useful in situations similar to when your users will use video and screensharing.
 
 To start we will create a new view in the `src/views` folder called `NewWindowCallScreen.tsx`. This new screen will be used by the `App.tsx` file to go into a new call with the arguments provided to it using our `CallComposite`. The `CallComposite` can be swapped with a stateful client and UI component experience if desired as well, but that will not be covered in this tutorial. See our [storybook documentation](https://azure.github.io/communication-ui-library/?path=/docs/quickstarts-statefulcallclient--page) for more information about the stateful client.
 
@@ -763,7 +762,7 @@ export const SameOriginCallScreen = (props: {
 };
 ```
 
-For our `CallComposite` we have some configuration to do for Click to Call. Depending on your use case we have a number of customizations that can change the user experience. This sample chooses to hide the local video tile, camera, and screen sharing controls if the user opts out of video for their call. We also in addition to these configurations on the `CallComposite` use the `afterCreate` function defined in the snippet we auto join the call. This will bypass the configuration screen and drop the user into the call with their mic live, as well will auto close the window when the call ends. Just remove the call to `adapter.join(true);` from the `afterCreate` function and the configuration screen will show as normal. Next we will talk about how to get this screen the information once we have our `CallComposite` configured.
+For our `CallComposite`, we have some configuration to do for Click to Call. Depending on your use case, we have a number of customizations that can change the user experience. This sample chooses to hide the local video tile, camera, and screen sharing controls if the user opts out of video for their call. We also in addition to these configurations on the `CallComposite` use the `afterCreate` function defined in the snippet we auto join the call. This will bypass the configuration screen and drop the user into the call with their mic live, as well will auto close the window when the call ends. Just remove the call to `adapter.join(true);` from the `afterCreate` function and the configuration screen will show as normal. Next we will talk about how to get this screen the information once we have our `CallComposite` configured.
 
 To do this, we will create some handlers to send post messages between the parent window and child window to signal that we want some information. See diagram:
 
@@ -807,7 +806,7 @@ Next we will create a handler that we pass to our widget that will create a new 
     
 ```
 
-What this handler does is start a new window position and place a new query arg in the window URL so that the main application knows that it is time to start a new call.
+This handler starts a new window position and place a new query arg in the window URL so that the main application knows that it is time to start a new call.
 
 Next we will add a `useEffect` hook that is creating a event handler listening for new post messages from the child window.
 
@@ -836,7 +835,7 @@ Next we will add a `useEffect` hook that is creating a event handler listening f
     
 ```
 
-This handler will listen for events from the child window, (**NOTE: make sure that if the origin of the message is not from your app then return**) if the child window asks for arguments we will send it the arguments needed to construct a `AzureCommunicationsCallAdapter`.
+This handler will listen for events from the child window. (**NOTE: make sure that if the origin of the message is not from your app then return**) If the child window asks for arguments, we will send it the arguments needed to construct a `AzureCommunicationsCallAdapter`.
 
 Finally on this screen we will add the `startNewWindow` handler to the widget so that it knows to create the new window.
 
@@ -1132,7 +1131,8 @@ Lets also add a `afterCreate` function like before to do a few things with our a
     const afterCreate = useCallback(async (adapter: CallAdapter): Promise<CallAdapter> => {
         adapter.on('callEnded',() => {
             setDisplayName(undefined);
-            setWidgetState('new')
+            setWidgetState('new');
+            adapter.dispose();
         });
         return adapter;
     },[])
