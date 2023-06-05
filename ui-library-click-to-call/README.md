@@ -384,7 +384,7 @@ export const ClickToCallComponent = (
 
 Once you have your component you will need some styles to give it some looks. For this we will create a new folder `src/styles` here we will create a new file called `ClickToCallComponent.styles.ts` and we will add the following styles.
 
-`ClickToCallComponent.styles.ts`
+`src/styles/ClickToCallComponent.styles.ts`
 
 ```typescript
 // needed imports
