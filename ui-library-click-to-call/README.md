@@ -713,7 +713,6 @@ export const SameOriginCallScreen = (props: {
     adapterArgs.alternateCallerId,
   ]);
 
-  console.log(args);
 
   const afterCreate = (adapter: CallAdapter): Promise<CallAdapter> => {
     adapter.on("callEnded", () => {
