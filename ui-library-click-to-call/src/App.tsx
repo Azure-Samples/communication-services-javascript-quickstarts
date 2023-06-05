@@ -22,7 +22,7 @@ function App() {
   /**
    * Token for local user.
    */
-  const token = 'Enter your Azure Communication Services token here';
+  const token = '<Enter your Azure Communication Services token here>';
   
   /**
    * User identifier for local user.
