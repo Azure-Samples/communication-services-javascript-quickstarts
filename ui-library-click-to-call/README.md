@@ -867,7 +867,7 @@ Finally on this screen we will add the `startNewWindow` handler to the widget so
     
 ```
 
-Next we will need to update the `App.tsx` file to listen for and ask for the messages from what would be the parent window. First to start, you might recall that we added a new query parameter to the URL of the application `newSession=true`. To use this and have our app look for that in the URL we will need to create a utility function to parse out that parameter so our application will behave differently when it is received.
+Next we will need to make sure that our application can listen for and ask for the messages from what would be the parent window. First to start, you might recall that we added a new query parameter to the URL of the application `newSession=true`. To use this and have our app look for that in the URL we will need to create a utility function to parse out that parameter so our application will behave differently when it is received.
 
 To do that lets add a new folder `src/utils` and in this folder we will add the file `AppUtils.ts`. In this file we will put the following function:
 
@@ -908,7 +908,7 @@ First thing we will want to do is update `App.tsx` to use that new utility funct
 `App.tsx`
 ```typescript
 // you will need to add these imports
-
+import { useMemo } from 'react';
 import { AdapterArgs, getStartSessionFromURL } from './utils/AppUtils';
 
 ```
@@ -936,6 +936,10 @@ Following this we will want to add some state to make sure that we are tracking 
 Then, after we have added that we will want to add a event listener like we did earlier to the `ClickToCallScreen.tsx` to the `App.tsx` listening for post messages. Like before we will put it in a `useEffect` hook, this time though we will leave the dependency array empty so that we only add this listener one time on the initial render.
 
 `App.tsx`
+```typescript
+import { CallAdapterLocator } from "@azure/communication-react";
+import { CommunicationIdentifier } from '@azure/communication-common';
+```
 ```typescript
 
   useEffect(() => {
