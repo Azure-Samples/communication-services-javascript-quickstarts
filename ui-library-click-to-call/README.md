@@ -216,7 +216,7 @@ To get started, we are going to make a new component. This component is the widg
 
 We will be using our own widget setup for this tutorial but you can expand the functionality to do more here. For us we will have the widget perform the following actions:
 - Display a custom logo, this can be replaced with another image or branding of your choosing. Feel free to download the image from the code if you would like to use our image.
-- Let the user decide if they want to have video on the call.
+- Let the user decide if they want to have video in the call.
 - Have the user consent to the call possible being recorded.
 
 First, we are going to make a new directory `src/components` and in this directory we are going to make a new file called `ClickToCallComponent.tsx`. For the
