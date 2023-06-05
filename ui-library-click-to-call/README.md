@@ -270,7 +270,7 @@ Each of these callbacks will control different behaviors for the calling experie
 
 Finally, we will add the body of the component.
 
-`ClickToCallComponent.tsx`
+`src/views/ClickToCallComponent.tsx`
 ```typescript
 /**
  * Widget for Click to Call
