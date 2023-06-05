@@ -617,7 +617,7 @@ export const ClickToCallScreen = (props: ClickToCallPageProps): JSX.Element => {
   );
 };
 ```
-This page has some general information on it for what our calling experiences can currently do. Also as we can see it is adding the widget component that we created earlier.
+This page has some general information on it for what our calling experiences can currently do. We can also see that it is adding the widget component that we created earlier.
 
 Once we have this we will need to add the new view to the root of the app `App.tsx` by updating our existing `'click-to-call'` case:
 
