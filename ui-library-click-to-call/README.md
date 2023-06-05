@@ -239,8 +239,7 @@ Now we will introduce a interface contianing the props that the component will u
 ```typescript
 export interface clickToCallComponentProps {
   /**
-   * if provided, will be used to create a new window for call experience. if not provided
-   * will use the current window.
+   * Handler to start a new call.
    */
   onRenderStartCall: () => void;
   /**
