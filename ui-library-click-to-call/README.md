@@ -1051,7 +1051,7 @@ To start lets take a look at the props for the `ClickToCallComponent.tsx` props,
 `ClickToCallComponent.tsx`
 
 ```typescript
-export interface clickToCallComponentProps {
+export interface ClickToCallComponentProps {
     /**
      *  arguments for creating an AzureCommunicationCallAdapter for your Calling experience
      */
