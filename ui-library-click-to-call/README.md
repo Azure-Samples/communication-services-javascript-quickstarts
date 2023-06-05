@@ -660,7 +660,7 @@ Now that we have a running application with our widget on the home page, we will
 
 To start we will create a new view in the `src/views` folder called `NewWindowCallScreen.tsx`. This new screen will be used by the `App.tsx` file to go into a new call with the arguments provided to it using our `CallComposite`. The `CallComposite` can be swapped with a stateful client and UI component experience if desired as well, but that will not be covered in this tutorial. See our [storybook documentation](https://azure.github.io/communication-ui-library/?path=/docs/quickstarts-statefulcallclient--page) for more information about the stateful client.
 
-`NewWindowCallScreen.tsx`
+`src/views/NewWindowCallScreen.tsx`
 ```typescript
 // imports needed
 import { CommunicationUserIdentifier, AzureCommunicationTokenCredential } from '@azure/communication-common';
