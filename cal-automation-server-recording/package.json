@@ -20,7 +20,7 @@
     "typescript": "^5.0.3"
   },
   "dependencies": {
-    "@azure/communication-call-automation": "^1.0.0-alpha.20230315.3",
+    "@azure/communication-call-automation": "^1.0.0-alpha.20230526.4",
     "@azure/communication-common": "^2.2.0",
     "@azure/communication-identity": "^1.2.0",
     "@azure/eventgrid": "^4.4.0",

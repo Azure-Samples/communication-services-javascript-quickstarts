@@ -3,11 +3,9 @@ module.exports = function (app: any) {
   var controller = require("../controllers/callRecordingController");
   app.route("/").get(controller.startUp);
 
+  app.route("/outboundCall").get(controller.outboundCall);
+  
   app.route("/startRecording").get(controller.startRecording);
-
-  app
-    .route("/startRecordingWithOptions")
-    .get(controller.startRecordingWithOptions);
 
   app.route("/pauseRecording").get(controller.pauseRecording);
 
@@ -17,5 +15,9 @@ module.exports = function (app: any) {
 
   app.route("/getRecordingState").get(controller.getRecordingState);
 
-  app.route("/getRecordingFile").post(controller.getRecordingFile);
+  app.route("/recordingFileStatus").post(controller.recordingFileStatus);
+
+  app.route("/downloadRecording").get(controller.downloadRecording);
+
+  app.route("/deleteRecording").delete(controller.deleteRecording);
 };
