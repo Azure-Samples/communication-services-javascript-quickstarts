@@ -13,6 +13,8 @@ namespace Contoso
 {
     public static class ListRecordings
     {
+        static BlobStorage storageClient;
+
         [FunctionName("listRecordings")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
@@ -24,10 +26,14 @@ namespace Contoso
                 return new BadRequestObjectResult("`serverCallId` not set");
             }
 
-            var storageClient = new BlobStorage(log, Settings.GetRecordingStoreConnectionString(), Settings.GetRecordingStoreContainerName());
+            if (ListRecordings.storageClient == null)
+            {
+                ListRecordings.storageClient = new BlobStorage(log, Settings.GetRecordingStoreConnectionString(), Settings.GetRecordingStoreContainerName());
+            }
+
             var response = new ListRecordingsResponse
             {
-                Blobs = storageClient.GetBlobNames($"call_{serverCallId}")
+                Blobs = ListRecordings.storageClient.GetBlobDataList($"call_{serverCallId}")
             };
             return new OkObjectResult(JsonConvert.SerializeObject(response));
         }
@@ -36,6 +42,6 @@ namespace Contoso
     class ListRecordingsResponse
     {
         [JsonProperty("blobs")]
-        public string[] Blobs { get; set; }
+        public BlobData[] Blobs { get; set; }
     }
 }

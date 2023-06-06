@@ -21,6 +21,11 @@ export interface StopRecordingRequest {
     recordingId: string;
 }
 
+export interface ServerBlobData {
+    name: string;
+    url: string;
+}
+
 export const stopRecording = async (req: StopRecordingRequest): Promise<void> => {
     await fetch('/api/stopRecording', {
         method: 'POST',
@@ -34,7 +39,7 @@ export interface ListRecordingsRequest {
 }
 
 export interface ListRecordingsResponse {
-    blobs: string[];
+    blobs: ServerBlobData[];
 }
 
 export const listRecordings = async (req: ListRecordingsRequest): Promise<ListRecordingsResponse> => {

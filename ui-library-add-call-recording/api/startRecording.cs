@@ -7,7 +7,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Azure.Communication.CallingServer;
+using Azure.Communication.CallAutomation;
 using Azure;
 
 namespace Contoso
@@ -39,25 +39,25 @@ namespace Contoso
                 return new BadRequestObjectResult("`serverCallId` not set");
             }
 
-            var callingServerClient = new CallingServerClient(Settings.GetACSConnectionString());
-            var serverCall = callingServerClient.InitializeServerCall(request.ServerCallId);
-
-            string recordingId = "";
             try
             {
-                // We don't need status updates about an ongoing call, so we pass in a dummy callback URI.
-                var startRecordingResult = await serverCall.StartRecordingAsync(new Uri("http://dummy.uri")).ConfigureAwait(false);
-                recordingId = startRecordingResult.Value.RecordingId;
+                var callAutomationClient = new CallAutomationClient(Settings.GetACSConnectionString());
+                StartRecordingOptions recordingOptions = new StartRecordingOptions(new ServerCallLocator(request.ServerCallId))
+                {
+                    RecordingContent = RecordingContent.AudioVideo,
+                    RecordingChannel = RecordingChannel.Mixed,
+                    RecordingFormat = RecordingFormat.Mp4
+                };
+                var startRecordingResponse = await callAutomationClient.GetCallRecording().StartRecordingAsync(recordingOptions).ConfigureAwait(false);
+                var recordingId = startRecordingResponse.Value.RecordingId;
+                log.LogInformation($"Started recording for {request.ServerCallId}: {recordingId}");
+                return new OkObjectResult(JsonConvert.SerializeObject(new StartRecordingResponse { RecordingId = recordingId }));
             }
             catch (RequestFailedException e)
             {
                 log.LogWarning($"Failed to start recording for {request.ServerCallId}: {e}");
                 return new StatusCodeResult(e.Status);
             }
-
-            log.LogInformation($"Started recording for {request.ServerCallId}: {recordingId}");
-
-            return new OkObjectResult(JsonConvert.SerializeObject(new StartRecordingResponse { RecordingId = recordingId }));
         }
     }
 

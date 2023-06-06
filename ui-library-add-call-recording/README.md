@@ -3,11 +3,8 @@
 This is a complete sample showcasing integration of [call recording][call-recording-quickstart] ability
 into an [Azure Communication Services][docs-root] powered [React] application.
 
-For a step-by-step guide to building this sample yourself, see the associated tutorial at MSDN.
-
-    TODO: Link to tutorial once available.
-
 This sample includes:
+
 * A React frontend built using the UI composites provided by the [Azure Communication Services UI library][docs-ui-library].
 * Backend API for call recording integration built using [C# class library Azure Functions][dotnet-azure-functions].
 
@@ -16,10 +13,6 @@ This sample includes:
 [docs-ui-library]: https://azure.github.io/communication-ui-library/
 [dotnet-azure-functions]: https://docs.microsoft.com/en-us/azure/azure-functions/functions-dotnet-class-library
 [React]: https://reactjs.org/
-
-## Deploying this sample to Azure
-
-    TODO: Add an ARM template || add instructions.
 
 ## Code organization
 
@@ -36,9 +29,7 @@ This sample includes:
 
 Aditionally, [package.json](./package.json) provides some helper scripts to aid local development, using the developer tooling for [Azure Statid Web Apps](https://docs.microsoft.com/en-us/azure/static-web-apps/).
 
-
 ## Local development
-
 
 ### Prerequisites - Azure Resources
 
@@ -51,8 +42,9 @@ You need a few Azure resources before running this sample locally.
   * Needed to transfer the finished recordings to permanent storage. [Create a Blob Storage Container](https://docs.microsoft.com/en-us/azure/storage/blobs/blob-containers-cli) for this purpose.
 
 Finally, you need to create an EventGrid subscription to be notified when recordings become available for download.
-  * Add a subscription for the [Microsoft.Communication.RecordingFileStatusUpdated event](https://docs.microsoft.com/en-us/azure/event-grid/communication-services-voice-video-events) in the Azure Communication Services resource you created.
-    * For local development, you will use a webhook handler, setting the URL to a publicly available endpoint for the Azure Functions you will run below. This requires the endpoint from your local development machine to be publicly exposed. There are a many ways to do this, e.g. using [ngrok](https://ngrok.com/). [GitHub Codespaces](https://github.com/features/codespaces) natively support exposing local ports publicly.
+
+* Add a subscription for the [Microsoft.Communication.RecordingFileStatusUpdated event](https://docs.microsoft.com/en-us/azure/event-grid/communication-services-voice-video-events) in the Azure Communication Services resource you created.
+  * For local development, you will use a webhook handler, setting the URL to a publicly available endpoint for the Azure Functions you will run below (e.g. `https://<url>/api/onRecordingFileStatusUpdated`). This requires the endpoint from your local development machine to be publicly exposed. There are a many ways to do this, e.g. using [ngrok](https://ngrok.com/). [GitHub Codespaces](https://github.com/features/codespaces) natively support exposing local ports publicly.
 
 ### Prerequisites -- Configuration
 
@@ -71,26 +63,33 @@ This sample uses the [local development server for Azure Static Web Apps](https:
 
 Install the local development server by running
 
-```
-npm install -g @azure/static-web-apps-cli
+```sh
+npm install -g azure-functions-core-tools
 ```
 
 Install NPM dependencies
 
-- Install dependencies of Azure Static Web Apps
-  `npm install`
-- Install dependencies of front-end application
-  `cd app && npm install`
+* Install dependencies of Azure Static Web Apps
+
+  ```sh
+  npm install
+  ```
+
+* Install dependencies of front-end application
+
+  ```sh
+  cd app && npm install
+  ```
 
 ### Run (or jog, if that's your style)
 
 The setup allows you to debug each service separately, but requires some orchestration. You'll need three terminals:
 
-- Start the azure functions backend:
+* Start the azure functions backend:
   `cd api && func start`
-- Start the static app server:
+* Start the static app server:
   `cd app && npm start`
-- Start the Static Web Apps proxy (this assumes that default ports were used to run the servers in the previous steps):
+* Start the Static Web Apps proxy (this assumes that default ports were used to run the servers in the previous steps):
   `npm run start:dev`
 
 In either case, navigate to your app at `localhost:4280`.
