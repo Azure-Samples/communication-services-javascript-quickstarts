@@ -194,7 +194,6 @@ app.get('/', (req, res) => {
 // GET endpoint to place phone call
 app.get('/outboundCall', async (req, res) => {
 	callee = {
-		rawId: process.env.TARGET_PHONE_NUMBER || "",
 		phoneNumber: process.env.TARGET_PHONE_NUMBER || "",
 	};
 
