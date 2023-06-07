@@ -158,8 +158,8 @@ app.post('/api/recordingFileStatus', async (req, res) => {
 	else if(event.eventType === "Microsoft.Communication.RecordingFileStatusUpdated") {
 		console.log("Received RecordingFileStatusUpdated event");
 		recordingLocation = eventData.recordingStorageInfo.recordingChunks[0].contentLocation
+		res.sendStatus(200);
 	}
-	res.sendStatus(200);
 });
 
 // GET endpoint to serve the audio file
