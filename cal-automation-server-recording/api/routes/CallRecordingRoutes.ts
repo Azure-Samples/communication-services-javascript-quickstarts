@@ -1,9 +1,11 @@
 "use strict";
 module.exports = function (app: any) {
-  var controller = require("../controllers/callRecordingController");
+  var controller = require("../controllers/CallRecordingController");
   app.route("/").get(controller.startUp);
 
   app.route("/outboundCall").get(controller.outboundCall);
+
+  app.route("/api/callbacks").post(controller.callbacks);
   
   app.route("/startRecording").get(controller.startRecording);
 
