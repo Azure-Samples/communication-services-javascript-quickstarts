@@ -6,6 +6,12 @@ const clientConfig = require("./clientConfig.json");
 const axios = require('axios');
 const bodyParser = require('body-parser');
 
+const modeFlagIndex = process.argv.indexOf('--mode');
+const mode = process.argv[modeFlagIndex + 1];
+if (!mode) {
+    throw new Error(`No mode found. Must specify '--mode development' or '--mode production'`);
+}
+
 if (!config || !config.connectionString || config.connectionString.indexOf('endpoint=') === -1) {
     throw new Error("Update `./serverConfig.json` with connection string");
 }
@@ -41,8 +47,8 @@ function generateGuid() {
 }
 
 module.exports = {
-    devtool: 'inline-source-map',
-    mode: 'development',
+    devtool: mode === 'development' ? 'inline-source-map' : undefined,
+    mode: mode,
     entry: "./src/index.js",
     module: {
         rules: [
