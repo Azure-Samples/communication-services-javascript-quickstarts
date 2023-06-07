@@ -145,7 +145,7 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 });
 
 // POST endpoint to receive recording events
-app.post('/recording', async (req, res) => {
+app.post('/api/recordingFileStatus', async (req, res) => {
 	const event = req.body[0];
 	const eventData = event.data;
 
@@ -192,7 +192,7 @@ app.get('/', (req, res) => {
 });
 
 // GET endpoint to place phone call
-app.get('/call', async (req, res) => {
+app.get('/outboundCall', async (req, res) => {
 	callee = {
 		rawId: process.env.TARGET_PHONE_NUMBER || "",
 		phoneNumber: process.env.TARGET_PHONE_NUMBER || "",
