@@ -99,7 +99,6 @@ async function hangUpCall() {
 
 // POST endpoint to handle ongoing call events
 app.post("/api/callbacks", async (req: any, res: any) => {
-	res.sendStatus(200);
 	const event = req.body[0];
 	const eventData = event.data;
 
@@ -142,6 +141,8 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 		console.log("Received Unexpected event: " + eventType + ". Terminating Call.");
 		hangUpCall();
 	}
+
+	res.sendStatus(200);
 });
 
 // POST endpoint to receive recording events
