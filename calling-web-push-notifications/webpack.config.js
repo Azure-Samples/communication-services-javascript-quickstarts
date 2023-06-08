@@ -2,8 +2,15 @@
 const CommunicationIdentityClient = require("@azure/communication-identity").CommunicationIdentityClient;
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const config = require("./serverConfig.json");
+const clientConfig = require("./clientConfig.json");
 const axios = require('axios');
 const bodyParser = require('body-parser');
+
+const modeFlagIndex = process.argv.indexOf('--mode');
+const mode = process.argv[modeFlagIndex + 1];
+if (!mode) {
+    throw new Error(`No mode found. Must specify '--mode development' or '--mode production'`);
+}
 
 if (!config || !config.connectionString || config.connectionString.indexOf('endpoint=') === -1) {
     throw new Error("Update `./serverConfig.json` with connection string");
@@ -24,7 +31,8 @@ const registerCommunicationUserForOneSignal = async (communicationUserToken) => 
         },
         data: JSON.stringify({
             communicationUserId: communicationUserToken.user.communicationUserId,
-            oneSignalRegistrationToken
+            oneSignalRegistrationToken,
+            oneSignalAppId: clientConfig.oneSignalAppId
         })
     }).then((response) => { return response.data });
     oneSignalRegistrationTokenToCommunicationUserTokenMap.set(oneSignalRegistrationToken, communicationUserToken);
@@ -39,8 +47,8 @@ function generateGuid() {
 }
 
 module.exports = {
-    devtool: 'inline-source-map',
-    mode: 'development',
+    devtool: mode === 'development' ? 'inline-source-map' : undefined,
+    mode: mode,
     entry: "./src/index.js",
     module: {
         rules: [

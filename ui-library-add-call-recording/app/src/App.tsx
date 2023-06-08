@@ -15,23 +15,22 @@ import { recordingButtonPropsCallback } from './RecordingButton';
 import { mergeStyles, Stack } from '@fluentui/react';
 import { RecordingList } from './RecordingList';
 
+const displayName = 'CallRecordingDemoUser';
+const userId = ACS_USER_ID;
+const token = ACS_TOKEN;
+const groupId = v1();
 
 initializeIcons();
 
 function App(): JSX.Element {
   const [callAdapter, setCallAdapter] = useState<CallAdapter>();
 
-  const userId = ACS_USER_ID;
   if (!userId) {
     throw new Error('No userId set');
   }
-  const token = ACS_TOKEN;
   if (!token) {
     throw new Error('No token set');
   }
-
-  const displayName = 'CallRecordingDemoUser';
-  const groupId = v1();
 
   // We can't even initialize the adapter without a well-formed token.
   const credential = useMemo(() => {
@@ -41,17 +40,17 @@ function App(): JSX.Element {
       console.error('Failed to construct token credential');
       return undefined;
     }
-  }, [token]);
+  }, []);
 
   const [serverCallId, setServerCallId] = useState('');
   const [recordingId, setRecordingId] = useState('');
 
   useEffect(() => {
     const createAdapter = async (): Promise<void> => {
-      const callClient = await createStatefulCallClient({
+      const callClient = createStatefulCallClient({
         userId: fromFlatCommunicationIdentifier(userId) as CommunicationUserIdentifier,
       })
-      const callAgent = await callClient.createCallAgent(new AzureCommunicationTokenCredential(token))
+      const callAgent = await callClient.createCallAgent(new AzureCommunicationTokenCredential(token), { displayName: displayName });
       const newAdapter = await createAzureCommunicationCallAdapterFromClient(callClient, callAgent, { groupId });
       setCallAdapter(newAdapter);
       newAdapter.onStateChange(async (state) => {

@@ -1,35 +1,50 @@
-const { getOneSignalRegistrationToken } = require('../Shared/OneSignalRegistrationTokens.js');
+const { getOneSignalRegistrationInfo } = require('../Shared/OneSignalRegistrationTokens.js');
+
+// Your OneSignal app info
+const app1_oneSignalAppId = '<Your OneSignal app Id>';
+const app1_oneSignalRestApiKey = 'Basic <Your OneSignal REST API Key>';
+const app1_url = '<Your website URL origin>'
 
 module.exports = async function (context, eventGridEvent) {
     try {
-        const communicationUserId = eventGridEvent.data.to.rawId;
-        const calleesOneSignalRegistrationToken = getOneSignalRegistrationToken(communicationUserId);
-        context.log.info('Attempting to signal user ', communicationUserId, 'with registration token', calleesOneSignalRegistrationToken);
-        if (!!calleesOneSignalRegistrationToken) {
-            const response = await fetch('https://onesignal.com/api/v1/notifications', {
+        const calleesOneSignalRegistrationInfo = getOneSignalRegistrationInfo(eventGridEvent.data.to.rawId);
+        if (calleesOneSignalRegistrationInfo) {
+            context.log('Attempting to signal user: ', eventGridEvent.data.to.rawId, ', for OneSignal appId: ', calleesOneSignalRegistrationInfo.oneSignalAppId, ', with registration token: ', calleesOneSignalRegistrationInfo.oneSignalRegistrationToken);
+            let oneSignalAppId = '';
+            let oneSignalRestApiKey = '';
+            let url = ''; 
+            switch(calleesOneSignalRegistrationInfo.oneSignalAppId) {
+                case app1_oneSignalAppId: {
+                    oneSignalAppId = app1_oneSignalAppId;
+                    oneSignalRestApiKey = app1_oneSignalRestApiKey;
+                    url = app1_url; 
+                    break;
+                }
+            }
+            
+            fetch('https://onesignal.com/api/v1/notifications', {
                 method: 'POST',
                 headers: {
-                    'Authorization': 'Basic <Your OneSignal REST API Key>',
+                    'Authorization': oneSignalRestApiKey ,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    "app_id": "<Your OneSignal app Id>",
+                    "app_id": oneSignalAppId,
                     "contents": {
                         "en": "Incoming call"
                     },
                     "data": {
                         "incomingCallContext": (JSON.parse(Buffer.from(eventGridEvent.data.incomingCallContext.split('.')[1], 'base64').toString())).cc
                     },
-                    "include_external_user_ids": [calleesOneSignalRegistrationToken],
-                    "url": "<Your website URL origin>"
+                    "include_external_user_ids": [calleesOneSignalRegistrationInfo.oneSignalRegistrationToken],
+                    "url": url
                 })
+            }).then(async (response) => {
+                context.log('Response from OneSignal Create Notification Rest Service: ', await response.json());
             });
-            context.log.info(`Response from OneSignal Create Notification Request: `, await response.json());
-        } else {
-            context.log.warn(`OneSignalRegistrationToken not found for communicationUserId: ${communicationUserId}`);
         }
     } catch(e) {
-        context.log.error(e);
+        context.error(e);
         throw e;
     }
 };

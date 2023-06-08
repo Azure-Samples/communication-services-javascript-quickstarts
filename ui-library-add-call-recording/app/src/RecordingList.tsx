@@ -1,6 +1,6 @@
-import { mergeStyles, Stack } from "@fluentui/react";
+import { mergeStyles, Link, Stack, useTheme } from "@fluentui/react";
 import { useEffect, useState } from "react";
-import { listRecordings } from "./Api";
+import { listRecordings, ServerBlobData } from "./Api";
 
 export interface RecordingListProps {
     serverCallId?: string;
@@ -8,7 +8,7 @@ export interface RecordingListProps {
 
 export function RecordingList(props: RecordingListProps): JSX.Element {
     const { serverCallId } = props;
-    const [blobs, setBlobs] = useState<string[]>([]);
+    const [blobs, setBlobs] = useState<ServerBlobData[]>([]);
 
     useEffect(() => {
         const handle = setInterval(async () => {
@@ -26,18 +26,19 @@ export function RecordingList(props: RecordingListProps): JSX.Element {
         }
     }, [serverCallId, blobs, setBlobs]);
 
+    const theme = useTheme();
     return (<Stack className={mergeStyles({
-        background: '#252423',
-        color: '#D2D2D2',
+        background: theme.palette.neutralDark,
+        color: theme.palette.white,
         padding: '1rem',
         // The recording names tend to be overly long.
         wordBreak: 'break-word'
     })}>
-        {blobs.length === 0 && <h3>No recordings yet!</h3>}
+        {blobs.length === 0 && <h3>No recordings in this call yet!</h3>}
         {blobs.length > 0 && (<>
             <h3>Recordings:</h3>
             <ul>
-                {blobs.map((blob) => <li>{blob}</li>)}
+                {blobs.map((blob) => <li><Link href={blob.url} target="_blank">{blob.name}</Link></li>)}
             </ul>
         </>)
         }

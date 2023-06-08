@@ -5,7 +5,10 @@ import {
   Role,
   useAzureCommunicationCallAdapter
 } from '@azure/communication-react';
+import { initializeIcons } from '@fluentui/react';
 import React, { useMemo } from 'react';
+
+initializeIcons();
 
 /**
  * Authentication information needed for your client application to use

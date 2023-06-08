@@ -7,7 +7,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Azure.Communication.CallingServer;
+using Azure.Communication.CallAutomation;
 using Azure;
 
 namespace Contoso
@@ -43,11 +43,11 @@ namespace Contoso
                 return new BadRequestObjectResult("`recordingId` not set");
             }
 
-            var callingServerClient = new CallingServerClient(Settings.GetACSConnectionString());
-            var serverCall = callingServerClient.InitializeServerCall(request.ServerCallId);
             try
             {
-                await serverCall.StopRecordingAsync(request.RecordingId).ConfigureAwait(false);
+                var callAutomationClient = new CallAutomationClient(Settings.GetACSConnectionString());
+                var stopRecording = await callAutomationClient.GetCallRecording().StopRecordingAsync(request.RecordingId).ConfigureAwait(false);
+                log.LogInformation($"StopRecordingAsync response -- > {stopRecording}");
             }
             catch (RequestFailedException e)
             {
