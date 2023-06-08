@@ -1,6 +1,6 @@
 "use strict";
 module.exports = function (app: any) {
-  var controller = require("../controllers/CallRecordingController");
+  var controller = require("../controllers/RecordingsController");
   app.route("/").get(controller.startUp);
 
   app.route("/outboundCall").get(controller.outboundCall);
@@ -13,7 +13,7 @@ module.exports = function (app: any) {
 
   app.route("/resumeRecording").get(controller.resumeRecording);
 
-  app.route("/stopRecording").get(controller.stopRecording);
+  app.route("/stopRecording").delete(controller.stopRecording);
 
   app.route("/getRecordingState").get(controller.getRecordingState);
 

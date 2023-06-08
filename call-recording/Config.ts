@@ -3,11 +3,7 @@ var config = module.exports = { ConnectionString: '', BlobStorageConnectionStrin
 config = { 'ConnectionString': '', 'BlobStorageConnectionString': '', 'ContainerName': '', 'CallbackUri': '', 'StorageAccountName': '', 'StorageAccountKey': '','ACSAcquiredPhoneNumber':'','TargetPhoneNumber':''};
 
 config.ConnectionString = '';
-config.BlobStorageConnectionString = '';
-config.ContainerName = '';
 config.CallbackUri = '';
-config.StorageAccountName = '';
-config.StorageAccountKey = '';
 config.ACSAcquiredPhoneNumber='';
 config.TargetPhoneNumber='';
 

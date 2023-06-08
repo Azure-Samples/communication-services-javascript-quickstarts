@@ -9,8 +9,7 @@
     },
     "files": [
         "Logger.ts",
-        "BlobStorageHelper.ts", 
-        "api/controllers/CallRecordingController.ts",
+        "api/controllers/RecordingsController.ts",
         "api/routes/CallRecordingRoutes.ts", 
         "Server.ts", 
         "Config.ts",
