@@ -46,23 +46,23 @@ A separate branch with end to end implementation is [available](https://github.c
 ## Locally running the sample app
 
 1. Go to call-recording folder and open terminal window in Visual Studio code
-2. Run command `tsc -w` in the terminal. After all the .ts files are converted to .js files, close the build using command `ctrl + c`
+2. Run command `tsc -w` in the terminal. After all the .ts files are converted to .js files and files can be found under dist folder generated, close the build using command `ctrl + c`
 3. Run command `npm run start` in the terminal
 4. Use postman or any debugging tool and open url -http://localhost:{port}/
 
 # Step by step guid for testing recording APIs via postman.
 
-Once App is running local,
-1. Step 1. Start a call invoke OutboundCall using postman. 
-	- Send HttpGet request with url -{CallbackUri}/outboundCall.
+Once App is running locally,
+1. Import the postman collection with RecordingAPIs.postman_collection.json file. For details, see [Importing and exporting data](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/)
+2. Replace imported collection Request urls with, your CallbackUri.
+3. Start a call invoke outboundCall. 
 	- Accept the call on Target PSTN Phone number, Keep call running.
-2. Step 2. Start Recording.
-	- Send HttpGet request with url -{CallbackUri}/startRecording.
+4. Send Request to startRecording.
 	- Recording would be started.
-3. Step 3. (Optional) pauseRecording and then resumeRecording,getRecordingState.
-4. Step 4. Send  HttpDelete Request for stop the recording with  url -{CallbackUri}/stopRecording.
-5. Step 5. Send  HttpGet Request for downloading the recording from server with url -{CallbackUri}/downloadRecording, only last recorded file will be downloaded.
-6. Step 6. Send  HttpDelete Request for delete the recording at server with url -{CallbackUri}/deleteRecording.
+5. (Optional) pauseRecording and then resumeRecording,getRecordingState.
+6. Send Request for stopRecording.
+7. Send Request for downloadRecording from server, only last recorded file will be downloaded.
+8. Send Request for deleteRecording at server.
 ## Deploying the sample app on Azure
 
 - Follow this to create azure resource group - [Create an Azure resource group](https://docs.microsoft.com/azure/azure-resource-manager/management/manage-resource-groups-portal)

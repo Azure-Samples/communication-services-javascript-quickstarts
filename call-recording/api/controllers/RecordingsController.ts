@@ -8,14 +8,12 @@ import {
 } from "@azure/communication-call-automation";
 import { Request, Response } from "express";
 import { PhoneNumberIdentifier } from "@azure/communication-common";
-import {SubscriptionValidationEventData, AcsRecordingFileStatusUpdatedEventData } from "@azure/eventgrid";
+import { SubscriptionValidationEventData, AcsRecordingFileStatusUpdatedEventData } from "@azure/eventgrid";
 
 var cfg = require("../../config");
-
-const connectionString = cfg.ConnectionString;
-
 var CallAutomationClient = require("@azure/communication-call-automation");
 const { Logger, MessageType } = require("../../Logger");
+const connectionString = cfg.ConnectionString;
 var appCallbackUrl = cfg.CallbackUri + "/api/callbacks";
 // for simplicity using static values
 var serverCallId = "";
@@ -48,37 +46,28 @@ exports.outboundCall = async function (req: Request, res: Response) {
 
   Logger.logMessage(MessageType.INFORMATION, "Performing CreateCall operation");
 
-  var callConnection = await client.createCall(
-    callInvite,
-    appCallbackUrl,
-    createCallOptions
-  );
+  var callConnection = await client.createCall(callInvite,appCallbackUrl,createCallOptions);
   callConnectionId = callConnection.callConnectionProperties.callConnectionId;
   res.status(200).send(`CallConnectionId: ${callConnectionId}`);
 }
 
-exports.startRecording = async function (req: Request,res: Response) {
+exports.startRecording = async function (req: Request, res: Response) {
   try {
     if (!serverCallId || String(serverCallId).trim() == "") {
       return res.status(400).json("serverCallId is invalid");
     }
-    Logger.logMessage(
-      MessageType.INFORMATION,
-      "Start recording API called with serverCallId =  " + serverCallId
-    );
+    Logger.logMessage(MessageType.INFORMATION,"Start recording API called with serverCallId =  " + serverCallId);
     var locator: CallLocator = { id: serverCallId, kind: "serverCallLocator" };
     var options: StartRecordingOptions = { callLocator: locator };
-    var startRecordingRequestOutput = await client
-      .getCallRecording()
-      .start(options);
-    recordingId=startRecordingRequestOutput.recordingId;
+    var startRecordingRequestOutput = await client.getCallRecording().start(options);
+    recordingId = startRecordingRequestOutput.recordingId;
     return res.json(startRecordingRequestOutput);
   } catch (e) {
     return res.json(String(e.message));
   }
 };
 
-exports.pauseRecording = async function (req: Request,res: Response) {
+exports.pauseRecording = async function (req: Request, res: Response) {
   try {
     await client.getCallRecording().pause(recordingId);
     return res.json("Ok");
@@ -87,7 +76,7 @@ exports.pauseRecording = async function (req: Request,res: Response) {
   }
 };
 
-exports.resumeRecording = async function (req: Request,res: Response) {
+exports.resumeRecording = async function (req: Request, res: Response) {
   try {
     await client.getCallRecording().resume(recordingId);
     return res.json("Ok");
@@ -98,7 +87,6 @@ exports.resumeRecording = async function (req: Request,res: Response) {
 
 exports.stopRecording = async function (req: Request, res: Response) {
   try {
-    // recordingId = req.query.recordingId!.toString();
     await client.getCallRecording().stop(recordingId);
     return res.json("Ok");
   } catch (e) {
@@ -106,24 +94,13 @@ exports.stopRecording = async function (req: Request, res: Response) {
   }
 };
 
-exports.getRecordingState = async function (req: Request,res: Response) {
+exports.getRecordingState = async function (req: Request, res: Response) {
   try {
-    var RecordingStateRequestOutput = await client
-      .getCallRecording()
-      .getState(recordingId);
-    if (
-      RecordingStateRequestOutput &&
-      RecordingStateRequestOutput.recordingState
-    ) {
+    var RecordingStateRequestOutput = await client.getCallRecording().getState(recordingId);
+    if (RecordingStateRequestOutput && RecordingStateRequestOutput.recordingState) {
       return res.json(RecordingStateRequestOutput.recordingState);
     } else {
-      return res
-        .status(
-          RecordingStateRequestOutput.statusCode
-            ? RecordingStateRequestOutput.statusCode
-            : "500"
-        )
-        .json(RecordingStateRequestOutput.message);
+      return res.status(RecordingStateRequestOutput.statusCode ? RecordingStateRequestOutput.statusCode  : "500").json(RecordingStateRequestOutput.message);
     }
   } catch (e) {
     return res.json(String(e.message));
@@ -175,7 +152,7 @@ exports.callbacks = async function (req: Request, res: Response) {
       var event: CallAutomationEvent = parseCallAutomationEvent(cloudEvent)
       // for start recording we required server call id, so capture it when call connected.
       if (event.kind = "CallConnected") {
-        serverCallId=event.serverCallId;
+        serverCallId = event.serverCallId;
         break;
       }
     }

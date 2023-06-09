@@ -11,8 +11,8 @@
     "files": [
         "Logger.ts",
         "api/controllers/RecordingsController.ts",
-        "api/routes/CallRecordingRoutes.ts", 
-        "Server.ts", 
+        "api/routes/CallRecordingRoutes.ts",
+        "Server.ts",
         "Config.ts",
-      ]
+    ]
 }
