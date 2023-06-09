@@ -5,7 +5,8 @@
         "noImplicitAny": true,
         "removeComments": false,
         "preserveConstEnums": true,
-        "sourceMap": true
+        "sourceMap": true,
+        "outDir": "./dist",
     },
     "files": [
         "Logger.ts",

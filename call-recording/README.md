@@ -4,7 +4,7 @@ languages:
 - Typescript
 products:
 - azure
-- azure-communication-services
+- azure/communication-call-automation
 ---
 
 # Recording APIs Sample
@@ -17,11 +17,12 @@ A separate branch with end to end implementation is [available](https://github.c
 
 ## Prerequisites
 
-- Create an Azure account with an active subscription. For details, see [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F)
-- [Visual Studio Code](https://code.visualstudio.com/)
-- [Node v14.17.*](https://nodejs.org/en/download/) (Make sure to install the version that corresponds with your visual studio code instance, 32 vs 64 bit)
-- Create an Azure Communication Services resource. For details, see [Create an Azure Communication Resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource). You'll need to record your resource **connection string** for this quickstart.
-- Create a webhook and subscribe to the recording events. For details, see [Create webhook](https://docs.microsoft.com/azure/communication-services/quickstarts/voice-video-calling/download-recording-file-sample)
+- Create an Azure account with an active subscription. For details, see [Create an account for free](https://azure.microsoft.com/free/)
+- [Visual Studio Code](https://code.visualstudio.com/download) installed
+- [Node.js](https://nodejs.org/en/download) installed
+- Create an Azure Communication Services resource. For details, see [Create an Azure Communication Resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource). You will need to record your resource **connection string** for this sample.
+- Get a phone number for your new Azure Communication Services resource. For details, see [Get a phone number](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/telephony/get-phone-number?tabs=windows&pivots=platform-azp)
+**Note** Phone number is required to successfully run this sample.
 
 
 ## Code structure

@@ -1,6 +1,6 @@
-var config = module.exports = { ConnectionString: '', BlobStorageConnectionString: '', ContainerName: '', CallbackUri: '', StorageAccountName: '', StorageAccountKey: '',ACSAcquiredPhoneNumber:'',TargetPhoneNumber:''};
+var config = module.exports = { ConnectionString: '', CallbackUri: '', ACSAcquiredPhoneNumber:'',TargetPhoneNumber:''};
 
-config = { 'ConnectionString': '', 'BlobStorageConnectionString': '', 'ContainerName': '', 'CallbackUri': '', 'StorageAccountName': '', 'StorageAccountKey': '','ACSAcquiredPhoneNumber':'','TargetPhoneNumber':''};
+config = { 'ConnectionString': '', 'CallbackUri': '','ACSAcquiredPhoneNumber':'','TargetPhoneNumber':''};
 
 config.ConnectionString = '';
 config.CallbackUri = '';
