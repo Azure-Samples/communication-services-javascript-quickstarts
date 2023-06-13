@@ -1,0 +1,171 @@
+{
+	"info": {
+		"_postman_id": "6e5c508b-288e-4c84-9b48-d81af91539b6",
+		"name": "RecordingAPIs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24986769",
+		"_collection_link": "https://dark-meteor-556005.postman.co/workspace/4b24bddc-6782-49d8-ae4f-39931cf7ff8a/collection/24986769-6e5c508b-288e-4c84-9b48-d81af91539b6?action=share&creator=24986769&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "outboundCall",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://2c0a-49-207-209-111.ngrok-free.app/outboundCall",
+					"protocol": "https",
+					"host": [
+						"2c0a-49-207-209-111",
+						"ngrok-free",
+						"app"
+					],
+					"path": [
+						"outboundCall"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "startRecording",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://2c0a-49-207-209-111.ngrok-free.app/startRecording",
+					"protocol": "https",
+					"host": [
+						"2c0a-49-207-209-111",
+						"ngrok-free",
+						"app"
+					],
+					"path": [
+						"startRecording"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "pauseRecording",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://2c0a-49-207-209-111.ngrok-free.app/pauseRecording",
+					"protocol": "https",
+					"host": [
+						"2c0a-49-207-209-111",
+						"ngrok-free",
+						"app"
+					],
+					"path": [
+						"pauseRecording"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "resumeRecording",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://2c0a-49-207-209-111.ngrok-free.app/resumeRecording",
+					"protocol": "https",
+					"host": [
+						"2c0a-49-207-209-111",
+						"ngrok-free",
+						"app"
+					],
+					"path": [
+						"resumeRecording"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getRecordingState",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://2c0a-49-207-209-111.ngrok-free.app/getRecordingState",
+					"protocol": "https",
+					"host": [
+						"2c0a-49-207-209-111",
+						"ngrok-free",
+						"app"
+					],
+					"path": [
+						"getRecordingState"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "stopRecording",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://2c0a-49-207-209-111.ngrok-free.app/stopRecording",
+					"protocol": "https",
+					"host": [
+						"2c0a-49-207-209-111",
+						"ngrok-free",
+						"app"
+					],
+					"path": [
+						"stopRecording"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "downloadRecording",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://2c0a-49-207-209-111.ngrok-free.app/downloadRecording",
+					"protocol": "https",
+					"host": [
+						"2c0a-49-207-209-111",
+						"ngrok-free",
+						"app"
+					],
+					"path": [
+						"downloadRecording"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteRecording",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://2c0a-49-207-209-111.ngrok-free.app/deleteRecording",
+					"protocol": "https",
+					"host": [
+						"2c0a-49-207-209-111",
+						"ngrok-free",
+						"app"
+					],
+					"path": [
+						"deleteRecording"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
