@@ -24,10 +24,6 @@ var deleteLocation = "";
 
 const client = new CallAutomationClient.CallAutomationClient(connectionString);
 
-exports.startUp = function (req: Request, res: Response) {
-  res.json("App is running...");
-};
-
 /// <summary>
 /// Start outbound call, Run before start recording
 exports.outboundCall = async function (req: Request, res: Response) {

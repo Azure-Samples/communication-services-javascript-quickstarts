@@ -1,7 +1,6 @@
 "use strict";
 module.exports = function (app: any) {
   var controller = require("../controllers/RecordingsController");
-  app.route("/").get(controller.startUp);
 
   app.route("/outboundCall").get(controller.outboundCall);
 
