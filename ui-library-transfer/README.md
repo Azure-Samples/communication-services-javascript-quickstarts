@@ -9,16 +9,14 @@ products:
 
 # Get Started with Composites - Handle transfer request
 
-This sample showcases how Call Composites can be used to handle transfer requests. The current beta version can only
-receive transfer requests from Teams users in 1 on 1 calls.
+This sample showcases how Call Composites can be used to handle transfer requests so that the call can be transferred by a Teams user to another Teams user. The current beta version can only receive transfer requests from Teams users in 1 on 1 calls.
 
 ## Prerequisites
 
 - An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F)  .
 - [Node.js](https://nodejs.org/en/) Active LTS and Maintenance LTS versions (8.11.1 and 10.14.1 recommended).
 - An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource). You will need the endpoint value for the resource
-- An identity with VoIP. Generate an identity using the [Azure Portal](https://docs.microsoft.com/azure/communication-services/quickstarts/identity/quick-create-identity).
-- A phone number procured through Azure Communication Service portal using [Azure Portal](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/telephony/get-phone-number).
+- Two Teams users in the same tenant as the Azure account. One Teams user is to call and the other Teams user is the transfer target. Note that you will need to obtain the Teams user's id to call them. To learn more go to [storybook documentation for call transfer](https://azure.github.io/communication-ui-library/?path=/docs/transfer--page).
 
 ## Run the code
 
@@ -32,9 +30,9 @@ receive transfer requests from Teams users in 1 on 1 calls.
 3. Run `npm run start`
 
 Open your browser to <http://localhost:3000>. You should see the following:
-![Composite Loaded State](../media/transferable-call-composite-loaded.png).
+![Composite Loaded State](../media/call-transfer-composite-loaded.png).
 
 Finally, click `Start Call` to start the call.
 
 When the transfer request is accepted, you should see the following:
-![Composite Loaded State](../media/transfer-page.png).
+![Composite Loaded State](../media/transfer-in-progress.png).
