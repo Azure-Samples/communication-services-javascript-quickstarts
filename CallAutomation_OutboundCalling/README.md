@@ -52,7 +52,7 @@ Open the `.env` file to configure the following settings
 
 1. Open a new Powershell window, cd into the `CallAutomation_OutboundCalling` folder and run `npm run dev`
 2. Browser should pop up with the below page. If not navigate it to `http://localhost:8080/`
-3. To initiate the call, click on the `Place a call!` button or make a Http get request to https://<CALLBACK_URI>/call
+3. To initiate the call, click on the `Place a call!` button or make a Http get request to https://<CALLBACK_URI>/outboundCall
 4. To download the call audio, click on the `Download Recording!` button or make a Http get request to https://<CALLBACK_URI>/download. Ensure the call has ended before attempting to download
 
 ![design](./data/Webpage.png)

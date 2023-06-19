@@ -99,7 +99,6 @@ async function hangUpCall() {
 
 // POST endpoint to handle ongoing call events
 app.post("/api/callbacks", async (req: any, res: any) => {
-	res.sendStatus(200);
 	const event = req.body[0];
 	const eventData = event.data;
 
@@ -142,10 +141,12 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 		console.log("Received Unexpected event: " + eventType + ". Terminating Call.");
 		hangUpCall();
 	}
+
+	res.sendStatus(200);
 });
 
 // POST endpoint to receive recording events
-app.post('/recording', async (req, res) => {
+app.post('/api/recordingFileStatus', async (req, res) => {
 	const event = req.body[0];
 	const eventData = event.data;
 
@@ -158,8 +159,8 @@ app.post('/recording', async (req, res) => {
 	else if(event.eventType === "Microsoft.Communication.RecordingFileStatusUpdated") {
 		console.log("Received RecordingFileStatusUpdated event");
 		recordingLocation = eventData.recordingStorageInfo.recordingChunks[0].contentLocation
+		res.sendStatus(200);
 	}
-	res.sendStatus(200);
 });
 
 // GET endpoint to serve the audio file
@@ -192,9 +193,8 @@ app.get('/', (req, res) => {
 });
 
 // GET endpoint to place phone call
-app.get('/call', async (req, res) => {
+app.get('/outboundCall', async (req, res) => {
 	callee = {
-		rawId: process.env.TARGET_PHONE_NUMBER || "",
 		phoneNumber: process.env.TARGET_PHONE_NUMBER || "",
 	};
 
