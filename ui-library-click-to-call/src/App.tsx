@@ -32,10 +32,10 @@ function App() {
   /**
    * This decides where the call will be going. This supports many different calling modalities in the Call Composite.
    * 
-   * - teams meeting locator: {meetingLike: 'url to join link for a meeting'}
-   * - Azure communications group call: {groupId: 'GUID that defines the call'}
-   * - Azure Communications Rooms call: {roomId: 'guid that represents a rooms call'}
-   * - teams adhoc, Azure communications 1:n, PSTN calls all take a participants locator: {participantIds: ['Array of participant id's to call']}
+   * - Teams meeting locator: {meetingLike: 'url to join link for a meeting'}
+   * - Azure communication Services group call: {groupId: 'guid that defines the call'}
+   * - Azure Communication Services Rooms call: {roomId: 'guid that represents a rooms call'}
+   * - Teams adhoc, Azure communications 1:n, PSTN calls all take a participants locator: {participantIds: ['Array of participant id's to call']}
    * 
    * You can call teams voice apps like a Call queue with the participants locator.
    */
