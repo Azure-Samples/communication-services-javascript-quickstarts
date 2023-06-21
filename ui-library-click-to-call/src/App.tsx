@@ -27,7 +27,7 @@ function App() {
   /**
    * User identifier for local user.
    */
-  const userId: CommunicationIdentifier = { communicationUserId: '<Enter your user Id>'};
+  const userId: CommunicationIdentifier = { communicationUserId: '<Enter your user Id>' };
   
   /**
    * This decides where the call will be going. This supports many different calling modalities in the Call Composite.
@@ -39,7 +39,7 @@ function App() {
    * 
    * You can call teams voice apps like a Call queue with the participants locator.
    */
-  const locator: CallAdapterLocator = {participantIds: ['<Enter a Participants Id here>']};
+  const locator: CallAdapterLocator = { participantIds: ['<Enter a Participants Id here>'] };
 
   /**
    * Phone number needed from your Azure Communications resource to start a PSTN call. Can be created under the phone numbers
