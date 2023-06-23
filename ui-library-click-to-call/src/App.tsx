@@ -6,7 +6,7 @@ import './App.css';
 import { CallAdapterLocator } from '@azure/communication-react';
 import { CommunicationIdentifier, CommunicationUserIdentifier } from '@azure/communication-common';
 import { AdapterArgs, getStartSessionFromURL } from './utils/AppUtils';
-import { ClickToCallScreen } from './views/ClickToCallScreen';
+import { CallingWidgetScreen } from './views/CallingWidgetScreen';
 import { SameOriginCallScreen } from './views/NewWindowCallScreen';
 import { Spinner, Stack, initializeIcons, registerIcons } from '@fluentui/react';
 import { CallAdd20Regular, Dismiss20Regular } from '@fluentui/react-icons';
@@ -23,12 +23,12 @@ function App() {
    * Token for local user.
    */
   const token = '<Enter your Azure Communication Services token here>';
-  
+
   /**
    * User identifier for local user.
    */
   const userId: CommunicationIdentifier = { communicationUserId: '<Enter your user Id>' };
-  
+
   /**
    * This decides where the call will be going. This supports many different calling modalities in the Call Composite.
    * 
@@ -53,7 +53,7 @@ function App() {
 
   /**
    * Properties needed to start an Azure Communications Call Adapter. When these are set the app will go to the Call screen for the
-   * Click to Call scenario. Call screen should create the credential that will be used in the call for the user.
+   * Calling Widget scenario. Call screen should create the credential that will be used in the call for the user.
    */
   const [adapterArgs, setAdapterArgs] = useState<AdapterArgs | undefined>();
   const [useVideo, setUseVideo] = useState<boolean>(false);
@@ -102,13 +102,13 @@ function App() {
     case 'click-to-call': {
       if (!token || !userId || !locator || startSession !== false) {
         return (
-          <Stack verticalAlign='center' style={{height: '100%', width: '100%'}}>
+          <Stack verticalAlign='center' style={{ height: '100%', width: '100%' }}>
             <Spinner label={'Getting user credentials from server'} ariaLive="assertive" labelPosition="top" />;
           </Stack>
         )
-        
+
       }
-      return <ClickToCallScreen token={token} userId={userId} callLocator={locator} alternateCallerId={alternateCallerId}/>;
+      return <CallingWidgetScreen token={token} userId={userId} callLocator={locator} alternateCallerId={alternateCallerId} />;
     }
     case 'same-origin-call': {
       if (!adapterArgs) {

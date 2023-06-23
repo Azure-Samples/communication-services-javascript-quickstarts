@@ -1,11 +1,11 @@
-# Welcome to an Azure Communication Services Click to Call Sample
+# Welcome to an Azure Communication Services Calling Widget Sample
 
 <img src='./tutorialImages/Sample-app-splash.png' width='1000'>
 
-This project is aimed to teach developers on how to create a Click to Call experience using the Azure Communication UI Library.
+This project is aimed to teach developers on how to create a Calling Widget using the Azure Communication UI Library.
 
 Depending on your needs, you might need to create an experience for your customers to be able to get a hold of you with minimal setup on their part.
-Click to call is a concept that is meant for allowing instant interaction, whether that is reaching out to customer support, having a quick call with your financial advisor, or other customer facing teams. The goal of this sample is to help make you one click away from your customers.
+Calling Widget is a tool that is meant for allowing instant interaction, whether that is reaching out to customer support, having a quick call with your financial advisor, or other customer facing teams. The goal of this sample is to help make you one click away from your customers.
 
 If you want to just try it out follow the instructions below. If you are interested in information on how to build it into your application and how this sample is constructed please checkout our [tutorial here](link).
 
@@ -51,4 +51,3 @@ If you aren’t satisfied with the build tool and configuration choices, you can
 Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
 You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-

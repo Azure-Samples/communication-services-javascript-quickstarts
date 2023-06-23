@@ -11,7 +11,7 @@ export const checkboxStyles = (theme: Theme): ICheckboxStyles => {
   };
 };
 
-export const clickToCallContainerStyles = (theme: Theme): IStackStyles => {
+export const CallingWidgetContainerStyles = (theme: Theme): IStackStyles => {
   return {
     root: {
       width: '5rem',
@@ -31,7 +31,7 @@ export const clickToCallContainerStyles = (theme: Theme): IStackStyles => {
   };
 };
 
-export const clicktoCallSetupContainerStyles = (theme: Theme): IStackStyles => {
+export const CallingWidgetSetupContainerStyles = (theme: Theme): IStackStyles => {
   return {
     root: {
       width: '18rem',

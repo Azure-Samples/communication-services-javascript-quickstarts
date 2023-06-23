@@ -5,10 +5,10 @@ import { CommunicationUserIdentifier, MicrosoftTeamsUserIdentifier } from '@azur
 import { CallAdapterLocator } from '@azure/communication-react';
 import { Stack, Text } from '@fluentui/react';
 import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-import { ClickToCallComponent } from '../components/ClickToCallComponent';
+import { CallingWidgetComponent } from '../components/CallingWidgetComponent';
 import hero from '../hero.svg';
 
-export interface ClickToCallPageProps {
+export interface CallingWidgetPageProps {
     token: string;
     userId:
     | CommunicationUserIdentifier
@@ -17,7 +17,7 @@ export interface ClickToCallPageProps {
     alternateCallerId?: string
 }
 
-export const ClickToCallScreen = (props: ClickToCallPageProps): JSX.Element => {
+export const CallingWidgetScreen = (props: CallingWidgetPageProps): JSX.Element => {
     const { token, userId, callLocator, alternateCallerId } = props;
 
     const [userDisplayName, setUserDisplayName] = useState<string>();
@@ -73,7 +73,7 @@ export const ClickToCallScreen = (props: ClickToCallPageProps): JSX.Element => {
             <Stack style={{ margin: 'auto' }}>
                 <Stack style={{ padding: '3rem' }} horizontal tokens={{ childrenGap: '2rem' }}>
                     <Text style={{ marginTop: 'auto' }} variant="xLarge">
-                        Welcome to a Click to Call sample
+                        Welcome to a Calling Widget sample
                     </Text>
                     <img
                         style={{ width: '7rem', height: 'auto' }}
@@ -82,20 +82,20 @@ export const ClickToCallScreen = (props: ClickToCallPageProps): JSX.Element => {
                     />
                 </Stack>
 
-                <Text>Welcome to a Click to Call sample for the Azure Communications UI Library. Sample has the ability to:</Text>
+                <Text>Welcome to a Calling Widget sample for the Azure Communications UI Library. Sample has the ability to:</Text>
                 <ul>
                     <li>Adhoc call teams users with a tenant set that allows for external calls</li>
                     <li>Joining Teams interop meetings as a Azure Communications user</li>
-                    <li>Make a click to call PSTN call to a help phone line</li>
+                    <li>Make a Calling Widget PSTN call to a help phone line</li>
                     <li>Join a Azure Communications group call</li>
                 </ul>
                 <Text>
-                    As a user all you need to do is click the widget below, enter your display name for the call 
+                    As a user all you need to do is click the widget below, enter your display name for the call
                     - this will act as your caller id, and action the <b>start call</b> button.
                 </Text>
             </Stack>
             <Stack horizontal tokens={{ childrenGap: '1.5rem' }} style={{ overflow: 'hidden', margin: 'auto' }}>
-                <ClickToCallComponent
+                <CallingWidgetComponent
                     onRenderStartCall={startNewWindow}
                     onRenderLogo={() => {
                         return (

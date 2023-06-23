@@ -3,17 +3,17 @@
 
 import { IconButton, PrimaryButton, Stack, TextField, useTheme, Checkbox, Icon } from '@fluentui/react';
 import {
-    clicktoCallSetupContainerStyles,
+    CallingWidgetSetupContainerStyles,
     checkboxStyles,
     startCallButtonStyles,
-    clickToCallContainerStyles,
+    CallingWidgetContainerStyles,
     callIconStyles,
     logoContainerStyles,
     collapseButtonStyles
-} from '../styles/ClickToCallComponent.styles';
+} from '../styles/CallingWidgetComponent.styles';
 import React, { useEffect, useState } from 'react';
 
-export interface clickToCallComponentProps {
+export interface CallingWidgetComponentProps {
     /**
      * if provided, will be used to create a new window for call experience. if not provided
      * will use the current window.
@@ -37,10 +37,10 @@ export interface clickToCallComponentProps {
 }
 
 /**
- * Widget for Click to Call
+ * Widget for Calling Widget
  * @param props
  */
-export const ClickToCallComponent = (props: clickToCallComponentProps): JSX.Element => {
+export const CallingWidgetComponent = (props: CallingWidgetComponentProps): JSX.Element => {
     const { onRenderStartCall, onRenderLogo, onSetDisplayName, onSetUseVideo } = props;
 
     const [widgetState, setWidgetState] = useState<'new' | 'setup'>();
@@ -57,7 +57,7 @@ export const ClickToCallComponent = (props: clickToCallComponentProps): JSX.Elem
 
     if (widgetState === 'setup' && onSetDisplayName && onSetUseVideo) {
         return (
-            <Stack styles={clicktoCallSetupContainerStyles(theme)} tokens={{ childrenGap: '1rem' }}>
+            <Stack styles={CallingWidgetSetupContainerStyles(theme)} tokens={{ childrenGap: '1rem' }}>
                 <IconButton
                     styles={collapseButtonStyles}
                     iconProps={{ iconName: 'Dismiss' }}
@@ -110,7 +110,7 @@ export const ClickToCallComponent = (props: clickToCallComponentProps): JSX.Elem
         <Stack
             horizontalAlign="center"
             verticalAlign="center"
-            styles={clickToCallContainerStyles(theme)}
+            styles={CallingWidgetContainerStyles(theme)}
             onClick={() => {
                 setWidgetState('setup');
             }}
