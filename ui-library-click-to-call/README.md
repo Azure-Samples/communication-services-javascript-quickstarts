@@ -1,6 +1,6 @@
 # Welcome to an Azure Communication Services Calling Widget Sample
 
-<img src='./tutorialImages/Sample-app-splash.png' width='1000'>
+<img src='./media/Sample-app-splash.png' width='1000'>
 
 This project is aimed to teach developers on how to create a Calling Widget using the Azure Communication UI Library.
 
