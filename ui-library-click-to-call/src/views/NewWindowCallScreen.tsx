@@ -11,7 +11,7 @@ import {
 import { Spinner, Stack } from '@fluentui/react';
 import React, { useMemo } from 'react';
 
-export const SameOriginCallScreen = (props: {
+export const NewWindowCallScreen = (props: {
     adapterArgs: {
         userId: CommunicationUserIdentifier;
         displayName: string;

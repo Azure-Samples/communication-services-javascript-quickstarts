@@ -7,17 +7,17 @@ import { CallAdapterLocator } from '@azure/communication-react';
 import { CommunicationIdentifier, CommunicationUserIdentifier } from '@azure/communication-common';
 import { AdapterArgs, getStartSessionFromURL } from './utils/AppUtils';
 import { CallingWidgetScreen } from './views/CallingWidgetScreen';
-import { SameOriginCallScreen } from './views/NewWindowCallScreen';
+import { NewWindowCallScreen } from './views/NewWindowCallScreen';
 import { Spinner, Stack, initializeIcons, registerIcons } from '@fluentui/react';
 import { CallAdd20Regular, Dismiss20Regular } from '@fluentui/react-icons';
 
-type AppPages = 'click-to-call' | 'same-origin-call';
+type AppPages = 'calling-widget' | 'new-window-call';
 
 registerIcons({ icons: { dismiss: <Dismiss20Regular />, callAdd: <CallAdd20Regular /> } });
 initializeIcons();
 function App() {
 
-  const [page, setPage] = useState<AppPages>('click-to-call');
+  const [page, setPage] = useState<AppPages>('calling-widget');
 
   /**
    * Token for local user.
@@ -94,12 +94,12 @@ function App() {
   useEffect(() => {
     if (adapterArgs) {
       console.log('starting session');
-      setPage('same-origin-call');
+      setPage('new-window-call');
     }
   }, [adapterArgs]);
 
   switch (page) {
-    case 'click-to-call': {
+    case 'calling-widget': {
       if (!token || !userId || !locator || startSession !== false) {
         return (
           <Stack verticalAlign='center' style={{ height: '100%', width: '100%' }}>
@@ -110,7 +110,7 @@ function App() {
       }
       return <CallingWidgetScreen token={token} userId={userId} callLocator={locator} alternateCallerId={alternateCallerId} />;
     }
-    case 'same-origin-call': {
+    case 'new-window-call': {
       if (!adapterArgs) {
         return (
           <Stack verticalAlign='center' style={{ height: '100%', width: '100%' }}>
@@ -119,7 +119,7 @@ function App() {
         )
       }
       return (
-        <SameOriginCallScreen
+        <NewWindowCallScreen
           adapterArgs={{
             userId: adapterArgs.userId as CommunicationUserIdentifier,
             displayName: adapterArgs.displayName ?? '',
