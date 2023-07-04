@@ -17,12 +17,12 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
 
-    # Install dependencies on "ui-library-pstn-1-n-calling"
+    # Install dependencies for project
       - name: Install dependencies
         working-directory: ${{ inputs.working-directory }}
         run: npm install
         
-    # Build "ui-library-pstn-1-n-calling"
+    # Build project
       - name: Build
         working-directory: ${{ inputs.working-directory }}
         run: npm run build
