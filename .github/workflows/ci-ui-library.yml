@@ -1,7 +1,17 @@
 name: 'UI Library projects CI'
 
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      runs-on:
+        required: true
+        type: string
+      node-version:
+        required: true
+        type: string
+      working-directory:
+        required: true
+        type: string
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
