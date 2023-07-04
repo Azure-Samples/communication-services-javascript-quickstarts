@@ -20,4 +20,4 @@ jobs:
     with:
       runs-on: 'ubuntu-latest'
       node-version: '16.x'
-      working-directory: './ui-library-add-call-recording'
+      working-directory: './ui-library-add-call-recording/app'
