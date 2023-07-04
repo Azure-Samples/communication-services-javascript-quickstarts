@@ -53,6 +53,8 @@ const fileUploadHandler: FileUploadHandler = async (
       // 1 means the file upload progress is 100%. Similarly, 0.5 would be 50%.
       fileUpload.notifyUploadProgressChanged(1);
       fileUpload.notifyUploadCompleted({
+        attachmentType: 'fileSharing',
+        id: v4(),
         name: fileUpload.file?.name ?? "",
         extension: fileExtension,
         url: response.data.url,
