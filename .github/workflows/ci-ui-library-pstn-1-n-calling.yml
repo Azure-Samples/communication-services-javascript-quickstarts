@@ -18,6 +18,6 @@ jobs:
   ci:
     uses: ./ci-ui-library.yml
     with:
-      runs-on: ubuntu-latest
-      node-version: 16.x
-      working-directory: ./ui-library-pstn-1-n-calling
+      runs-on: 'ubuntu-latest'
+      node-version: '16.x'
+      working-directory: ''./ui-library-pstn-1-n-calling'
