@@ -54,7 +54,7 @@ const fileUploadHandler: FileUploadHandler = async (
       fileUpload.notifyUploadProgressChanged(1);
       fileUpload.notifyUploadCompleted({
         attachmentType: 'fileSharing',
-        id: v4(),
+        id: uniqueFileName,
         name: fileUpload.file?.name ?? "",
         extension: fileExtension,
         url: response.data.url,

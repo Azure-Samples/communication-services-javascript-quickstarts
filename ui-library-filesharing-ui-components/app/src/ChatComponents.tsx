@@ -46,7 +46,7 @@ export default function ChatComponents(): JSX.Element {
         },
       })
       .then((res) => {
-        completeFileUpload(file.name, { attachmentType: 'fileSharing', id: v4(),name: file.name, extension, url: res.data.url });
+        completeFileUpload(file.name, { attachmentType: 'fileSharing', id: uniqueFileName ,name: file.name, extension, url: res.data.url });
       })
       .catch((err) => {
         console.log(err);
