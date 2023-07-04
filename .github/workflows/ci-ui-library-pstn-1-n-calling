@@ -15,7 +15,6 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build_add-1-on-1-voice-calling"
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -31,12 +30,12 @@ jobs:
         with:
           node-version: "14.x"
 
-    # Install dependencies on "add-1-on-1-voice-calling"
+    # Install dependencies on "ui-library-pstn-1-n-calling"
       - name: Install dependencies
         working-directory: ./ui-library-pstn-1-n-calling
         run: npm install
         
-    # Build "add-1-on-1-voice-calling"
+    # Build "ui-library-pstn-1-n-calling"
       - name: Build
         working-directory: ./ui-library-pstn-1-n-calling
         run: npm run build
