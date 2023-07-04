@@ -18,6 +18,8 @@ This sample includes:
 * A React based application showcasing file sharing feature using UI chat composite provided by the [Azure Communication Services UI library][docs-ui-library].
 * Backend API for uploading file to Azure Blob Storage built using [Typescript Azure Functions][typescript-azure-functions].
 
+>This Quickstart for FileSharing is not to be confused with the Teams Interopability feature where a ACS user can receive [SharePoint files](https://learn.microsoft.com/microsoft-365/solutions/microsoft-365-limit-sharing?view=o365-worldwide) with proper file permissions shared by a Teams user. This feature is currently available in Public Preview, for more information please refer to [Supplemental Terms of Use for Microsoft Azure Previews.](https://azure.microsoft.com/support/legal/preview-supplemental-terms/)
+
 [docs-root]: https://docs.microsoft.com/en-us/azure/communication-services/
 [docs-ui-library]: https://azure.github.io/communication-ui-library/
 [typescript-azure-functions]: https://docs.microsoft.com/en-us/azure/azure-functions/create-first-function-vs-code-typescript
