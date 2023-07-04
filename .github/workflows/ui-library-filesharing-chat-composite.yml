@@ -1,4 +1,4 @@
-name: 'ci-ui-library-filesharing-chat-composite'
+name: 'ui-library-filesharing-chat-composite CI'
 
 # Controls when the workflow will run
 on:

@@ -1,4 +1,4 @@
-name: 'ci-ui-library-pstn-1-n-calling'
+name: 'ui-library-pstn-1-n-calling CI'
 
 # Controls when the workflow will run
 on:

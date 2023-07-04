@@ -1,4 +1,4 @@
-name: 'ci-ui-library-starting-with-calling-stateful'
+name: 'ui-library-starting-with-calling-stateful CI'
 
 # Controls when the workflow will run
 on:

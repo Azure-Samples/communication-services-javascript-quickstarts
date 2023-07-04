@@ -1,4 +1,4 @@
-name: 'ci-ui-library-call-readiness'
+name: 'ui-library-call-readiness CI'
 
 # Controls when the workflow will run
 on:

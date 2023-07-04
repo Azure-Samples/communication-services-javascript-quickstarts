@@ -1,4 +1,4 @@
-name: 'ci-ui-library-click-to-call'
+name: 'ui-library-click-to-call CI'
 
 # Controls when the workflow will run
 on:

@@ -1,4 +1,4 @@
-name: 'ci-ui-library-quickstart-composites'
+name: 'ui-library-quickstart-composites CI'
 
 # Controls when the workflow will run
 on:

@@ -1,4 +1,4 @@
-name: 'ci-ui-library-filesharing-ui-components'
+name: 'ui-library-filesharing-ui-components CI'
 
 # Controls when the workflow will run
 on:
