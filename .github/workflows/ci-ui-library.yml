@@ -1,0 +1,32 @@
+name: 'UI Library projects CI'
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  ci:
+    # The type of runner that the job will run on
+    runs-on: ${{ inputs.runs-on }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+    # Install Node version v14.x
+      - name: Use Node.js ${{ inputs.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ inputs.node-version }}
+
+    # Install dependencies on "ui-library-pstn-1-n-calling"
+      - name: Install dependencies
+        working-directory: ${{ inputs.working-directory }}
+        run: npm install
+        
+    # Build "ui-library-pstn-1-n-calling"
+      - name: Build
+        working-directory: ${{ inputs.working-directory }}
+        run: npm run build
