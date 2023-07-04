@@ -1,4 +1,4 @@
-name: 'ci-ui-library-filesharing-ui-components'
+name: 'ui-library-filesharing-ui-components CI'
 
 # Controls when the workflow will run
 on:
@@ -15,7 +15,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  for ui-library-filesharing-ui-components validation:
+  project-validation:
     uses: ./.github/workflows/ci-ui-library.yml
     with:
       runs-on: 'ubuntu-latest'

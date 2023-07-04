@@ -1,4 +1,4 @@
-name: 'ci-ui-library-pstn-1-n-calling'
+name: 'ui-library-pstn-1-n-calling CI'
 
 # Controls when the workflow will run
 on:
@@ -15,7 +15,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  for ui-library-pstn-1-n-calling validation:
+  project-validation:
     uses: ./.github/workflows/ci-ui-library.yml
     with:
       runs-on: 'ubuntu-latest'
