@@ -1,0 +1,14 @@
+{
+  "name": "job-router-quickstart",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/communication-job-router": "^1.0.0-alpha.20230630.1"
+  }
+}
