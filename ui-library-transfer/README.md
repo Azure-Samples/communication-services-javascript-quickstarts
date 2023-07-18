@@ -16,7 +16,7 @@ This sample showcases how Call Composites can be used to handle transfer request
 - An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F)  .
 - [Node.js](https://nodejs.org/en/) Active LTS and Maintenance LTS versions (8.11.1 and 10.14.1 recommended).
 - An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource). You will need the endpoint value for the resource
-- Two Teams users in the same tenant as the Azure account. One Teams user is to call and the other Teams user is the transfer target. Note that you will need to obtain the Teams user's id to call them. To learn more go to [storybook documentation for call transfer](https://azure.github.io/communication-ui-library/?path=/docs/transfer--page).
+- Two Teams users in the same tenant as the Azure account. The first Teams user should be called via ad hoc calling. During the call, the first Teams user should transfer you to the second Teams user. Note that you will need to obtain the first Teams user's id in order to call them via ad hoc calling. To learn more about ad hoc calling, go to [storybook documentation for ad hoc calling](https://azure.github.io/communication-ui-library/?path=/docs/adhoc-calling--page).
 
 ## Run the code
 
@@ -32,7 +32,7 @@ This sample showcases how Call Composites can be used to handle transfer request
 Open your browser to <http://localhost:3000>. You should see the following:
 ![Composite Loaded State](../media/call-transfer-composite-loaded.png).
 
-Finally, click `Start Call` to start the call.
+Finally, click `Start Call` button to start the call.
 
 When the transfer request is accepted, you should see the following:
 ![Composite Loaded State](../media/transfer-in-progress.png).
