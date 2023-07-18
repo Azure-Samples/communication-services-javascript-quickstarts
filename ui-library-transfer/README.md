@@ -32,7 +32,6 @@ This sample showcases how Call Composites can be used to handle transfer request
 Open your browser to <http://localhost:3000>. You should see the following:
 ![Composite Loaded State](../media/call-transfer-composite-loaded.png).
 
-Finally, click `Start Call` button to start the call.
+Click `Start Call` button to start the call. The following link shows a video of what the transfer process should look like when a Teams user transfers you:
 
-When the transfer request is accepted, you should see the following:
-![Composite Loaded State](../media/transfer-in-progress.png).
+[Transfer process sample video](../media/transfer-call-accepted.mp4)
