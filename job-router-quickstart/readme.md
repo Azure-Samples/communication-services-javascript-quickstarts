@@ -11,7 +11,7 @@ products:
 
 This code sample walks through the process of integration Azure Communication Services Job Router into your JavaScript application.
 
-This quickstart sample includes the code that is explained as part of [this document](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/jobrouter/get-started?pivots=programming-language-javascript). See that document for additional details on how this sample works.
+This quickstart sample includes the code that is explained as part of [Quickstart: Submit a job for queuing and routing](https://learn.microsoft.com/azure/communication-services/quickstarts/router/get-started-router?pivots=programming-language-javascript). See that document for additional details on how this sample works.
 
 ## Prerequisites
 
