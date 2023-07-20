@@ -20,6 +20,9 @@ const main = async () => {
     distributionPolicyId: distributionPolicy.id
   });
 
+  // Delete `job-1` if it already exists from previous executions
+  await routerClient.deleteJob("job-1");
+  
   const job = await routerClient.createJob("job-1", {
     channelId: "voice",
     queueId: queue.id,
@@ -31,26 +34,27 @@ const main = async () => {
     totalCapacity: 1,
     queueIds: { [queue.id]: {} },
     labels: { "Some-Skill": 11 },
-    channelConfigurations: { "voice": { capacityCostPerJob: 1 } }
+    channelConfigurations: { "voice": { capacityCostPerJob: 1 } },
+    availableForOffers: true
   });
 
   await new Promise(r => setTimeout(r, 3000));
   worker = await routerClient.getWorker(worker.id);
   for (const offer of worker.offers) {
-      console.log(`Worker ${worker.id} has an active offer for job ${offer.jobId}`);
+      console.log(`Worker ${worker.id} has an active offer for job ${offer.jobId}\n`);
   }
 
   const accept = await routerClient.acceptJobOffer(worker.id, worker.offers[0].offerId);
-  console.log(`Worker ${worker.id} is assigned job ${accept.jobId}`);
+  console.log(`Worker ${worker.id} is assigned job ${accept.jobId}\n`);
 
   await routerClient.completeJob("job-1", accept.assignmentId);
-  console.log(`Worker ${worker.id} has completed job ${accept.jobId}`);
+  console.log(`Worker ${worker.id} has completed job ${accept.jobId}\n`);
 
   await routerClient.closeJob("job-1", accept.assignmentId, { dispositionCode: "Resolved" });
-  console.log(`Worker ${worker.id} has closed job ${accept.jobId}`);
+  console.log(`Worker ${worker.id} has closed job ${accept.jobId}\n`);
 };
 
 main().catch((error) => {
-  console.log("Encountered an error");
+  console.log("Encountered an error:\n");
   console.log(error);
 })

@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@azure/communication-job-router": "^1.0.0-alpha.20230713.1"
+    "@azure/communication-job-router": "^1.0.0-alpha.20230719.1"
   }
 }
