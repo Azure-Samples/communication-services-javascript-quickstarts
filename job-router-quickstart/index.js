@@ -20,9 +20,6 @@ const main = async () => {
     distributionPolicyId: distributionPolicy.id
   });
 
-  // Delete `job-1` if it already exists from previous executions
-  await routerClient.deleteJob("job-1");
-  
   const job = await routerClient.createJob("job-1", {
     channelId: "voice",
     queueId: queue.id,
@@ -52,6 +49,9 @@ const main = async () => {
 
   await routerClient.closeJob("job-1", accept.assignmentId, { dispositionCode: "Resolved" });
   console.log(`Worker ${worker.id} has closed job ${accept.jobId}\n`);
+
+  await routerClient.deleteJob(accept.jobId);
+  console.log(`Deleting job ${accept.jobId}\n`);
 };
 
 main().catch((error) => {
