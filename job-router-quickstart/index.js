@@ -44,10 +44,10 @@ const main = async () => {
   const accept = await routerClient.acceptJobOffer(worker.id, worker.offers[0].offerId);
   console.log(`Worker ${worker.id} is assigned job ${accept.jobId}`);
 
-  await routerClient.completeJob("job-1", accept.assignmentId);
+  await routerClient.completeJob(accept.jobId, accept.assignmentId);
   console.log(`Worker ${worker.id} has completed job ${accept.jobId}`);
 
-  await routerClient.closeJob("job-1", accept.assignmentId, { dispositionCode: "Resolved" });
+  await routerClient.closeJob(accept.jobId, accept.assignmentId, { dispositionCode: "Resolved" });
   console.log(`Worker ${worker.id} has closed job ${accept.jobId}`);
 
   await routerClient.deleteJob(accept.jobId);
