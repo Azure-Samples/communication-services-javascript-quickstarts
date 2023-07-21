@@ -35,7 +35,7 @@ const main = async () => {
     availableForOffers: true
   });
 
-  await new Promise(r => setTimeout(r, 5000));
+  await new Promise(r => setTimeout(r, 10000));
   worker = await routerClient.getWorker(worker.id);
   for (const offer of worker.offers) {
       console.log(`Worker ${worker.id} has an active offer for job ${offer.jobId}`);
