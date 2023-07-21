@@ -23,7 +23,7 @@ This quickstart sample includes the code that is explained as part of [Quickstar
 
 1. Open an instance of PowerShell, Windows Terminal, Command Prompt or equivalent and navigate to the directory that you'd like to clone the sample to.
 2. `git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git`
-3. `cd communication-services-javascript-quickstarts/job-router`
+3. `cd communication-services-javascript-quickstarts/job-router-quickstart`
 4. npm install
 5. With the Communication Services procured in pre-requisites, add connection string to 'index.js'
 
