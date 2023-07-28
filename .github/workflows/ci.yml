@@ -25,11 +25,11 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-    # Install Node version v16.x
-      - name: Use Node.js v16.x
+    # Install Node version v14.x
+      - name: Use Node.js v14.x
         uses: actions/setup-node@v1
         with:
-          node-version: "16.x"
+          node-version: "14.x"
 
     # Install dependencies on "add-1-on-1-voice-calling"
       - name: Install dependencies
