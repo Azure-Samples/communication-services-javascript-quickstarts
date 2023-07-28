@@ -33,9 +33,13 @@ jobs:
     # Install dependencies for project
       - name: Install dependencies
         working-directory: ${{ inputs.working-directory }}
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
         run: npm install
         
     # Build project
       - name: Build
         working-directory: ${{ inputs.working-directory }}
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
         run: npm run build
