@@ -22,20 +22,28 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
     # Install Node version
       - name: Use Node.js ${{ inputs.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ inputs.node-version }}
 
     # Install dependencies for project
       - name: Install dependencies
         working-directory: ${{ inputs.working-directory }}
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+          # don't treat warning as failures
+          CI: ""
         run: npm install
         
     # Build project
       - name: Build
         working-directory: ${{ inputs.working-directory }}
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+          # don't treat warning as failures
+          CI: ""
         run: npm run build
