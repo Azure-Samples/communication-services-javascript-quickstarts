@@ -30,7 +30,7 @@ app.get('/outboundCall', async (req, res) => {
 	await acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks");
 	console.log("createCall");
 
-	res.redirect('/');
+	res.redirect('/index.html');
 });
 
 app.post("/api/callbacks", async (req: any, res: any) => {
@@ -41,18 +41,17 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 	const callMedia = callConnection.getCallMedia();
 
 	if (event.type === "Microsoft.Communication.CallConnected") {
-		// Send DTMF tones
-		const tones = [ DtmfTone.One, DtmfTone.Two, DtmfTone.Three ];
+		// Start continuous DTMF recognition
 		const targetParticipant: PhoneNumberIdentifier = { phoneNumber: process.env.TARGET_PHONE_NUMBER };
-		await callConnection.getCallMedia().sendDtmf(tones, targetParticipant);
-		console.log("sendDtmf");
+		await callConnection.getCallMedia().startContinuousDtmfRecognition(targetParticipant);
+		console.log("startContinuousDtmfRecognition");
 	} 
-	else if (event.type === "Microsoft.Communication.SendDtmfCompleted") {
-		console.log("sendDtmf completed successfully");
+	else if (event.type === "Microsoft.Communication.ContinuousDtmfRecognitionToneReceived") {
+		console.log("DTMF tone received: %s", eventData.toneInfo.tone);
 		await callConnection.hangUp(true);
 	} 
-	else if (event.type === "Microsoft.Communication.SendDtmfFailed") {
-		console.log("sendDtmf failed with resultInformation: %s", eventData.resultInformation.message);
+	else if (event.type === "Microsoft.Communication.ContinuousDtmfRecognitionToneFailed") {
+		console.log("startContinuousDtmfRecognition failed with resultInformation: %s", eventData.resultInformation.message);
 		await callConnection.hangUp(true);
 	} 
 
