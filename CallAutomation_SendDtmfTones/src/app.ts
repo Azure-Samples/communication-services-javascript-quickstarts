@@ -45,14 +45,14 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 		const tones = [ DtmfTone.One, DtmfTone.Two, DtmfTone.Three ];
 		const targetParticipant: PhoneNumberIdentifier = { phoneNumber: process.env.TARGET_PHONE_NUMBER };
 		await callMedia.sendDtmfTones(tones, targetParticipant);
-		console.log("sendDtmf");
+		console.log("sendDtmfTones");
 	} 
-	else if (event.type === "Microsoft.Communication.SendDtmfCompleted") {
-		console.log("sendDtmf completed successfully");
+	else if (event.type === "Microsoft.Communication.SendDtmfTonesCompleted") {
+		console.log("sendDtmfTones completed successfully");
 		await callConnection.hangUp(true);
 	} 
-	else if (event.type === "Microsoft.Communication.SendDtmfFailed") {
-		console.log("sendDtmf failed with resultInformation: %s", eventData.resultInformation.message);
+	else if (event.type === "Microsoft.Communication.SendDtmfTonesFailed") {
+		console.log("sendDtmfTones failed with resultInformation: %s", eventData.resultInformation.message);
 		await callConnection.hangUp(true);
 	} 
 
