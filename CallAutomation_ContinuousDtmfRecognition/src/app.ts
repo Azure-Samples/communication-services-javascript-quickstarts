@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 import express, { Application } from 'express';
 import { PhoneNumberIdentifier } from "@azure/communication-common";
-import { CallAutomationClient, CallConnection, CallInvite, DtmfTone } from "@azure/communication-call-automation";
+import { CallAutomationClient, CallConnection, CallMedia, CallInvite, DtmfTone } from "@azure/communication-call-automation";
 
 config();
 
@@ -37,13 +37,13 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 	const event = req.body[0];
 	const eventData = event.data;
 	console.log("Received event %s for call connection id %s", event.type, eventData.callConnectionId);
-	const callConnection = acsClient.getCallConnection(eventData.callConnectionId);
-	const callMedia = callConnection.getCallMedia();
+	const callConnection: CallConnection = acsClient.getCallConnection(eventData.callConnectionId);
+	const callMedia: CallMedia = callConnection.getCallMedia();
 
 	if (event.type === "Microsoft.Communication.CallConnected") {
 		// Start continuous DTMF recognition
 		const targetParticipant: PhoneNumberIdentifier = { phoneNumber: process.env.TARGET_PHONE_NUMBER };
-		await callConnection.getCallMedia().startContinuousDtmfRecognition(targetParticipant);
+		await callMedia.startContinuousDtmfRecognition(targetParticipant);
 		console.log("startContinuousDtmfRecognition");
 	} 
 	else if (event.type === "Microsoft.Communication.ContinuousDtmfRecognitionToneReceived") {

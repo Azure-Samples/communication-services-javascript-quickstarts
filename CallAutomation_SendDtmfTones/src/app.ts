@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 import express, { Application } from 'express';
 import { PhoneNumberIdentifier } from "@azure/communication-common";
-import { CallAutomationClient, CallConnection, CallInvite, DtmfTone } from "@azure/communication-call-automation";
+import { CallAutomationClient, CallConnection, CallMedia, CallInvite, DtmfTone } from "@azure/communication-call-automation";
 
 config();
 
@@ -30,21 +30,21 @@ app.get('/outboundCall', async (req, res) => {
 	await acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks");
 	console.log("createCall");
 
-	res.redirect('/');
+	res.redirect('/index.html');
 });
 
 app.post("/api/callbacks", async (req: any, res: any) => {
 	const event = req.body[0];
 	const eventData = event.data;
 	console.log("Received event %s for call connection id %s", event.type, eventData.callConnectionId);
-	const callConnection = acsClient.getCallConnection(eventData.callConnectionId);
-	const callMedia = callConnection.getCallMedia();
+	const callConnection: CallConnection = acsClient.getCallConnection(eventData.callConnectionId);
+	const callMedia: CallMedia = callConnection.getCallMedia();
 
 	if (event.type === "Microsoft.Communication.CallConnected") {
 		// Send DTMF tones
 		const tones = [ DtmfTone.One, DtmfTone.Two, DtmfTone.Three ];
 		const targetParticipant: PhoneNumberIdentifier = { phoneNumber: process.env.TARGET_PHONE_NUMBER };
-		await callConnection.getCallMedia().sendDtmf(tones, targetParticipant);
+		await callMedia.sendDtmfTones(tones, targetParticipant);
 		console.log("sendDtmf");
 	} 
 	else if (event.type === "Microsoft.Communication.SendDtmfCompleted") {
