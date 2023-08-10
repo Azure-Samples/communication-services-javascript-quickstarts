@@ -32,7 +32,7 @@ function App() {
   /**
    * This decides where the call will be going. This supports many different calling modalities in the Call Composite.
    * 
-   * - Teams meeting locator: {meetingLike: 'url to join link for a meeting'}
+   * - Teams meeting locator: {meetingLink: 'url to join link for a meeting'}
    * - Azure communication Services group call: {groupId: 'guid that defines the call'}
    * - Azure Communication Services Rooms call: {roomId: 'guid that represents a rooms call'}
    * - Teams adhoc, Azure communications 1:n, PSTN calls all take a participants locator: {participantIds: ['Array of participant id's to call']}
