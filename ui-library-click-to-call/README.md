@@ -7,13 +7,17 @@ This project is aimed to teach developers on how to create a Calling Widget usin
 Depending on your needs, you might need to create an experience for your customers to be able to get a hold of you with minimal setup on their part.
 Calling Widget is a tool that is meant for allowing instant interaction, whether that is reaching out to customer support, having a quick call with your financial advisor, or other customer facing teams. The goal of this sample is to help make you one click away from your customers.
 
-If you want to just try it out follow the instructions below. If you are interested in information on how to build it into your application and how this sample is constructed please checkout our [tutorial here](link).
+If you want to just try it out follow the instructions below. If you are interested in information on how to build it into your application and how this sample is constructed please checkout our [tutorial here](https://learn.microsoft.com/en-us/azure/communication-services/tutorials/calling-widget/calling-widget-overview).
 
 ## Try It Out
 
 To just run the completed code, In the project directory, run:
 
 ### `npm install`
+
+### Swap placeholders for identifiers
+Go to the `src` folder and find the `App.tsx` file.
+There input values for the `token`, `userId` and `locator`.
 
 ### Run the application
 
