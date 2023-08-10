@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 import express, { Application } from 'express';
 import { PhoneNumberIdentifier } from "@azure/communication-common";
-import { CallAutomationClient, CallConnection, CallMedia, CallInvite, DtmfTone } from "@azure/communication-call-automation";
+import { CallAutomationClient, CallInvite, ContinuousDtmfRecognitionOptions } from "@azure/communication-call-automation";
 
 config();
 
@@ -11,11 +11,12 @@ app.use(express.static('webpage'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-let acsClient: CallAutomationClient;
+let callAutomationclient: CallAutomationClient;
+let c2Target = process.env.TARGET_PHONE_NUMBER;
 
 async function createAcsClient() {
 	const connectionString = process.env.CONNECTION_STRING || "";
-	acsClient = new CallAutomationClient(connectionString);
+	callAutomationclient = new CallAutomationClient(connectionString);
 	console.log("Initialized ACS Client.");
 }
 
@@ -24,10 +25,10 @@ app.get('/index.html', (req, res) => {
 });
 
 app.get('/outboundCall', async (req, res) => {
+	const target: PhoneNumberIdentifier = { phoneNumber: c2Target };
 	const caller: PhoneNumberIdentifier = { phoneNumber: process.env.ACS_RESOURCE_PHONE_NUMBER };
-	const target: PhoneNumberIdentifier = { phoneNumber: process.env.TARGET_PHONE_NUMBER };
 	const callInvite: CallInvite = { targetParticipant: target, sourceCallIdNumber: caller };
-	await acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks");
+	await callAutomationclient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks");
 	console.log("createCall");
 
 	res.redirect('/index.html');
@@ -36,23 +37,35 @@ app.get('/outboundCall', async (req, res) => {
 app.post("/api/callbacks", async (req: any, res: any) => {
 	const event = req.body[0];
 	const eventData = event.data;
+	const callConnectionId = eventData.callConnectionId;
 	console.log("Received event %s for call connection id %s", event.type, eventData.callConnectionId);
-	const callConnection: CallConnection = acsClient.getCallConnection(eventData.callConnectionId);
-	const callMedia: CallMedia = callConnection.getCallMedia();
 
 	if (event.type === "Microsoft.Communication.CallConnected") {
 		// Start continuous DTMF recognition
-		const targetParticipant: PhoneNumberIdentifier = { phoneNumber: process.env.TARGET_PHONE_NUMBER };
-		await callMedia.startContinuousDtmfRecognition(targetParticipant);
-		console.log("startContinuousDtmfRecognition");
+		const continuousDtmfRecognitionOptions: ContinuousDtmfRecognitionOptions = { operationContext: "dtmf-reco-on-c2" };
+		await callAutomationclient.getCallConnection(callConnectionId)
+			.getCallMedia()
+			.startContinuousDtmfRecognition({ phoneNumber: c2Target }, continuousDtmfRecognitionOptions);
+		console.log("Started continuous DTMF recognition");
 	} 
-	else if (event.type === "Microsoft.Communication.ContinuousDtmfRecognitionToneReceived") {
-		console.log("DTMF tone received: %s", eventData.toneInfo.tone);
-		await callConnection.hangUp(true);
+
+	if (event.type === "Microsoft.Communication.ContinuousDtmfRecognitionToneReceived") {
+		console.log("Tone detected: sequenceId=%s, tone=%s, context=%s",
+			eventData.toneInfo.sequenceId,
+			eventData.toneInfo.tone,
+			eventData.operationContext);
+
+		const continuousDtmfRecognitionOptions: ContinuousDtmfRecognitionOptions = { operationContext: "dtmf-reco-on-c2" };
+		await callAutomationclient.getCallConnection(callConnectionId)
+			.getCallMedia()
+			.stopContinuousDtmfRecognition({ phoneNumber: c2Target }, continuousDtmfRecognitionOptions);
+		console.log("Stopped continuous DTMF recognition");
 	} 
-	else if (event.type === "Microsoft.Communication.ContinuousDtmfRecognitionToneFailed") {
-		console.log("startContinuousDtmfRecognition failed with resultInformation: %s", eventData.resultInformation.message);
-		await callConnection.hangUp(true);
+	if (event.type === "Microsoft.Communication.ContinuousDtmfRecognitionToneFailed") {
+		console.log("Tone failed: result=%s, context=%s", eventData.resultInformation.message, eventData.operationContext);
+	} 
+	if (event.type === "Microsoft.Communication.ContinuousDtmfRecognitionStopped") {
+		console.log("Tone stopped: context=%s", eventData.operationContext);
 	} 
 
 	res.sendStatus(200);

@@ -1,7 +1,8 @@
 import { config } from 'dotenv';
 import express, { Application } from 'express';
 import { PhoneNumberIdentifier } from "@azure/communication-common";
-import { CallAutomationClient, CallConnection, CallMedia, CallInvite, DtmfTone } from "@azure/communication-call-automation";
+import { CallAutomationClient, CallInvite, 
+	DtmfTone, SendDtmfTonesOptions, SendDtmfTonesResult } from "@azure/communication-call-automation";
 
 config();
 
@@ -11,11 +12,12 @@ app.use(express.static('webpage'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-let acsClient: CallAutomationClient;
+let callAutomationClient: CallAutomationClient;
+let c2Target = process.env.TARGET_PHONE_NUMBER;
 
 async function createAcsClient() {
 	const connectionString = process.env.CONNECTION_STRING || "";
-	acsClient = new CallAutomationClient(connectionString);
+	callAutomationClient = new CallAutomationClient(connectionString);
 	console.log("Initialized ACS Client.");
 }
 
@@ -24,10 +26,10 @@ app.get('/index.html', (req, res) => {
 });
 
 app.get('/outboundCall', async (req, res) => {
+	const target: PhoneNumberIdentifier = { phoneNumber: c2Target };
 	const caller: PhoneNumberIdentifier = { phoneNumber: process.env.ACS_RESOURCE_PHONE_NUMBER };
-	const target: PhoneNumberIdentifier = { phoneNumber: process.env.TARGET_PHONE_NUMBER };
 	const callInvite: CallInvite = { targetParticipant: target, sourceCallIdNumber: caller };
-	await acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks");
+	await callAutomationClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks");
 	console.log("createCall");
 
 	res.redirect('/index.html');
@@ -36,24 +38,26 @@ app.get('/outboundCall', async (req, res) => {
 app.post("/api/callbacks", async (req: any, res: any) => {
 	const event = req.body[0];
 	const eventData = event.data;
+	const callConnectionId = eventData.callConnectionId;
 	console.log("Received event %s for call connection id %s", event.type, eventData.callConnectionId);
-	const callConnection: CallConnection = acsClient.getCallConnection(eventData.callConnectionId);
-	const callMedia: CallMedia = callConnection.getCallMedia();
 
 	if (event.type === "Microsoft.Communication.CallConnected") {
 		// Send DTMF tones
 		const tones = [ DtmfTone.One, DtmfTone.Two, DtmfTone.Three ];
-		const targetParticipant: PhoneNumberIdentifier = { phoneNumber: process.env.TARGET_PHONE_NUMBER };
-		await callMedia.sendDtmfTones(tones, targetParticipant);
-		console.log("sendDtmfTones");
+		const sendDtmfTonesOptions: SendDtmfTonesOptions = { operationContext: "dtmfs-to-ivr" };
+		const result: SendDtmfTonesResult = await callAutomationClient.getCallConnection(callConnectionId)
+			.getCallMedia()
+			.sendDtmfTones(tones, { phoneNumber: c2Target }, sendDtmfTonesOptions);
+		console.log("sendDtmfTones, result=%s", result);
 	} 
-	else if (event.type === "Microsoft.Communication.SendDtmfTonesCompleted") {
-		console.log("sendDtmfTones completed successfully");
-		await callConnection.hangUp(true);
-	} 
-	else if (event.type === "Microsoft.Communication.SendDtmfTonesFailed") {
-		console.log("sendDtmfTones failed with resultInformation: %s", eventData.resultInformation.message);
-		await callConnection.hangUp(true);
+	if (event.type === "Microsoft.Communication.SendDtmfTonesCompleted") {
+		console.log("Send dtmf succeeded: context=%s", eventData.operationContext);
+	}
+
+	if (event.type === "Microsoft.Communication.SendDtmfTonesFailed") {
+		console.log("sendDtmfTones failed: result=%s, context=%s",
+			eventData.resultInformation.message,
+			eventData.operationContext);
 	} 
 
 	res.sendStatus(200);
