@@ -29,12 +29,16 @@ And this sample is built based on the [CallWithChat Compsite](https://azure.gith
 1. Run `npm i` on the directory of the project to install dependencies
 2. Swap placeholders for identifiers in the code.
     - Go to the `src` folder and find the `app.tsx` file.
-    - There input values for the `Endpoint_URL` for your resource and the `USER_ID` and `TOKEN` for the identity you created.
-    - Optional: Youcan update the display name to match a string value of your choice.
+    - Replace the following values:
+        - `ENDPOINT_URL` of your Communication Resource
+        - `USER_ID` of your Communication User
+        - `TEAMS_MEETING_LINK` you would be using for this sample
+        - `TOKEN` of your Communication Resource
     - Save the file.
 4. Run `npm run start`
 
 Open your browser to ` http://localhost:3000`. You should see the following:
+
 ![Composite End State](../media/CompositeEnd.png)
 
 Feel free to style the composites to your desired size and layout inside of your application.

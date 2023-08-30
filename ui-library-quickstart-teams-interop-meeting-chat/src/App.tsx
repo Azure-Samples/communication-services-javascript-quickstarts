@@ -23,7 +23,7 @@ import { Theme, PartialTheme, Spinner } from '@fluentui/react';
  */
 const ENDPOINT_URL = '<Azure Communication Resource Endpoint URL>';
 const USER_ID = '<Azure Communication User ID>';
-var token = '<Azure Communication Service Resource Token>';
+const TOKEN = '<Azure Communication Service Resource Token>';
 const TEAMS_MEETING_LINK = '<Teams Meeting Link>';
 
 /**
@@ -83,7 +83,7 @@ function App(): JSX.Element {
     return (
       <CallWithChatExperience
         userId = {{ "communicationUserId": USER_ID }}
-        token={token}
+        token={ TOKEN }
         displayName = { DISPLAY_NAME }
         endpointUrl={ ENDPOINT_URL }
         locator = { {"meetingLink": TEAMS_MEETING_LINK} }
