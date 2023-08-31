@@ -39,6 +39,14 @@ And this sample is built based on the [CallWithChat Compsite](https://azure.gith
 
 Open your browser to ` http://localhost:3000`. You should see the following:
 
-![Composite End State](../media/CompositeEnd.png)
+![Meeting Chat Lobby](../media/interop-meeting-lobby.png)
+
+once you are admitted by a meeting participant, you would be navigated to the Composite:
+
+![Meeting Chat Lobby](../media/interop-meeting-home.png)
+
+then click on the chat button to reveal the chat panel:
+
+![Meeting Chat Lobby](../media/interop-meeting-chat.png)
 
 Feel free to style the composites to your desired size and layout inside of your application.
