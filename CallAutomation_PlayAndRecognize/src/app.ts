@@ -228,6 +228,9 @@ app.post("/api/callbacks", async (req: any, res: any) => {
     if (event.type === "Microsoft.Communication.RecognizeFailed") {
         console.log("Recognize failed: data=%s", JSON.stringify(eventData, null, 2));
     }
+    if (event.type === "Microsoft.Communication.RecognizeCanceled") {
+        console.log("Recognize canceled, context=%s", eventData.operationContext);
+    }    
 
 	res.sendStatus(200);
 });
