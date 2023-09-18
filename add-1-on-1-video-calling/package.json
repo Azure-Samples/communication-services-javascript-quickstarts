@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "@azure/communication-calling": "^1.9.1",
-    "@azure/communication-common": "^2.2.0"
+    "@azure/communication-calling": "^1.16.3",
+    "@azure/communication-common": "^2.2.1"
   },
   "devDependencies": {
     "webpack": "^4.46.0",
