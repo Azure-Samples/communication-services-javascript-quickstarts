@@ -1,0 +1,35 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Azure Communication Services - Teams Calling Web Application</title>
+    </head>
+    <body>
+        <h4>Azure Communication Services - Teams Calling Web Application</h4>
+        <input id="user-access-token"
+            type="text"
+            placeholder="User access token"
+            style="margin-bottom:1em; width: 500px;"/>
+        <button id="initialize-call-agent" type="button">Login</button>
+        <br>
+        <br>
+        <input id="voice-application-id"
+            type="text"
+            placeholder="Microsoft application id (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)"
+            style="margin-bottom:1em; width: 500px; display: block;"/>
+        <button id="start-call-button" type="button" disabled="true">Start Call</button>
+        <button id="hangup-call-button" type="button" disabled="true">Hang up Call</button>
+        <button id="accept-call-button" type="button" disabled="true">Accept Call</button>
+        <button id="start-video-button" type="button" disabled="true">Start Video</button>
+        <button id="stop-video-button" type="button" disabled="true">Stop Video</button>
+        <br>
+        <br>
+        <div id="connectedLabel" style="color: #13bb13;" hidden>Call is connected!</div>
+        <br>
+        <div id="remoteVideoContainer" style="width: 40%;" hidden>Remote participants' video streams:</div>
+        <br>
+        <div id="localVideoContainer" style="width: 30%;" hidden>Local video stream:</div>
+        <!-- points to the bundle generated from client.js -->
+        <script src="./bundle.js"></script>
+    </body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "name": "calling-quickstart",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/communication-calling": "@azure/communication-common@latest",
+    "@azure/communication-common": "@azure/communication-calling@latest",
+    "react-dom": "18.2.0",
+    "react-native-web": "~0.19.6"
+  },
+  "devDependencies": {
+    "webpack": "^4.42.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.11.2"
+  }
+}
