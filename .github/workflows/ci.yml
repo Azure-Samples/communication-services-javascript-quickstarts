@@ -40,4 +40,4 @@ jobs:
     # Build "add-1-on-1-voice-calling"
       - name: Build "add-1-on-1-voice-calling"
         working-directory: ./add-1-on-1-voice-calling
-        run: npx webpack serve --config webpack.config.js
+        run: npx webpack --config webpack.config.js
