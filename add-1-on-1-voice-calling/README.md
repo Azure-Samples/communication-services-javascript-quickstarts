@@ -19,15 +19,11 @@ This quickstart sample includes the code that is explained as part of [this docu
 - An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
 - A User Access Token to instantiate the call client. [Learn how to create and manage user access tokens](https://docs.microsoft.com/azure/communication-services/quickstarts/access-tokens?pivots=programming-language-javascript).
 
-
 ## Run the code
 1. Run `npm i` on the directory of the project to install dependencies
-2. Use the webpack-dev-server to build and run your app. Run the following command to bundle application host in on a local webserver:
-
-        npx webpack-dev-server --entry ./client.js --output bundle.js --debug --devtool inline-source-map
-
-Open your browser and navigate to http://localhost:8080/. You should see the following:
-
+2. Use the webpack serve command to build and run the app on a local server:
+`npx webpack serve --config webpack.config.js`
+3. Once the local server starts up, open your browser and navigate to http://localhost:8080/. You'll see the calling application:
 ![Render of sample application](../media/1-on-1-voice-calling.png)
+To make an 1:1 outgoing video call, first provide user access token to initiate the call agent, then provide a ACS user ID in the text field and clicking the Start Call button. When the callee answers the call, call will be connected and youll hear each other
 
-You can make an 1:1 outgoing voice call by providing a user ID in the text field and clicking the Start Call button. 
