@@ -24,7 +24,7 @@ This tutorial demonstrates step-by-step instructions to build a video calling we
 
 ## Prerequisites
 - Create [Microsoft Azure account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) with active subscription
-- Install [Node.js](https://nodejs.org/en/)
+- You need to have [Node.js 18](https://nodejs.org/dist/v18.18.0/). You can use the msi installer to install it.
 - Add [Azure Communication Service resrouce](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/create-communication-resource?pivots=platform-azp&tabs=windows#create-azure-communication-services-resource) to your Azure subscription
 - Create [User Access Token](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/manage-teams-identity?pivots=programming-language-javascript#step-3-exchange-the-azure-ad-access-token-of-the-teams-user-for-a-communication-identity-access-token)
 - Obtain a Teams id using [Graph Explorer](https://developer.microsoft.com/en-us/graph/graph-explorer)
