@@ -7,40 +7,43 @@ setLogLevel('verbose');
 AzureLogger.log = (...args) => {
     console.log(...args);
 };
+
 // Calling web sdk objects
-let teamsCallAgent;
+let callAgent;
 let deviceManager;
 let call;
 let incomingCall;
 let localVideoStream;
 let localVideoStreamRenderer;
+
 // UI widgets
 let userAccessToken = document.getElementById('user-access-token');
-let calleeTeamsUserId = document.getElementById('callee-teams-user-id');
-let initializeCallAgentButton = document.getElementById('initialize-teams-call-agent');
+let calleeAcsUserId = document.getElementById('callee-acs-user-id');
+let initializeCallAgentButton = document.getElementById('initialize-call-agent');
 let startCallButton = document.getElementById('start-call-button');
 let hangUpCallButton = document.getElementById('hangup-call-button');
 let acceptCallButton = document.getElementById('accept-call-button');
 let startVideoButton = document.getElementById('start-video-button');
 let stopVideoButton = document.getElementById('stop-video-button');
 let connectedLabel = document.getElementById('connectedLabel');
-let remoteVideoContainer = document.getElementById('remoteVideoContainer');
+let remoteVideosGallery = document.getElementById('remoteVideosGallery');
 let localVideoContainer = document.getElementById('localVideoContainer');
+
 /**
- * Create an instance of CallClient. Initialize a TeamsCallAgent instance with a CommunicationUserCredential via created CallClient. TeamsCallAgent enables us to make outgoing calls and receive incoming calls. 
+ * Using the CallClient, initialize a CallAgent instance with a CommunicationUserCredential which will enable us to make outgoing calls and receive incoming calls. 
  * You can then use the CallClient.getDeviceManager() API instance to get the DeviceManager.
  */
 initializeCallAgentButton.onclick = async () => {
     try {
         const callClient = new CallClient(); 
         tokenCredential = new AzureCommunicationTokenCredential(userAccessToken.value.trim());
-        teamsCallAgent = await callClient.createTeamsCallAgent(tokenCredential)
+        callAgent = await callClient.createCallAgent(tokenCredential)
         // Set up a camera device to use.
         deviceManager = await callClient.getDeviceManager();
         await deviceManager.askDevicePermission({ video: true });
         await deviceManager.askDevicePermission({ audio: true });
         // Listen for an incoming call to accept.
-        teamsCallAgent.on('incomingCall', async (args) => {
+        callAgent.on('incomingCall', async (args) => {
             try {
                 incomingCall = args.incomingCall;
                 acceptCallButton.disabled = false;
@@ -49,36 +52,39 @@ initializeCallAgentButton.onclick = async () => {
                 console.error(error);
             }
         });
+
         startCallButton.disabled = false;
         initializeCallAgentButton.disabled = true;
     } catch(error) {
         console.error(error);
     }
 }
+
 /**
  * Place a 1:1 outgoing video call to a user
- * Add an event listener to initiate a call when the `startCallButton` is selected.
- * Enumerate local cameras using the deviceManager `getCameraList` API.
- * In this quickstart, we're using the first camera in the collection. Once the desired camera is selected, a
+ * Add an event listener to initiate a call when the `startCallButton` is clicked:
+ * First you have to enumerate local cameras using the deviceManager `getCameraList` API.
+ * In this quickstart we're using the first camera in the collection. Once the desired camera is selected, a
  * LocalVideoStream instance will be constructed and passed within `videoOptions` as an item within the
- * localVideoStream array to the call method. When the call connects, your application will be sending a video stream to the other participant. 
+ * localVideoStream array to the call method. Once your call connects it will automatically start sending a video stream to the other participant. 
  */
 startCallButton.onclick = async () => {
     try {
         const localVideoStream = await createLocalVideoStream();
         const videoOptions = localVideoStream ? { localVideoStreams: [localVideoStream] } : undefined;
-        call = teamsCallAgent.startCall([{ microsoftTeamsUserId: calleeTeamsUserId.value.trim() }], { videoOptions: videoOptions });
+        call = callAgent.startCall([{ communicationUserId: calleeAcsUserId.value.trim() }], { videoOptions });
         // Subscribe to the call's properties and events.
         subscribeToCall(call);
     } catch (error) {
         console.error(error);
     }
 }
+
 /**
- * Accepting an incoming call with a video
- * Add an event listener to accept a call when the `acceptCallButton` is selected.
- * You can accept incoming calls after subscribing to the `TeamsCallAgent.on('incomingCall')` event.
- * You can pass the local video stream to accept the call with the following code.
+ * Accepting an incoming call with video
+ * Add an event listener to accept a call when the `acceptCallButton` is clicked:
+ * After subscribing to the `CallAgent.on('incomingCall')` event, you can accept the incoming call.
+ * You can pass the local video stream which you want to use to accept the call with.
  */
 acceptCallButton.onclick = async () => {
     try {
@@ -91,16 +97,20 @@ acceptCallButton.onclick = async () => {
         console.error(error);
     }
 }
-// Subscribe to a call obj.
-// Listen for property changes and collection udpates.
+
+/**
+ * Subscribe to a call obj.
+ * Listen for property changes and collection updates.
+ */
 subscribeToCall = (call) => {
     try {
         // Inspect the initial call.id value.
         console.log(`Call Id: ${call.id}`);
-        //Subsribe to call's 'idChanged' event for value changes.
+        //Subscribe to call's 'idChanged' event for value changes.
         call.on('idChanged', () => {
-            console.log(`Call ID changed: ${call.id}`); 
+            console.log(`Call Id changed: ${call.id}`); 
         });
+
         // Inspect the initial call.state value.
         console.log(`Call state: ${call.state}`);
         // Subscribe to call's 'stateChanged' event for value changes.
@@ -113,6 +123,7 @@ subscribeToCall = (call) => {
                 hangUpCallButton.disabled = false;
                 startVideoButton.disabled = false;
                 stopVideoButton.disabled = false;
+                remoteVideosGallery.hidden = false;
             } else if (call.state === 'Disconnected') {
                 connectedLabel.hidden = true;
                 startCallButton.disabled = false;
@@ -122,6 +133,11 @@ subscribeToCall = (call) => {
                 console.log(`Call ended, call end reason={code=${call.callEndReason.code}, subCode=${call.callEndReason.subCode}}`);
             }   
         });
+
+        call.on('isLocalVideoStartedChanged', () => {
+            console.log(`isLocalVideoStarted changed: ${call.isLocalVideoStarted}`);
+        });
+        console.log(`isLocalVideoStarted: ${call.isLocalVideoStarted}`);
         call.localVideoStreams.forEach(async (lvs) => {
             localVideoStream = lvs;
             await displayLocalVideoStream();
@@ -156,8 +172,11 @@ subscribeToCall = (call) => {
         console.error(error);
     }
 }
-// Subscribe to a remote participant obj.
-// Listen for property changes and collection udpates.
+
+/**
+ * Subscribe to a remote participant obj.
+ * Listen for property changes and collection udpates.
+ */
 subscribeToRemoteParticipant = (remoteParticipant) => {
     try {
         // Inspect the initial remoteParticipant.state value.
@@ -166,6 +185,7 @@ subscribeToRemoteParticipant = (remoteParticipant) => {
         remoteParticipant.on('stateChanged', () => {
             console.log(`Remote participant state changed: ${remoteParticipant.state}`);
         });
+
         // Inspect the remoteParticipants's current videoStreams and subscribe to them.
         remoteParticipant.videoStreams.forEach(remoteVideoStream => {
             subscribeToRemoteVideoStream(remoteVideoStream)
@@ -173,11 +193,11 @@ subscribeToRemoteParticipant = (remoteParticipant) => {
         // Subscribe to the remoteParticipant's 'videoStreamsUpdated' event to be
         // notified when the remoteParticiapant adds new videoStreams and removes video streams.
         remoteParticipant.on('videoStreamsUpdated', e => {
-            // Subscribe to newly added remote participant's video streams.
+            // Subscribe to new remote participant's video streams that were added.
             e.added.forEach(remoteVideoStream => {
                 subscribeToRemoteVideoStream(remoteVideoStream)
             });
-            // Unsubscribe from newly removed remote participants' video streams.
+            // Unsubscribe from remote participant's video streams that were removed.
             e.removed.forEach(remoteVideoStream => {
                 console.log('Remote participant video stream was removed.');
             })
@@ -186,47 +206,73 @@ subscribeToRemoteParticipant = (remoteParticipant) => {
         console.error(error);
     }
 }
+
 /**
  * Subscribe to a remote participant's remote video stream obj.
  * You have to subscribe to the 'isAvailableChanged' event to render the remoteVideoStream. If the 'isAvailable' property
- * changes to 'true' a remote participant is sending a stream. Whenever the availability of a remote stream changes
- * you can choose to destroy the whole 'Renderer' a specific 'RendererView' or keep them. Displaying RendererView without a video stream will result in a blank video frame. 
+ * changes to 'true', a remote participant is sending a stream. Whenever availability of a remote stream changes
+ * you can choose to destroy the whole 'Renderer', a specific 'RendererView' or keep them, but this will result in displaying blank video frame.
  */
 subscribeToRemoteVideoStream = async (remoteVideoStream) => {
-    // Create a video stream renderer for the remote video stream.
-    let videoStreamRenderer = new VideoStreamRenderer(remoteVideoStream);
+    let renderer = new VideoStreamRenderer(remoteVideoStream);
     let view;
-    const renderVideo = async () => {
+    let remoteVideoContainer = document.createElement('div');
+    remoteVideoContainer.className = 'remote-video-container';
+
+    let loadingSpinner = document.createElement('div');
+    loadingSpinner.className = 'loading-spinner';
+    remoteVideoStream.on('isReceivingChanged', () => {
         try {
-            // Create a renderer view for the remote video stream.
-            view = await videoStreamRenderer.createView();
-            // Attach the renderer view to the UI.
-            remoteVideoContainer.hidden = false;
-            remoteVideoContainer.appendChild(view.target);
-        } catch (e) {
-            console.warn(`Failed to createView, reason=${e.message}, code=${e.code}`);
-        }	
-    }
-    
-    remoteVideoStream.on('isAvailableChanged', async () => {
-        // Participant has switched video on.
-        if (remoteVideoStream.isAvailable) {
-            await renderVideo();
-        // Participant has switched video off.
-        } else {
-            if (view) {
-                view.dispose();
-                view = undefined;
+            if (remoteVideoStream.isAvailable) {
+                const isReceiving = remoteVideoStream.isReceiving;
+                const isLoadingSpinnerActive = remoteVideoContainer.contains(loadingSpinner);
+                if (!isReceiving && !isLoadingSpinnerActive) {
+                    remoteVideoContainer.appendChild(loadingSpinner);
+                } else if (isReceiving && isLoadingSpinnerActive) {
+                    remoteVideoContainer.removeChild(loadingSpinner);
+                }
             }
+        } catch (e) {
+            console.error(e);
         }
     });
-    // Participant has video on initially.
+
+    const createView = async () => {
+        // Create a renderer view for the remote video stream.
+        view = await renderer.createView();
+        // Attach the renderer view to the UI.
+        remoteVideoContainer.appendChild(view.target);
+        remoteVideosGallery.appendChild(remoteVideoContainer);
+    }
+
+    // Remote participant has switched video on/off
+    remoteVideoStream.on('isAvailableChanged', async () => {
+        try {
+            if (remoteVideoStream.isAvailable) {
+                await createView();
+            } else {
+                view.dispose();
+                remoteVideosGallery.removeChild(remoteVideoContainer);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    });
+
+    // Remote participant has video on initially.
     if (remoteVideoStream.isAvailable) {
-        await renderVideo();
+        try {
+            await createView();
+        } catch (e) {
+            console.error(e);
+        }
     }
 }
-// Start your local video stream.
-// This will send your local video stream to remote participants so they can view it.
+
+/**
+ * Start your local video stream.
+ * This will send your local video stream to remote participants so they can view it.
+ */
 startVideoButton.onclick = async () => {
     try {
         const localVideoStream = await createLocalVideoStream();
@@ -235,8 +281,11 @@ startVideoButton.onclick = async () => {
         console.error(error);
     }
 }
-// Stop your local video stream.
-// This will stop your local video stream from being sent to remote participants.
+
+/**
+ * Stop your local video stream.
+ * This will stop your local video stream from being sent to remote participants.
+ */
 stopVideoButton.onclick = async () => {
     try {
         await call.stopVideo(localVideoStream);
@@ -244,12 +293,12 @@ stopVideoButton.onclick = async () => {
         console.error(error);
     }
 }
+
 /**
  * To render a LocalVideoStream, you need to create a new instance of VideoStreamRenderer, and then
  * create a new VideoStreamRendererView instance using the asynchronous createView() method.
  * You may then attach view.target to any UI element. 
  */
-// Create a local video stream for your camera device
 createLocalVideoStream = async () => {
     const camera = (await deviceManager.getCameras())[0];
     if (camera) {
@@ -258,7 +307,10 @@ createLocalVideoStream = async () => {
         console.error(`No camera device found on the system`);
     }
 }
-// Display your local video stream preview in your UI
+
+/**
+ * Display your local video stream preview in your UI
+ */
 displayLocalVideoStream = async () => {
     try {
         localVideoStreamRenderer = new VideoStreamRenderer(localVideoStream);
@@ -269,7 +321,10 @@ displayLocalVideoStream = async () => {
         console.error(error);
     } 
 }
-// Remove your local video stream preview from your UI
+
+/**
+ * Remove your local video stream preview from your UI
+ */
 removeLocalVideoStream = async() => {
     try {
         localVideoStreamRenderer.dispose();
@@ -278,7 +333,10 @@ removeLocalVideoStream = async() => {
         console.error(error);
     } 
 }
-// End the current call
+
+/**
+ * End current call
+ */
 hangUpCallButton.addEventListener("click", async () => {
     // end the current call
     await call.hangUp();

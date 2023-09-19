@@ -15,19 +15,15 @@ This quickstart sample includes the code that is explained as part of [this docu
 
 ## Prerequisites
 - Obtain an Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
-- You need to have [Node.js](https://nodejs.org/en/) Active LTS and Maintenance LTS versions (8.11.1 and 10.14.1)
+- You need to have [Node.js 18](https://nodejs.org/dist/v18.18.0/). You can use the msi installer to install it.
 - Create an active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
 - Create a User Access Token to instantiate the call client. [Learn how to create and manage user access tokens](https://docs.microsoft.com/azure/communication-services/quickstarts/access-tokens?pivots=programming-language-javascript).
 
 
 ## Run the code
 1. Run `npm i` on the directory of the project to install dependencies
-2. Use the webpack-dev-server to build and run your app. Run the following command to bundle application host in on a local webserver:
-
-        npx webpack-dev-server --entry ./client.js --output bundle.js --debug --devtool inline-source-map
-
-Open your browser and navigate to http://localhost:8080/. You should see the following:
-
+2. Use the webpack serve command to build and run the app on a local server:
+`npx webpack serve --config webpack.config.js`
+3. Once the local server starts up, open your browser and navigate to http://localhost:8080/. You'll see the calling application:
 ![Render of sample application](../media/1-on-1-video-calling.png)
-
-To make an 1:1 outgoing video call, first provide user access token to initiate the call agent, then provide a ACS user ID in the text field and clicking the Start Call button. 
+To make an 1:1 outgoing video call, first provide user access token to initiate the call agent, then provide a ACS user ID in the text field and clicking the Start Call button. When the callee answers the call with video, call will be connected and you will see each other's videos.

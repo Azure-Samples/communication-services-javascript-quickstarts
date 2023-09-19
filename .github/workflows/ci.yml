@@ -6,6 +6,7 @@ on:
   push:
     paths:
       - 'add-1-on-1-voice-calling/**'
+
   pull_request:
     paths:
       - 'add-1-on-1-voice-calling/**'
@@ -25,11 +26,11 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-    # Install Node version v14.x
-      - name: Use Node.js v14.x
+    # Install Node version v18.x
+      - name: Use Node.js v18.x
         uses: actions/setup-node@v1
         with:
-          node-version: "14.x"
+          node-version: "18.x"
 
     # Install dependencies on "add-1-on-1-voice-calling"
       - name: Install dependencies
@@ -39,4 +40,4 @@ jobs:
     # Build "add-1-on-1-voice-calling"
       - name: Build "add-1-on-1-voice-calling"
         working-directory: ./add-1-on-1-voice-calling
-        run: npx webpack --entry ./client.js --output bundle.js
+        run: npx webpack --config webpack.config.js
