@@ -74,8 +74,6 @@ export const CallWithChatExperience = (props: CallWithChatExampleProps): JSX.Ele
   return <CallWithChatComposite adapter={adapter} fluentTheme={props.fluentTheme} options={props.compositeOptions} />;
 };
 
-// initializeIcons();
-
 /**
  * Entry point of your application.
  */
