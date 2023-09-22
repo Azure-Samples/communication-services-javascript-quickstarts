@@ -11,8 +11,8 @@ products:
 
 This sample is part of tutorials for:
 
-- [Add file sharing with UI Library in Azure Communication Service Chat](./file-sharing-tutorial-acs-chat.md)
-- [Add file sharing with UI Library in Teams Interoperability Chat](./file-sharing-tutorial-interop-chat.md)
+- [Add file sharing with UI Library in Azure Communication Service Chat](https://docs.microsoft.com/azure/communication-services/tutorials/file-sharing-tutorial-acs-chat)
+- [Add file sharing with UI Library in Teams Interoperability Chat](https://docs.microsoft.com/azure/communication-services/tutorials/file-sharing-tutorial-interop-chat)
 
 And this sample is built based on the [CallWithChat Compsite](https://azure.github.io/communication-ui-library/?path=/docs/composites-call-with-chat-basicexample--basic-example) from our storybook page.
 
