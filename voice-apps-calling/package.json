@@ -10,14 +10,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@azure/communication-calling": "@azure/communication-common@latest",
-    "@azure/communication-common": "@azure/communication-calling@latest",
+    "@azure/communication-calling": "next",
+    "@azure/communication-common": "next",
     "react-dom": "18.2.0",
     "react-native-web": "~0.19.6"
   },
   "devDependencies": {
-    "webpack": "^4.42.0",
-    "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.11.2"
+    "copy-webpack-plugin": "^11.0.0",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
   }
 }

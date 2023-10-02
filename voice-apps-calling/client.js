@@ -69,7 +69,7 @@ startCallButton.onclick = async () => {
     try {
         const localVideoStream = await createLocalVideoStream();
         const videoOptions = localVideoStream ? { localVideoStreams: [localVideoStream] } : undefined;
-        call = callAgent.startCall([{ botId: voiceApplicationId.value.trim(), cloud:"public" }], { videoOptions: videoOptions });
+        call = callAgent.startCall([{ teamsAppId: voiceApplicationId.value.trim(), cloud:"public" }], { videoOptions: videoOptions });
         // Subscribe to the call's properties and events.
         subscribeToCall(call);
     } catch (error) {
