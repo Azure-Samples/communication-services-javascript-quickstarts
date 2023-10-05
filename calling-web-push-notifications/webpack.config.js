@@ -31,7 +31,7 @@ const registerCommunicationUserForOneSignal = async (communicationUserToken) => 
         },
         data: JSON.stringify({
             communicationUserId: communicationUserToken.user.communicationUserId,
-            oneSignalRegistrationToken,
+            oneSignalRegistrationToken: oneSignalRegistrationToken,
             oneSignalAppId: clientConfig.oneSignalAppId
         })
     }).then((response) => { return response.data });
