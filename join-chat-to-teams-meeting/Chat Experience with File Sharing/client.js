@@ -154,7 +154,6 @@ function renderFileAttachments(attachment) {
         '<div>' +
         '<p>' + attachment.name + '</p>' +
         '<a href=' + attachment.previewUrl + ' target="_blank" rel="noreferrer">Open</a>' +
-        '<a href=' + attachment.url + ' target="_blank" rel="noreferrer">Download</a>' +
         '</div>' +
         '</div>';
 }
