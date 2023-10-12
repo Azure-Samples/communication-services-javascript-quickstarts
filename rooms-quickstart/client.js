@@ -65,7 +65,7 @@ export async function main() {
   await roomsClient.addOrUpdateParticipants(roomId, addParticipantsList);
   console.log(`Added Participants`);
   
-  await delay(500);
+  await delay(1500);
 
   // request payload to update user1 with a new role
   const updateParticipantsList = [
@@ -89,7 +89,7 @@ export async function main() {
   await roomsClient.removeParticipants(roomId, removeParticipantsList);
   console.log(`Removed Participants`);
 
-  await delay(500);
+  await delay(1500);
 
   // lists all active rooms
   const listRoomsResult = await roomsClient.listRooms({});
