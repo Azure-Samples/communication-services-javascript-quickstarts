@@ -14,11 +14,13 @@ export async function main() {
 
   var validFrom = new Date(Date.now());
   var validUntil = new Date(validFrom.getTime() + 5 * 60 * 1000);
+  var pstnDialOutEnabled = false;
 
   // options payload to create a room
   const createRoomOptions = {
     validFrom: validFrom,
     validUntil: validUntil,
+    pstnDialOutEnabled: pstnDialOutEnabled,
     participants: [
       {
         id: user1.user,
@@ -38,11 +40,13 @@ export async function main() {
   
   validFrom.setTime(validUntil.getTime());
   validUntil.setTime(validFrom.getTime() + 5 * 60 * 1000);
+  pstnDialOutEnabled = true;
 
   // request payload to update a room
   const updateRoomOptions = {
     validFrom: validFrom,
-    validUntil: validUntil
+    validUntil: validUntil,
+    pstnDialOutEnabled: pstnDialOutEnabled
   };
 
   // updates the specified room with the request payload
@@ -61,7 +65,7 @@ export async function main() {
   await roomsClient.addOrUpdateParticipants(roomId, addParticipantsList);
   console.log(`Added Participants`);
   
-  await delay(500);
+  await delay(1500);
 
   // request payload to update user1 with a new role
   const updateParticipantsList = [
@@ -85,7 +89,7 @@ export async function main() {
   await roomsClient.removeParticipants(roomId, removeParticipantsList);
   console.log(`Removed Participants`);
 
-  await delay(500);
+  await delay(1500);
 
   // lists all active rooms
   const listRoomsResult = await roomsClient.listRooms({});
