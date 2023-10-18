@@ -125,7 +125,7 @@ function renderReceivedMessage(e) {
 
     // filter out inline images from attchments
     const imageAttachments = e.attachments.filter((e) =>
-        e.attachmentType.toLowerCase() === 'teamsinlineimage');
+        e.attachmentType.toLowerCase() === 'image');
 
     // fetch and render preview images
     fetchPreviewImages(imageAttachments);
