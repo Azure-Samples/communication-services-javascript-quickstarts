@@ -21,31 +21,6 @@ function App() {
   const [page, setPage] = useState<AppPages>("calling-widget");
   const [adapterArgs, setAdapterArgs] = useState<AdapterArgs | undefined>();
   const [useVideo, setUseVideo] = useState<boolean>(false);
-  /**
-   * Token for local user.
-   */
-  const token = "<Enter your Azure Communication Services token here>";
-
-  /**
-   * User identifier for local user.
-   */
-  const userId: CommunicationIdentifier = {
-    communicationUserId: "<Enter your user Id>",
-  };
-
-  /**
-   * This decides where the call will be going. This supports many different calling modalities in the Call Composite.
-   *
-   * - Teams meeting locator: {meetingLink: 'url to join link for a meeting'}
-   * - Azure Communication Services group call: {groupId: 'GUID that defines the call'}
-   * - Azure Communication Services Rooms call: {roomId: 'guid that represents a rooms call'}
-   * - Teams adhoc, Azure communications 1:n, PSTN calls all take a participants locator: {participantIds: ['Array of participant id's to call']}
-   *
-   * You can call teams voice apps like a Call queue with the participants locator.
-   */
-  const locator: CallAdapterLocator = {
-    participantIds: ["<Enter Participant Id's here>"],
-  };
 
   const startSession = useMemo(() => {
     return getStartSessionFromURL();
@@ -88,15 +63,7 @@ function App() {
 
   switch (page) {
     case 'calling-widget': {
-      if (!token || !userId || !locator || startSession !== false) {
-        return (
-          <Stack verticalAlign='center' style={{ height: '100%', width: '100%' }}>
-            <Spinner label={'Getting user credentials from server'} ariaLive="assertive" labelPosition="top" />;
-          </Stack>
-        )
-
-      }
-      return <CallingWidgetScreen token={token} userId={userId} callLocator={locator} />;
+      return <CallingWidgetScreen />;
     }
     case 'new-window-call': {
       if (!adapterArgs) {
