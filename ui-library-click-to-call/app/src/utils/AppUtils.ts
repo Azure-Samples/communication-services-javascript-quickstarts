@@ -1,5 +1,7 @@
 import { CallAdapterLocator } from '@azure/communication-react';
 import { CommunicationIdentifier } from '@azure/communication-common';
+import { GroupLocator, TeamsMeetingLinkLocator } from '@azure/communication-calling';
+import { v1 as generateGUID } from 'uuid';
 
 /**
  * Function to see if we should be making a request for the adapter args from URL
@@ -22,10 +24,6 @@ export type AdapterArgs = {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import { GroupLocator, TeamsMeetingLinkLocator } from '@azure/communication-calling';
-
-import { v1 as generateGUID } from 'uuid';
 
 /**
  * Get ACS user token from the Contoso server.
