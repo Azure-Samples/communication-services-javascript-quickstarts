@@ -64,7 +64,7 @@ app.use('/getCallQueueId', cors(), getCallQueueId);
  * route: /getAutoAttendantId
  * purpose: Calling: get the id of the auto attendant to call
  */
-app.use('/getCallQueueId', cors(), getAutoAttendantId)
+app.use('/getAutoAttendantId', cors(), getAutoAttendantId)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

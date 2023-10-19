@@ -1,9 +1,5 @@
-const plugins = [];
-plugins.push([
-  '@babel/plugin-syntax-typescript',
-  {
-    isTSX: true
-  }
-]);
+const commonConfig = require('./.common.babelrc.js');
 
-module.exports = { plugins };
+module.exports = {
+  ...commonConfig
+};
