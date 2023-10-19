@@ -4,11 +4,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { CallingWidgetComponent } from '../components/CallingWidgetComponent';
 import { CallAdapterLocator } from '@azure/communication-react';
 import { useRef } from 'react';
-// This import pulls in the place holder react logo from CRA, you can replace this with a logo or other image of your choosing
-import hero from '../hero.svg';
 import { fetchCallQueueId, fetchTokenResponse } from '../utils/AppUtils';
 
 export const CallingWidgetScreen = (): JSX.Element => {
+    const hero = require('../hero.svg') as string;
 
     const [userDisplayName, setUserDisplayName] = useState<string>();
     const newWindowRef = useRef<Window | null>(null);
