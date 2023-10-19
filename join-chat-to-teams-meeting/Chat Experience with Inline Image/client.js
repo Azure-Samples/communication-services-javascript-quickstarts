@@ -33,8 +33,8 @@ var messages = '';
 var tokenString = '';
 
 async function init() {
-    const connectionString = "<YOU_CONNECTION_STRING>";
-    const endpointUrl = "<YOU_ENDPOINT_URL>";
+	const connectionString = "endpoint=https://acs-ui-dev.unitedstates.communication.azure.com/;accesskey=+dWgzZXwBO3nhjgU9FC3wueXbeZm+G/1PsHWb6XprAhojreBm/jA78dVbETvk+FXRjZ3rbFiyNVzTmjUvogoAg==";
+	const endpointUrl = "https://acs-ui-dev.unitedstates.communication.azure.com/";
 
     const identityClient = new CommunicationIdentityClient(connectionString);
 
@@ -159,7 +159,7 @@ function fetchPreviewImages(attachments) {
             document.getElementById(imageRef.id).src = url;
         });
     }).catch((e) => {
-        console.log('error fetching preview images');
+        console.log('error fetching preview images', e);
     });
 }
 

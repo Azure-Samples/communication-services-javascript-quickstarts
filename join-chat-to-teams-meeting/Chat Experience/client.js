@@ -23,8 +23,8 @@ var userId = '';
 var messages = '';
 
 async function init() {
-	const connectionString = "<SECRET_CONNECTION_STRING>";
-	const endpointUrl = "<ENDPOINT_URL>";
+	const connectionString = "endpoint=https://acs-ui-dev.unitedstates.communication.azure.com/;accesskey=+dWgzZXwBO3nhjgU9FC3wueXbeZm+G/1PsHWb6XprAhojreBm/jA78dVbETvk+FXRjZ3rbFiyNVzTmjUvogoAg==";
+	const endpointUrl = "https://acs-ui-dev.unitedstates.communication.azure.com/";
 
 	const identityClient = new CommunicationIdentityClient(connectionString);
 
@@ -126,7 +126,9 @@ sendMessageButton.addEventListener("click", async () =>
 
 		let sendMessageRequest = { content: message };
 		let sendMessageOptions = { senderDisplayName : 'Jack' };
+		console.log('Leah', sendMessageRequest);
 		let sendChatMessageResult = await chatThreadClient.sendMessage(sendMessageRequest, sendMessageOptions);
+
 		let messageId = sendChatMessageResult.id;
 
 		messagebox.value = '';
