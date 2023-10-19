@@ -61,6 +61,20 @@ export const fetchCallQueueId = async (): Promise<string> => {
   throw new Error('Invalid callQueueId Response');
 }
 
+export const fetchAutoAttendantId = async (): Promise<string> => {
+  const getRequestOptions = {
+    method: 'GET'
+  };
+  const response = await fetch('/getAutoAttendantId', getRequestOptions);
+  if(response.ok){
+    const retrieveCallQueueId = await response.text().then((callQueueId) => callQueueId);
+    if(retrieveCallQueueId) {
+      return retrieveCallQueueId;
+    }
+  }
+  throw new Error('Invalid callQueueId Response');
+}
+
 /**
  * Generate a random user name.
  * @return username in the format user####

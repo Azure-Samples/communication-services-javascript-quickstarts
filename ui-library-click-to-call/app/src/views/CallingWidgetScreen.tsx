@@ -1,10 +1,10 @@
 import { CommunicationUserIdentifier, MicrosoftTeamsUserIdentifier } from '@azure/communication-common';
-import { Spinner, Stack, Text, TextField } from '@fluentui/react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { CompoundButton, Spinner, Stack, Text, TextField } from '@fluentui/react';
+import React, { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import { CallingWidgetComponent } from '../components/CallingWidgetComponent';
 import { CallAdapterLocator } from '@azure/communication-react';
 import { useRef } from 'react';
-import { fetchCallQueueId, fetchTokenResponse } from '../utils/AppUtils';
+import { fetchAutoAttendantId, fetchCallQueueId, fetchTokenResponse } from '../utils/AppUtils';
 
 export const CallingWidgetScreen = (): JSX.Element => {
     const hero = require('../hero.svg') as string;
@@ -15,18 +15,27 @@ export const CallingWidgetScreen = (): JSX.Element => {
 
     const [userIdentifier, setUserIdentifier] = useState<CommunicationUserIdentifier>();
     const [userToken, setUserToken] = useState<string>('');
+    const [callQueueId, setCallQueueId] = useState<string>();
+    const [autoAttendantId, setAutoAttendantId] = useState<string>();
+    const [currentLocator, setCurrentLocator] = useState <'queue' | 'attendant'>('queue');
     const [callLocator, setCallLocator] = useState<CallAdapterLocator>();
     const [userCredentialFetchError, setUserCredentialFetchError] = useState<boolean>(false);
 
-    // Get Azure Communications Service token from the server
+    // Get Azure Communications Service token and Voice app identification from the server.
     useEffect(() => {
         (async () => {
             try {
                 const { token, user } = await fetchTokenResponse();
-                const id = await fetchCallQueueId();
-                setCallLocator({participantIds: [`28:orgid:${id}`]});
+                const responseCallQueueId = await fetchCallQueueId();
+                const responseAutoAttendantId = await fetchAutoAttendantId();
+
+                setCallQueueId(`28:orgid:${responseCallQueueId}`);
+                setAutoAttendantId(`28:orgid:${responseAutoAttendantId}`);
+
                 setUserToken(token);
                 setUserIdentifier(user);
+
+                setCallLocator({ participantIds: [`28:orgid:${responseCallQueueId}`] })
             } catch (e) {
                 console.error(e);
                 setUserCredentialFetchError(true);
@@ -60,7 +69,7 @@ export const CallingWidgetScreen = (): JSX.Element => {
                 newWindowRef.current?.postMessage(data, window.origin);
             }
         });
-    }, [ userIdentifier, userToken, callLocator, userDisplayName, useVideo]);
+    }, [userIdentifier, userToken, callLocator, userDisplayName, useVideo]);
 
     if (userCredentialFetchError) {
         return (
@@ -82,7 +91,7 @@ export const CallingWidgetScreen = (): JSX.Element => {
                     tokens={{ childrenGap: "2rem" }}
                 >
                     <Text style={{ marginTop: "auto" }} variant="xLarge">
-                        Welcome to a Calling Widget sample
+                        Welcome to a Calling Widget and Teams Voice Application sample
                     </Text>
                     <img
                         style={{ width: "7rem", height: "auto" }}
@@ -90,10 +99,9 @@ export const CallingWidgetScreen = (): JSX.Element => {
                         alt="logo"
                     />
                 </Stack>
-                
+
                 <Text>
-                    Welcome to a Calling Widget sample for the Azure Communication Services UI
-                    Library. Sample has the ability to:
+                    Sample has the ability to:
                 </Text>
                 <ul>
                     <li>
@@ -104,13 +112,33 @@ export const CallingWidgetScreen = (): JSX.Element => {
                     </li>
                 </ul>
                 <Text>
-                    As a user all you need to do is click the widget below, enter your
-                    display name for the call - this will act as your caller id, and
-                    action the <b>start call</b> button.
+                    Make the selection to which Teams voice application you would like to call with the buttons below. Then use the widget in the corner to start your call!
                 </Text>
+                <Stack tokens={{childrenGap: '1rem'}}>
+                    <CompoundButton primary={currentLocator === 'queue' ? true : false} secondaryText={'Select for Call Queue'} onClick={() => {
+                        if(callQueueId){
+                            setCallLocator({participantIds: [callQueueId]});
+                            setCurrentLocator('queue');
+                            return;
+                        }
+                        console.warn('No Call Queue id found.');
+                    }}>
+                        Call Queue
+                    </CompoundButton>
+                    <CompoundButton primary={currentLocator === 'attendant' ? true : false} secondaryText={'Select for Auto Attendant'} onClick={() => {
+                        if (autoAttendantId) {
+                            setCallLocator({participantIds: [autoAttendantId]});
+                            setCurrentLocator('attendant');
+                            return;
+                        }
+                        console.warn('No Auto Attendant id found.')
+                    }}>
+                        Auto Attendant
+                    </CompoundButton>
+                </Stack>
             </Stack>
             <Stack horizontal tokens={{ childrenGap: '1.5rem' }} style={{ overflow: 'hidden', margin: 'auto' }}>
-                { userToken && userIdentifier && callLocator && (<CallingWidgetComponent
+                {userToken && userIdentifier && callLocator && (<CallingWidgetComponent
                     adapterArgs={{
                         locator: callLocator,
                         token: userToken,
