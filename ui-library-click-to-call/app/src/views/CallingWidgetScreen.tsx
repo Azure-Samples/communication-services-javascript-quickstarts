@@ -6,7 +6,7 @@ import { CallAdapterLocator } from '@azure/communication-react';
 import { useRef } from 'react';
 // This import pulls in the place holder react logo from CRA, you can replace this with a logo or other image of your choosing
 import hero from '../hero.svg';
-import { fetchTokenResponse } from '../utils/AppUtils';
+import { fetchCallQueueId, fetchTokenResponse } from '../utils/AppUtils';
 
 export const CallingWidgetScreen = (): JSX.Element => {
 
@@ -24,6 +24,8 @@ export const CallingWidgetScreen = (): JSX.Element => {
         (async () => {
             try {
                 const { token, user } = await fetchTokenResponse();
+                const id = await fetchCallQueueId();
+                setCallLocator({participantIds: [`28:orgid:${id}`]});
                 setUserToken(token);
                 setUserIdentifier(user);
             } catch (e) {

@@ -42,6 +42,26 @@ export const fetchTokenResponse = async (): Promise<any> => {
 };
 
 /**
+ * Get Teams Call Queue to make call with widget.
+ * 
+ * @returns Id of call queue as a string
+ */
+export const fetchCallQueueId = async (): Promise<string> => {
+
+  const getRequestOptions = {
+    method: 'GET'
+  };
+  const response = await fetch('/getCallQueueId', getRequestOptions);
+  if(response.ok){
+    const retrieveCallQueueId = await response.text().then((callQueueId) => callQueueId);
+    if(retrieveCallQueueId) {
+      return retrieveCallQueueId;
+    }
+  }
+  throw new Error('Invalid callQueueId Response');
+}
+
+/**
  * Generate a random user name.
  * @return username in the format user####
  */

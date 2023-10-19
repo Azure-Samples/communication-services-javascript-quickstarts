@@ -29,11 +29,15 @@ export const getAdminUserId = (): string => {
 };
 
 export const getCallQueueId = (): string => {
-    const uri = new URL(process.env['CallQueueId'] || appSettings.CallQueueId);
-    return `${uri.protocol}//${uri.host}`;
+  console.log(appSettings);
+
+    const id = process.env['CallQueueId'] || appSettings.CallQueueId;
+    console.log(id);
+    return `${id}`;
 }
 
 export const getAutoAttendantId = (): string => {
-    const uri = new URL(process.env['AutoAttendantId'] || appSettings.AutoAttendantId);
-    return `${uri.protocol}//${uri.host}`;
+    const id = process.env['AutoAttendantId'] || appSettings.AutoAttendantId;
+    console.log(id);
+    return `${id}`;
 }

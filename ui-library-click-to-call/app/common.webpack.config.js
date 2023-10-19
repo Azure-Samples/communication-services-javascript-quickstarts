@@ -10,14 +10,7 @@ const webpackConfig = (sampleAppDir, env, babelConfig) => {
     entry: './src/index.tsx',
     ...(env.production || !env.development ? {} : { devtool: 'eval-source-map' }),
     resolve: {
-      extensions: ['.ts', '.tsx', '.js'],
-      alias: {
-        // reference internal packlets src directly for hot reloading when developing
-        '@azure/communication-react': path.resolve(
-          sampleAppDir,
-          './node_modules/@azure/communication-react/dist/dist-esm/communication-react/src'
-        )
-      }
+      extensions: ['.ts', '.tsx', '.js']
     },
     output: {
       path: path.join(sampleAppDir, env.production ? '/dist/build' : 'dist'),
@@ -89,11 +82,11 @@ const webpackConfig = (sampleAppDir, env, babelConfig) => {
           target: 'http://[::1]:8080'
         },
         {
-          path: '/getCallQueueId/*',
+          path: '/getCallQueueId',
           target: 'http://[::1]:8080'
         },
         {
-          path: '/getAutoAttendantId/*',
+          path: '/getAutoAttendantId',
           target: 'http://[::1]:8080'
         }
       ]
