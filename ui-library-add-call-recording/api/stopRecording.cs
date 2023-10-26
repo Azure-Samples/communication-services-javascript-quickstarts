@@ -46,7 +46,7 @@ namespace Contoso
             try
             {
                 var callAutomationClient = new CallAutomationClient(Settings.GetACSConnectionString());
-                var stopRecording = await callAutomationClient.GetCallRecording().StopRecordingAsync(request.RecordingId).ConfigureAwait(false);
+                var stopRecording = await callAutomationClient.GetCallRecording().StopAsync(request.RecordingId).ConfigureAwait(false);
                 log.LogInformation($"StopRecordingAsync response -- > {stopRecording}");
             }
             catch (RequestFailedException e)
