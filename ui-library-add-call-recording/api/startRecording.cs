@@ -48,7 +48,7 @@ namespace Contoso
                     RecordingChannel = RecordingChannel.Mixed,
                     RecordingFormat = RecordingFormat.Mp4
                 };
-                var startRecordingResponse = await callAutomationClient.GetCallRecording().StartRecordingAsync(recordingOptions).ConfigureAwait(false);
+                var startRecordingResponse = await callAutomationClient.GetCallRecording().StartAsync(recordingOptions).ConfigureAwait(false);
                 var recordingId = startRecordingResponse.Value.RecordingId;
                 log.LogInformation($"Started recording for {request.ServerCallId}: {recordingId}");
                 return new OkObjectResult(JsonConvert.SerializeObject(new StartRecordingResponse { RecordingId = recordingId }));
