@@ -1,68 +1,101 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import { IconButton, PrimaryButton, Stack, TextField, useTheme, Checkbox, Icon } from '@fluentui/react';
+import React, { useState } from 'react';
 import {
-    CallingWidgetSetupContainerStyles,
+    callingWidgetSetupContainerStyles,
     checkboxStyles,
     startCallButtonStyles,
-    CallingWidgetContainerStyles,
+    callingWidgetContainerStyles,
     callIconStyles,
     logoContainerStyles,
     collapseButtonStyles
 } from '../styles/CallingWidgetComponent.styles';
-import React, { useEffect, useState } from 'react';
+
+import { AzureCommunicationTokenCredential, CommunicationIdentifier, MicrosoftTeamsAppIdentifier } from '@azure/communication-common';
+import {
+    CallAdapter,
+    CallComposite,
+    useAzureCommunicationCallAdapter,
+    AzureCommunicationCallAdapterArgs
+} from '@azure/communication-react';
+// lets add to our react imports as well
+import { useCallback, useMemo } from 'react';
+
+import { callingWidgetInCallContainerStyles } from '../styles/CallingWidgetComponent.styles';
+
+/**
+ * Properties needed for our widget to start a call.
+ */
+export type WidgetAdapterArgs = {
+    token: string;
+    userId: CommunicationIdentifier;
+    teamsAppIdentifier: MicrosoftTeamsAppIdentifier;
+};
 
 export interface CallingWidgetComponentProps {
     /**
-     * if provided, will be used to create a new window for call experience. if not provided
-     * will use the current window.
+     *  arguments for creating an AzureCommunicationCallAdapter for your Calling experience
      */
-    onRenderStartCall: () => void;
+    widgetAdapterArgs: WidgetAdapterArgs;
     /**
      * Custom render function for displaying logo.
      * @returns
      */
     onRenderLogo?: () => JSX.Element;
-    /**
-     * Handler to set displayName for the user in the call.
-     * @param displayName
-     * @returns
-     */
-    onSetDisplayName?: (displayName: string | undefined) => void;
-    /**
-     * Handler to set whether to use video in the call.
-     */
-    onSetUseVideo?: (useVideo: boolean) => void;
 }
 
 /**
  * Widget for Calling Widget
  * @param props
  */
-export const CallingWidgetComponent = (props: CallingWidgetComponentProps): JSX.Element => {
-    const { onRenderStartCall, onRenderLogo, onSetDisplayName, onSetUseVideo } = props;
+export const CallingWidgetComponent = (
+    props: CallingWidgetComponentProps
+): JSX.Element => {
+    const { onRenderLogo, widgetAdapterArgs } = props;
 
-    const [widgetState, setWidgetState] = useState<'new' | 'setup'>();
+    const [widgetState, setWidgetState] = useState<'new' | 'setup' | 'inCall'>('new');
     const [displayName, setDisplayName] = useState<string>();
     const [consentToData, setConsentToData] = useState<boolean>(false);
+    const [useLocalVideo, setUseLocalVideo] = useState<boolean>(false);
 
     const theme = useTheme();
 
-    useEffect(() => {
-        if (widgetState === 'new' && onSetUseVideo) {
-            onSetUseVideo(false);
+    // add this before the React template
+    const credential = useMemo(() => {
+        try {
+            return new AzureCommunicationTokenCredential(widgetAdapterArgs.token);
+        } catch {
+            console.error('Failed to construct token credential');
+            return undefined;
         }
-    }, [widgetState, onSetUseVideo]);
+    }, [widgetAdapterArgs.token]);
 
-    if (widgetState === 'setup' && onSetDisplayName && onSetUseVideo) {
+    const callAdapterArgs = useMemo(() => {
+        return {
+            userId: widgetAdapterArgs.userId,
+            credential: credential,
+            locator: { participantIds: [`28:orgid:${widgetAdapterArgs.teamsAppIdentifier.teamsAppId}`] },
+            displayName: displayName
+        }
+    }, [widgetAdapterArgs.userId, widgetAdapterArgs.teamsAppIdentifier.teamsAppId, credential, displayName]);
+
+    const afterCreate = useCallback(async (adapter: CallAdapter): Promise<CallAdapter> => {
+        adapter.on('callEnded', () => {
+            setDisplayName(undefined);
+            setWidgetState('new');
+        });
+        return adapter;
+    }, [])
+
+    const adapter = useAzureCommunicationCallAdapter(callAdapterArgs as AzureCommunicationCallAdapterArgs, afterCreate);
+
+    /** widget template for when widget is open, put any fields here for user information desired */
+    if (widgetState === 'setup') {
         return (
-            <Stack styles={CallingWidgetSetupContainerStyles(theme)} tokens={{ childrenGap: '1rem' }}>
+            <Stack styles={callingWidgetSetupContainerStyles(theme)} tokens={{ childrenGap: '1rem' }}>
                 <IconButton
                     styles={collapseButtonStyles}
                     iconProps={{ iconName: 'Dismiss' }}
-                    onClick={() => setWidgetState('new')}
-                />
+                    onClick={() => setWidgetState('new')} />
                 <Stack tokens={{ childrenGap: '1rem' }} styles={logoContainerStyles}>
                     <Stack style={{ transform: 'scale(1.8)' }}>{onRenderLogo && onRenderLogo()}</Stack>
                 </Stack>
@@ -72,31 +105,29 @@ export const CallingWidgetComponent = (props: CallingWidgetComponentProps): JSX.
                     placeholder={'Enter your name'}
                     onChange={(_, newValue) => {
                         setDisplayName(newValue);
-                    }}
-                />
+                    }} />
                 <Checkbox
                     styles={checkboxStyles(theme)}
                     label={'Use video - Checking this box will enable camera controls and screen sharing'}
                     onChange={(_, checked?: boolean | undefined) => {
-                        onSetUseVideo(!!checked);
+                        setUseLocalVideo(true);
                     }}
-                ></Checkbox>
+                />
                 <Checkbox
                     required={true}
                     styles={checkboxStyles(theme)}
-                    label={
-                        'By checking this box you are consenting that we will collect data from the call for customer support reasons'
-                    }
+                    label={'By checking this box, you are consenting that we will collect data from the call for customer support reasons'}
                     onChange={(_, checked?: boolean | undefined) => {
                         setConsentToData(!!checked);
                     }}
-                ></Checkbox>
+                />
                 <PrimaryButton
                     styles={startCallButtonStyles(theme)}
                     onClick={() => {
-                        if (displayName && consentToData) {
-                            onSetDisplayName(displayName);
-                            onRenderStartCall();
+                        if (displayName && consentToData && adapter && widgetAdapterArgs.teamsAppIdentifier) {
+                            setWidgetState('inCall');
+                            console.log(callAdapterArgs.locator);
+                            adapter.startCall([`28:orgid:${widgetAdapterArgs.teamsAppIdentifier.teamsAppId}`]);
                         }
                     }}
                 >
@@ -106,11 +137,30 @@ export const CallingWidgetComponent = (props: CallingWidgetComponentProps): JSX.
         );
     }
 
+    if (widgetState === 'inCall' && adapter) {
+        return (
+            <Stack styles={callingWidgetInCallContainerStyles(theme)}>
+                <CallComposite
+                    adapter={adapter}
+                    options={{
+                        callControls: {
+                            cameraButton: useLocalVideo,
+                            screenShareButton: useLocalVideo,
+                            moreButton: false,
+                            peopleButton: false,
+                            displayType: 'compact'
+                        },
+                        localVideoTile: !useLocalVideo ? false : { position: 'floating' }
+                    }} />
+            </Stack>
+        )
+    }
+
     return (
         <Stack
             horizontalAlign="center"
             verticalAlign="center"
-            styles={CallingWidgetContainerStyles(theme)}
+            styles={callingWidgetContainerStyles(theme)}
             onClick={() => {
                 setWidgetState('setup');
             }}
@@ -124,4 +174,5 @@ export const CallingWidgetComponent = (props: CallingWidgetComponentProps): JSX.
             </Stack>
         </Stack>
     );
+
 };
