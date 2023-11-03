@@ -14,7 +14,8 @@ import {
 	CallInvite,
 	CreateCallOptions,
 	CallMedia,
-	DtmfTone } from "@azure/communication-call-automation";
+	DtmfTone,
+	CallIntelligenceOptions } from "@azure/communication-call-automation";
 import path from 'path';
 
 config();
@@ -60,7 +61,8 @@ async function createOutboundCall() {
 		},
 	};
 
-	const options: CreateCallOptions ={ cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICEs_ENDPOINT}
+	const callIntelligenceOptions:CallIntelligenceOptions = { cognitiveServicesEndpoint:  process.env.COGNITIVE_SERVICEs_ENDPOINT};
+	const options: CreateCallOptions ={ callIntelligenceOptions: callIntelligenceOptions };
 	console.log("Placing outbound call...");
 	acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks", options);
 }
