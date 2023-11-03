@@ -61,7 +61,7 @@ async function createOutboundCall() {
 		},
 	};
 
-	const callIntelligenceOptions:CallIntelligenceOptions = { cognitiveServicesEndpoint:  process.env.COGNITIVE_SERVICEs_ENDPOINT};
+	const callIntelligenceOptions:CallIntelligenceOptions = { cognitiveServicesEndpoint:  process.env.COGNITIVE_SERVICES_ENDPOINT};
 	const options: CreateCallOptions ={ callIntelligenceOptions: callIntelligenceOptions };
 	console.log("Placing outbound call...");
 	acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks", options);
