@@ -20,6 +20,7 @@ This sample application is also capable of making multiple concurrent outbound c
 - [Node.js](https://nodejs.org/en/download) installed
 - Create an Azure Communication Services resource. For details, see [Create an Azure Communication Resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource). You will need to record your resource **connection string** for this sample.
 - Get a phone number for your new Azure Communication Services resource. For details, see [Get a phone number](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/telephony/get-phone-number?tabs=windows&pivots=programming-language-csharp)
+- Create Cognitive Service resource. For details, see [Create an Azure Cognitive Search service](https://learn.microsoft.com/en-us/azure/search/search-create-service-portal)
 
 
 ## Before running the sample for the first time
@@ -47,6 +48,7 @@ Open the `.env` file to configure the following settings
 2. `ACS_RESOURCE_PHONE_NUMBER`: Phone number associated with the Azure Communication Service resource. For e.g. "+1425XXXAAAA"
 3. `TARGET_PHONE_NUMBER`: Target phone number to add in the call. For e.g. "+1425XXXAAAA"
 4. `CALLBACK_URI`: Base url of the app. (For local development replace the dev tunnel url)
+5. `COGNITIVE_SERVICES_ENDPOINT` : Cognitive Service endpoint
 
 ### Run app locally
 
