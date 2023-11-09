@@ -14,8 +14,7 @@ import {
 	CallInvite,
 	CreateCallOptions,
 	CallMedia,
-	DtmfTone,
-	CallIntelligenceOptions } from "@azure/communication-call-automation";
+	DtmfTone } from "@azure/communication-call-automation";
 import path from 'path';
 
 config();
@@ -61,8 +60,7 @@ async function createOutboundCall() {
 		},
 	};
 
-	const callIntelligenceOptions:CallIntelligenceOptions = { cognitiveServicesEndpoint:  process.env.COGNITIVE_SERVICEs_ENDPOINT};
-	const options: CreateCallOptions ={ callIntelligenceOptions: callIntelligenceOptions };
+	const options: CreateCallOptions ={ cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT };
 	console.log("Placing outbound call...");
 	acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks", options);
 }
@@ -135,6 +133,7 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 	const eventData = event.data;
 	callConnectionId = eventData.callConnectionId;
 	serverCallId = eventData.serverCallId;
+	console.log("Call back event received, callConnectionId=%s, serverCallId=%s, eventType=%s", callConnectionId, serverCallId, event.type);
 	callConnection = acsClient.getCallConnection(callConnectionId);
 	const callMedia = callConnection.getCallMedia();
 	if (event.type === "Microsoft.Communication.CallConnected") {
