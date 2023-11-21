@@ -1,11 +1,11 @@
-const JobRouter = require('@azure-rest/communication-job-router').default;
+const JobRouterClient = require('@azure-rest/communication-job-router').default;
 
 const main = async () => {
   console.log("Azure Communication Services - Job Router Quickstart")
 
   const connectionString = process.env["COMMUNICATION_CONNECTION_STRING"] ||
     "endpoint=https://<resource-name>.communication.azure.com/;<access-key>";
-  const client = JobRouter(connectionString);
+  const client = JobRouterClient(connectionString);
   
   const distributionPolicy = await client.path("/routing/distributionPolicies/{distributionPolicyId}", "distribution-policy-1").patch({
     body: {
