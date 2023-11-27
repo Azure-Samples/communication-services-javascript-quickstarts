@@ -44,7 +44,6 @@ function App() {
         <Spinner label={'Getting user credentials from server'} ariaLive="assertive" labelPosition="top" />;
       </Stack>
     )
-
   }
 
 
