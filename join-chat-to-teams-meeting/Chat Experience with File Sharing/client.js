@@ -147,8 +147,10 @@ function renderSentMessage(message) {
 }
 
 function renderFileAttachments(attachment) {
+    var re = /(?:\.([^.]+))?$/;
+    var fileExtension = re.exec(attachment.name)[1];  
     return '<div class="attachment-container">' +
-        '<p class="attachment-type">' + attachment.extension + '</p>' +
+        '<p class="attachment-type">' + fileExtension + '</p>' +
         '<img class="attachment-icon" alt="attachment file icon" />' +
         '<div>' +
         '<p>' + attachment.name + '</p>' +
