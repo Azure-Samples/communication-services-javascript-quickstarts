@@ -1,137 +1,99 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
 
-import { useEffect, useMemo, useState } from 'react';
 import './App.css';
-import { CallAdapterLocator } from '@azure/communication-react';
-import { CommunicationIdentifier, CommunicationUserIdentifier } from '@azure/communication-common';
-import { AdapterArgs, getStartSessionFromURL } from './utils/AppUtils';
-import { CallingWidgetScreen } from './views/CallingWidgetScreen';
-import { NewWindowCallScreen } from './views/NewWindowCallScreen';
-import { Spinner, Stack, initializeIcons, registerIcons } from '@fluentui/react';
+import { CommunicationIdentifier, MicrosoftTeamsAppIdentifier } from '@azure/communication-common';
+import { Spinner, Stack, initializeIcons, registerIcons, Text } from '@fluentui/react';
 import { CallAdd20Regular, Dismiss20Regular } from '@fluentui/react-icons';
+import logo from './logo.svg';
 
-type AppPages = 'calling-widget' | 'new-window-call';
+import { CallingWidgetComponent } from './components/CallingWidgetComponent';
 
-registerIcons({ icons: { dismiss: <Dismiss20Regular />, callAdd: <CallAdd20Regular /> } });
+registerIcons({
+  icons: { dismiss: <Dismiss20Regular />, callAdd: <CallAdd20Regular /> },
+});
 initializeIcons();
 function App() {
-
-  const [page, setPage] = useState<AppPages>('calling-widget');
-
   /**
    * Token for local user.
    */
-  const token = '<Enter your Azure Communication Services token here>';
+  const token = "<Enter your ACS Token here>";
 
   /**
    * User identifier for local user.
    */
-  const userId: CommunicationIdentifier = { communicationUserId: '<Enter your user Id>' };
+  const userId: CommunicationIdentifier = {
+    communicationUserId: "Enter your ACS Id here",
+  };
 
   /**
-   * This decides where the call will be going. This supports many different calling modalities in the Call Composite.
-   * 
-   * - Teams meeting locator: {meetingLink: 'url to join link for a meeting'}
-   * - Azure communication Services group call: {groupId: 'guid that defines the call'}
-   * - Azure Communication Services Rooms call: {roomId: 'guid that represents a rooms call'}
-   * - Teams adhoc, Azure communications 1:n, PSTN calls all take a participants locator: {participantIds: ['Array of participant id's to call']}
-   * 
-   * You can call teams voice apps like a Call queue with the participants locator.
+   * Enter your Teams voice app identifier from the Teams admin center here
    */
-  const locator: CallAdapterLocator = { participantIds: ['<Enter a Participants Id here>'] };
-
-  /**
-   * Phone number needed from your Azure Communications resource to start a PSTN call. Can be created under the phone numbers
-   * tab of your resource.
-   * 
-   * For more information on phone numbers and Azure Communications go to this link: https://learn.microsoft.com/en-us/azure/communication-services/concepts/telephony/plan-solution
-   * 
-   * This can be left alone if not making a PSTN call.
-   */
-  const alternateCallerId = '<Enter your alternate CallerId here>';
-
-  /**
-   * Properties needed to start an Azure Communications Call Adapter. When these are set the app will go to the Call screen for the
-   * Calling Widget scenario. Call screen should create the credential that will be used in the call for the user.
-   */
-  const [adapterArgs, setAdapterArgs] = useState<AdapterArgs | undefined>();
-  const [useVideo, setUseVideo] = useState<boolean>(false);
-
-  const startSession = useMemo(() => {
-    return getStartSessionFromURL();
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener('message', (event) => {
-      if (event.origin !== window.location.origin) {
-        return;
-      }
-
-      if ((event.data as AdapterArgs).userId && (event.data as AdapterArgs).displayName !== '') {
-        console.log(event.data);
-        setAdapterArgs({
-          userId: (event.data as AdapterArgs).userId as CommunicationUserIdentifier,
-          displayName: (event.data as AdapterArgs).displayName,
-          token: (event.data as AdapterArgs).token,
-          locator: (event.data as AdapterArgs).locator,
-          alternateCallerId: (event.data as AdapterArgs).alternateCallerId
-        });
-        setUseVideo(!!event.data.useVideo);
-      }
-    });
-  }, []);
-
-  useEffect(() => {
-    if (startSession) {
-      console.log('asking for args');
-      if (window.opener) {
-        window.opener.postMessage('args please', window.opener.origin);
-      }
-    }
-  }, [startSession]);
-
-  useEffect(() => {
-    if (adapterArgs) {
-      console.log('starting session');
-      setPage('new-window-call');
-    }
-  }, [adapterArgs]);
-
-  switch (page) {
-    case 'calling-widget': {
-      if (!token || !userId || !locator || startSession !== false) {
-        return (
-          <Stack verticalAlign='center' style={{ height: '100%', width: '100%' }}>
-            <Spinner label={'Getting user credentials from server'} ariaLive="assertive" labelPosition="top" />;
-          </Stack>
-        )
-
-      }
-      return <CallingWidgetScreen token={token} userId={userId} callLocator={locator} alternateCallerId={alternateCallerId} />;
-    }
-    case 'new-window-call': {
-      if (!adapterArgs) {
-        return (
-          <Stack verticalAlign='center' style={{ height: '100%', width: '100%' }}>
-            <Spinner label={'Getting user credentials from server'} ariaLive="assertive" labelPosition="top" />;
-          </Stack>
-        )
-      }
-      return (
-        <NewWindowCallScreen
-          adapterArgs={{
-            userId: adapterArgs.userId as CommunicationUserIdentifier,
-            displayName: adapterArgs.displayName ?? '',
-            token: adapterArgs.token,
-            locator: adapterArgs.locator,
-            alternateCallerId: adapterArgs.alternateCallerId
-          }}
-          useVideo={useVideo}
-        />
-      );
-    }
+  const teamsAppIdentifier: MicrosoftTeamsAppIdentifier = {
+    teamsAppId: "<Enter your Teams Voice app id here>", cloud: "public"
   }
+
+  const widgetParams = {
+    userId,
+    token,
+    teamsAppIdentifier,
+  };
+
+
+  if (!token || !userId || !teamsAppIdentifier) {
+    return (
+      <Stack verticalAlign='center' style={{ height: '100%', width: '100%' }}>
+        <Spinner label={'Getting user credentials from server'} ariaLive="assertive" labelPosition="top" />;
+      </Stack>
+    )
+  }
+
+
+  return (
+    <Stack
+      style={{ height: "100%", width: "100%", padding: "3rem" }}
+      tokens={{ childrenGap: "1.5rem" }}
+    >
+      <Stack tokens={{ childrenGap: '1rem' }} style={{ margin: "auto" }}>
+        <Stack
+          style={{ padding: "3rem" }}
+          horizontal
+          tokens={{ childrenGap: "2rem" }}
+        >
+          <Text style={{ marginTop: "auto" }} variant="xLarge">
+            Welcome to a Calling Widget sample
+          </Text>
+          <img
+            style={{ width: "7rem", height: "auto" }}
+            src={logo}
+            alt="logo"
+          />
+        </Stack>
+
+        <Text>
+          Welcome to a Calling Widget sample for the Azure Communication Services UI
+          Library. Sample has the ability to connect you through Teams voice apps to a agent to help you.
+        </Text>
+        <Text>
+          As a user all you need to do is click the widget below, enter your
+          display name for the call - this will act as your caller id, and
+          action the <b>start call</b> button.
+        </Text>
+      </Stack>
+      <Stack horizontal tokens={{ childrenGap: '1.5rem' }} style={{ overflow: 'hidden', margin: 'auto' }}>
+        <CallingWidgetComponent
+          widgetAdapterArgs={widgetParams}
+          onRenderLogo={() => {
+            return (
+              <img
+                style={{ height: '4rem', width: '4rem', margin: 'auto' }}
+                src={logo}
+                alt="logo"
+              />
+            );
+          }}
+        />
+      </Stack>
+    </Stack>
+  );;
 }
 
 export default App;
