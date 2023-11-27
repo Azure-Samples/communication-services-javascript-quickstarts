@@ -11,7 +11,7 @@ import {
 	CallLocator, 
 	StartRecordingOptions, 
 	TextSource, 
-	CallInvite,
+	CallInvite,	
 	CreateCallOptions,
 	CallMedia,
 	DtmfTone } from "@azure/communication-call-automation";
@@ -60,13 +60,14 @@ async function createOutboundCall() {
 		},
 	};
 
-	const options: CreateCallOptions ={ cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT };
+	const options: CreateCallOptions ={ callIntelligenceOptions: { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT } };
 	console.log("Placing outbound call...");
 	acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks", options);
 }
 
 async function startRecording() {
 	try {
+		console.log("Start Recording...");
 		const callLocator: CallLocator = {
 			id: serverCallId,
 			kind: "serverCallLocator",
@@ -77,7 +78,7 @@ async function startRecording() {
 		};
 
 		const response = await acsClient.getCallRecording().start(recordingOptions);
-
+		console.log("Recording Started...");
 		recordingId = response.recordingId;
 	} catch (error) {
 		console.error("Error starting recording:", error);
