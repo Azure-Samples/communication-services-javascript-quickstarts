@@ -20,7 +20,7 @@ This sample application is also capable of making multiple concurrent outbound c
 - [Node.js](https://nodejs.org/en/download) installed
 - Create an Azure Communication Services resource. For details, see [Create an Azure Communication Resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource). You will need to record your resource **connection string** for this sample.
 - Get a phone number for your new Azure Communication Services resource. For details, see [Get a phone number](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/telephony/get-phone-number?tabs=windows&pivots=programming-language-csharp)
-- Create Azure AI Multi Service resource. For details, see [Create an Azure AI Multi service](https://ms.portal.azure.com/#create/Microsoft.CognitiveServicesAllInOne)
+- Create Azure AI Multi Service resource. For details, see [Create an Azure AI Multi service](https://learn.microsoft.com/en-us/azure/cognitive-services/cognitive-services-apis-create-account).
 
 ## Before running the sample for the first time
 
