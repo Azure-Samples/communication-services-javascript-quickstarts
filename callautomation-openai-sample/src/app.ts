@@ -17,6 +17,7 @@ let openAiClient : OpenAIClient;
 let answerCallResult: AnswerCallResult;
 let callerId: string;
 let callMedia: CallMedia;
+let maxTimeout = 2;
 
 const answerPromptSystemTemplate = `You are an assisant designed to answer the customer query and analyze the sentiment score from the customer tone. 
     You also need to determine the intent of the customer query and classify it into categories such as sales, marketing, shopping, etc.
@@ -37,6 +38,7 @@ const EndCallPhraseToConnectAgent = "Sure, please stay on the line. I’m going 
 
 const transferFailedContext = "TransferFailed";
 const connectAgentContext = "ConnectAgent";
+const goodbyeContext = "Goodbye";
 
 const agentPhonenumber = process.env.AGENT_PHONE_NUMBER;
 const chatResponseExtractPattern = /(?<=: ).*/g;
@@ -161,14 +163,18 @@ app.post('/api/callbacks/:contextId', async (req:any, res:any) => {
 	else if(event.type === "Microsoft.Communication.PlayCompleted"){
 		console.log("Received PlayCompleted event");
 		
-		if(eventData.operationContext && eventData.operationContext === transferFailedContext) {
-			hangUpCall();
+		if(eventData.operationContext && ( eventData.operationContext === transferFailedContext 
+			 || eventData.operationContext === goodbyeContext )) {
+				console.log("Disconnecting the call");
+				hangUpCall();
 		}
 		else if(eventData.operationContext === connectAgentContext) {
 			if(!agentPhonenumber){
+				console.log("Agent phone number is empty.");
 				handlePlay(callMedia, agentPhoneNumberEmptyPrompt, transferFailedContext);
 			}
 			else{
+				console.log("Initiating the call transfer.");
 				const phoneNumberIdentifier: PhoneNumberIdentifier = { phoneNumber: agentPhonenumber };
 				const result = await callConnection.transferCallToParticipant(phoneNumberIdentifier);
 				console.log("Transfer call initiated");
@@ -223,11 +229,12 @@ app.post('/api/callbacks/:contextId', async (req:any, res:any) => {
 	else if(event.type === "Microsoft.Communication.RecognizeFailed"){
 		const resultInformation = eventData.resultInformation
 		var code = resultInformation.subCode;
-		if(code === 8510){
+		if(code === 8510 && maxTimeout > 0){
+			maxTimeout--;
 			startRecognizing(callMedia, callerId, timeoutSilencePrompt, 'GetFreeFormText');
 		}
 		else{
-			handlePlay(callMedia, goodbyePrompt, "goodbye");
+			handlePlay(callMedia, goodbyePrompt, goodbyeContext);
 		}
 	}
 	else if(event.type === "Microsoft.Communication.CallDisconnected"){
