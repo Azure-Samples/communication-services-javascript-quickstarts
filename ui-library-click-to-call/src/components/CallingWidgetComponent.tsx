@@ -15,7 +15,8 @@ import {
     CallAdapter,
     CallComposite,
     useAzureCommunicationCallAdapter,
-    AzureCommunicationCallAdapterArgs
+    AzureCommunicationCallAdapterArgs,
+    CommonCallAdapterOptions
 } from '@azure/communication-react';
 // lets add to our react imports as well
 import { useCallback, useMemo } from 'react';
@@ -69,12 +70,24 @@ export const CallingWidgetComponent = (
         }
     }, [widgetAdapterArgs.token]);
 
+    const adapterOptions: CommonCallAdapterOptions = useMemo(
+        () => ({
+          callingSounds: {
+            callEnded: { url: '/sounds/callEnded.mp3' },
+            callRinging: { url: '/sounds/callRinging.mp3' },
+            callBusy: { url: '/sounds/callBusy.mp3' }
+          }
+        }),
+        []
+      );
+
     const callAdapterArgs = useMemo(() => {
         return {
             userId: widgetAdapterArgs.userId,
             credential: credential,
             locator: { participantIds: [`28:orgid:${widgetAdapterArgs.teamsAppIdentifier.teamsAppId}`] },
-            displayName: displayName
+            displayName: displayName,
+            options: adapterOptions
         }
     }, [widgetAdapterArgs.userId, widgetAdapterArgs.teamsAppIdentifier.teamsAppId, credential, displayName]);
 
