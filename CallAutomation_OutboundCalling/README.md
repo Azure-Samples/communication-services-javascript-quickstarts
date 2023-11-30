@@ -4,10 +4,7 @@
 
 # Call Automation - Quick Start Sample
 
-This sample application shows how the Azure Communication Services  - Call Automation SDK can be used to build IVR related solutions. 
-It makes an outbound call to a phone number, performs DTMF recognition, plays a different audio message based on the key pressed by the callee and hangs-up the call. 
-This sample application configured for accepting tone 1 (tone1), 2 (tone2) , If the callee pressed any other key than expected, the call will be disconnected.
-This sample application is also capable of making multiple concurrent outbound calls. The application is a web-based application built on Express.js framework.
+In this quickstart, we cover how you can use Call Automation SDK to make an outbound call to a phone number and use the newly announced integration with Azure AI services to play dynamic prompts to participants using Text-to-Speech and recognize user voice input through Speech-to-Text to drive business logic in your application.
 
 # Design
 
@@ -54,6 +51,5 @@ Open the `.env` file to configure the following settings
 1. Open a new Powershell window, cd into the `CallAutomation_OutboundCalling` folder and run `npm run dev`
 2. Browser should pop up with the below page. If not navigate it to `http://localhost:8080/`
 3. To initiate the call, click on the `Place a call!` button or make a Http get request to https://<CALLBACK_URI>/outboundCall
-4. To download the call audio, click on the `Download Recording!` button or make a Http get request to https://<CALLBACK_URI>/download. Ensure the call has ended before attempting to download
 
 ![design](./data/Webpage.png)

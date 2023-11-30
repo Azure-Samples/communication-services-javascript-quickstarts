@@ -8,8 +8,6 @@ import {
 	CallConnection,
 	CallMediaRecognizeChoiceOptions,
 	RecognitionChoice,
-	CallLocator, 
-	StartRecordingOptions, 
 	TextSource, 
 	CallInvite,	
 	CreateCallOptions,
@@ -26,16 +24,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 let callConnectionId: string;
-let recordingId: string;
 let callConnection: CallConnection;
 let serverCallId: string;
 let callee: PhoneNumberIdentifier;
 let acsClient: CallAutomationClient;
-let recordingLocation: string;
 
 const mainMenu = ` Hello this is Contoso Bank, we’re calling in regard to your appointment tomorrow 
-at 9am to open a new account. Please confirm if this time is still suitable for you or if you would like to cancel. 
-This call is recorded for quality purposes.`;
+at 9am to open a new account. Please say confirm if this time is still suitable for you or say cancel if you would like to cancel this appointment.`;
 const confirmText = `Thank you for confirming your appointment tomorrow at 9am, we look forward to meeting with you.`;
 const cancelText = `Your appointment tomorrow at 9am has been cancelled. Please call the bank directly 
 if you would like to rebook for another date and time.`;
@@ -63,27 +58,6 @@ async function createOutboundCall() {
 	const options: CreateCallOptions ={ callIntelligenceOptions: { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT } };
 	console.log("Placing outbound call...");
 	acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks", options);
-}
-
-async function startRecording() {
-	try {
-		console.log("Start Recording...");
-		const callLocator: CallLocator = {
-			id: serverCallId,
-			kind: "serverCallLocator",
-		};
-
-		const recordingOptions: StartRecordingOptions = {
-			callLocator: callLocator,
-		};
-
-		const response = await acsClient.getCallRecording().start(recordingOptions);
-		console.log("Recording Started...");
-		recordingId = response.recordingId;
-	} catch (error) {
-		console.error("Error starting recording:", error);
-		throw error;
-	}
 }
 
 async function handlePlay(callConnectionMedia:CallMedia, textContent:string){
@@ -124,7 +98,6 @@ async function startRecognizing(callMedia: CallMedia, textToPlay: string, contex
 }
 
 async function hangUpCall() {
-	await acsClient.getCallRecording().stop(recordingId);
 	callConnection.hangUp(true);
 }
 
@@ -139,7 +112,6 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 	const callMedia = callConnection.getCallMedia();
 	if (event.type === "Microsoft.Communication.CallConnected") {
 		console.log("Received CallConnected event");
-		await startRecording();
 		await startRecognizing(callMedia, mainMenu, "");
 	}
 	else if (event.type === "Microsoft.Communication.RecognizeCompleted") {
@@ -180,29 +152,11 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 		}
 	}
 	else if (event.type === "Microsoft.Communication.PlayCompleted" || event.type === "Microsoft.Communication.playFailed") {
-		console.log("Stop recording and terminating call.");
+		console.log("Terminating call.");
 		hangUpCall();
 	} 
 	
 	res.sendStatus(200);
-});
-
-// POST endpoint to receive recording events
-app.post('/api/recordingFileStatus', async (req, res) => {
-	const event = req.body[0];
-	const eventData = event.data;
-
-	if (event.eventType === "Microsoft.EventGrid.SubscriptionValidationEvent") {
-		console.log("Received SubscriptionValidation event");
-		res.status(200).json({
-			validationResponse: eventData.validationCode,
-		});
-	}
-	else if(event.eventType === "Microsoft.Communication.RecordingFileStatusUpdated") {
-		console.log("Received RecordingFileStatusUpdated event");
-		recordingLocation = eventData.recordingStorageInfo.recordingChunks[0].contentLocation
-		res.sendStatus(200);
-	}
 });
 
 // GET endpoint to serve the audio file
@@ -242,29 +196,6 @@ app.get('/outboundCall', async (req, res) => {
 
 	await createOutboundCall();
 	res.redirect('/');
-});
-
-// GET endpoint to download call audio
-app.get('/download', async (req, res) => {
-
-	if(recordingLocation === null || recordingLocation === undefined) {
-		console.log("Failed to download, recordingLocation is invalid.")
-		res.redirect('/')
-	}
-	else {
-		try {
-			// Set the appropriate response headers for the file download
-			res.setHeader('Content-Disposition', 'attachment; filename="recording.wav"');
-			res.setHeader('Content-Type', 'audio/wav');
-	
-			const recordingStream = await acsClient.getCallRecording().downloadStreaming(recordingLocation);
-	
-			// Pipe the recording stream to the response object
-			recordingStream.pipe(res);
-		} catch (error) {
-			console.error("Error downloading recording. Ensure recording webhook is setup correctly.", error);
-		}
-	}
 });
 
 // Start the server
