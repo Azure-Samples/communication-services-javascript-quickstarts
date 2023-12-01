@@ -2,7 +2,17 @@ import { config } from 'dotenv';
 import fs from "fs";
 import express, { Application } from 'express';
 import { PhoneNumberIdentifier } from "@azure/communication-common";
-import { CallAutomationClient, CallConnection, CallMediaRecognizeDtmfOptions, CallLocator, StartRecordingOptions, FileSource, CallInvite } from "@azure/communication-call-automation";
+import {  } from "@azure/communication-common";
+import {
+	CallAutomationClient, 
+	CallConnection,
+	CallMediaRecognizeChoiceOptions,
+	RecognitionChoice,
+	TextSource, 
+	CallInvite,	
+	CreateCallOptions,
+	CallMedia,
+	DtmfTone } from "@azure/communication-call-automation";
 import path from 'path';
 
 config();
@@ -13,14 +23,23 @@ app.use(express.static('webpage'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-const MEDIA_URI = process.env.CALLBACK_URI + "/audioprompt/"
 let callConnectionId: string;
-let recordingId: string;
 let callConnection: CallConnection;
 let serverCallId: string;
 let callee: PhoneNumberIdentifier;
 let acsClient: CallAutomationClient;
-let recordingLocation: string;
+
+const mainMenu = ` Hello this is Contoso Bank, we’re calling in regard to your appointment tomorrow 
+at 9am to open a new account. Please say confirm if this time is still suitable for you or say cancel if you would like to cancel this appointment.`;
+const confirmText = `Thank you for confirming your appointment tomorrow at 9am, we look forward to meeting with you.`;
+const cancelText = `Your appointment tomorrow at 9am has been cancelled. Please call the bank directly 
+if you would like to rebook for another date and time.`;
+const customerQueryTimeout = `I’m sorry I didn’t receive a response, please try again.`;
+const noResponse = `I didn't receive an input, we will go ahead and confirm your appointment. Goodbye`
+const invalidAudio = `I’m sorry, I didn’t understand your response, please try again.`;
+const confirmLabel = `Confirm`;
+const cancelLabel = `Cancel`;
+const retryContext = `Retry`;
 
 async function createAcsClient() {
 	const connectionString = process.env.CONNECTION_STRING || "";
@@ -36,64 +55,49 @@ async function createOutboundCall() {
 		},
 	};
 
+	const options: CreateCallOptions ={ callIntelligenceOptions: { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT } };
 	console.log("Placing outbound call...");
-	acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks");
+	acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks", options);
 }
 
-async function startRecording() {
-	try {
-		const callLocator: CallLocator = {
-			id: serverCallId,
-			kind: "serverCallLocator",
-		};
-
-		const recordingOptions: StartRecordingOptions = {
-			callLocator: callLocator,
-		};
-
-		const response = await acsClient.getCallRecording().start(recordingOptions);
-
-		recordingId = response.recordingId;
-	} catch (error) {
-		console.error("Error starting recording:", error);
-		throw error;
-	}
+async function handlePlay(callConnectionMedia:CallMedia, textContent:string){
+	const play : TextSource = { text:textContent , voiceName: "en-US-NancyNeural", kind: "textSource"}
+	await callConnectionMedia.playToAll([play]);
 }
 
-async function playAudio(prompt: string) {
-	try {
-		const audioPrompt: FileSource[] = [{
-			url: MEDIA_URI + prompt,
-			kind: "fileSource",
-		}];
+async function getChoices(){
+	const choices: RecognitionChoice[] = [ 
+		{  
+			label: confirmLabel, 
+			phrases: [ "Confirm", "First", "One" ], 
+			tone: DtmfTone.One 
+		}, 
+		{ 
+			label: cancelLabel, 
+			phrases: [ "Cancel", "Second", "Two" ], 
+			tone: DtmfTone.Two 
+		} 
+	]; 
 
-		await callConnection.getCallMedia().playToAll(audioPrompt);
-	} catch (error) {
-		console.error('An error occurred while playing audio prompt:', error);
-	}
+	return choices;
 }
 
-async function startToneRecognition() {
-	try {
-		const audioPrompt: FileSource = {
-			url: MEDIA_URI + "MainMenu.wav",
-			kind: "fileSource",
-		};
+async function startRecognizing(callMedia: CallMedia, textToPlay: string, context: string){
+	const playSource: TextSource = { text: textToPlay, voiceName: "en-US-NancyNeural", kind: "textSource" }; 
 
-		const recognizeOptions: CallMediaRecognizeDtmfOptions = {
-			playPrompt: audioPrompt,
-			kind: "callMediaRecognizeDtmfOptions",
-		};
+	const recognizeOptions: CallMediaRecognizeChoiceOptions = { 
+		choices: await getChoices(), 
+		interruptPrompt: false, 
+		initialSilenceTimeoutInSeconds: 10, 
+		playPrompt: playSource, 
+		operationContext: context, 
+		kind: "callMediaRecognizeChoiceOptions"
+	}; 
 
-		await callConnection.getCallMedia().startRecognizing(callee, 1, recognizeOptions);
-	} catch (error) {
-		console.error("Error starting tone recognition:", error);
-		throw error;
-	}
+	await callMedia.startRecognizing(callee, recognizeOptions)
 }
 
 async function hangUpCall() {
-	await acsClient.getCallRecording().stop(recordingId);
 	callConnection.hangUp(true);
 }
 
@@ -101,66 +105,58 @@ async function hangUpCall() {
 app.post("/api/callbacks", async (req: any, res: any) => {
 	const event = req.body[0];
 	const eventData = event.data;
-
+	callConnectionId = eventData.callConnectionId;
+	serverCallId = eventData.serverCallId;
+	console.log("Call back event received, callConnectionId=%s, serverCallId=%s, eventType=%s", callConnectionId, serverCallId, event.type);
+	callConnection = acsClient.getCallConnection(callConnectionId);
+	const callMedia = callConnection.getCallMedia();
 	if (event.type === "Microsoft.Communication.CallConnected") {
 		console.log("Received CallConnected event");
-
-		callConnectionId = eventData.callConnectionId;
-		serverCallId = eventData.serverCallId;
-		callConnection = acsClient.getCallConnection(callConnectionId);
-
-		await startRecording();
-		await startToneRecognition();
-	} 
-	else if (event.type === "Microsoft.Communication.ParticipantsUpdated") {
-		console.log("Received ParticipantUpdated event");
-	} 
-	else if (event.type === "Microsoft.Communication.PlayCompleted" || event.type === "Microsoft.Communication.playFailed") {
-		console.log("Received PlayCompleted event");
-		hangUpCall();
-	} 
+		await startRecognizing(callMedia, mainMenu, "");
+	}
 	else if (event.type === "Microsoft.Communication.RecognizeCompleted") {
-		const tone = event.data.dtmfResult.tones[0];
-		console.log("Received RecognizeCompleted event, with following tone: " + tone);
-
-		if (tone === "one")
-			await playAudio("Confirmed.wav");
-		else if (tone === "two")
-			await playAudio("Goodbye.wav");
-		else
-			await playAudio("Invalid.wav");
+		if(eventData.recognitionType === "choices"){
+			var context = eventData.operationContext;
+			const labelDetected = eventData.choiceResult.label; 
+        	const phraseDetected = eventData.choiceResult.recognizedPhrase;
+        	console.log("Recognition completed, labelDetected=%s, phraseDetected=%s, context=%s", labelDetected, phraseDetected, eventData.operationContext);
+			const textToPlay = labelDetected === confirmLabel ? confirmText : cancelText;			
+			await handlePlay(callMedia, textToPlay);
+		}
 	} 
 	else if (event.type === "Microsoft.Communication.RecognizeFailed") {
-		await playAudio("Timeout.wav");
+		var context = eventData.operationContext;
+		if(context !== "" && (context === retryContext)){
+			await handlePlay(callMedia, noResponse);
+		}
+		else{
+			const resultInformation = eventData.resultInformation
+			var code = resultInformation.subCode;
+			console.log("Recognize failed: data=%s", JSON.stringify(eventData, null, 2));
+
+			let replyText = '';
+			switch(code){
+				case 8510:
+				case 8511:
+					replyText = customerQueryTimeout;
+					break;
+				case 8534:
+				case 8547:
+					replyText = invalidAudio
+					break;
+				default:
+					replyText = customerQueryTimeout;
+			}
+
+			await startRecognizing(callMedia, replyText, retryContext);
+		}
 	}
-	else if (event.type === "Microsoft.Communication.CallDisconnected") {
-		console.log("Received CallDisconnected event");
-	} 
-	else {
-		const eventType = event.type;
-		console.log("Received Unexpected event: " + eventType + ". Terminating Call.");
+	else if (event.type === "Microsoft.Communication.PlayCompleted" || event.type === "Microsoft.Communication.playFailed") {
+		console.log("Terminating call.");
 		hangUpCall();
-	}
-
+	} 
+	
 	res.sendStatus(200);
-});
-
-// POST endpoint to receive recording events
-app.post('/api/recordingFileStatus', async (req, res) => {
-	const event = req.body[0];
-	const eventData = event.data;
-
-	if (event.eventType === "Microsoft.EventGrid.SubscriptionValidationEvent") {
-		console.log("Received SubscriptionValidation event");
-		res.status(200).json({
-			validationResponse: eventData.validationCode,
-		});
-	}
-	else if(event.eventType === "Microsoft.Communication.RecordingFileStatusUpdated") {
-		console.log("Received RecordingFileStatusUpdated event");
-		recordingLocation = eventData.recordingStorageInfo.recordingChunks[0].contentLocation
-		res.sendStatus(200);
-	}
 });
 
 // GET endpoint to serve the audio file
@@ -200,29 +196,6 @@ app.get('/outboundCall', async (req, res) => {
 
 	await createOutboundCall();
 	res.redirect('/');
-});
-
-// GET endpoint to download call audio
-app.get('/download', async (req, res) => {
-
-	if(recordingLocation === null || recordingLocation === undefined) {
-		console.log("Failed to download, recordingLocation is invalid.")
-		res.redirect('/')
-	}
-	else {
-		try {
-			// Set the appropriate response headers for the file download
-			res.setHeader('Content-Disposition', 'attachment; filename="recording.wav"');
-			res.setHeader('Content-Type', 'audio/wav');
-	
-			const recordingStream = await acsClient.getCallRecording().downloadStreaming(recordingLocation);
-	
-			// Pipe the recording stream to the response object
-			recordingStream.pipe(res);
-		} catch (error) {
-			console.error("Error downloading recording. Ensure recording webhook is setup correctly.", error);
-		}
-	}
 });
 
 // Start the server
