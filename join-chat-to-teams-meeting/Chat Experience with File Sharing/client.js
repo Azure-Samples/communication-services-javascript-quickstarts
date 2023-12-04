@@ -117,7 +117,7 @@ async function renderReceivedMessage(event) {
 
     // Inject image tag for all image attachments
     var imageAttachmentHtml = event.attachments
-        .filter(attachment => attachment.attachmentType === "image" && !messages.contains(attachment.id))
+        .filter(attachment => attachment.attachmentType === "image" && !messages.includes(attachment.id))
         .map(attachment => renderImageAttachments(attachment))
         .join('');
     messagesContainer.innerHTML += imageAttachmentHtml;
@@ -131,7 +131,7 @@ async function renderReceivedMessage(event) {
 
     // filter out inline images from attchments
     const imageAttachments = event.attachments.filter((attachment) =>
-        attachment.attachmentType === "image" && messages.contains(attachment.id));
+        attachment.attachmentType === "image" && messages.includes(attachment.id));
 
     // fetch and render preview images
     fetchPreviewImages(imageAttachments);
