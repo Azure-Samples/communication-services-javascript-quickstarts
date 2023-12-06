@@ -1,8 +1,14 @@
 module.exports = {
-    entry: "./client.js",
-    output: {
-        filename: "bundle.js"
+  devServer: {
+    allowedHosts: "auto",
+    client: {
+      overlay: true,
     },
-    devtool: "inline-source-map",
-    mode: "development"
-}
+  },
+  entry: "./client.js",
+  output: {
+    filename: "bundle.js",
+  },
+  devtool: "inline-source-map",
+  mode: "development",
+};
