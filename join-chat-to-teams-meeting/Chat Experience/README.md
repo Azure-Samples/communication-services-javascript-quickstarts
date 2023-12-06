@@ -33,15 +33,13 @@ This quickstart sample includes the code that is explained as part of [this docu
 2. `git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git`
 3. Run this command
     `npm install`
-4. With the Communication Services procured in pre-requisites, fetch connection string and update at line# 26 in client.js ```const connectionString = "<SECRET_CONNECTION_STRING>";```.
-5. With the Communication Services procured in pre-requisites, fetch end point and update at line# 27 in client.js ```const endpointUrl = "<ENDPOINT_URL>";```.
+4. With the Communication Services procured in pre-requisites, fetch connection string and update at line# 40 in client.js ```const connectionString = "<SECRET_CONNECTION_STRING>";```.
+5. With the Communication Services procured in pre-requisites, fetch end point and update at line# 41 in client.js ```const endpointUrl = "<ENDPOINT_URL>";```.
 
 ## Run the code
+Run:
+`npx start`
 
-Webpack users can use the **webpack-dev-server** to build and run your app. Run the following command to bundle your application host on a local web-server:
-
-`npx webpack && npx webpack-dev-server`
-
-open your browser and navigate to <http://localhost:8080/>. You should see the following:
+You should see the following:
 
 ![Render of sample application](../../media/acs-join-teams-meeting-chat-quickstart.png)
