@@ -20,7 +20,7 @@ This code sample is explained as part of [this tutorial](https://docs.microsoft.
 
 ## Code Structure
 
-- **./index.html:** to configure a basic layout that will allow the user to join a teams meeting.
+- **./public/index.html:** to configure a basic layout that will allow the user to join a teams meeting.
 - **./client.js:** contain the application logic.
 
 ## Setup

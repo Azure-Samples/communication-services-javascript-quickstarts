@@ -117,7 +117,7 @@ async function renderReceivedMessage(event) {
 
     // Inject image tag for all image attachments
     var imageAttachmentHtml = event.attachments
-        .filter(attachment => attachment.attachmentType === "image" && messages.includes(attachment.id))
+        .filter(attachment => attachment.attachmentType === "image" && !messages.includes(attachment.id))
         .map(attachment => renderImageAttachments(attachment))
         .join('');
     messagesContainer.innerHTML += imageAttachmentHtml;
