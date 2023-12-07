@@ -117,7 +117,7 @@ async function renderReceivedMessage(event) {
 
     // Inject image tag for all image attachments
     var imageAttachmentHtml = event.attachments
-        .filter(attachment => attachment.attachmentType === "teamsImage")
+        .filter(attachment => attachment.attachmentType === "image" && !messages.includes(attachment.id))
         .map(attachment => renderImageAttachments(attachment))
         .join('');
     messagesContainer.innerHTML += imageAttachmentHtml;
@@ -131,8 +131,7 @@ async function renderReceivedMessage(event) {
 
     // filter out inline images from attchments
     const imageAttachments = event.attachments.filter((attachment) =>
-        attachment.attachmentType === "teamsInlineImage" ||
-        attachment.attachmentType === "teamsImage");
+        attachment.attachmentType === "image" && messages.includes(attachment.id));
 
     // fetch and render preview images
     fetchPreviewImages(imageAttachments);
@@ -148,8 +147,10 @@ function renderSentMessage(message) {
 }
 
 function renderFileAttachments(attachment) {
+    var re = /(?:\.([^.]+))?$/;
+    var fileExtension = re.exec(attachment.name)[1]; 
     return '<div class="attachment-container">' +
-        '<p class="attachment-type">' + attachment.contentType + '</p>' +
+        '<p class="attachment-type">' + fileExtension + '</p>' +
         '<img class="attachment-icon" alt="attachment file icon" />' +
         '<div>' +
         '<p>' + attachment.name + '</p>' +
