@@ -16,7 +16,7 @@ This code sample demonstrates how you can support Teams inline image interoperab
 
 This sample includes the code that is explained as part of [this tutorial](https://docs.microsoft.com/azure/communication-services/tutorials/chat-interop/meeting-interop-features-inline-image), which includes a step by step explanation on how to enable inline image support.
 
-*Note: some GIF images fetched from `previewUrl` might not be animated, and a static preview image may be returned instead. Developers are expected to use the `url` if the intention is to fetch animated images only.*
+*Note: Some GIF images fetched from `previewUrl` might not be animated, and a static preview image may be returned instead. Developers are expected to use the `url` if the intention is to fetch animated images only.*
 
 ## Prerequisites
 
