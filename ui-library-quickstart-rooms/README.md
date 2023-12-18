@@ -7,8 +7,10 @@ products:
 - azure-communication-services
 ---
 
-# Get Started with Rooms Call
-This code sample showcases the ability to join the Rooms call using ACS UI library. Creating a Room is out of scope for this quickstart sample. For more information on how to create/manage a Rooms resource, look at [Rooms overview](https://docs.microsoft.com/en-us/azure/communication-services/concepts/rooms/room-concept)
+# Get Started with Rooms
+
+This code sample showcases the ability to join a Rooms call using the CallComposite of the ACS UI library. For an overview of how Rooms works, you can read this 
+(documentation)[https://learn.microsoft.com/en-us/azure/communication-services/concepts/rooms/room-concept#managing-rooms-and-joining-room-calls]. To join a rooms call, you need the room id of the an existing room and the local user's id needs to be added to that room. The Rooms Client is needed to do this but is out of scope for this ACS UI library quickstart sample. For more information on how to create/manage rooms and add users to rooms using the Rooms Client, follow this (quickstart)[https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/rooms/get-started-rooms?tabs=windows&pivots=programming-language-javascript].
 
 ## Prerequisites
 
@@ -24,7 +26,7 @@ This code sample showcases the ability to join the Rooms call using ACS UI libra
 2. Swap placeholders for identifiers in the code.
     - Go to the `src` folder and find the `app.tsx` file.
     - Enter the `USER_ID` and `TOKEN` for the identity you created.
-    - Also input value for the `ROOM_ID` to join the room and make sure the user is added to the room to be able to join the room. You can also change the `ROLE` which is by default set to Presenter.
+    - Also input value for the `ROOM_ID` to join the room and make sure the user is added to the room to be able to join the room.
     - Optional: You can update the display name to match a string value of your choice.
     - Save the file.
 4. Run `npm run start`

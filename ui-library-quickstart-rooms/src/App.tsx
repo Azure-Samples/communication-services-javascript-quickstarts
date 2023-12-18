@@ -2,7 +2,6 @@ import { AzureCommunicationTokenCredential, CommunicationUserIdentifier } from '
 import {
   CallComposite,
   fromFlatCommunicationIdentifier,
-  Role,
   useAzureCommunicationCallAdapter
 } from '@azure/communication-react';
 import { initializeIcons } from '@fluentui/react';
@@ -31,14 +30,9 @@ const TOKEN = '<Azure Communication Services Access Token>';
 const DISPLAY_NAME = '<Display Name>';
 
 /**
- * RoomsId to join rooms Call
+ * Room Id of room to join
  */
-const ROOM_ID = '<Azure Communication Services Rooms Identifier>'
-/**
- * Choose the role from 'Presenter' | 'Attendee' | 'Consumer'. 
- * The default value is set to 'Presenter'
- */
-let ROLE: Role = 'Presenter';
+const ROOM_ID = '<Room id of room to join>';
 
 /**
  * Entry point of your application.
@@ -65,8 +59,7 @@ function App(): JSX.Element {
       userId: fromFlatCommunicationIdentifier(userId) as CommunicationUserIdentifier,
       displayName,
       credential,
-      locator: { roomId },
-      options: { roleHint: ROLE }
+      locator: { roomId }
     }),
     [userId, credential, displayName, roomId]
   );
