@@ -23,7 +23,7 @@ This sample includes:
   * [app/src/Api.ts](./app/src/Api.ts) - client side bindings to interact with the backend API from [api/](./api).
 * [api/](./api) - This directory contains the source code for the backend API.
   * [api/startRecording.cs](./api/startRecording.cs) - Azure Function to start recording an ongoing call.
-  * [api/stopRecroding.cs](./api/stopRecording.cs) - Azure Function to stop recording an ongoing call.
+  * [api/stopRecording.cs](./api/stopRecording.cs) - Azure Function to stop recording an ongoing call.
   * [api/onRecordingFileStatusUpdated.cs](./api/onRecordingFileStatusUpdated.cs) - Azure Function used as a webhook to process recordings that become available, copying them from temporary storage in Azure Communication Services to [Azure Blob Storage](https://docs.microsoft.com/en-us/azure/storage/blobs/).
   * [api/listRecordings.cs](./api/listRecordings) - Azure Function to list recordings transferred to Azure Blob Storage.
 
