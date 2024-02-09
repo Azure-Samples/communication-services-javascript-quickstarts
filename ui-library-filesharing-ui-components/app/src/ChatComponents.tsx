@@ -39,14 +39,20 @@ export default function ChatComponents(): JSX.Element {
     axios
       .request({
         method: "post",
-        url: `/api/UploadFileToAzureBlobStore?filename=${uniqueFileName}`,
+        url: `/api/uploadFileToAzureBlobStore?filename=${uniqueFileName}`,
         data: data,
         onUploadProgress: (p) => {
           updateFileUploadProgress(file.name, p.loaded / p.total);
         },
       })
       .then((res) => {
-        completeFileUpload(file.name, { attachmentType: 'fileSharing', id: uniqueFileName ,name: file.name, extension, url: res.data.url });
+        completeFileUpload(file.name, {
+          attachmentType: "file",
+          id: uniqueFileName,
+          name: file.name,
+          extension,
+          url: res.data.url,
+        });
       })
       .catch((err) => {
         console.log(err);
