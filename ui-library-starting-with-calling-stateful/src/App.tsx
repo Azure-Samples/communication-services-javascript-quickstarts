@@ -27,6 +27,8 @@ function App(): JSX.Element {
   const [callAgent, setCallAgent] = useState<CallAgent>();
   const [call, setCall] = useState<Call>();
 
+  console.log(call)
+
   useEffect(() => {
     const statefulCallClient = createStatefulCallClient({
       userId: { communicationUserId: userId }
