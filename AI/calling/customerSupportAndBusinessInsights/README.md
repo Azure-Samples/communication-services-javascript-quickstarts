@@ -26,7 +26,7 @@ On the other hand, business wants to learn about call insight, such as call sent
 ## Setup Details:
 
 ### Back End: 
-- Step1: Setup a backend service using Azure function app following the instructions at [Getting started with Azure Functions | Microsoft Learn](https://learn.microsoft.com/en-us/azure/azure-functions/functions-get-started?pivots=programming-language-csharp#create-your-first-function). This back end sample is built with c# programming lanauge. You can use any languge of your preference to build this sample.
+- Step1: Setup a backend service using Azure function app following the instructions at [Getting started with Azure Functions | Microsoft Learn](https://learn.microsoft.com/en-us/azure/azure-functions/functions-get-started?pivots=programming-language-csharp#create-your-first-function). This back end sample is built with c# programming language. You can use any languge of your preference to build this sample.
 - Step2: Create an Azure function “GetSuggestionForContosoSupportAgent”. This function will accept the call transcript between the customer and the support agent. The function connects to Azure OpenAI to fetch suggestions on what the agent should say next to better support the customer based on the conversation transcript so far. In the below code update the Azure Open AI Client creation step with your Azure OpenAI credentials. 
 
 Add ContosoAgenSupportSystemPrompt and ContosoAgentSupportUserPrompt to a constant file:
