@@ -65,7 +65,7 @@ async function updateProjects(projectDirectories, versions) {
     // Install packages via npm
     try {
       console.log("\nInstalling via NPM\n");
-      await exec(`cd ../${projectDirectory}; npm install`);
+      await exec(`cd "../${projectDirectory}"; npm install`);
     } catch (e) {
       console.error(`${projectDirectory} failed to update!`);
       console.error(e.stdout);

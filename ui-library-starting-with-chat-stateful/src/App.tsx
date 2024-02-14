@@ -15,13 +15,13 @@ registerIcons({ icons: DEFAULT_COMPONENT_ICONS });
 
 function App(): JSX.Element {
   const endpointUrl = '<Azure Communication Services Resource Endpoint>';
-  const userAccessToken = '<Azure Communication Services Resource Access Token>';
+  const token = '<Azure Communication Services Resource Access Token>';
   const userId = '<User Id associated to the token>';
   const threadId = '<Get thread id from chat service>';
   const displayName = '<Display Name>';
 
 
-  const tokenCredential = new AzureCommunicationTokenCredential(userAccessToken);
+  const tokenCredential = new AzureCommunicationTokenCredential(token);
   //Instantiate the statefulChatClient
   const statefulChatClient = createStatefulChatClient({
     userId: { communicationUserId: userId },

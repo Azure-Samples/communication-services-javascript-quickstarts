@@ -39,21 +39,21 @@ const fileUploadHandler: FileUploadHandler = async (
     try {
       const response = await axios.request({
         method: "post",
-        url: `/api/UploadFileToAzureBlobStore?filename=${uniqueFileName}`,
+        url: `/api/uploadFileToAzureBlobStore?filename=${uniqueFileName}`,
         data: formData,
         headers: {
           "Content-Type": `multipart/form-data`,
           "Access-Control-Allow-Origin": "*",
         },
         onUploadProgress: (p) => {
-          fileUpload.notifyUploadProgressChanged(p.loaded / p.total);
+          if (p.total) fileUpload.notifyUploadProgressChanged(p.loaded / p.total);
         },
       });
 
       // 1 means the file upload progress is 100%. Similarly, 0.5 would be 50%.
       fileUpload.notifyUploadProgressChanged(1);
       fileUpload.notifyUploadCompleted({
-        attachmentType: 'fileSharing',
+        attachmentType: 'file',
         id: uniqueFileName,
         name: fileUpload.file?.name ?? "",
         extension: fileExtension,
