@@ -82,8 +82,8 @@ function App() {
 
         <Text>
           Welcome to a Calling Widget sample for the Azure Communication
-          Services UI Library. Sample has the ability to connect you through
-          Teams voice apps to a agent to help you.
+          Services UI Library. This sample has the ability to connect you through a
+          Teams voice apps to an agent to help you.
         </Text>
         <Text>
           As a user all you need to do is click the widget below, enter your
