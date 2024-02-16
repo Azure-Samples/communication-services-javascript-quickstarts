@@ -53,8 +53,9 @@ export interface CallingWidgetComponentProps {
    */
   widgetAdapterArgs: WidgetAdapterArgs;
   /**
-   * Custom render function for displaying logo.
-   * @returns
+   * Custom render function for displaying logo
+   * 
+
    */
   onRenderLogo?: () => JSX.Element;
 }
