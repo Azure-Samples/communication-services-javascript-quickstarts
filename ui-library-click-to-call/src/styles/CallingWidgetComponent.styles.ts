@@ -1,4 +1,10 @@
-import { IButtonStyles, ICheckboxStyles, IIconStyles, IStackStyles, Theme } from '@fluentui/react';
+import {
+  IButtonStyles,
+  ICheckboxStyles,
+  IIconStyles,
+  IStackStyles,
+  Theme,
+} from "@fluentui/react";
 
 export const checkboxStyles = (theme: Theme): ICheckboxStyles => {
   return {
@@ -28,7 +34,9 @@ export const callingWidgetContainerStyles = (theme: Theme): IStackStyles => {
   };
 };
 
-export const callingWidgetSetupContainerStyles = (theme: Theme): IStackStyles => {
+export const callingWidgetSetupContainerStyles = (
+  theme: Theme
+): IStackStyles => {
   return {
     root: {
       width: "18rem",
@@ -42,7 +50,7 @@ export const callingWidgetSetupContainerStyles = (theme: Theme): IStackStyles =>
       position: "absolute",
       overflow: "hidden",
       cursor: "pointer",
-      background: theme.palette.white
+      background: theme.palette.white,
     },
   };
 };
@@ -89,20 +97,22 @@ export const collapseButtonStyles: IButtonStyles = {
   },
 };
 
-export const callingWidgetInCallContainerStyles = (theme: Theme): IStackStyles => {
+export const callingWidgetInCallContainerStyles = (
+  theme: Theme
+): IStackStyles => {
   return {
     root: {
-      width: '35rem',
-      height: '25rem',
-      padding: '0.5rem',
+      width: "35rem",
+      height: "25rem",
+      padding: "0.5rem",
       boxShadow: theme.effects.elevation16,
       borderRadius: theme.effects.roundedCorner6,
       bottom: 0,
-      right: '1rem',
-      position: 'absolute',
-      overflow: 'hidden',
-      cursor: 'pointer',
-      background: theme.semanticColors.bodyBackground
-    }
-  }
-}
+      right: "1rem",
+      position: "absolute",
+      overflow: "hidden",
+      cursor: "pointer",
+      background: theme.semanticColors.bodyBackground,
+    },
+  };
+};

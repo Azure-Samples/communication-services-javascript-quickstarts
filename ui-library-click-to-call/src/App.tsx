@@ -1,11 +1,19 @@
+import "./App.css";
+import {
+  CommunicationIdentifier,
+  MicrosoftTeamsAppIdentifier,
+} from "@azure/communication-common";
+import {
+  Spinner,
+  Stack,
+  initializeIcons,
+  registerIcons,
+  Text,
+} from "@fluentui/react";
+import { CallAdd20Regular, Dismiss20Regular } from "@fluentui/react-icons";
+import logo from "./logo.svg";
 
-import './App.css';
-import { CommunicationIdentifier, MicrosoftTeamsAppIdentifier } from '@azure/communication-common';
-import { Spinner, Stack, initializeIcons, registerIcons, Text } from '@fluentui/react';
-import { CallAdd20Regular, Dismiss20Regular } from '@fluentui/react-icons';
-import logo from './logo.svg';
-
-import { CallingWidgetComponent } from './components/CallingWidgetComponent';
+import { CallingWidgetComponent } from "./components/CallingWidgetComponent";
 
 registerIcons({
   icons: { dismiss: <Dismiss20Regular />, callAdd: <CallAdd20Regular /> },
@@ -28,8 +36,9 @@ function App() {
    * Enter your Teams voice app identifier from the Teams admin center here
    */
   const teamsAppIdentifier: MicrosoftTeamsAppIdentifier = {
-    teamsAppId: "<Enter your Teams Voice app id here>", cloud: "public"
-  }
+    teamsAppId: "<Enter your Teams Voice app id here>",
+    cloud: "public",
+  };
 
   const widgetParams = {
     userId,
@@ -37,22 +46,25 @@ function App() {
     teamsAppIdentifier,
   };
 
-
   if (!token || !userId || !teamsAppIdentifier) {
     return (
-      <Stack verticalAlign='center' style={{ height: '100%', width: '100%' }}>
-        <Spinner label={'Getting user credentials from server'} ariaLive="assertive" labelPosition="top" />;
+      <Stack verticalAlign="center" style={{ height: "100%", width: "100%" }}>
+        <Spinner
+          label={"Getting user credentials from server"}
+          ariaLive="assertive"
+          labelPosition="top"
+        />
+        ;
       </Stack>
-    )
+    );
   }
-
 
   return (
     <Stack
       style={{ height: "100%", width: "100%", padding: "3rem" }}
       tokens={{ childrenGap: "1.5rem" }}
     >
-      <Stack tokens={{ childrenGap: '1rem' }} style={{ margin: "auto" }}>
+      <Stack tokens={{ childrenGap: "1rem" }} style={{ margin: "auto" }}>
         <Stack
           style={{ padding: "3rem" }}
           horizontal
@@ -69,8 +81,9 @@ function App() {
         </Stack>
 
         <Text>
-          Welcome to a Calling Widget sample for the Azure Communication Services UI
-          Library. Sample has the ability to connect you through Teams voice apps to a agent to help you.
+          Welcome to a Calling Widget sample for the Azure Communication
+          Services UI Library. Sample has the ability to connect you through
+          Teams voice apps to a agent to help you.
         </Text>
         <Text>
           As a user all you need to do is click the widget below, enter your
@@ -78,13 +91,17 @@ function App() {
           action the <b>start call</b> button.
         </Text>
       </Stack>
-      <Stack horizontal tokens={{ childrenGap: '1.5rem' }} style={{ overflow: 'hidden', margin: 'auto' }}>
+      <Stack
+        horizontal
+        tokens={{ childrenGap: "1.5rem" }}
+        style={{ overflow: "hidden", margin: "auto" }}
+      >
         <CallingWidgetComponent
           widgetAdapterArgs={widgetParams}
           onRenderLogo={() => {
             return (
               <img
-                style={{ height: '4rem', width: '4rem', margin: 'auto' }}
+                style={{ height: "4rem", width: "4rem", margin: "auto" }}
                 src={logo}
                 alt="logo"
               />
@@ -93,7 +110,7 @@ function App() {
         />
       </Stack>
     </Stack>
-  );;
+  );
 }
 
 export default App;
