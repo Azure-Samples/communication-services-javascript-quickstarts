@@ -30,8 +30,8 @@ Back end: [openAIGateway](link)
 Alternatively you can also setup this sample project from scratch following the instructions below:
 
 ### Back End: 
-- Step1: Setup a backend service using Azure function app following the instructions at [Getting started with Azure Functions | Microsoft Learn](https://learn.microsoft.com/en-us/azure/azure-functions/functions-get-started?pivots=programming-language-csharp#create-your-first-function). This back end sample is built with [C#](https://learn.microsoft.com/en-us/dotnet/csharp/) programming language. You can use any of the [languages supported](https://learn.microsoft.com/en-us/azure/azure-functions/supported-languages?tabs=isolated-process%2Cv4&pivots=programming-language-csharp) by Azure functions to build this back end application.
-- Step2: Create an Azure function `GetSuggestionForContosoSupportAgent`. This function will accept the call transcript between the customer and the support agent. The function connects to Azure OpenAI to fetch suggestions on what the agent should say next to better support the customer based on the conversation transcript so far. In the below code update the Azure Open AI Client creation step with your Azure OpenAI credentials. Add `ContosoAgenSupportSystemPrompt` and `ContosoAgentSupportUserPrompt` to a constant file:
+1. Setup a backend service using Azure function app following the instructions at [Getting started with Azure Functions | Microsoft Learn](https://learn.microsoft.com/en-us/azure/azure-functions/functions-get-started?pivots=programming-language-csharp#create-your-first-function). This back end sample is built with [C#](https://learn.microsoft.com/en-us/dotnet/csharp/) programming language. You can use any of the [languages supported](https://learn.microsoft.com/en-us/azure/azure-functions/supported-languages?tabs=isolated-process%2Cv4&pivots=programming-language-csharp) by Azure functions to build this back end application.
+2. Create an Azure function `GetSuggestionForContosoSupportAgent`. This function will accept the call transcript between the customer and the support agent. The function connects to Azure OpenAI to fetch suggestions on what the agent should say next to better support the customer based on the conversation transcript so far. In the below code update the Azure Open AI Client creation step with your Azure OpenAI credentials. Add `ContosoAgenSupportSystemPrompt` and `ContosoAgentSupportUserPrompt` to a constant file:
 
 ```csharp
      [FunctionName("GetSuggestionForContosoSupportAgent")]
@@ -110,7 +110,7 @@ Prompt for GetSuggestionForContosoSupportAgent function:
         public static string ContosoAgentSupportSystemPrompt = "You are an AI assistant assisting a support agent, listening to the conversation between the support agent and the user.";
 ```
 
-- Step3: Create a function called `CallInSights`. This function accepts the callId and entire call transcript between the customer and the support agent. The function fetches call sentiment (positive, negative, neutral) and call summary from Azure OpenAI based on the call transcript. In the below code update the Azure Open AI Client creation step with your Azure OpenAI credentials. Add the `sentimentScoreSystemPrompt` and `sentimentScoreUserPrompt` to a constant file.
+3. Create a function called `CallInSights`. This function accepts the callId and entire call transcript between the customer and the support agent. The function fetches call sentiment (positive, negative, neutral) and call summary from Azure OpenAI based on the call transcript. In the below code update the Azure Open AI Client creation step with your Azure OpenAI credentials. Add the `sentimentScoreSystemPrompt` and `sentimentScoreUserPrompt` to a constant file.
 
 ```csharp
 [FunctionName("CallInSights")]
@@ -163,579 +163,584 @@ public static string sentimentScoreUserPrompt = @"From the above conversation be
                         ""callInsight"": """"
                     }";
 ```
-- Step4: Publish the openaigateway function app using these [instructions](https://learn.microsoft.com/en-us/azure/azure-functions/functions-develop-vs?tabs=isolated-process).
+4.  Publish the openaigateway function app using these [instructions](https://learn.microsoft.com/en-us/azure/azure-functions/functions-develop-vs?tabs=isolated-process).
 
 
 ## Front End
 
-- Step1: The Contoso agent User interface is built on top of the Azure Communication Services Web client calling [Sample](https://docs.microsoft.com/en-us/azure/communication-services/samples/web-calling-sample) tutorial. Follow the instructions on the Calling Sample app at [GitHub](https://github.com/Azure-Samples/communication-services-web-calling-tutorial) and setup the web application.
+1. The Contoso agent User interface is built on top of the Azure Communication Services Web client calling [sample](https://docs.microsoft.com/en-us/azure/communication-services/samples/web-calling-sample) tutorial. Follow the instructions on the Calling Sample app at [GitHub](https://github.com/Azure-Samples/communication-services-web-calling-tutorial) and setup the web application.
 
-- Step2: Update the web application to include the below changes.
+2. Update the web application to include the below changes.
 Update `CallCaptions.js` as below:
-- a. Add 3 state variables to represent AI is turned on/off, to represent if the agent is speaking, and to represent if the customer is speaking and if AI functionality is to be turned on off.
-```js
-    const [communicationAI, setCommunicationAI] = useState(false);
-    const [isAgentSpeaking, setIsAgentSpeaking] = useState(false);
-    const [isUserSpeaking, setIsUserSpeaking] = useState(false);
-```
-- b. Add a toggle button component to turn on AI functionality. When AI functionality is turned on, show the new Communication AI component, that is populated with response from Azure Open AI.
-```js
-    return (
-        <>
-            {captions && <SpokenLanguageDropdown />}
-            {captions && captions.captionsType === 'TeamsCaptions' && <CaptionLanguageDropdown />}
-            <div className="scrollable-captions-container">
-                <div id="captionsArea" className="captions-area">
-                </div>
-            </div>
-            <div className="participants-panel mt-1 mb-3">
-                <Toggle label= {
-                    <div>
-                        Communication AI {' '}
-                        <TooltipHost content= {`Turn on Communication AI`}>
-                            <Icon iconName="Info" aria-label="Info tooltip" />
-                        </TooltipHost>
+
+    - Add 3 state variables to represent AI is turned on/off, to represent if the agent is speaking, and to represent if the customer is speaking and if AI functionality is to be turned on or off.
+    ```js
+        const [communicationAI, setCommunicationAI] = useState(false);
+        const [isAgentSpeaking, setIsAgentSpeaking] = useState(false);
+        const [isUserSpeaking, setIsUserSpeaking] = useState(false);
+    ```
+    - Add a toggle button component to turn on AI functionality. When AI functionality is turned on, show the new Communication AI component, that is populated with response from Azure Open AI.
+    ```js
+        return (
+            <>
+                {captions && <SpokenLanguageDropdown />}
+                {captions && captions.captionsType === 'TeamsCaptions' && <CaptionLanguageDropdown />}
+                <div className="scrollable-captions-container">
+                    <div id="captionsArea" className="captions-area">
                     </div>
-                }
-                    styles= {{
-                        text: {color: '#edebe9'},
-                        label: {color: '#edebe9'},
-                    }}
-                    inlineLabel
-                    onText="On"
-                    offText="Off"
-                    defaultChecked={communicationAI}
-                    onChange= {() => { setCommunicationAI(oldValue => !oldValue)}}
-                />
- 
-                {
-                    communicationAI &&
-                    <CommunicationAI call={call} isAgentSpeaking={isAgentSpeaking} isUserSpeaking={isUserSpeaking} />
-                }
-            </div>
-        </>
-    );
-```
+                </div>
+                <div className="participants-panel mt-1 mb-3">
+                    <Toggle label= {
+                        <div>
+                            Communication AI {' '}
+                            <TooltipHost content= {`Turn on Communication AI`}>
+                                <Icon iconName="Info" aria-label="Info tooltip" />
+                            </TooltipHost>
+                        </div>
+                    }
+                        styles= {{
+                            text: {color: '#edebe9'},
+                            label: {color: '#edebe9'},
+                        }}
+                        inlineLabel
+                        onText="On"
+                        offText="Off"
+                        defaultChecked={communicationAI}
+                        onChange= {() => { setCommunicationAI(oldValue => !oldValue)}}
+                    />
+    
+                    {
+                        communicationAI &&
+                        <CommunicationAI call={call} isAgentSpeaking={isAgentSpeaking} isUserSpeaking={isUserSpeaking} />
+                    }
+                </div>
+            </>
+        );
+    ```
      
 - c. Create file CommunicationAI.js to handle AI related functionality under src/MakeCall/CommunicationAI.
 When the user stops speaking, send the captions gathered so far to Azure Open AI. The response received from AI  have suggested talking points for the Agent on what to say next to best support the customer and customer data gathered from the conversation to fill in the support form.
 
-```js
-import React, { useState, useEffect } from "react";
-import { Dropdown } from '@fluentui/react/lib/Dropdown';
-import { utils, acsOpenAiPromptsApi } from "./Utils";
-import {AgentSupportForm} from "./AgentSupportForm"
+    ```js
+    import React, { useState, useEffect } from "react";
+    import { Dropdown } from '@fluentui/react/lib/Dropdown';
+    import { utils, acsOpenAiPromptsApi } from "./Utils";
+    import {AgentSupportForm} from "./AgentSupportForm"
 
-const CommunicationAI = ({ call, isAgentSpeaking, isUserSpeaking }) => {
-    const [showSpinner, setShowSpinner] = useState(false);
+    const CommunicationAI = ({ call, isAgentSpeaking, isUserSpeaking }) => {
+        const [showSpinner, setShowSpinner] = useState(false);
 
-    // Summary
-    const [lastSummary, setLastSummary] = useState("");
-    const [captionsSummaryIndex, setCaptionsSummaryIndex] = useState(0);
+        // Summary
+        const [lastSummary, setLastSummary] = useState("");
+        const [captionsSummaryIndex, setCaptionsSummaryIndex] = useState(0);
 
-    // Feedback
-    const [lastFeedBack, setLastFeedBack] = useState("");
-    const [captionsFeedbackIndex, setCaptionsFeedbackIndex] = useState(0);
+        // Feedback
+        const [lastFeedBack, setLastFeedBack] = useState("");
+        const [captionsFeedbackIndex, setCaptionsFeedbackIndex] = useState(0);
 
-    // Sentiment
-    const [lastSentiment, setLastSentiment] = useState("");
-    const [captionsSentimentIndex, setCaptionsSentimentIndex] = useState(0);
+        // Sentiment
+        const [lastSentiment, setLastSentiment] = useState("");
+        const [captionsSentimentIndex, setCaptionsSentimentIndex] = useState(0);
 
-    // Support Agent
-    const [lastSupportAgentResponse, setLastSupportAgentResponse] = useState("");
-    const [setCaptionsSupportAgentResponseIndex] = useState(0);
+        // Support Agent
+        const [lastSupportAgentResponse, setLastSupportAgentResponse] = useState("");
+        const [setCaptionsSupportAgentResponseIndex] = useState(0);
 
-    const [promptMessage, setPromptMessage] = useState("");
+        const [promptMessage, setPromptMessage] = useState("");
 
-    const [dropDownLabel, setDropDownLabel] = useState("")
+        const [dropDownLabel, setDropDownLabel] = useState("")
 
-    const [agentDebounceCounterRunning, setAgentDebounceCounterRunning] = useState(false);
-    const [userDebounceCounterRunning, setUserDebounceCounterRunning] = useState(false);
+        const [agentDebounceCounterRunning, setAgentDebounceCounterRunning] = useState(false);
+        const [userDebounceCounterRunning, setUserDebounceCounterRunning] = useState(false);
 
-    const [userName, setUserName] = useState("");
-    const [address, setAddress] = useState("");
-    const [phoneNumber, setPhoneNumber] = useState("");
-    const [dateOfPurchase, setDateOfPurchase] = useState("");
-    const [issue, setIssue] = useState("");
-    const [productUnderWarranty, setProductUnderWarranty] = useState(false);
-    const [issueTicket, setIssueTicket] = useState("");
+        const [userName, setUserName] = useState("");
+        const [address, setAddress] = useState("");
+        const [phoneNumber, setPhoneNumber] = useState("");
+        const [dateOfPurchase, setDateOfPurchase] = useState("");
+        const [issue, setIssue] = useState("");
+        const [productUnderWarranty, setProductUnderWarranty] = useState(false);
+        const [issueTicket, setIssueTicket] = useState("");
 
-    const options = [
-        { key: 'getSummary', text: 'Get Summary' },
-        { key: 'getPersonalFeedBack', text: 'Get Personal Feedback' },
-        { key: 'getSentiments', text: 'Get Sentiment Feedback' },
-        { key: 'getSuggestionForSupportAgent', text: 'Get Suggestion for Agent' },
-    ]
-    let agentDebounceTimeoutFn;
-    let userDebounceTimeoutFn;
-    let displayName = "Agent"
+        const options = [
+            { key: 'getSummary', text: 'Get Summary' },
+            { key: 'getPersonalFeedBack', text: 'Get Personal Feedback' },
+            { key: 'getSentiments', text: 'Get Sentiment Feedback' },
+            { key: 'getSuggestionForSupportAgent', text: 'Get Suggestion for Agent' },
+        ]
+        let agentDebounceTimeoutFn;
+        let userDebounceTimeoutFn;
+        let displayName = "Agent"
 
-    useEffect(() => {
-        call.on('stateChanged', () => {
-            if (call.state === 'Disconnected') {
-                callInsight(call.id);
+        useEffect(() => {
+            call.on('stateChanged', () => {
+                if (call.state === 'Disconnected') {
+                    callInsight(call.id);
+                }
+            });
+        }, []);
+
+        useEffect(() => {
+            if (dropDownLabel == "") {
+                setShowSpinner(false); 
+                return
             }
-        });
-    }, []);
+            clearTimeout(agentDebounceTimeoutFn);
+            if (dropDownLabel != "getSuggestionForSupportAgent") {
+                if (isAgentSpeaking && !agentDebounceCounterRunning) {
+                    const message = "FeedBack will be retrieved after you finish talking";
+                    !showSpinner && setShowSpinner(true);
+                    setPromptMessage(message);
+                } else {
+                    if (agentDebounceCounterRunning) {
+                        agentDebounceTimeoutFn = setTimeout(() => {
+                            setAgentDebounceCounterRunning(false);
+                        }, 5000);
+                    } else {
+                        dropDownHandler();
+                    }
+                }
+            }
+            return () => {
+                clearTimeout(agentDebounceTimeoutFn);
+            }
+        }, [isAgentSpeaking, agentDebounceCounterRunning, dropDownLabel]);
 
-    useEffect(() => {
-        if (dropDownLabel == "") {
-            setShowSpinner(false); 
-            return
-        }
-        clearTimeout(agentDebounceTimeoutFn);
-        if (dropDownLabel != "getSuggestionForSupportAgent") {
-            if (isAgentSpeaking && !agentDebounceCounterRunning) {
-                const message = "FeedBack will be retrieved after you finish talking";
+        useEffect(() => {
+            if (dropDownLabel == "") {
+                setShowSpinner(false); 
+                return
+            }
+            clearTimeout(userDebounceTimeoutFn);
+            if (isUserSpeaking && dropDownLabel == "getSuggestionForSupportAgent" && !userDebounceCounterRunning) {
+                const message = "Support Suggestion will be retrieved after User finishes talking";
                 !showSpinner && setShowSpinner(true);
                 setPromptMessage(message);
             } else {
-                if (agentDebounceCounterRunning) {
-                    agentDebounceTimeoutFn = setTimeout(() => {
-                        setAgentDebounceCounterRunning(false);
+                if (userDebounceCounterRunning) {
+                    userDebounceTimeoutFn = setTimeout(() => {
+                        setUserDebounceCounterRunning(false);
                     }, 5000);
                 } else {
                     dropDownHandler();
                 }
             }
-        }
-        return () => {
-            clearTimeout(agentDebounceTimeoutFn);
-        }
-    }, [isAgentSpeaking, agentDebounceCounterRunning, dropDownLabel]);
+            return () => {
+                clearTimeout(userDebounceTimeoutFn);
+            }
+        }, [isUserSpeaking, userDebounceCounterRunning, dropDownLabel]);
 
-    useEffect(() => {
-        if (dropDownLabel == "") {
-            setShowSpinner(false); 
-            return
+        const dropDownHandler = async () => {
+            dropDownLabel != "" && !showSpinner && setShowSpinner(true)
+            setPromptMessage("Waiting for the AI response...");
+            switch (dropDownLabel) {
+                case "getSummary":
+                    await getSummary().finally(() => setShowSpinner(false));
+                    break;
+                case "getPersonalFeedBack":
+                    await getPersonalFeedback().finally(() => setShowSpinner(false));
+                    break;
+                case "getSentiments":
+                    await getSentiment().finally(() => setShowSpinner(false));
+                    break;
+                case "getSuggestionForSupportAgent":
+                    await getSuggestionForSupportAgent().finally(() => setShowSpinner(false));
+                    break;
+            }
         }
-        clearTimeout(userDebounceTimeoutFn);
-        if (isUserSpeaking && dropDownLabel == "getSuggestionForSupportAgent" && !userDebounceCounterRunning) {
-            const message = "Support Suggestion will be retrieved after User finishes talking";
-            !showSpinner && setShowSpinner(true);
-            setPromptMessage(message);
-        } else {
-            if (userDebounceCounterRunning) {
-                userDebounceTimeoutFn = setTimeout(() => {
-                    setUserDebounceCounterRunning(false);
-                }, 5000);
+
+        // Get call summary based on call conversation
+        const getSummary = async () => {
+            try {
+                const currentCaptionsData = window.captionHistory.slice(captionsSummaryIndex);
+                let response = await utils.sendCaptionsDataToAcsOpenAI(acsOpenAiPromptsApi.summary, displayName, lastSummary, currentCaptionsData);
+                let content = response.choices[0].message.content;
+                console.log(`getSummary summary ===> ${JSON.stringify(response)}`)
+                setLastSummary(content);
+                setCaptionsSummaryIndex(window.captionHistory.length);
+                displayResponse(content);
+            } catch (error) {
+                console.error(JSON.stringify(error))
+            }
+        }
+
+        // Get Personal feedback based on call conversation
+        const getPersonalFeedback = async () => {
+            try {
+                const currentCaptionsData = window.captionHistory.slice(captionsFeedbackIndex);
+                let response = await utils.sendCaptionsDataToAcsOpenAI(acsOpenAiPromptsApi.feedback, displayName, lastFeedBack, currentCaptionsData)
+                let content = response.choices[0].message.content;
+                console.log(`getPersonalFeedback ===> ${JSON.stringify(response)}`)
+                setLastFeedBack(content);
+                setCaptionsFeedbackIndex(window.captionHistory.length);
+                displayResponse(content);
+            } catch(error) {
+                console.error(JSON.stringify(error))
+            }
+        }
+
+        // Get Call Sentiment based on call conversation
+        const getSentiment = async () => {
+            try {
+                const currentCaptionsData = window.captionHistory.slice(captionsSentimentIndex);
+                let response = await utils.sendCaptionsDataToAcsOpenAI(acsOpenAiPromptsApi.sentiment, displayName, lastSentiment, currentCaptionsData)
+                let content = response.emotions && response.emotions.join(", ")
+                let callToAction = response.call_to_action;
+                if (!content || !content.length) {
+                    content = "Neutral" //default is no senitment is detected
+                }
+                if (callToAction) {
+                    content += "\nRecommended Action:\n"
+                    content += callToAction;
+                } 
+                console.log(`getSentimentt ===> ${JSON.stringify(response)}`)
+                setLastSentiment(content);
+                setCaptionsSentimentIndex(window.captionHistory.length);
+                displayResponse(content);
+            } catch(error) {
+                console.error(JSON.stringify(error))
+            }
+        }
+
+        // Get suggestion for support agent based on customer converstion
+        const getSuggestionForSupportAgent = async () => {
+            try {
+                let response = await utils.sendCaptionsDataToAcsOpenAI(acsOpenAiPromptsApi.supportAgent, 
+                        displayName, lastSupportAgentResponse, window.captionHistory, true)
+                let content = response.suggested_reply;
+                console.log(`getSuggestionForSupportAgent ===> ${JSON.stringify(response)}`)
+                console.log(`form_data ===> ${JSON.stringify(response.form_data)}`)
+                retrieveFormData(response.form_data)
+                setLastSupportAgentResponse(content);
+                setCaptionsSupportAgentResponseIndex(window.captionHistory.length);
+                displayResponse(content);
+            } catch(error) {
+                console.error(JSON.stringify(error))
+            }
+        }
+
+        // Get Call Insights from the call conversation
+        const callInsight = async (callId) => {
+            await utils.sendCaptionsDataToAcsOpenAI(acsOpenAiPromptsApi.callInsights, displayName, '', window.captionHistory, true, callId);
+        }
+
+        const retrieveFormData = (form_data) => {
+            if (form_data.name && form_data.name != 'N/A' && form_data.name != userName) {
+                setUserName(form_data.name)
+            }
+
+            if (form_data.address && form_data.address != 'N/A' && form_data.address != address) {
+                setAddress(form_data.address)
+            }
+
+            if (form_data.phone_number && form_data.phone_number != 'N/A' && form_data.phone_number != phoneNumber) {
+                setPhoneNumber(form_data.phone_number)
+            }
+
+            if (form_data.date_of_purchase && form_data.date_of_purchase != 'N/A' && form_data.date_of_purchase != dateOfPurchase) {
+                setDateOfPurchase(form_data.date_of_purchase)
+            }
+
+            if (form_data.issue_description && form_data.issue_description != 'N/A' && form_data.issue_description != issue) {
+                setIssue(form_data.issue_description)
+            }
+
+            if (form_data.product_under_warranty && form_data.product_under_warranty != 'N/A' && form_data.product_under_warranty != productUnderWarranty) {
+                setProductUnderWarranty(form_data.product_under_warranty)
+            }
+
+            if (form_data.support_ticket_number && form_data.support_ticket_number != 'N/A' && form_data.support_ticket_number != issueTicket) {
+                setIssueTicket(form_data.support_ticket_number)
+            }
+        }
+
+        const onChangeHandler = (e, item) => {
+            setDropDownLabel(item.key);
+        }
+
+        const displayResponse = (responseText) => {
+            let captionAreasContainer = document.getElementById(dropDownLabel);
+
+            if(!responseText || !responseText.length) {return;}
+
+            if (dropDownLabel == "getSuggestionForSupportAgent" || dropDownLabel == "getSentiments") {
+                captionAreasContainer.style['font-size'] = '13px';
+                captionAreasContainer.innerText  = responseText;
             } else {
-                dropDownHandler();
+                let aiResponseContent = document.createElement('div');
+                aiResponseContent.style['borderBottom'] = '1px solid';
+                aiResponseContent.style['padding'] = '10px';
+                aiResponseContent.style['whiteSpace'] = 'pre-line';
+                aiResponseContent.style['color'] = 'white';
+                aiResponseContent.style['font-size'] = '12px';
+                aiResponseContent.textContent = responseText;
+                captionAreasContainer.appendChild(aiResponseContent);
             }
         }
-        return () => {
-            clearTimeout(userDebounceTimeoutFn);
-        }
-    }, [isUserSpeaking, userDebounceCounterRunning, dropDownLabel]);
 
-    const dropDownHandler = async () => {
-        dropDownLabel != "" && !showSpinner && setShowSpinner(true)
-        setPromptMessage("Waiting for the AI response...");
-        switch (dropDownLabel) {
-            case "getSummary":
-                await getSummary().finally(() => setShowSpinner(false));
-                break;
-            case "getPersonalFeedBack":
-                await getPersonalFeedback().finally(() => setShowSpinner(false));
-                break;
-            case "getSentiments":
-                await getSentiment().finally(() => setShowSpinner(false));
-                break;
-            case "getSuggestionForSupportAgent":
-                await getSuggestionForSupportAgent().finally(() => setShowSpinner(false));
-                break;
-        }
-    }
-
-    const getSummary = async () => {
-        try {
-            const currentCaptionsData = window.captionHistory.slice(captionsSummaryIndex);
-            let response = await utils.sendCaptionsDataToAcsOpenAI(acsOpenAiPromptsApi.summary, displayName, lastSummary, currentCaptionsData);
-            let content = response.choices[0].message.content;
-            console.log(`getSummary summary ===> ${JSON.stringify(response)}`)
-            setLastSummary(content);
-            setCaptionsSummaryIndex(window.captionHistory.length);
-            displayResponse(content);
-        } catch (error) {
-            console.error(JSON.stringify(error))
-        }
-    }
-
-    const getPersonalFeedback = async () => {
-        try {
-            const currentCaptionsData = window.captionHistory.slice(captionsFeedbackIndex);
-            let response = await utils.sendCaptionsDataToAcsOpenAI(acsOpenAiPromptsApi.feedback, displayName, lastFeedBack, currentCaptionsData)
-            let content = response.choices[0].message.content;
-            console.log(`getPersonalFeedback ===> ${JSON.stringify(response)}`)
-            setLastFeedBack(content);
-            setCaptionsFeedbackIndex(window.captionHistory.length);
-            displayResponse(content);
-        } catch(error) {
-            console.error(JSON.stringify(error))
-        }
-    }
-
-    const getSentiment = async () => {
-        try {
-            const currentCaptionsData = window.captionHistory.slice(captionsSentimentIndex);
-            let response = await utils.sendCaptionsDataToAcsOpenAI(acsOpenAiPromptsApi.sentiment, displayName, lastSentiment, currentCaptionsData)
-            let content = response.emotions && response.emotions.join(", ")
-            let callToAction = response.call_to_action;
-            if (!content || !content.length) {
-                content = "Neutral" //default is no senitment is detected
-            }
-            if (callToAction) {
-                content += "\nRecommended Action:\n"
-                content += callToAction;
-            } 
-            console.log(`getSentimentt ===> ${JSON.stringify(response)}`)
-            setLastSentiment(content);
-            setCaptionsSentimentIndex(window.captionHistory.length);
-            displayResponse(content);
-        } catch(error) {
-            console.error(JSON.stringify(error))
-        }
-    }
-
-    const getSuggestionForSupportAgent = async () => {
-        try {
-            let response = await utils.sendCaptionsDataToAcsOpenAI(acsOpenAiPromptsApi.supportAgent, 
-                    displayName, lastSupportAgentResponse, window.captionHistory, true)
-            let content = response.suggested_reply;
-            console.log(`getSuggestionForSupportAgent ===> ${JSON.stringify(response)}`)
-            console.log(`form_data ===> ${JSON.stringify(response.form_data)}`)
-            retrieveFormData(response.form_data)
-            setLastSupportAgentResponse(content);
-            setCaptionsSupportAgentResponseIndex(window.captionHistory.length);
-            displayResponse(content);
-        } catch(error) {
-            console.error(JSON.stringify(error))
-        }
-    }
-
-    const callInsight = async (callId) => {
-        await utils.sendCaptionsDataToAcsOpenAI(acsOpenAiPromptsApi.callInsights, displayName, '', window.captionHistory, true, callId);
-    }
-
-    const retrieveFormData = (form_data) => {
-        if (form_data.name && form_data.name != 'N/A' && form_data.name != userName) {
-            setUserName(form_data.name)
-        }
-
-        if (form_data.address && form_data.address != 'N/A' && form_data.address != address) {
-            setAddress(form_data.address)
-        }
-
-        if (form_data.phone_number && form_data.phone_number != 'N/A' && form_data.phone_number != phoneNumber) {
-            setPhoneNumber(form_data.phone_number)
-        }
-
-        if (form_data.date_of_purchase && form_data.date_of_purchase != 'N/A' && form_data.date_of_purchase != dateOfPurchase) {
-            setDateOfPurchase(form_data.date_of_purchase)
-        }
-
-        if (form_data.issue_description && form_data.issue_description != 'N/A' && form_data.issue_description != issue) {
-            setIssue(form_data.issue_description)
-        }
-
-        if (form_data.product_under_warranty && form_data.product_under_warranty != 'N/A' && form_data.product_under_warranty != productUnderWarranty) {
-            setProductUnderWarranty(form_data.product_under_warranty)
-        }
-
-        if (form_data.support_ticket_number && form_data.support_ticket_number != 'N/A' && form_data.support_ticket_number != issueTicket) {
-            setIssueTicket(form_data.support_ticket_number)
-        }
-    }
-
-    const onChangeHandler = (e, item) => {
-        setDropDownLabel(item.key);
-    }
-
-    const displayResponse = (responseText) => {
-        let captionAreasContainer = document.getElementById(dropDownLabel);
-
-        if(!responseText || !responseText.length) {return;}
-
-        if (dropDownLabel == "getSuggestionForSupportAgent" || dropDownLabel == "getSentiments") {
-            captionAreasContainer.style['font-size'] = '13px';
-            captionAreasContainer.innerText  = responseText;
-        } else {
-            let aiResponseContent = document.createElement('div');
-            aiResponseContent.style['borderBottom'] = '1px solid';
-            aiResponseContent.style['padding'] = '10px';
-            aiResponseContent.style['whiteSpace'] = 'pre-line';
-            aiResponseContent.style['color'] = 'white';
-            aiResponseContent.style['font-size'] = '12px';
-            aiResponseContent.textContent = responseText;
-            captionAreasContainer.appendChild(aiResponseContent);
-        }
-    }
-
-    return (
-        <>
-            <div id="" className="">
-                {
-                    showSpinner &&
-                    <div>
-                        <div className="loader inline-block"> </div>
-                        <div className="ml-2 inline-block">
-                            {
-                                promptMessage
-                            }
-                        </div>
-                    </div>
-                }
-                <Dropdown
-                    placeholder="Select an option"
-                    label={dropDownLabel}
-                    options={options}
-                    styles={{ dropdown: { width: 300 }, }}
-                    onChange={onChangeHandler}
-                />
-            </div>
-
-            <div id="communicationResponse">
-                {
-                    dropDownLabel == "getSummary" && 
-                    <div className="scrollable-captions-container">
-                        <div id="getSummary" className="ai-captions-area">
-                        </div>
-                    </div>
-                }
-
-                {
-                    dropDownLabel == "getSentimentt" && 
-                    <div className="scrollable-captions-container">
-                        <div id="getSentimentt" className="ai-captions-area">
-                        </div>
-                    </div>
-                }
-
-                {
-                    dropDownLabel == "getPersonalFeedback" && 
-                    <div className="scrollable-captions-container">
-                        <div id="getPersonalFeedback" className="ai-captions-area">
-                        </div>
-                    </div>
-                }
-
-                {
-                    dropDownLabel == "getSuggestionForSupportAgent" && 
-                    <div className="card">
-                        <div className="ms-Grid">
-                            <div className="ms-Grid-row">
-                                <div className="scrollable-captions-container ms-Grid-col ms-Grid-col ms-sm6 ms-md6 ms-lg6">
-                                    <div id="getSuggestionForSupportAgent" className="captions-area">
-                                        {lastSupportAgentResponse}
-                                    </div>
-                                </div>
-                                {lastSupportAgentResponse && <AgentSupportForm 
-                                    name = {userName}
-                                    address = {address}
-                                    phoneNumber = {phoneNumber}
-                                    dateOfPurchase = {dateOfPurchase}
-                                    issue = {issue}
-                                    productUnderWarranty = {productUnderWarranty} 
-                                    issueTicket = {issueTicket}
-                                />}
+        return (
+            <>
+                <div id="" className="">
+                    {
+                        showSpinner &&
+                        <div>
+                            <div className="loader inline-block"> </div>
+                            <div className="ml-2 inline-block">
+                                {
+                                    promptMessage
+                                }
                             </div>
                         </div>
-                    </div>
-                }
-            </div>
-        </>
-    );
-};
+                    }
+                    <Dropdown
+                        placeholder="Select an option"
+                        label={dropDownLabel}
+                        options={options}
+                        styles={{ dropdown: { width: 300 }, }}
+                        onChange={onChangeHandler}
+                    />
+                </div>
 
-export default CommunicationAI;
-```
+                <div id="communicationResponse">
+                    {
+                        dropDownLabel == "getSummary" && 
+                        <div className="scrollable-captions-container">
+                            <div id="getSummary" className="ai-captions-area">
+                            </div>
+                        </div>
+                    }
 
+                    {
+                        dropDownLabel == "getSentimentt" && 
+                        <div className="scrollable-captions-container">
+                            <div id="getSentimentt" className="ai-captions-area">
+                            </div>
+                        </div>
+                    }
 
-- d. Create a file `Utils.js` under `src/MakeCall/CommunicationAI` for the `sendCaptionsDataToAcsOpenAI` function that sends the captions data and received intelligence from Open AI. In the below code, replace the base URL to your back end function app URL.
+                    {
+                        dropDownLabel == "getPersonalFeedback" && 
+                        <div className="scrollable-captions-container">
+                            <div id="getPersonalFeedback" className="ai-captions-area">
+                            </div>
+                        </div>
+                    }
 
-```js
-import axios from 'axios';
-export const acsOpenAiPromptsApi = {
-    base: 'https://fhlopenaicalling.azurewebsites.net/api/',
-    summary: 'getSummary',
-    feedback: 'getPersonalFeedback',
-    sentiment: 'GetSentiments',
-    supportAgent: 'getSuggestionForSupportAgent',
-    callInsights: 'CallInsights',
-    getBriefSummary: 'GetBriefSummary'
-}
-
-export const utils = {
-    sendCaptionsDataToAcsOpenAI: async (apiEndpoint, participantName, lastResponse, newCaptionsData, isTranscriptType = false, callId ="") => {
-        let response = await axios({
-            url: acsOpenAiPromptsApi.base + apiEndpoint,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': "*",
-                'X-Requested-With': 'XMLHttpRequest',
-            },
-            data: (isTranscriptType || apiEndpoint === acsOpenAiPromptsApi.callInsights) ?
-                {
-                    "transcript": newCaptionsData.join(' '),
-                    "callId": callId
-                } :
-                {
-                    "CurrentParticipant": participantName,
-                    "Captions": JSON.stringify(newCaptionsData),
-                    "LastSummary": JSON.stringify(lastResponse),
-                }
-        });
-        if (response.status === 200) {
-            return response.data;
-        } else {
-            console.log("Error message");
-            console.log(response);
-        }
-    }
-};
-```
-
-- e. The CommunicationAI UI component would be filled with the response from AI. It would show a suggestion for the Agent to best support the customer and an AgentSupportForm component that is filled with the customer data that AI gathered from the conversation. The AgentSupportForm.js needs to be created as below under src/MakeCall/CommunicationAI.
-
-```js
-import React, { useEffect, useState } from "react";
-import {
-    TextField, PrimaryButton, Checkbox, MessageBar,
-    MessageBarType,
-} from 'office-ui-fabric-react'
-import { v4 as uuidv4 } from 'uuid';
-
-export const AgentSupportForm = ({name, address, phoneNumber, dateOfPurchase, issue, productUnderWarranty}) => {
-    const [userFullName, setUserFullName] = useState("");
-    const [userAddress, setUserAddress] = useState("");
-    const [userPhoneNumber, setUserPhoneNumber] = useState("");
-    const [userDateOfPurchase, setUserDateOfPurchase] = useState("");
-    const [IssueDescription, setIssueDescription] = useState("");
-    const [underWarranty, setUnderWarranty] = useState(false);
-    const [issueTicket, setIssueTicket] = useState("");
-    const [isSubmitted, setIsSubmitted] = useState(false)
-
-    useEffect(()=> {
-        if (name !=  userFullName) {setUserFullName(name)}
-        if (address !=  userAddress) {setUserAddress(address)}
-        if (phoneNumber !=  userPhoneNumber) {setUserPhoneNumber(phoneNumber)}
-        if (dateOfPurchase !=  userDateOfPurchase) {setUserDateOfPurchase(dateOfPurchase)}
-        if (issue !=  IssueDescription) {setIssueDescription(issue)}
-        if (productUnderWarranty !=  underWarranty) {setUnderWarranty(productUnderWarranty)}
-
-        if (userFullName && userAddress && userPhoneNumber && userDateOfPurchase && IssueDescription) {
-            console.log(`CHUK_TICKET === Updating Ticket number`);
-            setIssueTicket(uuidv4())
-        } else {
-            console.log(`CHUK_TICKET === NOT Updating Ticket number`);
-        }
-    }, [name, address, phoneNumber, dateOfPurchase, issue, productUnderWarranty])
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        setIsSubmitted(true)
-        setUserFullName("");
-        setUserAddress("")
-        setUserPhoneNumber("")
-        setUserDateOfPurchase("")
-        setIssueDescription("")
-        setUnderWarranty(false)
-        setIssueTicket("")
-        setTimeout(() => {
-            setIsSubmitted(false)
-        }, 5000)
-    }
-
-    const FormSubmitted = () => {
-        return (<MessageBar
-          messageBarType={MessageBarType.success}
-          isMultiline={false}
-        >
-          Ticket created successfully
-        </MessageBar>)
+                    {
+                        dropDownLabel == "getSuggestionForSupportAgent" && 
+                        <div className="card">
+                            <div className="ms-Grid">
+                                <div className="ms-Grid-row">
+                                    <div className="scrollable-captions-container ms-Grid-col ms-Grid-col ms-sm6 ms-md6 ms-lg6">
+                                        <div id="getSuggestionForSupportAgent" className="captions-area">
+                                            {lastSupportAgentResponse}
+                                        </div>
+                                    </div>
+                                    {lastSupportAgentResponse && <AgentSupportForm 
+                                        name = {userName}
+                                        address = {address}
+                                        phoneNumber = {phoneNumber}
+                                        dateOfPurchase = {dateOfPurchase}
+                                        issue = {issue}
+                                        productUnderWarranty = {productUnderWarranty} 
+                                        issueTicket = {issueTicket}
+                                    />}
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </>
+        );
     };
 
-    return <>
-        <div className="ms-Grid-col ms-Grid-col ms-sm6 ms-md6 ms-lg6" >
-            {isSubmitted && FormSubmitted()}
-            <div className="ms-Grid-row">
-                <div className="ms-Grid-row">
-                    <TextField
-                        placeholder="FullName"
-                        value={userFullName}
-                        className="text-left"
-                        onChange={(e) => { setUserFullName(e.target.value)}} 
-                    />
-                </div>
-                <div className="ms-Grid-row">
-                    <TextField
-                        placeholder="Address"
-                        value={userAddress}
-                        className="text-left"
-                        onChange={(e) => { setUserAddress(e.target.value)}} 
-                    />
-                </div>
-                <div className="ms-Grid-row">
-                    <TextField
-                        placeholder="PhoneNumber" 
-                        value={userPhoneNumber}
-                        className="text-left"
-                        onChange={(e) => { setUserPhoneNumber(e.target.value)}}  />
-                </div>
-                <div className="ms-Grid-row">
-                    <TextField
-                        placeholder="Date of Purchase" 
-                        value={userDateOfPurchase}
-                        className="text-left"
-                        onChange={(e) => { setUserDateOfPurchase(e.target.value)}}  />
-                </div>
-                <div className="ms-Grid-row">
-                    <TextField
-                        placeholder="Issue Description" 
-                        multiline rows={5}
-                        value={IssueDescription}
-                        className="text-left"
-                        onChange={(e) => { setIssueDescription(e.target.value)}}  />
-                </div>
-                <div className="ms-Grid-row">
-                    <Checkbox label="Product under Warranty"  checked={underWarranty} onChange={(e, checked) => {setUnderWarranty(checked)}} />
-                </div>
+    export default CommunicationAI;
+    ```
 
+    4. Create a file `Utils.js` under `src/MakeCall/CommunicationAI` for the `sendCaptionsDataToAcsOpenAI` function that sends the captions data and received intelligence from Open AI. In the below code, replace the base URL to your back end function app URL.
+
+    ```js
+    import axios from 'axios';
+    export const acsOpenAiPromptsApi = {
+        base: 'https://fhlopenaicalling.azurewebsites.net/api/',
+        summary: 'getSummary',
+        feedback: 'getPersonalFeedback',
+        sentiment: 'GetSentiments',
+        supportAgent: 'getSuggestionForSupportAgent',
+        callInsights: 'CallInsights',
+        getBriefSummary: 'GetBriefSummary'
+    }
+
+    export const utils = {
+        sendCaptionsDataToAcsOpenAI: async (apiEndpoint, participantName, lastResponse, newCaptionsData, isTranscriptType = false, callId ="") => {
+            let response = await axios({
+                url: acsOpenAiPromptsApi.base + apiEndpoint,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': "*",
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                data: (isTranscriptType || apiEndpoint === acsOpenAiPromptsApi.callInsights) ?
+                    {
+                        "transcript": newCaptionsData.join(' '),
+                        "callId": callId
+                    } :
+                    {
+                        "CurrentParticipant": participantName,
+                        "Captions": JSON.stringify(newCaptionsData),
+                        "LastSummary": JSON.stringify(lastResponse),
+                    }
+            });
+            if (response.status === 200) {
+                return response.data;
+            } else {
+                console.log("Error message");
+                console.log(response);
+            }
+        }
+    };
+    ```
+
+    5. The CommunicationAI UI component would be filled with the response from AI. It would show a suggestion for the Agent to best support the customer and an AgentSupportForm component that is filled with the customer data that AI gathered from the conversation. The AgentSupportForm.js needs to be created as below under src/MakeCall/CommunicationAI.
+
+    ```js
+    import React, { useEffect, useState } from "react";
+    import {
+        TextField, PrimaryButton, Checkbox, MessageBar,
+        MessageBarType,
+    } from 'office-ui-fabric-react'
+    import { v4 as uuidv4 } from 'uuid';
+
+    export const AgentSupportForm = ({name, address, phoneNumber, dateOfPurchase, issue, productUnderWarranty}) => {
+        const [userFullName, setUserFullName] = useState("");
+        const [userAddress, setUserAddress] = useState("");
+        const [userPhoneNumber, setUserPhoneNumber] = useState("");
+        const [userDateOfPurchase, setUserDateOfPurchase] = useState("");
+        const [IssueDescription, setIssueDescription] = useState("");
+        const [underWarranty, setUnderWarranty] = useState(false);
+        const [issueTicket, setIssueTicket] = useState("");
+        const [isSubmitted, setIsSubmitted] = useState(false)
+
+        useEffect(()=> {
+            if (name !=  userFullName) {setUserFullName(name)}
+            if (address !=  userAddress) {setUserAddress(address)}
+            if (phoneNumber !=  userPhoneNumber) {setUserPhoneNumber(phoneNumber)}
+            if (dateOfPurchase !=  userDateOfPurchase) {setUserDateOfPurchase(dateOfPurchase)}
+            if (issue !=  IssueDescription) {setIssueDescription(issue)}
+            if (productUnderWarranty !=  underWarranty) {setUnderWarranty(productUnderWarranty)}
+
+            if (userFullName && userAddress && userPhoneNumber && userDateOfPurchase && IssueDescription) {
+                console.log(`CHUK_TICKET === Updating Ticket number`);
+                setIssueTicket(uuidv4())
+            } else {
+                console.log(`CHUK_TICKET === NOT Updating Ticket number`);
+            }
+        }, [name, address, phoneNumber, dateOfPurchase, issue, productUnderWarranty])
+
+        const handleSubmit = (e) => {
+            e.preventDefault();
+            setIsSubmitted(true)
+            setUserFullName("");
+            setUserAddress("")
+            setUserPhoneNumber("")
+            setUserDateOfPurchase("")
+            setIssueDescription("")
+            setUnderWarranty(false)
+            setIssueTicket("")
+            setTimeout(() => {
+                setIsSubmitted(false)
+            }, 5000)
+        }
+
+        const FormSubmitted = () => {
+            return (<MessageBar
+            messageBarType={MessageBarType.success}
+            isMultiline={false}
+            >
+            Ticket created successfully
+            </MessageBar>)
+        };
+
+        return <>
+            <div className="ms-Grid-col ms-Grid-col ms-sm6 ms-md6 ms-lg6" >
+                {isSubmitted && FormSubmitted()}
                 <div className="ms-Grid-row">
-                    <TextField
-                        placeholder="Issue Ticket#"
-                        value={issueTicket}
-                        className="text-left"
-                        onChange={(e) => { setIssueTicket(e.target.value)}}
-                    />
+                    <div className="ms-Grid-row">
+                        <TextField
+                            placeholder="FullName"
+                            value={userFullName}
+                            className="text-left"
+                            onChange={(e) => { setUserFullName(e.target.value)}} 
+                        />
+                    </div>
+                    <div className="ms-Grid-row">
+                        <TextField
+                            placeholder="Address"
+                            value={userAddress}
+                            className="text-left"
+                            onChange={(e) => { setUserAddress(e.target.value)}} 
+                        />
+                    </div>
+                    <div className="ms-Grid-row">
+                        <TextField
+                            placeholder="PhoneNumber" 
+                            value={userPhoneNumber}
+                            className="text-left"
+                            onChange={(e) => { setUserPhoneNumber(e.target.value)}}  />
+                    </div>
+                    <div className="ms-Grid-row">
+                        <TextField
+                            placeholder="Date of Purchase" 
+                            value={userDateOfPurchase}
+                            className="text-left"
+                            onChange={(e) => { setUserDateOfPurchase(e.target.value)}}  />
+                    </div>
+                    <div className="ms-Grid-row">
+                        <TextField
+                            placeholder="Issue Description" 
+                            multiline rows={5}
+                            value={IssueDescription}
+                            className="text-left"
+                            onChange={(e) => { setIssueDescription(e.target.value)}}  />
+                    </div>
+                    <div className="ms-Grid-row">
+                        <Checkbox label="Product under Warranty"  checked={underWarranty} onChange={(e, checked) => {setUnderWarranty(checked)}} />
+                    </div>
+
+                    <div className="ms-Grid-row">
+                        <TextField
+                            placeholder="Issue Ticket#"
+                            value={issueTicket}
+                            className="text-left"
+                            onChange={(e) => { setIssueTicket(e.target.value)}}
+                        />
+                    </div>
+                </div>
+                <div className="ms-Grid-row">
+                    <div className="ms-Grid-col">
+                        <PrimaryButton className="primary-button mt-5 text-left"
+
+                            onClick={(e) => {handleSubmit(e)}}>
+                                Submit Ticket
+                        </PrimaryButton>
+                    </div>
                 </div>
             </div>
-            <div className="ms-Grid-row">
-                <div className="ms-Grid-col">
-                    <PrimaryButton className="primary-button mt-5 text-left"
+        </>
+    }
+    ```
 
-                        onClick={(e) => {handleSubmit(e)}}>
-                            Submit Ticket
-                    </PrimaryButton>
-                </div>
-            </div>
-        </div>
-    </>
-}
-```
+## Exposing AI generated feed back to the user interface
+ In ordder to generate the feed back the support agent must turn on closed captions.
+ The agent will need to enable content sending to the AI engine. This is done by selecting 'Get Suggestion for Agent` on the drop down box.
+ The application starts sending closed captions gathered. This will result in Artificial intelligence aided suggestions and AI extracted customer data received from the API end point which are shown on the UI as below.
 
-
-## Functioning
- When the agent is in the call, on the user interface, turn on closed captions. Turn on the AI flag and choose Get Support for Agent from the drop down. The application starts sending out closed captions of the conversation gathered so far between the customer and the agent to the back end GetSuggestionForSupportAgent service end point, every time there is the user stops speaking. Artificial intelligence aided agent suggestions and AI extracted customer data received from the API end point are shown on the UI as below.
-
-The below image shows the updated User interface of the test application that shows the AgentSupportForm filled with the customer data gathered and send by OpenAI, and the agent suggestion box, that provides suggestions for the agent to best support the customer with trouble shooting the issue:
 
 ![alt text](image.png)
 
-The application also sends out accumulated closed captions of the entire conversation between the agent and the customer just before the call ends, to the backend service CallInSights API end point, where artificial intelligence aided call insights such as call sentiment (positive/negative/neutral) and call summary gets generated. This insight can be sent out to log analytics for logging and Azure monitor for Business visualization. To log insights and generate visualization follow Azure.Monitor.Ingestion Namespace - [Azure for .NET Developers | Microsoft Learn](https://learn.microsoft.com/en-us/dotnet/api/azure.monitor.ingestion?view=azure-dotnet) & [Azure Monitor overview - Azure Monitor | Microsoft Learn](https://learn.microsoft.com/en-us/azure/azure-monitor/overview)
+The application also sends out accumulated closed captions of the entire conversation between the agent and the customer just before the call ends, to the backend service `CallInSights` API end point, where artificial intelligence aided call insights such as call sentiment (positive/negative/neutral) and call summary gets generated. This insight can be sent out to log analytics for logging and Azure monitor for Business visualization. To log insights and generate visualization follow Azure.Monitor.Ingestion Namespace - [Azure for .NET Developers | Microsoft Learn](https://learn.microsoft.com/en-us/dotnet/api/azure.monitor.ingestion?view=azure-dotnet) & [Azure Monitor overview - Azure Monitor | Microsoft Learn](https://learn.microsoft.com/en-us/azure/azure-monitor/overview)
 
-- Log analytics – call insights:
+Log analytics – call insights:
 ![alt text](image-1.png)
 
 Azure monitor visualization for Business:
@@ -747,10 +752,4 @@ Front end: [communication-services-web-calling-tutorial at calling_AIBased_Agent
 Back end: [openAIGateway](link)
 
 ## Summary:
-Azure Communications Services client calling + Open AI can revolutionize the way businesses interact with its customers. AI integration can generate insightful visualization that business can leverage to make informed business decisions.
-
-
-
-
-
-
+Azure Communications Services client calling + Open AI can revolutionize the way businesses interact with its customers. AI integration will generate insightful visualization that business can leverage to make informed business decisions.
