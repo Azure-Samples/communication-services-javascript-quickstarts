@@ -48,7 +48,8 @@ export type WidgetAdapterArgs = {
 
 export interface CallingWidgetComponentProps {
   /**
-   *  arguments for creating an AzureCommunicationCallAdapter for your Calling experience
+   *  Arguments for creating an AzureCommunicationCallAdapter for your Calling experience
+
    */
   widgetAdapterArgs: WidgetAdapterArgs;
   /**
