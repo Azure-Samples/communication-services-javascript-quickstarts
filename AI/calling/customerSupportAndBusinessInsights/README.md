@@ -37,6 +37,8 @@ Alternatively you can also set up this sample project from scratch following the
 
 You should be sure to add your Azure OpenAI credentials. Add `ContosoAgenSupportSystemPrompt` and `ContosoAgentSupportUserPrompt` to a constant file:
 
+Refer to [Azure Open AI](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/working-with-models?tabs=powershell) documentaion to get started working with Azure open AI models.
+
 ```csharp
      [FunctionName("GetSuggestionForContosoSupportAgent")]
        public static async Task<IActionResult> HandleGetSuggestionForContosoSupportAgent(
@@ -748,8 +750,8 @@ Azure monitor visualization for Business:
 ![alt text](image-3.png)
 
 As a reminder this entire sample code can be found at:
-Front end: [communication-services-web-calling-tutorial at calling_AIBased_AgentSupport](link)
-Back end: [openAIGateway](link)
+- Front end: [FrontEndSample](https://github.com/Azure-Samples/communication-services-javascript-quickstarts/tree/main/AI/calling/customerSupportAndBusinessInsights/frontEnd/webCallingApp)
+- Back end: [OpenAIGateway](https://github.com/Azure-Samples/communication-services-javascript-quickstarts/tree/main/AI/calling/customerSupportAndBusinessInsights/backEnd/openAIGateway)
 
 ## Summary
 This sample shows how you can quickly and easily give support agents the tools and talking points that help answer their customer's questions. By using Azure Communications Services and empowering the Open AI capabilities the result creates a revolutionary solution that combines the power of cloud-based communication and artificial intelligence. Azure Communications Services client calling enables businesses to embed voice and video calling features into their applications, websites, or mobile devices, without the need for complex infrastructure or coding. Open AI provides a suite of AI tools that can analyze, understand, and generate natural language, speech, and images, enhancing the quality and richness of customer interactions.
