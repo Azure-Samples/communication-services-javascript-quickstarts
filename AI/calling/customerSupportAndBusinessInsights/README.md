@@ -1,5 +1,5 @@
-# ACS Client Calling SDK integration with Azure OpenAI
-Customer interactions are the key to building trust, loyalty, and satisfaction. However, traditional communication process such as phone and video calls can be limited in their effectiveness and efficiency. Customers may have to wait for long periods, repeat their queries, or deal with unresponsive agents who aren't able to respond with the best answers. Businesses miss valuable insights, feedback, or opportunities to upsell or cross-sell their products or services.
+# Azure Communication Services Client Calling SDK integration with Azure OpenAI
+Customer interactions are the key to building trust, loyalty, and satisfaction. However, traditional communication process such as phone and video calls can be limited in their effectiveness and efficiency. Customers may have to wait for long periods, repeat their queries, or work with agents who aren't able to respond with the best answers. Businesses miss valuable insights, feedback, and/or opportunities to upsell or cross-sell their products or services.
 
 Contact and support centers are often the first point of contact for customers who need assistance, information, or feedback from an organization. However, managing a large volume of inbound and outbound calls, emails, and chats can be challenging, costly, and stressful for both agents and customers. That's why many contact centers are looking for ways to leverage artificial intelligence (AI) to enhance their workflows, automate repetitive tasks, and provide faster and better service. In this article and the sample below, we will explore how Azure Communication Services can help contact centers use AI to improve support agent productivity, customer satisfaction, and reduce costs. 
 
@@ -29,7 +29,7 @@ The entire sample project can be found at:
 Front end: [communication-services-web-calling-tutorial at calling_AIBased_AgentSupport](link)
 Back end: [openAIGateway](link)
 
-Alternatively you can also set up this sample project from scratch following the instructions.
+Alternatively, you can also set up this sample project from scratch following the instructions.
 
 ## Configuring ingesting of data to Azure Functions: 
 1. You can configure the backend service using Azure function app following the instructions at [Getting started with Azure Functions | Microsoft Learn](https://learn.microsoft.com/en-us/azure/azure-functions/functions-get-started?pivots=programming-language-csharp#create-your-first-function). This back end sample is built with [C#](https://learn.microsoft.com/en-us/dotnet/csharp/) programming language. You can use any of the [languages supported](https://learn.microsoft.com/en-us/azure/azure-functions/supported-languages?tabs=isolated-process%2Cv4&pivots=programming-language-csharp) by Azure functions to build this back end application.
@@ -734,7 +734,7 @@ When the user stops speaking, send the captions gathered so far to Azure Open AI
     }
     ```
 
-## Exposing AI generated feed back to the user interface
+## Exposing AI generated feedback to the user interface
  A support agent must turn on closed captions. The agent must also enable content sending to the AI engine by selecting `Get Suggestion for Agent`. The application then starts sending closed captions gathered. The output is Artificial intelligence aided suggestions and AI extracted customer data received from the API end point.
 
 
@@ -754,4 +754,4 @@ As a reminder this entire sample code can be found at:
 - Back end: [OpenAIGateway](https://github.com/Azure-Samples/communication-services-javascript-quickstarts/tree/main/AI/calling/customerSupportAndBusinessInsights/backEnd/openAIGateway)
 
 ## Summary
-This sample shows how you can quickly and easily give support agents the tools and talking points that help answer their customer's questions. By using Azure Communications Services and empowering the Open AI capabilities the result creates a revolutionary solution that combines the power of cloud-based communication and artificial intelligence. Azure Communications Services client calling enables businesses to embed voice and video calling features into their applications, websites, or mobile devices, without the need for complex infrastructure or coding. Open AI provides a suite of AI tools that can analyze, understand, and generate natural language, speech, and images, enhancing the quality and richness of customer interactions.
+This sample shows how you can quickly and easily give support agents the tools and talking points that help answer their customer's questions. By using Azure Communications Services and empowering the Azure Open AI capabilities the result creates a revolutionary solution that combines the power of cloud-based communication and artificial intelligence. Azure Communications Services client calling enables businesses to embed voice and video calling features into their applications, websites, or mobile devices, without the need for complex infrastructure or coding. Azure Open AI provides a suite of AI tools that can analyze, understand, and generate natural language, speech, and images, enhancing the quality and richness of customer interactions.
