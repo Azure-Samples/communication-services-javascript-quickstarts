@@ -21,7 +21,7 @@ function App(): JSX.Element {
   // a new adapter is only created when an argument changes.
   const callAdapterArgs = useMemo(() => {
     try {
-      const { userIdentity, userToken, callLocator, displayName } =
+      const { userIdentity, userToken, targetCallees, displayName } =
         INPUTS;
       return {
         userId: fromFlatCommunicationIdentifier(
@@ -29,7 +29,9 @@ function App(): JSX.Element {
         ) as CommunicationUserIdentifier,
         credential: new AzureCommunicationTokenCredential(userToken),
         displayName: displayName,
-        locator: callLocator
+        targetCallees: targetCallees.map((id) =>
+          fromFlatCommunicationIdentifier(id)
+        ),
       };
     } catch (e) {
       console.error(e);
@@ -38,8 +40,8 @@ function App(): JSX.Element {
   }, []);
 
   const afterCallAdapterCreate = useCallback(async (adapter: CallAdapter) => {
-    adapter.on("transferRequested", (e) => {
-      e.accept();
+    adapter.on("transferAccepted", (e) => {
+      console.log("Transfer accepted", e);
     });
     return adapter;
   }, []);

@@ -13,8 +13,8 @@ export const INPUTS = {
    * In a real application, your backend service would provide these to the client
    * application after the user goes through your authentication flow.
    */
-  userIdentity: '<Azure Communication Services Identifier>',
-  userToken: '<Azure Communication Services Access Token>',
+  userIdentity: "<Azure Communication Services Identifier>",
+  userToken: "<Azure Communication Services Access Token>",
 
   /**
    * Who the user is calling.
@@ -26,12 +26,9 @@ export const INPUTS = {
    * A Teams user can also be contacted if the Teams user is a call agent of a call queue. In that case, the call queue
    * id or phone number should be entered in the participantIds array.
    */
-  callLocator: {
-    participantIds: ['<One Teams user id>']
-  },
-
+  targetCallees: ["<One Teams user id>"],
   /**
    * Display name for your user making the outbound call. This will be transmitted to the other ACS users in the call.
    */
-  displayName: '<Display name for your user>'
-}
+  displayName: "<Display name for your user>",
+};
