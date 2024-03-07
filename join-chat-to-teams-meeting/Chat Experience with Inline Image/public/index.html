@@ -124,6 +124,10 @@
          <div id="messages-container"></div>
          <form class="form-container">
             <textarea placeholder="Type message.." name="msg" id="message-box" required></textarea>
+            <hr>
+            <label for="myfile">Attach images:</label>
+            <input id="upload" type="file" id="myfile" name="myfile" accept="image/*" multiple>
+            <div id="upload-result" style="border: #ccc 1px solid;"></div>
             <button type="button" class="btn" id="send-message">Send</button>
          </form>
       </div>

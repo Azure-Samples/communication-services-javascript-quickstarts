@@ -110,6 +110,9 @@ callButton.addEventListener("click", async () => {
   chatThreadClient = await chatClient.getChatThreadClient(chatThreadId);
 });
 
+document.getElementById("upload").addEventListener("change", uploadImages);
+
+
 /**
  * Render the message bubble for event chat message received
  *
@@ -196,12 +199,16 @@ hangUpButton.addEventListener("click", async () => {
   messages = "";
 });
 
+var uploadedImageModels = [];
+
 sendMessageButton.addEventListener("click", async () => {
   let message = messagebox.value;
-
+  let attachments = uploadedImageModels;
   let sendMessageRequest = {
     content: message,
+    attachments: attachments,
   };
+
   let sendMessageOptions = {
     senderDisplayName: "Jack",
   };
@@ -210,8 +217,10 @@ sendMessageButton.addEventListener("click", async () => {
     sendMessageOptions
   );
   let messageId = sendChatMessageResult.id;
+  uploadedImageModels = [];
 
   messagebox.value = "";
+  document.getElementById("upload").value = "";
   console.log(`Message sent!, message id:${messageId}`);
 });
 
@@ -243,3 +252,33 @@ function fetchFullScaleImage(e, imageAttachments) {
 loadingImageOverlay.addEventListener("click", () => {
   overlayContainer.style.display = "none";
 });
+
+
+async function uploadImages(e) {
+  const files = e.target.files;
+  if (files.length === 0) {
+    return;
+  }
+  for (let key in files) {
+    if (files.hasOwnProperty(key)) {
+        await uploadImage(files[key]);
+    }
+}
+}
+
+async function uploadImage(file) {
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64 = e.target.result;
+    document.getElementById("upload-result").innerHTML += `<img src="${base64}" height="auto" width="100" />`;
+    const blob = new Blob([base64], { type: "image/png" });
+    const uploadedImageModel = await chatThreadClient.uploadImage(blob, {
+      "name": file.name,
+      "onUploadProgress": (progress) => {
+        console.log(`[${file.name}]uploading: ${progress.loadedBytes}/${progress.totalBytes}`);
+      }
+    });
+    uploadedImageModels.push(uploadedImageModel);
+  };
+  reader.readAsDataURL(file);
+}
