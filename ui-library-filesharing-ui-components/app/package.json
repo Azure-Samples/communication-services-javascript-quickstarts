@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@azure/communication-calling": "1.21.1-beta.4",
+    "@azure/communication-calling": "1.22.2-beta.1",
     "@azure/communication-chat": "1.5.0-beta.1",
-    "@azure/communication-react": "1.13.0-beta.1",
+    "@azure/communication-react": "1.14.0-beta.2",
     "axios": "^0.26.0",
     "form-data": "^4.0.0",
     "react": "^18.0.0",
