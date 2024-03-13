@@ -1,12 +1,3 @@
----
-title: Azure Communication Services artificial intelligence samples
-description: Learn about building artificial intelligence enhanced communication services into your applications.
-ms.date: 3/01/2024
-author: vac0224
-ms.author: v-vichapel
-Ms.manager: dacarte
-ms.topic: concept
----
 
 # Azure Communication Services artificial intelligence samples
 
@@ -25,6 +16,12 @@ Integrate Azure Communication Services with Azure OpenAI to enable intelligent c
 - [Quickstart: Call Automation sample - Java](https://go.microsoft.com/fwlink/?linkid=2263249&clcid=0x409)
 
 - [Quickstart: Call Automation sample - Python](https://go.microsoft.com/fwlink/?linkid=2263519&clcid=0x409)
+
+## Calling
+
+Use Azure Communication Services Client Calling SDK with Azure OpenAI to bring artificial intelligence into the client-calling flow. This sample gives call center agents proactive on-screen talking points to best meet customer expectations.
+
+- [Quickstart: Client Calling SDK integration with Azure OpenAI - JavaScript](https://go.microsoft.com/fwlink/?linkid=2261382)
 
 ## Chat
 
