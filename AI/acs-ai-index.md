@@ -12,7 +12,7 @@ ms.topic: concept
 
 As artificial intelligence (AI) becomes more sophisticated, the possibilities for using it to enhance communication applications are limited only by our imagination. Using artificial intelligence, your communication applications can provide speech recognition, natural language processing, sentiment analysis, translation and transcription, and so much more. Use AI for your voice and video calls, messages, and emails.
 
-Follow these links to learn more about incorporating artificial intelligence into your Azure Communication Services applications.
+The following samples provide an idea of the ways you can incorporate artificial intelligence into your Azure Communication Services applications. Check back often for new samples to test.
 
 ## Call Automation
 
