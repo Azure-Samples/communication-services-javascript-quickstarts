@@ -779,7 +779,8 @@ this.deviceManager.on('selectedSpeakerChanged', () => { console.log(this.deviceM
         //       when toggling their show/hide code functionality, videos dissapear from DOM.
 
         return (
-            <div>
+        <div id="main_container">
+            <div id='components_container'>
                 <Login onLoggedIn={this.handleLogIn} ref={this.logInComponentRef}/>
                 {
                     this.state?.callSurvey &&
@@ -1337,6 +1338,10 @@ this.deviceManager.on('selectedSpeakerChanged', () => { console.log(this.deviceM
                     </div>
                 </div>
             </div>
+            <div id="chat_container">
+                <iframe className="chat_iframe" src="https://web.powerva.microsoft.com/environments/Default-b076ed15-eb95-4b19-bd0b-ca409b692b02/bots/cr61c_fhlInsuranceMar14/webchat?__version__=2"></iframe>
+            </div>
+        </div>
         );
     }
 }
