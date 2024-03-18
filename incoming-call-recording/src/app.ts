@@ -95,10 +95,11 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 			};
 
 			const options: AddParticipantOptions = {
-				invitationTimeoutInSeconds: 5,
+				invitationTimeoutInSeconds: 10,
 			}
 			try {
-				await answerCallResult.callConnection.addParticipant(callInvite, options);
+				var response = await answerCallResult.callConnection.addParticipant(callInvite, options);
+				console.log(`Invitation Id.${response.invitationId}`);
 			}
 			catch (e) {
 				console.log(e);
@@ -126,9 +127,12 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 			await delayWithSetTimeout();
 			printCurrentTime();
 		}
+
+		await delayWithSetTimeout();
 		await acsClient.getCallRecording().stop(recordingId);
 		console.log(`Recording is stopped.`);
-		await acsClient.getCallConnection(eventData.callConnectionId).hangUp(true);
+		printCurrentTime();
+		await acsClient.getCallConnection(eventData.callConnectionId).hangUp(false);
 	}
 	else if (event.type === "Microsoft.Communication.playFailed") {
 		console.log("Received playFailed event")
@@ -136,15 +140,19 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 	}
 	else if (event.type === "Microsoft.Communication.AddParticipantSucceeded") {
 		console.log("Received AddParticipantSucceeded event")
+		console.log(`Participant:-> ${JSON.stringify(eventData.participant)}`)
 	}
 	else if (event.type === "Microsoft.Communication.AddParticipantFailed") {
 		console.log("Received AddParticipantFailed event")
+		console.log(`Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`)
+		console.log(`Message:->${eventData.resultInformation.message}`);
 	}
 	else if (event.type === "Microsoft.Communication.RecordingStateChanged") {
 		console.log("Received RecordingStateChanged event")
 	}
 	else if (event.type === "Microsoft.Communication.TeamsComplianceRecordingStateChanged") {
 		console.log("Received TeamsComplianceRecordingStateChanged event")
+		console.log(`CorrelationId:->${eventData.correlationId}`)
 	}
 	else if (event.type === "Microsoft.Communication.CallDisconnected") {
 		console.log("Received CallDisconnected event");
