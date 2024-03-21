@@ -1,11 +1,12 @@
 import { config } from 'dotenv';
 import express, { Application } from 'express';
-import { CommunicationUserIdentifier, MicrosoftTeamsUserIdentifier } from "@azure/communication-common";
+import { CommunicationIdentifier, CommunicationUserIdentifier, MicrosoftTeamsUserIdentifier, PhoneNumberIdentifier } from "@azure/communication-common";
 import {
 	CallAutomationClient, CallConnection, AnswerCallOptions, CallMedia,
 	TextSource, AnswerCallResult,
 	CallIntelligenceOptions, PlayOptions,
 	CallLocator, StartRecordingOptions, CallInvite, AddParticipantOptions,
+	CallMediaRecognizeChoiceOptions, RecognitionChoice, DtmfTone, CallMediaRecognizeDtmfOptions,
 } from "@azure/communication-call-automation";
 import { v4 as uuidv4 } from 'uuid';
 config();
@@ -22,12 +23,18 @@ let callMedia: CallMedia;
 let callee: CommunicationUserIdentifier;
 
 const handlePrompt = "Welcome to the Contoso Utilities. Thank you!";
+const pstnUserPrompt = "Hello this is contoso recognition test please confirm or cancel to proceed further."
+const dtmfPrompt = "Thank you for the update. Please type  one two three four on your keypad to close call."
 let recordingId: string;
 let recordingLocation: string;
 let recordingMetadataLocation: string;
 let recordingState: string;
+const confirmLabel = `Confirm`;
+const cancelLabel = `Cancel`;
 const pauseOnStart = process.env.PAUSE_ON_START.trim().toLowerCase();
 const teamsUserId = process.env.TEAMS_USER_ID.trim() || undefined;
+const acsPhoneNumber: PhoneNumberIdentifier = { phoneNumber: process.env.ACS_PHONE_NUMBER.trim() };
+const targetPhoneNumber: PhoneNumberIdentifier = { phoneNumber: process.env.TARGET_PHONE_NUMBER.trim() };
 
 async function createAcsClient() {
 	const connectionString = process.env.ACS_CONNECTION_STRING || "";
@@ -81,7 +88,26 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		console.log("Received CallConnected event");
 		callMedia = acsClient.getCallConnection(eventData.callConnectionId).getCallMedia();
 		await startRecording(eventData.serverCallId);
-		await handlePlayAsync(callMedia, handlePrompt, "handlePromptContext");
+		const callInvite: CallInvite = { targetParticipant: targetPhoneNumber, sourceCallIdNumber: acsPhoneNumber }
+		const options: AddParticipantOptions = {
+			operationContext: "addPstnUserContext",
+			invitationTimeoutInSeconds: 10,
+		}
+		answerCallResult.callConnection.addParticipant(callInvite, options);
+	}
+	else if (event.type === "Microsoft.Communication.RecognizeCompleted") {
+		console.log("Received RecognizeCompleted event");
+		if (eventData.recognitionType === "choices") {
+			const labelDetected = eventData.choiceResult.label;
+			console.log(`Detected label:-->${labelDetected}`);
+			await startRecognizing(targetPhoneNumber, callMedia, dtmfPrompt, "dtmfContext", true);
+		}
+		if (eventData.recognitionType === "dtmf") {
+			console.log(`Current context-->${eventData.operationContext}`);
+			answerCallResult.callConnection.removeParticipant(targetPhoneNumber);
+		}
+	} else if (event.type === "Microsoft.Communication.RecognizeFailed") {
+		console.log("Received RecognizeFailed event")
 	}
 	else if (event.type === "Microsoft.Communication.PlayCompleted") {
 		console.log("Received PlayCompleted event")
@@ -120,6 +146,7 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 			printCurrentTime();
 		}
 		else {
+			//await acsClient.getCallRecording().pause(recordingId);
 			printCurrentTime();
 			const response = await acsClient.getCallRecording().resume(recordingId);
 			await getRecordingState(recordingId)
@@ -141,11 +168,25 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 	else if (event.type === "Microsoft.Communication.AddParticipantSucceeded") {
 		console.log("Received AddParticipantSucceeded event")
 		console.log(`Participant:-> ${JSON.stringify(eventData.participant)}`)
+		if (eventData.operationContext === "addPstnUserContext") {
+			console.log("PSTN user added.");
+			const response = await answerCallResult.callConnection.listParticipants();
+			const participantCount = response.values.length;
+			console.log(`Total participants in call-->${participantCount}`);
+			await startRecognizing(targetPhoneNumber, callMedia, pstnUserPrompt, "recognizeContext", false)
+		}
 	}
 	else if (event.type === "Microsoft.Communication.AddParticipantFailed") {
 		console.log("Received AddParticipantFailed event")
 		console.log(`Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`)
 		console.log(`Message:->${eventData.resultInformation.message}`);
+	}
+	else if (event.type === "Microsoft.Communication.RemoveParticipantSucceeded") {
+		console.log("Received RemoveParticipantSucceeded event");
+		await handlePlayAsync(callMedia, handlePrompt, "handlePromptContext");
+	}
+	else if (event.type === "Microsoft.Communication.RemoveParticipantFailed") {
+		console.log("Received RemoveParticipantFailed event")
 	}
 	else if (event.type === "Microsoft.Communication.RecordingStateChanged") {
 		console.log("Received RecordingStateChanged event")
@@ -260,6 +301,50 @@ function printCurrentTime() {
 	const seconds = String(now.getSeconds()).padStart(2, '0');
 
 	console.log(`Current time: ${hours}:${minutes}:${seconds}`);
+}
+
+async function startRecognizing(target: CommunicationIdentifier, CallMedia, textToPlay: string, context: string, isDtmf: boolean) {
+	const playSource: TextSource = { text: textToPlay, voiceName: "en-US-NancyNeural", kind: "textSource" };
+
+	const recognizeSpeechOptions: CallMediaRecognizeChoiceOptions = {
+		choices: await getChoices(),
+		interruptPrompt: false,
+		initialSilenceTimeoutInSeconds: 10,
+		playPrompt: playSource,
+		operationContext: context,
+		kind: "callMediaRecognizeChoiceOptions"
+	};
+
+	const recognizeDtmfOptions: CallMediaRecognizeDtmfOptions = {
+		playPrompt: playSource,
+		interToneTimeoutInSeconds: 5,
+		initialSilenceTimeoutInSeconds: 15,
+		maxTonesToCollect: 4,
+		interruptPrompt: false,
+		operationContext: context,
+		kind: "callMediaRecognizeDtmfOptions",
+	};
+
+	const recognizeOptions = isDtmf ? recognizeDtmfOptions : recognizeSpeechOptions;
+
+	await callMedia.startRecognizing(target, recognizeOptions)
+}
+
+async function getChoices() {
+	const choices: RecognitionChoice[] = [
+		{
+			label: confirmLabel,
+			phrases: ["Confirm", "First", "One"],
+			tone: DtmfTone.One
+		},
+		{
+			label: cancelLabel,
+			phrases: ["Cancel", "Second", "Two"],
+			tone: DtmfTone.Two
+		}
+	];
+
+	return choices;
 }
 
 // GET endpoint to place call
