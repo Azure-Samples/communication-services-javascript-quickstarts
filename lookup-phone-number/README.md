@@ -29,7 +29,6 @@ npm install @azure/communication-phone-numbers@1.3.0-beta.4 --save
 
 setx COMMUNICATION_SERVICES_CONNECTION_STRING <CONNECTION_STRING>
 
-4. Update lines 11 and 18 with the phone number you want to look up.
 5.  Decide which lookup you would like to perform, and keep in mind that looking up all the operator details incurs a cost, while looking up only number formatting is free.
 
 > [!WARNING]
@@ -37,6 +36,6 @@ setx COMMUNICATION_SERVICES_CONNECTION_STRING <CONNECTION_STRING>
 
 ## Run the code
 
-From a console prompt, navigate to the directory containing the number-lookup-quickstart.js file, then execute the following node command to run the app.
+From a console prompt, navigate to the directory containing the number-lookup-quickstart.js file, then execute the following node command to run the app. Replace the `<target-phone-number>` with the number you want to look up.
 
-node number-lookup-quickstart.js
+node number-lookup-quickstart.js <target-phone-number>
