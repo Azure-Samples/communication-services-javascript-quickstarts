@@ -6,7 +6,7 @@ import {
 	TextSource, AnswerCallResult,
 	CallIntelligenceOptions, PlayOptions,
 	CallLocator, StartRecordingOptions, CallInvite, AddParticipantOptions,
-	CallMediaRecognizeChoiceOptions, RecognitionChoice, DtmfTone, CallMediaRecognizeDtmfOptions,
+	CallMediaRecognizeChoiceOptions, RecognitionChoice, DtmfTone, CallMediaRecognizeDtmfOptions, Tone, CallParticipant,
 } from "@azure/communication-call-automation";
 import { v4 as uuidv4 } from 'uuid';
 config();
@@ -35,7 +35,7 @@ const pauseOnStart = process.env.PAUSE_ON_START.trim().toLowerCase();
 const teamsUserId = process.env.TEAMS_USER_ID.trim() || undefined;
 const acsPhoneNumber: PhoneNumberIdentifier = { phoneNumber: process.env.ACS_PHONE_NUMBER.trim() };
 const targetPhoneNumber: PhoneNumberIdentifier = { phoneNumber: process.env.TARGET_PHONE_NUMBER.trim() };
-
+const isRejectCall = process.env.REJECT_CALL.trim().toLowerCase() === "true" ? true : false;
 async function createAcsClient() {
 	const connectionString = process.env.ACS_CONNECTION_STRING || "";
 	acsClient = new CallAutomationClient(connectionString);
@@ -69,10 +69,15 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 		const callbackUri = `${process.env.CALLBACK_HOST_URI}/api/callbacks/${uuid}?callerId=${callerId}`;
 		const incomingCallContext = eventData.incomingCallContext;
 		console.log(`Cognitive service endpoint:  ${process.env.COGNITIVE_SERVICE_ENDPOINT.trim()}`);
-		const callIntelligenceOptions: CallIntelligenceOptions = { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICE_ENDPOINT.trim() };
-		const answerCallOptions: AnswerCallOptions = { callIntelligenceOptions: callIntelligenceOptions };
-		answerCallResult = await acsClient.answerCall(incomingCallContext, callbackUri, answerCallOptions);
-		callConnection = answerCallResult.callConnection;
+		if (isRejectCall) {
+			await acsClient.rejectCall(incomingCallContext);
+			console.log(`Call Rejected, recject call setting is ${isRejectCall}`);
+		} else {
+			const callIntelligenceOptions: CallIntelligenceOptions = { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICE_ENDPOINT.trim() };
+			const answerCallOptions: AnswerCallOptions = { callIntelligenceOptions: callIntelligenceOptions };
+			answerCallResult = await acsClient.answerCall(incomingCallContext, callbackUri, answerCallOptions);
+			callConnection = answerCallResult.callConnection;
+		}
 	}
 });
 
@@ -80,10 +85,10 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 	const contextId = req.params.contextId;
 	const event = req.body[0];
 	const eventData = event.data;
-
+	console.log("----------------------------------------------------------------------------------------------------------------");
 	console.log("Received eventType=%s, callConnectionId=%s, correlationId=%s, serverCallId=%s, context=%s",
 		event.type, eventData.callConnectionId, eventData.correlationId, eventData.serverCallId, eventData.operationContext);
-	console.log(`event type match ${event.type === "Microsoft.Communication.CallConnected"}`);
+	console.log("----------------------------------------------------------------------------------------------------------------");
 	if (event.type === "Microsoft.Communication.CallConnected") {
 		console.log("Received CallConnected event");
 		callMedia = acsClient.getCallConnection(eventData.callConnectionId).getCallMedia();
@@ -99,12 +104,19 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		console.log("Received RecognizeCompleted event");
 		if (eventData.recognitionType === "choices") {
 			const labelDetected = eventData.choiceResult.label;
-			console.log(`Detected label:-->${labelDetected}`);
-			await startRecognizing(targetPhoneNumber, callMedia, dtmfPrompt, "dtmfContext", true);
+			console.log(`Detected label:--> ${labelDetected}`);
+			if (labelDetected.toLowerCase() === confirmLabel.toLowerCase()) {
+				console.log(`Moving towords dtmf test.`);
+				await startRecognizing(targetPhoneNumber, callMedia, dtmfPrompt, "dtmfContext", true);
+			}
+			else {
+				console.log(`Moving towords continuous dtmf & send dtmf tones test.`);
+				await startContinuousDtmf(callMedia);
+			}
 		}
 		if (eventData.recognitionType === "dtmf") {
 			console.log(`Current context-->${eventData.operationContext}`);
-			answerCallResult.callConnection.removeParticipant(targetPhoneNumber);
+			await answerCallResult.callConnection.removeParticipant(targetPhoneNumber);
 		}
 	} else if (event.type === "Microsoft.Communication.RecognizeFailed") {
 		console.log("Received RecognizeFailed event")
@@ -121,6 +133,7 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 			};
 
 			const options: AddParticipantOptions = {
+				operationContext: "teamsUserContext",
 				invitationTimeoutInSeconds: 10,
 			}
 			try {
@@ -170,10 +183,25 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		console.log(`Participant:-> ${JSON.stringify(eventData.participant)}`)
 		if (eventData.operationContext === "addPstnUserContext") {
 			console.log("PSTN user added.");
+
 			const response = await answerCallResult.callConnection.listParticipants();
 			const participantCount = response.values.length;
-			console.log(`Total participants in call-->${participantCount}`);
+			const participantList: CallParticipant[] = response.values;
+			console.log(`Total participants in call--> ${participantCount}`);
+			console.log(`participants:-->${JSON.stringify(participantList)}`);
+
+			const result = await answerCallResult.callConnection.muteParticipant(callee);
+			if (result) {
+				console.log(`Participant is muted. wating for confirming.....`);
+				const response = await answerCallResult.callConnection.getParticipant(callee);
+				console.log(`Is participant muted:--> ${response.isMuted}`);
+				console.log(`Mute participant test completed.`);
+			}
+
 			await startRecognizing(targetPhoneNumber, callMedia, pstnUserPrompt, "recognizeContext", false)
+		}
+		if (eventData.operationContext === "teamsUserContext") {
+			console.log("Microsoft teams user added.");
 		}
 	}
 	else if (event.type === "Microsoft.Communication.AddParticipantFailed") {
@@ -183,10 +211,34 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 	}
 	else if (event.type === "Microsoft.Communication.RemoveParticipantSucceeded") {
 		console.log("Received RemoveParticipantSucceeded event");
+		console.log("Playing message. Stand by....")
 		await handlePlayAsync(callMedia, handlePrompt, "handlePromptContext");
 	}
 	else if (event.type === "Microsoft.Communication.RemoveParticipantFailed") {
 		console.log("Received RemoveParticipantFailed event")
+	}
+	else if (event.type === "Microsoft.Communication.ContinuousDtmfRecognitionToneReceived") {
+		console.log("Received ContinuousDtmfRecognitionToneReceived event")
+		console.log(`Tone received:--> ${eventData.tone}`);
+		console.log(`SequenceId:--> ${eventData.sequenceId}`);
+		await stopContinuousDtmf(callMedia);
+	}
+	else if (event.type === "Microsoft.Communication.ContinuousDtmfRecognitionToneFailed") {
+		console.log("Received ContinuousDtmfRecognitionToneFailed event")
+		console.log(`Message:-->${eventData.resultInformation.message}`);
+	}
+	else if (event.type === "Microsoft.Communication.ContinuousDtmfRecognitionStopped") {
+		console.log("Received ContinuousDtmfRecognitionStopped event")
+		await startSendingDtmfTone();
+	}
+	else if (event.type === "Microsoft.Communication.SendDtmfTonesCompleted") {
+		console.log("Received SendDtmfTonesCompleted event")
+		await answerCallResult.callConnection.removeParticipant(targetPhoneNumber);
+		console.log(`Send Dtmf tone completed. ${targetPhoneNumber.phoneNumber} will be removed from call.`);
+	}
+	else if (event.type === "Microsoft.Communication.SendDtmfTonesFailed") {
+		console.log("Received SendDtmfTonesFailed event")
+		console.log(`Message:-->${eventData.resultInformation.message}`);
 	}
 	else if (event.type === "Microsoft.Communication.RecordingStateChanged") {
 		console.log("Received RecordingStateChanged event")
@@ -345,6 +397,26 @@ async function getChoices() {
 	];
 
 	return choices;
+}
+
+async function startContinuousDtmf(callMedia: CallMedia) {
+	await callMedia.startContinuousDtmfRecognition(targetPhoneNumber)
+	console.log(`Continuous Dtmf recognition started. press one on dialpad.`)
+}
+
+async function stopContinuousDtmf(callMedia: CallMedia) {
+	await callMedia.stopContinuousDtmfRecognition(targetPhoneNumber)
+	console.log(`Continuous Dtmf recognition stopped. wait for sending dtmf tones.`)
+}
+
+async function startSendingDtmfTone() {
+
+	const tones: Tone[] = [
+		"zero",
+		"one"
+	];
+	await callMedia.sendDtmfTones(tones, targetPhoneNumber)
+	console.log(`Send dtmf tones started. respond over phone.`)
 }
 
 // GET endpoint to place call
