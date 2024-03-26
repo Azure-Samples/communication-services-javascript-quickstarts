@@ -6,7 +6,7 @@ import {
 	TextSource, AnswerCallResult,
 	CallIntelligenceOptions, PlayOptions,
 	CallLocator, StartRecordingOptions, CallInvite, AddParticipantOptions,
-	CallMediaRecognizeChoiceOptions, RecognitionChoice, DtmfTone, CallMediaRecognizeDtmfOptions, Tone, CallParticipant,
+	CallMediaRecognizeChoiceOptions, RecognitionChoice, DtmfTone, CallMediaRecognizeDtmfOptions, Tone, CallParticipant, TransferCallToParticipantOptions,
 } from "@azure/communication-call-automation";
 import { v4 as uuidv4 } from 'uuid';
 config();
@@ -35,7 +35,10 @@ const pauseOnStart = process.env.PAUSE_ON_START.trim().toLowerCase();
 const teamsUserId = process.env.TEAMS_USER_ID.trim() || undefined;
 const acsPhoneNumber: PhoneNumberIdentifier = { phoneNumber: process.env.ACS_PHONE_NUMBER.trim() };
 const targetPhoneNumber: PhoneNumberIdentifier = { phoneNumber: process.env.TARGET_PHONE_NUMBER.trim() };
+const acsCallerPhoneNumber: PhoneNumberIdentifier = { phoneNumber: process.env.ACS_CALLER_PHONE_NUMBER.trim() };
 const isRejectCall = process.env.REJECT_CALL.trim().toLowerCase() === "true" ? true : false;
+const isRedirectCall = process.env.REDIRECT_CALL.trim().toLowerCase() === "true" ? true : false;
+const isTransferCall = process.env.TRANSFER_CALL.trim().toLowerCase() === "true" ? true : false;
 async function createAcsClient() {
 	const connectionString = process.env.ACS_CONNECTION_STRING || "";
 	acsClient = new CallAutomationClient(connectionString);
@@ -49,6 +52,16 @@ async function createCall() {
 
 	console.log("Placing call...");
 	acsClient.createCall(callInvite, process.env.CALLBACK_HOST_URI + "/api/callbacks");
+}
+
+async function createPstnCall() {
+	const callInvite: CallInvite = {
+		targetParticipant: acsPhoneNumber,
+		sourceCallIdNumber: acsCallerPhoneNumber,
+	};
+
+	console.log("Starting call and redirecting/transfering....");
+	await acsClient.createCall(callInvite, process.env.CALLBACK_HOST_URI + "/api/callbacks");
 }
 
 app.post("/api/incomingCall", async (req: any, res: any) => {
@@ -72,6 +85,16 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 		if (isRejectCall) {
 			await acsClient.rejectCall(incomingCallContext);
 			console.log(`Call Rejected, recject call setting is ${isRejectCall}`);
+		} else if (isRedirectCall) {
+			console.log(`Is call redirect:--> ${isRedirectCall}`);
+			const callInvite: CallInvite = {
+				targetParticipant: targetPhoneNumber,
+				sourceCallIdNumber: acsPhoneNumber,
+			};
+
+			await acsClient.redirectCall(incomingCallContext, callInvite);
+			console.log(`Call redirected. Call automation has no control.`);
+
 		} else {
 			const callIntelligenceOptions: CallIntelligenceOptions = { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICE_ENDPOINT.trim() };
 			const answerCallOptions: AnswerCallOptions = { callIntelligenceOptions: callIntelligenceOptions };
@@ -92,13 +115,24 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 	if (event.type === "Microsoft.Communication.CallConnected") {
 		console.log("Received CallConnected event");
 		callMedia = acsClient.getCallConnection(eventData.callConnectionId).getCallMedia();
-		await startRecording(eventData.serverCallId);
-		const callInvite: CallInvite = { targetParticipant: targetPhoneNumber, sourceCallIdNumber: acsPhoneNumber }
-		const options: AddParticipantOptions = {
-			operationContext: "addPstnUserContext",
-			invitationTimeoutInSeconds: 10,
+		if (isTransferCall) {
+			console.log(`Is call transfer:--> ${isTransferCall}`);
+			const options: TransferCallToParticipantOptions = {
+				operationContext: "transferCallContext",
+				transferee: acsCallerPhoneNumber,
+			}
+			await answerCallResult.callConnection.transferCallToParticipant(targetPhoneNumber, options);
+			console.log(`Transfer call initiated.`);
 		}
-		answerCallResult.callConnection.addParticipant(callInvite, options);
+		else {
+			await startRecording(eventData.serverCallId);
+			const callInvite: CallInvite = { targetParticipant: targetPhoneNumber, sourceCallIdNumber: acsPhoneNumber }
+			const options: AddParticipantOptions = {
+				operationContext: "addPstnUserContext",
+				invitationTimeoutInSeconds: 10,
+			}
+			await answerCallResult.callConnection.addParticipant(callInvite, options);
+		}
 	}
 	else if (event.type === "Microsoft.Communication.RecognizeCompleted") {
 		console.log("Received RecognizeCompleted event");
@@ -120,6 +154,14 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		}
 	} else if (event.type === "Microsoft.Communication.RecognizeFailed") {
 		console.log("Received RecognizeFailed event")
+		await startRecognizing(targetPhoneNumber, callMedia, "test", "retryContext", false)
+		console.log(`Cancelling all media operations.`)
+		await callMedia.cancelAllOperations();
+		console.log(`cancel add participant test initiated.`);
+		const callInvite: CallInvite = { targetParticipant: acsCallerPhoneNumber, sourceCallIdNumber: acsPhoneNumber }
+		const response = await answerCallResult.callConnection.addParticipant(callInvite);
+		console.log(`Invitation Id:--> ${response.invitationId}`);
+		await answerCallResult.callConnection.cancelAddParticipantOperation(response.invitationId);
 	}
 	else if (event.type === "Microsoft.Communication.PlayCompleted") {
 		console.log("Received PlayCompleted event")
@@ -172,11 +214,11 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		await acsClient.getCallRecording().stop(recordingId);
 		console.log(`Recording is stopped.`);
 		printCurrentTime();
-		await acsClient.getCallConnection(eventData.callConnectionId).hangUp(false);
+		await hangupOrTerminateCall(eventData.callConnectionId, false);
 	}
 	else if (event.type === "Microsoft.Communication.playFailed") {
 		console.log("Received playFailed event")
-		await acsClient.getCallConnection(eventData.callConnectionId).hangUp(true);
+		await hangupOrTerminateCall(eventData.callConnectionId, true);
 	}
 	else if (event.type === "Microsoft.Communication.AddParticipantSucceeded") {
 		console.log("Received AddParticipantSucceeded event")
@@ -239,6 +281,27 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 	else if (event.type === "Microsoft.Communication.SendDtmfTonesFailed") {
 		console.log("Received SendDtmfTonesFailed event")
 		console.log(`Message:-->${eventData.resultInformation.message}`);
+	}
+	else if (event.type === "Microsoft.Communication.CallTransferAccepted") {
+		console.log("Received CallTransferAccepted event")
+		console.log(`Call transfer test completed.`);
+		console.log(`Call automation has no control.`)
+	}
+	else if (event.type === "Microsoft.Communication.CallTransferFailed") {
+		console.log("Received CallTransferFailed event")
+		console.log(`Message:-->${eventData.resultInformation.message}`);
+		await hangupOrTerminateCall(eventData.callConnectionId, true);
+	}
+	else if (event.type === "Microsoft.Communication.CancelAddParticipantSucceeded") {
+		console.log("Received CancelAddParticipantSucceeded event");
+		console.log(`Invitation Id:--> ${eventData.invitationId}`);
+		console.log(`Cancel add participant test completed.`);
+		await hangupOrTerminateCall(eventData.callConnectionId, true);
+	}
+	else if (event.type === "Microsoft.Communication.CancelAddParticipantFailed") {
+		console.log("Received CancelAddParticipantFailed event")
+		console.log(`Message:-->${eventData.resultInformation.message}`);
+		await hangupOrTerminateCall(eventData.callConnectionId, true);
 	}
 	else if (event.type === "Microsoft.Communication.RecordingStateChanged") {
 		console.log("Received RecordingStateChanged event")
@@ -419,6 +482,10 @@ async function startSendingDtmfTone() {
 	console.log(`Send dtmf tones started. respond over phone.`)
 }
 
+async function hangupOrTerminateCall(callConnectionId: string, isTerminate: boolean) {
+	await acsClient.getCallConnection(callConnectionId).hangUp(isTerminate);
+}
+
 // GET endpoint to place call
 app.get('/createCall', async (req, res) => {
 	callee = {
@@ -429,8 +496,15 @@ app.get('/createCall', async (req, res) => {
 	res.redirect('/');
 });
 
+// GET endpoint to initiate transfer call
+app.get('/createPstnCall', async (req, res) => {
+	await createPstnCall();
+	res.redirect('/');
+});
+
 // Start the server
 app.listen(PORT, async () => {
+	console.log(`Please check env settings before initiating call.`)
 	console.log(`Server is listening on port ${PORT}`);
 	await createAcsClient();
 });
