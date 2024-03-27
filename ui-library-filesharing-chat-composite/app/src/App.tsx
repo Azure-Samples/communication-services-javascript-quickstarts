@@ -9,10 +9,14 @@ import {
 } from "@azure/communication-react";
 import React, { useMemo } from "react";
 import fileDownloadHandler from "./FileDownloadhandler";
-
+import { initializeIcons } from "@fluentui/react";
+import { initializeFileTypeIcons } from "@fluentui/react-file-type-icons";
 import fileUploadHandler from "./FileUploadHandler";
 
 function App(): JSX.Element {
+  initializeIcons();
+  initializeFileTypeIcons();
+
   // Common variables
   const endpointUrl = "<Azure Communication Services Resource Endpoint>";
   const token = "<Azure Communication Services Resource Access Token>";
