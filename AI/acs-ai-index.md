@@ -34,3 +34,9 @@ Use Azure Communication Services with Azure OpenAI to extract actionable insight
 Integrate Azure Communication Services SMS capability with Azure OpenAI into your application to personalize messaging for your customers.
 
 - [Quickstart: Build a conversation SMS bot with Azure Open AI - JavaScript](https://go.microsoft.com/fwlink/?linkid=2263184&clcid=0x409)
+
+## Job Router
+
+Integrate Azure OpenAI with Azure Communication Services Job Router. Use Azure OpenAI to pair your jobs to agents.
+
+ - [Quick Start: Integrate Azure OpenAI with Azure Communication Services Job Router](https://go.microsoft.com/fwlink/?linkid=2265831)
