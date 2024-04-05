@@ -1,4 +1,4 @@
-import { usePropsFor, MessageThread, SendBox, ActiveFileUpload, FileMetadata } from "@azure/communication-react";
+import { usePropsFor, MessageThread, SendBox, ActiveFileUpload, AttachmentMetadata } from "@azure/communication-react";
 import React from "react";
 import axios from "axios";
 import Form from "form-data";
@@ -11,7 +11,7 @@ export default function ChatComponents(): JSX.Element {
   const allActiveFileUploads = React.useRef<ActiveFileUpload[]>([]);
   // We use a ref variable to keep a track of all the completed file uploads since a ref variable preserves it's state
   // across re-renders.
-  const completedFileUploads = React.useRef<FileMetadata[] | []>([]);
+  const completedFileUploads = React.useRef<AttachmentMetadata[] | []>([]);
   // Tracks the files selected by the file input.
   const [files, setFiles] = React.useState<File[] | []>();
   // Tracks the progress of the file uploads. Passed to SendBox component for driving file upload UI.
@@ -25,9 +25,9 @@ export default function ChatComponents(): JSX.Element {
     setActiveFileUploads(allActiveFileUploads.current);
   };
 
-  const completeFileUpload = (fileId: string, fileMetadata: FileMetadata) => {
+  const completeFileUpload = (fileId: string, attachmentMetadata: AttachmentMetadata) => {
     updateFileUploadProgress(fileId, 1, true);
-    completedFileUploads.current = [...completedFileUploads.current, fileMetadata];
+    completedFileUploads.current = [...completedFileUploads.current, attachmentMetadata];
   };
 
   const uploadFile = async (file: File): Promise<void> => {
@@ -47,7 +47,6 @@ export default function ChatComponents(): JSX.Element {
       })
       .then((res) => {
         completeFileUpload(file.name, {
-          attachmentType: "file",
           id: uniqueFileName,
           name: file.name,
           extension,
