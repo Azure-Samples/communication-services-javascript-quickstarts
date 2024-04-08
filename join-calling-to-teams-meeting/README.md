@@ -31,4 +31,4 @@ For full instructions on how to build this code sample from scratch, look at [Qu
 3. With the Communication Services procured in pre-requisites, fetch connection string and update at line# 15 in client.js.
 
 ## Run the code
-1. Run the command to bundle your application host on a local webserver. `npx webpack-dev-server --entry ./client.js --output bundle.js --debug --devtool inline-source-map`
+1. Run the command to bundle your application host on a local webserver. `npx webpack serve --config webpack.config.js`
