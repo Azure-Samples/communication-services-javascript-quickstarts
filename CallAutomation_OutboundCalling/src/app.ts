@@ -111,6 +111,12 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 	callConnection = acsClient.getCallConnection(callConnectionId);
 	const callMedia = callConnection.getCallMedia();
 	if (event.type === "Microsoft.Communication.CallConnected") {
+		// (Optional) Add a Microsoft Teams user to the call.  Uncomment the below snippet to enable Teams Interop scenario.
+		// await acsClient.getCallConnection(callConnectionId).addParticipant({
+		// 	targetParticipant: { microsoftTeamsUserId: process.env.TARGET_TEAMS_USER_ID },
+		// 	sourceDisplayName: "Jack (Contoso Tech Support)"
+		// });
+
 		console.log("Received CallConnected event");
 		await startRecognizing(callMedia, mainMenu, "");
 	}
