@@ -46,7 +46,7 @@ Open the `.env` file to configure the following settings
 3. `TARGET_PHONE_NUMBER`: Target phone number to add in the call. For e.g. "+1425XXXAAAA"
 4. `CALLBACK_URI`: Base url of the app. (For local development replace the dev tunnel url)
 5. `COGNITIVE_SERVICES_ENDPOINT` : Cognitive Service endpoint
-6. `TARGET_TEAMS_USER_ID`: (Optional) update field with the Microsoft Teams user Id you would like to add to the call. See [Use Graph API to get Teams user Id](../../../how-tos/call-automation/teams-interop-call-automation.md#step-2-use-the-graph-api-to-get-microsoft-entra-object-id-for-teams-users-and-optionally-check-their-presence).  Uncomment the following code snippet from `app.ts` file:
+6. `TARGET_TEAMS_USER_ID`: (Optional) update field with the Microsoft Teams user Id you would like to add to the call. See [Use Graph API to get Teams user Id](https://learn.microsoft.com/azure/communication-services/how-tos/call-automation/teams-interop-call-automation?pivots=programming-language-javascript#step-2-use-the-graph-api-to-get-microsoft-entra-object-id-for-teams-users-and-optionally-check-their-presence).  Uncomment the following code snippet from `app.ts` file:
 
 ```typescript
 await acsClient.getCallConnection(callConnectionId).addParticipant({
