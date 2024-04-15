@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@azure/communication-call-automation": "^1.2.0-alpha.20240314.1",
+    "@azure/communication-call-automation": "^1.1.0",
     "@azure/communication-common": "^2.2.0",
     "@azure/eventgrid": "^4.12.0",
     "@azure/openai": "^1.0.0-beta.7",

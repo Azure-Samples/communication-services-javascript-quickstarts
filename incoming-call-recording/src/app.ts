@@ -1,4 +1,6 @@
 import { config } from 'dotenv';
+import fs from "fs";
+import path from 'path';
 import express, { Application } from 'express';
 import { CommunicationIdentifier, CommunicationUserIdentifier, MicrosoftTeamsUserIdentifier, PhoneNumberIdentifier } from "@azure/communication-common";
 import {
@@ -6,7 +8,8 @@ import {
 	TextSource, AnswerCallResult,
 	CallIntelligenceOptions, PlayOptions,
 	CallLocator, StartRecordingOptions, CallInvite, AddParticipantOptions,
-	CallMediaRecognizeChoiceOptions, RecognitionChoice, DtmfTone, CallMediaRecognizeDtmfOptions, Tone, CallParticipant, TransferCallToParticipantOptions,
+	CallMediaRecognizeChoiceOptions, RecognitionChoice, DtmfTone, CallMediaRecognizeDtmfOptions, Tone, CallParticipant, TransferCallToParticipantOptions, CreateCallOptions,
+	CancelAddParticipantOperationOptions, FileSource, RecordingStorage
 } from "@azure/communication-call-automation";
 import { v4 as uuidv4 } from 'uuid';
 config();
@@ -20,7 +23,8 @@ let acsClient: CallAutomationClient;
 let answerCallResult: AnswerCallResult;
 let callerId: string;
 let callMedia: CallMedia;
-let callee: CommunicationUserIdentifier;
+let isGroupCall: boolean;
+let isOutboundCall: boolean;
 
 const handlePrompt = "Welcome to the Contoso Utilities. Thank you!";
 const pstnUserPrompt = "Hello this is contoso recognition test please confirm or cancel to proceed further."
@@ -31,14 +35,21 @@ let recordingMetadataLocation: string;
 let recordingState: string;
 const confirmLabel = `Confirm`;
 const cancelLabel = `Cancel`;
-const pauseOnStart = process.env.PAUSE_ON_START.trim().toLowerCase();
+const isPauseOnStart = process.env.PAUSE_ON_START.trim().toLowerCase() === "true" ? true : false;
 const teamsUserId = process.env.TEAMS_USER_ID.trim() || undefined;
 const acsPhoneNumber: PhoneNumberIdentifier = { phoneNumber: process.env.ACS_PHONE_NUMBER.trim() };
 const targetPhoneNumber: PhoneNumberIdentifier = { phoneNumber: process.env.TARGET_PHONE_NUMBER.trim() };
+const targetPhoneNumber2: PhoneNumberIdentifier = { phoneNumber: process.env.TARGET_PHONE_NUMBER2.trim() };
 const acsCallerPhoneNumber: PhoneNumberIdentifier = { phoneNumber: process.env.ACS_CALLER_PHONE_NUMBER.trim() };
+const callee: CommunicationUserIdentifier = { communicationUserId: process.env.COMMUNICATION_USR_ID.trim() };
+const acsUser2: CommunicationUserIdentifier = { communicationUserId: process.env.COMMUNICATION_USR_ID2.trim() };
 const isRejectCall = process.env.REJECT_CALL.trim().toLowerCase() === "true" ? true : false;
 const isRedirectCall = process.env.REDIRECT_CALL.trim().toLowerCase() === "true" ? true : false;
 const isTransferCall = process.env.TRANSFER_CALL.trim().toLowerCase() === "true" ? true : false;
+const MEDIA_URI = process.env.CALLBACK_HOST_URI + "/audioprompt/"
+const isByos = process.env.IS_BYOS.trim().toLowerCase() === "true" ? true : false;
+const bringYourOwnStorageUrl = process.env.BRING_YOUR_OWN_STORAGE_URL;
+
 async function createAcsClient() {
 	const connectionString = process.env.ACS_CONNECTION_STRING || "";
 	acsClient = new CallAutomationClient(connectionString);
@@ -54,12 +65,67 @@ async function createCall() {
 	acsClient.createCall(callInvite, process.env.CALLBACK_HOST_URI + "/api/callbacks");
 }
 
+async function createOutboundCall() {
+	console.log(`Placing outbound 1:1 call.`);
+	isOutboundCall = true;
+	const callInvite: CallInvite = {
+		targetParticipant: targetPhoneNumber,
+		sourceCallIdNumber: acsCallerPhoneNumber,
+	};
+	await acsClient.createCall(callInvite, process.env.CALLBACK_HOST_URI + "/api/callbacks");
+}
+
+async function createGroupCall() {
+	console.log(`Creating group call`);
+	isGroupCall = true;
+	const participants = [
+		targetPhoneNumber,
+		acsCallerPhoneNumber,
+		acsUser2,
+	];
+	// const participants = [
+	// 	callee,
+	// 	acsUser2,
+	// ];
+
+	// const participants = [
+	// 	callee,
+	// ];
+
+	const options: CreateCallOptions = {
+		sourceCallIdNumber: acsCallerPhoneNumber,
+		callIntelligenceOptions: {
+			cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICE_ENDPOINT
+		},
+		operationContext: "groupCallContext",
+	}
+
+	const callbackUri = process.env.CALLBACK_HOST_URI + "/api/callbacks"
+	//console.log(callbackUri);
+	try {
+		//await acsClient.createGroupCall(participants, callbackUri, options);
+		const result = await acsClient.createGroupCall(participants, callbackUri, options);
+		// const callConnectionProperties = result.callConnectionProperties;
+		// console.log(`Group call callback uri:-->${callConnectionProperties.callbackUrl}`);
+		// callConnection = result.callConnection;
+		// callMedia = callConnection.getCallMedia();
+		// console.log(`Group call connected.`)
+		// const response = await callConnection.listParticipants();
+		// const participantCount = response.values.length;
+		// const participantList: CallParticipant[] = response.values;
+		// console.log(`Total participants in group call--> ${participantCount}`);
+		// console.log(`participants:-->${JSON.stringify(participantList)}`);
+		// await hangupOrTerminateCall(callConnectionProperties.callConnectionId, true);
+	} catch (e) {
+		console.log(e)
+	}
+}
+
 async function createPstnCall() {
 	const callInvite: CallInvite = {
 		targetParticipant: acsPhoneNumber,
 		sourceCallIdNumber: acsCallerPhoneNumber,
 	};
-
 	console.log("Starting call and redirecting/transfering....");
 	await acsClient.createCall(callInvite, process.env.CALLBACK_HOST_URI + "/api/callbacks");
 }
@@ -77,6 +143,7 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 	}
 
 	if (event.eventType === "Microsoft.Communication.IncomingCall") {
+		console.log("INCOMING CALL..");
 		callerId = eventData.from.rawId;
 		const uuid = uuidv4();
 		const callbackUri = `${process.env.CALLBACK_HOST_URI}/api/callbacks/${uuid}?callerId=${callerId}`;
@@ -99,13 +166,13 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 			const callIntelligenceOptions: CallIntelligenceOptions = { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICE_ENDPOINT.trim() };
 			const answerCallOptions: AnswerCallOptions = { callIntelligenceOptions: callIntelligenceOptions };
 			answerCallResult = await acsClient.answerCall(incomingCallContext, callbackUri, answerCallOptions);
-			callConnection = answerCallResult.callConnection;
 		}
 	}
 });
-
+//For outbound use /api/callbacks instead of /api/callbacks/:contextId
 app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
-	const contextId = req.params.contextId;
+	//app.post('/api/callbacks', async (req: any, res: any) => {
+	//const contextId = req.params.contextId;
 	const event = req.body[0];
 	const eventData = event.data;
 	console.log("----------------------------------------------------------------------------------------------------------------");
@@ -114,15 +181,63 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 	console.log("----------------------------------------------------------------------------------------------------------------");
 	if (event.type === "Microsoft.Communication.CallConnected") {
 		console.log("Received CallConnected event");
-		callMedia = acsClient.getCallConnection(eventData.callConnectionId).getCallMedia();
+		callConnection = acsClient.getCallConnection(eventData.callConnectionId);
+		callMedia = callConnection.getCallMedia();
 		if (isTransferCall) {
 			console.log(`Is call transfer:--> ${isTransferCall}`);
 			const options: TransferCallToParticipantOptions = {
 				operationContext: "transferCallContext",
 				transferee: acsCallerPhoneNumber,
 			}
-			await answerCallResult.callConnection.transferCallToParticipant(targetPhoneNumber, options);
+			await callConnection.transferCallToParticipant(targetPhoneNumber, options);
 			console.log(`Transfer call initiated.`);
+		} else if (isGroupCall) {
+			console.log(`Group call connected.`)
+			const response = await callConnection.listParticipants();
+			const participantCount = response.values.length;
+			const participantList: CallParticipant[] = response.values;
+			console.log(`Total participants in group call--> ${participantCount}`);
+			console.log(`participants:-->${JSON.stringify(participantList)}`);
+
+			const options: TransferCallToParticipantOptions = {
+				operationContext: "transferCallContext",
+				transferee: targetPhoneNumber,
+			}
+			await callConnection.transferCallToParticipant(targetPhoneNumber2, options);
+			console.log(`Transfer call initiated.`);
+
+			//await hangupOrTerminateCall(eventData.callConnectionId, true);
+		}
+		else if (isOutboundCall) {
+			// console.log(`outbound call connected.`);
+			// const response = await callConnection.listParticipants();
+			// const participantCount = response.values.length;
+			// const participantList: CallParticipant[] = response.values;
+			// console.log(`Total participants in group call--> ${participantCount}`);
+			// console.log(`participants:-->${JSON.stringify(participantList)}`);
+
+			await handlePlayAsync(callMedia, "audio file", "audioFileContext");
+
+			// const testTarget: PhoneNumberIdentifier = {
+			// 	phoneNumber: ""
+			// }
+			// const options: TransferCallToParticipantOptions = {
+			// 	operationContext: "transferCallContext",
+			// 	transferee: targetPhoneNumber,
+			// }
+			// await callConnection.transferCallToParticipant(testTarget, options);
+			// console.log(`Transfer call initiated.`);
+
+			// console.log(`cancel add participant test initiated.`);
+			// const callInvite: CallInvite = { targetParticipant: acsCallerPhoneNumber, sourceCallIdNumber: acsPhoneNumber }
+			// const result = await callConnection.addParticipant(callInvite);
+			// console.log(`Invitation Id:--> ${result.invitationId}`);
+			// const options: CancelAddParticipantOperationOptions = {
+			// 	operationContext: "outboundContext",
+			// }
+			// await callConnection.cancelAddParticipantOperation("jfdkj", options);
+
+			//await hangupOrTerminateCall(eventData.callConnectionId, true);
 		}
 		else {
 			await startRecording(eventData.serverCallId);
@@ -131,7 +246,7 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 				operationContext: "addPstnUserContext",
 				invitationTimeoutInSeconds: 10,
 			}
-			await answerCallResult.callConnection.addParticipant(callInvite, options);
+			await callConnection.addParticipant(callInvite, options);
 		}
 	}
 	else if (event.type === "Microsoft.Communication.RecognizeCompleted") {
@@ -150,7 +265,7 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		}
 		if (eventData.recognitionType === "dtmf") {
 			console.log(`Current context-->${eventData.operationContext}`);
-			await answerCallResult.callConnection.removeParticipant(targetPhoneNumber);
+			await callConnection.removeParticipant(targetPhoneNumber);
 		}
 	} else if (event.type === "Microsoft.Communication.RecognizeFailed") {
 		console.log("Received RecognizeFailed event")
@@ -159,12 +274,17 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		await callMedia.cancelAllOperations();
 		console.log(`cancel add participant test initiated.`);
 		const callInvite: CallInvite = { targetParticipant: acsCallerPhoneNumber, sourceCallIdNumber: acsPhoneNumber }
-		const response = await answerCallResult.callConnection.addParticipant(callInvite);
+		const response = await callConnection.addParticipant(callInvite);
 		console.log(`Invitation Id:--> ${response.invitationId}`);
-		await answerCallResult.callConnection.cancelAddParticipantOperation(response.invitationId);
+		await callConnection.cancelAddParticipantOperation(response.invitationId);
 	}
 	else if (event.type === "Microsoft.Communication.PlayCompleted") {
 		console.log("Received PlayCompleted event")
+		console.log(`Context:-->${eventData.operationContext}`);
+		if (eventData.operationContext === 'audioFileContext') {
+			await hangupOrTerminateCall(eventData.callConnectionId, true);
+			return;
+		}
 
 		if (teamsUserId !== undefined) {
 			const teamsUser: MicrosoftTeamsUserIdentifier = {
@@ -179,7 +299,7 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 				invitationTimeoutInSeconds: 10,
 			}
 			try {
-				var response = await answerCallResult.callConnection.addParticipant(callInvite, options);
+				var response = await callConnection.addParticipant(callInvite, options);
 				console.log(`Invitation Id.${response.invitationId}`);
 			}
 			catch (e) {
@@ -218,6 +338,8 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 	}
 	else if (event.type === "Microsoft.Communication.playFailed") {
 		console.log("Received playFailed event")
+		console.log(`Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`)
+		console.log(`Message:->${eventData.resultInformation.message}`);
 		await hangupOrTerminateCall(eventData.callConnectionId, true);
 	}
 	else if (event.type === "Microsoft.Communication.AddParticipantSucceeded") {
@@ -226,16 +348,16 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		if (eventData.operationContext === "addPstnUserContext") {
 			console.log("PSTN user added.");
 
-			const response = await answerCallResult.callConnection.listParticipants();
+			const response = await callConnection.listParticipants();
 			const participantCount = response.values.length;
 			const participantList: CallParticipant[] = response.values;
 			console.log(`Total participants in call--> ${participantCount}`);
 			console.log(`participants:-->${JSON.stringify(participantList)}`);
 
-			const result = await answerCallResult.callConnection.muteParticipant(callee);
+			const result = await callConnection.muteParticipant(callee);
 			if (result) {
 				console.log(`Participant is muted. wating for confirming.....`);
-				const response = await answerCallResult.callConnection.getParticipant(callee);
+				const response = await callConnection.getParticipant(callee);
 				console.log(`Is participant muted:--> ${response.isMuted}`);
 				console.log(`Mute participant test completed.`);
 			}
@@ -250,6 +372,7 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		console.log("Received AddParticipantFailed event")
 		console.log(`Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`)
 		console.log(`Message:->${eventData.resultInformation.message}`);
+		await hangupOrTerminateCall(eventData.callConnectionId, true);
 	}
 	else if (event.type === "Microsoft.Communication.RemoveParticipantSucceeded") {
 		console.log("Received RemoveParticipantSucceeded event");
@@ -275,7 +398,7 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 	}
 	else if (event.type === "Microsoft.Communication.SendDtmfTonesCompleted") {
 		console.log("Received SendDtmfTonesCompleted event")
-		await answerCallResult.callConnection.removeParticipant(targetPhoneNumber);
+		await callConnection.removeParticipant(targetPhoneNumber);
 		console.log(`Send Dtmf tone completed. ${targetPhoneNumber.phoneNumber} will be removed from call.`);
 	}
 	else if (event.type === "Microsoft.Communication.SendDtmfTonesFailed") {
@@ -296,6 +419,7 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		console.log("Received CancelAddParticipantSucceeded event");
 		console.log(`Invitation Id:--> ${eventData.invitationId}`);
 		console.log(`Cancel add participant test completed.`);
+		console.log(`Operation Context:-->${eventData.operationContext}`);
 		await hangupOrTerminateCall(eventData.callConnectionId, true);
 	}
 	else if (event.type === "Microsoft.Communication.CancelAddParticipantFailed") {
@@ -370,29 +494,44 @@ app.get('/downloadMetadata', async (req, res) => {
 });
 
 async function handlePlayAsync(callConnectionMedia: CallMedia, textToPlay: string, context: string) {
-	const play: TextSource = { text: textToPlay, voiceName: "en-US-NancyNeural", kind: "textSource" }
+
+	const play: FileSource = {
+		url: MEDIA_URI + "MainMenu.wav",
+		kind: "fileSource",
+	};
+
+	//const play: TextSource = { text: textToPlay, voiceName: "en-US-NancyNeural", kind: "textSource" }
 	const playOptions: PlayOptions = { operationContext: context };
 	await callConnectionMedia.playToAll([play], playOptions);
 }
 
 async function startRecording(serverCallId: string) {
+	console.log(`IS BYOS--> ${isByos}`);
+	if (isByos) {
+		console.log(`BYOS URL--> ${bringYourOwnStorageUrl}`);
+	}
+
 	const callLocator: CallLocator = {
 		id: serverCallId,
 		kind: "serverCallLocator",
 	};
-
+	const recordingStorage: RecordingStorage = {
+		recordingStorageKind: "azureBlobStorage",
+		recordingDestinationContainerUrl: bringYourOwnStorageUrl
+	}
 	const recordingOptions: StartRecordingOptions = {
 		callLocator: callLocator,
 		recordingContent: "audio",
 		recordingChannel: "unmixed",
 		recordingFormat: "wav",
-		pauseOnStart: pauseOnStart === "true" ? true : false,
+		pauseOnStart: isPauseOnStart,
+		recordingStorage: isByos === true ? recordingStorage : undefined,
 	};
 	const response = await acsClient.getCallRecording().start(recordingOptions);
 	recordingId = response.recordingId;
 	console.log(`Recording Id--> ${recordingId}`);
 	printCurrentTime();
-	console.log(`Pause on start--> ${pauseOnStart}`);
+	console.log(`Pause on start--> ${isPauseOnStart}`);
 }
 
 async function getRecordingState(recordingId: string) {
@@ -488,10 +627,6 @@ async function hangupOrTerminateCall(callConnectionId: string, isTerminate: bool
 
 // GET endpoint to place call
 app.get('/createCall', async (req, res) => {
-	callee = {
-		communicationUserId: process.env.COMMUNICATION_USR_ID || "",
-	};
-
 	await createCall();
 	res.redirect('/');
 });
@@ -500,6 +635,42 @@ app.get('/createCall', async (req, res) => {
 app.get('/createPstnCall', async (req, res) => {
 	await createPstnCall();
 	res.redirect('/');
+});
+
+// GET endpoint to initiate oubound call
+app.get('/outboundCall', async (req, res) => {
+	await createOutboundCall();
+	res.redirect('/');
+});
+
+// GET endpoint to initiate group call
+app.get('/createGroupCall', async (req, res) => {
+	await createGroupCall();
+	res.redirect('/');
+});
+
+// GET endpoint to serve the audio file
+app.get("/audioprompt/:filename", (req, res) => {
+	const filename = req.params.filename;
+	const audioFilePath = path.join(process.env.BASE_MEDIA_PATH || "", filename);
+
+	// Read the audio file
+	fs.readFile(audioFilePath, (err, data) => {
+		if (err) {
+			console.error("Failed to read audio file:", err);
+			res.status(500).send("Internal Server Error");
+			return;
+		}
+
+		// Set the appropriate response headers
+		res.set("Content-Type", "audio/wav");
+		res.set("Content-Length", data.length.toString());
+		res.set("Cache-Control", "no-cache, no-store");
+		res.set("Pragma", "no-cache");
+
+		// Send the audio file as the response
+		res.send(data);
+	});
 });
 
 // Start the server
