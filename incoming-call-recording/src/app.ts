@@ -32,6 +32,7 @@ const dtmfPrompt = "Thank you for the update. Please type  one two three four on
 let recordingId: string;
 let recordingLocation: string;
 let recordingMetadataLocation: string;
+let recordingDeleteLocation: string;
 let recordingState: string;
 const confirmLabel = `Confirm`;
 const cancelLabel = `Cancel`;
@@ -316,6 +317,7 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 			console.log(`Recording is paused and inactive.`);
 			await delayWithSetTimeout();
 			await acsClient.getCallRecording().resume(recordingId);
+			await delayWithSetTimeout();
 			await getRecordingState(recordingId)
 			console.log(`Recording is resumed and active.`);
 			printCurrentTime();
@@ -457,6 +459,10 @@ app.post('/api/recordingFileStatus', async (req, res) => {
 	else if (event.eventType === "Microsoft.Communication.RecordingFileStatusUpdated") {
 		recordingLocation = eventData.recordingStorageInfo.recordingChunks[0].contentLocation
 		recordingMetadataLocation = eventData.recordingStorageInfo.recordingChunks[0].metadataLocation
+		recordingDeleteLocation = eventData.recordingStorageInfo.recordingChunks[0].deleteLocation
+		console.log(`CONTENT LOCATION:-->${recordingLocation}`);
+		console.log(`METADATA LOCATION:-->${recordingMetadataLocation}`);
+		console.log(`DELETE LOCATION:-->${recordingDeleteLocation}`);
 		res.sendStatus(200);
 	}
 });
@@ -467,13 +473,18 @@ app.get('/download', async (req, res) => {
 		res.redirect('/')
 	}
 	else {
-		// Set the appropriate response headers for the file download
-		res.setHeader('Content-Disposition', 'attachment; filename="recording.wav"');
-		res.setHeader('Content-Type', 'audio/wav');
-		const recordingStream = await acsClient.getCallRecording().downloadStreaming(recordingLocation);
+		try {
+			// Set the appropriate response headers for the file download
+			res.setHeader('Content-Disposition', 'attachment; filename="recording.wav"');
+			res.setHeader('Content-Type', 'audio/wav');
+			const recordingStream = await acsClient.getCallRecording().downloadStreaming(recordingLocation);
 
-		// Pipe the recording stream to the response object.
-		recordingStream.pipe(res);
+			// Pipe the recording stream to the response object.
+			recordingStream.pipe(res);
+		}
+		catch (ex) {
+			console.log(ex);
+		}
 	}
 });
 
@@ -484,12 +495,18 @@ app.get('/downloadMetadata', async (req, res) => {
 		res.redirect('/')
 	}
 	else {
-		res.setHeader('Content-Disposition', 'attachment; filename="recordingMetadata.json"');
-		res.setHeader('Content-Type', 'application/json');
-		const recordingMetadataStream = await acsClient.getCallRecording().downloadStreaming(recordingMetadataLocation);
+		try {
+			res.setHeader('Content-Disposition', 'attachment; filename="recordingMetadata.json"');
+			res.setHeader('Content-Type', 'application/json');
+			const recordingMetadataStream = await acsClient.getCallRecording().downloadStreaming(recordingMetadataLocation);
 
-		// Pipe the recording metadata stream to the response object.
-		recordingMetadataStream.pipe(res);
+			// Pipe the recording metadata stream to the response object.
+			recordingMetadataStream.pipe(res);
+		}
+		catch (ex) {
+			console.log(ex);
+		}
+
 	}
 });
 
