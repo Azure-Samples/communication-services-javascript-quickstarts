@@ -114,9 +114,10 @@ export const CallingWidgetComponent = (
     };
   }, [
     widgetAdapterArgs.userId,
-    widgetAdapterArgs.teamsAppIdentifier.teamsAppId,
+    widgetAdapterArgs.teamsAppIdentifier,
     credential,
     displayName,
+    adapterOptions
   ]);
 
   useEffect(() => {
