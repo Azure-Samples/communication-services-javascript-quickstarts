@@ -24,7 +24,7 @@ var chatThreadId = "";
 
 async function init() {
   const connectionString = "<SECRET_CONNECTION_STRING>";
-  const endpointUrl = "<ENDPOINT_URL>";
+  const endpointUrl = connectionString.split(";")[0];
 
   const identityClient = new CommunicationIdentityClient(connectionString);
 

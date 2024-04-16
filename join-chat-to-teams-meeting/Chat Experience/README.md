@@ -34,10 +34,8 @@ This quickstart sample includes the code that is explained as part of [this docu
     `npm install`
     `git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git`
 
-1. With the Communication Services procured in pre-requisites, fetch connection string and update at line# 26 in client.js 
+1. With the Communication Services procured in pre-requisites, fetch connection string and update at line# 26 in client.js
    ```const connectionString = "<SECRET_CONNECTION_STRING>";```.
-1. With the Communication Services procured in pre-requisites, fetch end point and update at line# 27 in client.js 
-   ```const endpointUrl = "<ENDPOINT_URL>";```.
 
 ## Run the code
 

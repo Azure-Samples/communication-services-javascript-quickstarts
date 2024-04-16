@@ -38,7 +38,6 @@ This sample includes the code that is explained as part of [this tutorial](https
 3. In the same directory as this README, run `npm install`.
 
 4. With the Communication Services procured in pre-requisites, fetch connection string and update at line# 27 in client.js ```const connectionString = "<SECRET_CONNECTION_STRING>";```.
-5. With the Communication Services procured in pre-requisites, fetch end point and update at line# 28 in client.js ```const endpointUrl = "<ENDPOINT_URL>";```.
 
 ## Run the code
 
