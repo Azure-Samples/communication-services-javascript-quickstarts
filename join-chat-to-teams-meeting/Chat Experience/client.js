@@ -91,7 +91,6 @@ callButton.addEventListener("click", async () => {
   });
 
   // toggle button and chat box states
-
   hangUpButton.disabled = false;
   callButton.disabled = true;
 

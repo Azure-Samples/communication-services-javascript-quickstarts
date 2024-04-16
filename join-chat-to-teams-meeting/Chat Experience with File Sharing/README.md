@@ -27,8 +27,8 @@ This code sample is explained as part of [this tutorial](https://docs.microsoft.
 
 1. Clone this sample
 2. Run `npm install`
-3. Grab the connection string from your communication resource and replace it at line #36 in [client.js](./client.js#L36) ```const connectionString = "<SECRET_CONNECTION_STRING>";```.
-4. Similarly, replace the endpoint URL at line #37 in [client.js](./client.js#L37)  ```const endpointUrl = "<ENDPOINT_URL>";```.
+3. Grab the connection string from your communication resource and replace it at line #27 in [client.js](./client.js#L27) ```const connectionString = "<SECRET_CONNECTION_STRING>";```.
+4. Similarly, replace the endpoint URL at line #28 in [client.js](./client.js#L28)  ```const endpointUrl = "<ENDPOINT_URL>";```.
 
 ## Run the code
 
