@@ -50,10 +50,24 @@ async function init() {
 
 init();
 
+const joinCall = (urlString, callAgent) => {
+  const url = new URL(urlString);
+  console.log(url);
+  if (url.pathname.startsWith("/meet")) {
+    // Short teams URL, so for now call meetingID and pass code API
+    return callAgent.join({
+      meetingId: url.pathname.split("/").pop(),
+      passcode: url.searchParams.get("p"),
+    });
+  } else {
+    return callAgent.join({ meetingLink: urlString }, {});
+  }
+};
+
 callButton.addEventListener("click", async () => {
   // join with meeting link
   try {
-    call = callAgent.join({ meetingLink: meetingLinkInput.value }, {});
+    call = joinCall(meetingLinkInput.value, callAgent);
   } catch {
     throw new Error("Could not join meeting - have you set your connection string?");
   }
