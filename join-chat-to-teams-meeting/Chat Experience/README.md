@@ -38,7 +38,7 @@ This quickstart sample includes the code that is explained as part of [this docu
 
 ## Run the code
 Run:
-`npx start`
+`npm start`
 
 You should see the following:
 
