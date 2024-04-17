@@ -24,7 +24,7 @@ This sample includes the code that is explained as part of [this tutorial](https
 - A Working [Communication Services chat web app](https://docs.microsoft.com/azure/communication-services/quickstarts/chat/get-started?pivots=programming-language-javascript).
 - A Teams meeting link that was set up by a Teams business account.
 - A clear understanding from previous QuickStart - [Join your chat app to a Teams meeting](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/chat/meeting-interop?pivots=platform-web).
-- Chat SDK for JavaScript ([@azure/communication-chat](https://www.npmjs.com/package/@azure/communication-chat)) 
+- Chat SDK for JavaScript ([@azure/communication-chat](https://www.npmjs.com/package/@azure/communication-chat))
 
 ## Code Structure
 
@@ -37,13 +37,12 @@ This sample includes the code that is explained as part of [this tutorial](https
 2. `git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git`
 3. In the same directory as this README, run `npm install`.
 
-4. With the Communication Services procured in pre-requisites, fetch connection string and update at line# 41 in client.js ```const connectionString = "<SECRET_CONNECTION_STRING>";```.
-5. With the Communication Services procured in pre-requisites, fetch end point and update at line# 42 in client.js ```const endpointUrl = "<ENDPOINT_URL>";```.
+4. With the Communication Services procured in pre-requisites, fetch connection string and update at line# 27 in client.js ```const connectionString = "<SECRET_CONNECTION_STRING>";```.
 
 ## Run the code
 
 Run:
-`npx start`
+`npm start`
 
 You should see the following:
 
