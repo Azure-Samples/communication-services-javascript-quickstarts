@@ -31,8 +31,8 @@ This quickstart sample includes the code that is explained as part of [this docu
 
 1. Open an command shell and navigate to the directory that you'd like to clone the sample to.
 1. Run the commands:
-    `npm install`
     `git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git`
+    `npm install`
 
 1. With the Communication Services procured in pre-requisites, fetch connection string and update at line# 26 in client.js
    ```const connectionString = "<SECRET_CONNECTION_STRING>";```.
