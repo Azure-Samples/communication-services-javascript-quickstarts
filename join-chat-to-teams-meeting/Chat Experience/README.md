@@ -29,16 +29,18 @@ This quickstart sample includes the code that is explained as part of [this docu
 
 ## Before running sample code
 
-1. Open an instance of PowerShell, Windows Terminal, Command Prompt or equivalent and navigate to the directory that you'd like to clone the sample to.
-2. `git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git`
-3. Run this command
+1. Open an command shell and navigate to the directory that you'd like to clone the sample to.
+1. Run the commands:
+    `git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git`
     `npm install`
-4. With the Communication Services procured in pre-requisites, fetch connection string and update at line# 40 in client.js ```const connectionString = "<SECRET_CONNECTION_STRING>";```.
-5. With the Communication Services procured in pre-requisites, fetch end point and update at line# 41 in client.js ```const endpointUrl = "<ENDPOINT_URL>";```.
+
+1. With the Communication Services procured in pre-requisites, fetch connection string and update at line# 26 in client.js
+   ```const connectionString = "<SECRET_CONNECTION_STRING>";```.
 
 ## Run the code
+
 Run:
-`npx start`
+`npm start`
 
 You should see the following:
 

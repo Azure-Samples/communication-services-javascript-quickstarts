@@ -46,14 +46,14 @@ const fileUploadHandler: FileUploadHandler = async (
           "Access-Control-Allow-Origin": "*",
         },
         onUploadProgress: (p) => {
-          if (p.total) fileUpload.notifyUploadProgressChanged(p.loaded / p.total);
+          if (p.total)
+            fileUpload.notifyUploadProgressChanged(p.loaded / p.total);
         },
       });
 
       // 1 means the file upload progress is 100%. Similarly, 0.5 would be 50%.
       fileUpload.notifyUploadProgressChanged(1);
       fileUpload.notifyUploadCompleted({
-        attachmentType: 'file',
         id: uniqueFileName,
         name: fileUpload.file?.name ?? "",
         extension: fileExtension,

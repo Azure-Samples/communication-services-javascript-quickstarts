@@ -80,11 +80,11 @@ export const CallWithChatExperience = (props: CallWithChatExampleProps): JSX.Ele
 function App(): JSX.Element {
     return (
       <CallWithChatExperience
-        userId = {{ "communicationUserId": USER_ID }}
+        userId = {{ communicationUserId: USER_ID }}
         token={ TOKEN }
         displayName = { DISPLAY_NAME }
         endpointUrl={ ENDPOINT_URL }
-        locator = { {"meetingLink": TEAMS_MEETING_LINK} }
+        locator = { { meetingLink: TEAMS_MEETING_LINK } }
       />
     );
 }

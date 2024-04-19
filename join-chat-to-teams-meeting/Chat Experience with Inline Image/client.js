@@ -23,23 +23,9 @@ var messages = "";
 var tokenString = "";
 var chatThreadId = "";
 
-// Utility function to extract the chat thread ID from the teams meeting link
-const getChatThreadFromTeamsLink = (teamsMeetingLink) => {
-  // Get the threadId from the url - this also contains the call locator ID that will be removed in the threadId.split
-  let threadId = teamsMeetingLink.replace("https://teams.microsoft.com/l/meetup-join/", "");
-  // Unescape characters that applications like Outlook encode when creating joinable links
-  threadId = decodeURIComponent(threadId);
-  // Extract just the chat guid from the link, stripping away the call locator ID
-  threadId = threadId.split(/^(.*?@thread\.v2)/gm)[1];
-  if (!threadId || threadId.length === 0) {
-    throw new Error("Could not get chat thread from teams link");
-  }
-  return threadId;
-};
-
 async function init() {
   const connectionString = "<YOU_CONNECTION_STRING>";
-  const endpointUrl = "<YOU_ENDPOINT_URL>";
+  const endpointUrl = connectionString.split(";")[0];
 
   const identityClient = new CommunicationIdentityClient(connectionString);
 
@@ -66,48 +52,65 @@ async function init() {
 
 init();
 
+const joinCall = (urlString, callAgent) => {
+  const url = new URL(urlString);
+  console.log(url);
+  if (url.pathname.startsWith("/meet")) {
+    // Short teams URL, so for now call meetingID and pass code API
+    return callAgent.join({
+      meetingId: url.pathname.split("/").pop(),
+      passcode: url.searchParams.get("p"),
+    });
+  } else {
+    return callAgent.join({ meetingLink: urlString }, {});
+  }
+};
+
 callButton.addEventListener("click", async () => {
   // join with meeting link
-  call = callAgent.join(
-    {
-      meetingLink: meetingLinkInput.value,
-    },
-    {}
-  );
-  chatThreadId = getChatThreadFromTeamsLink(meetingLinkInput.value);
+  try {
+    call = joinCall(meetingLinkInput.value, callAgent);
+  } catch {
+    throw new Error("Could not join meeting - have you set your connection string?");
+  }
 
-  call.on("stateChanged", () => {
+  // Chat thread ID is provided from the call info, after connection.
+  call.on("stateChanged", async () => {
     callStateElement.innerText = call.state;
+
+    if (call.state === "Connected" && !chatThreadClient) {
+      chatThreadId = call.info?.threadId;
+      chatThreadClient = chatClient.getChatThreadClient(chatThreadId);
+
+      chatBox.style.display = "block";
+      messagesContainer.innerHTML = messages;
+
+      // open notifications channel
+      await chatClient.startRealtimeNotifications();
+
+      // subscribe to new message notifications
+      chatClient.on("chatMessageReceived", (e) => {
+        console.log("Notification chatMessageReceived!");
+
+        // check whether the notification is intended for the current thread
+        if (chatThreadId != e.threadId) {
+          return;
+        }
+
+        if (e.sender.communicationUserId != userId) {
+          renderReceivedMessage(e);
+        } else {
+          renderSentMessage(e.message);
+        }
+      });
+    }
   });
+
   // toggle button and chat box states
-  chatBox.style.display = "block";
   hangUpButton.disabled = false;
   callButton.disabled = true;
 
-  messagesContainer.innerHTML = messages;
-
   console.log(call);
-
-  // open notifications channel
-  await chatClient.startRealtimeNotifications();
-
-  // subscribe to new message notifications
-  chatClient.on("chatMessageReceived", (e) => {
-    console.log("Notification chatMessageReceived!");
-
-    // check whether the notification is intended for the current thread
-    if (chatThreadId != e.threadId) {
-      return;
-    }
-
-    if (e.sender.communicationUserId != userId) {
-      renderReceivedMessage(e);
-    } else {
-      renderSentMessage(e.message);
-    }
-  });
-
-  chatThreadClient = await chatClient.getChatThreadClient(chatThreadId);
 });
 
 document.getElementById("upload").addEventListener("change", uploadImages);
@@ -188,6 +191,8 @@ async function renderSentMessage(message) {
 hangUpButton.addEventListener("click", async () => {
   // end the current call
   await call.hangUp();
+  // Stop notifications
+  chatClient.stopRealtimeNotifications();
 
   // toggle button states
   hangUpButton.disabled = true;
@@ -197,6 +202,8 @@ hangUpButton.addEventListener("click", async () => {
   // toggle chat states
   chatBox.style.display = "none";
   messages = "";
+  // Remove local ref
+  chatThreadClient = undefined;
 });
 
 var uploadedImageModels = [];
