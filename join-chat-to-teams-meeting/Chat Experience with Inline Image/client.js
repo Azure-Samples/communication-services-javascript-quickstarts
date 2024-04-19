@@ -25,7 +25,7 @@ var chatThreadId = "";
 
 async function init() {
   const connectionString = "<YOU_CONNECTION_STRING>";
-  const endpointUrl = connectionString.split(";")[0];
+  const endpointUrl = connectionString.split(";")[0].replace("endpoint=", "");
 
   const identityClient = new CommunicationIdentityClient(connectionString);
 
@@ -274,18 +274,10 @@ async function uploadImages(e) {
 }
 
 async function uploadImage(file) {
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    const base64 = e.target.result;
-    document.getElementById("upload-result").innerHTML += `<img src="${base64}" height="auto" width="100" />`;
-    const blob = new Blob([base64], { type: "image/png" });
-    const uploadedImageModel = await chatThreadClient.uploadImage(blob, {
-      "name": file.name,
-      "onUploadProgress": (progress) => {
-        console.log(`[${file.name}]uploading: ${progress.loadedBytes}/${progress.totalBytes}`);
-      }
-    });
-    uploadedImageModels.push(uploadedImageModel);
-  };
-  reader.readAsDataURL(file);
+  const buffer = await file.arrayBuffer();
+  const blob = new Blob([new Uint8Array(buffer)], {type: file.type });
+  const uploadedImageModel = await chatThreadClient.uploadImage(blob, file.name, {
+    imageBytesLength: file.size
+  });
+  uploadedImageModels.push(uploadedImageModel);
 }
