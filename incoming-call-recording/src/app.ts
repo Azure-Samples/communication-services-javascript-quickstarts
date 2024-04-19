@@ -9,7 +9,9 @@ import {
 	CallIntelligenceOptions, PlayOptions,
 	CallLocator, StartRecordingOptions, CallInvite, AddParticipantOptions,
 	CallMediaRecognizeChoiceOptions, RecognitionChoice, DtmfTone, CallMediaRecognizeDtmfOptions, Tone, CallParticipant, TransferCallToParticipantOptions, CreateCallOptions,
-	CancelAddParticipantOperationOptions, FileSource, RecordingStorage
+	CancelAddParticipantOperationOptions, FileSource, RecordingStorage,
+	CallMediaRecognizeSpeechOptions,
+	CallMediaRecognizeSpeechOrDtmfOptions
 } from "@azure/communication-call-automation";
 import { v4 as uuidv4 } from 'uuid';
 config();
@@ -62,6 +64,8 @@ async function createCall() {
 		targetParticipant: callee,
 	};
 
+
+
 	console.log("Placing call...");
 	acsClient.createCall(callInvite, process.env.CALLBACK_HOST_URI + "/api/callbacks");
 }
@@ -69,11 +73,17 @@ async function createCall() {
 async function createOutboundCall() {
 	console.log(`Placing outbound 1:1 call.`);
 	isOutboundCall = true;
+	const options: CreateCallOptions = {
+		callIntelligenceOptions: {
+			cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICE_ENDPOINT
+		},
+		operationContext: "OutboundCallContext",
+	}
 	const callInvite: CallInvite = {
 		targetParticipant: targetPhoneNumber,
 		sourceCallIdNumber: acsCallerPhoneNumber,
 	};
-	await acsClient.createCall(callInvite, process.env.CALLBACK_HOST_URI + "/api/callbacks");
+	await acsClient.createCall(callInvite, process.env.CALLBACK_HOST_URI + "/api/callbacks", options);
 }
 
 async function createGroupCall() {
@@ -214,10 +224,10 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 			// const response = await callConnection.listParticipants();
 			// const participantCount = response.values.length;
 			// const participantList: CallParticipant[] = response.values;
-			// console.log(`Total participants in group call--> ${participantCount}`);
+			// console.log(`Total participants in call--> ${participantCount}`);
 			// console.log(`participants:-->${JSON.stringify(participantList)}`);
 
-			await handlePlayAsync(callMedia, "audio file", "audioFileContext");
+			await handlePlayAsync(callMedia, "this is test play media.", "audioFileContext");
 
 			// const testTarget: PhoneNumberIdentifier = {
 			// 	phoneNumber: ""
@@ -237,6 +247,8 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 			// 	operationContext: "outboundContext",
 			// }
 			// await callConnection.cancelAddParticipantOperation("jfdkj", options);
+
+			//await startContinuousDtmf(callMedia);
 
 			//await hangupOrTerminateCall(eventData.callConnectionId, true);
 		}
@@ -265,8 +277,15 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 			}
 		}
 		if (eventData.recognitionType === "dtmf") {
+			const tones = eventData.dtmfResult.tones;
+			console.log(`DTMF TONES:-->${tones}`);
 			console.log(`Current context-->${eventData.operationContext}`);
 			await callConnection.removeParticipant(targetPhoneNumber);
+		}
+		if (eventData.recognitionType === "speech") {
+			const text = eventData.speechResult.speech;
+			console.log("Recognition completed, text=%s, context=%s", text, eventData.operationContext);
+			await hangupOrTerminateCall(eventData.callConnectionId, true);
 		}
 	} else if (event.type === "Microsoft.Communication.RecognizeFailed") {
 		console.log("Received RecognizeFailed event")
@@ -284,6 +303,11 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		console.log(`Context:-->${eventData.operationContext}`);
 		if (eventData.operationContext === 'audioFileContext') {
 			await hangupOrTerminateCall(eventData.callConnectionId, true);
+			return;
+		}
+
+		if (eventData.operationContext === 'continuousDtmfPlayContext') {
+			console.log("test");
 			return;
 		}
 
@@ -389,6 +413,7 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		console.log(`Tone received:--> ${eventData.tone}`);
 		console.log(`SequenceId:--> ${eventData.sequenceId}`);
 		await stopContinuousDtmf(callMedia);
+		//await handlePlayAsync(callMedia, "this is dtmf test", "continuousDtmfPlayContext");
 	}
 	else if (event.type === "Microsoft.Communication.ContinuousDtmfRecognitionToneFailed") {
 		console.log("Received ContinuousDtmfRecognitionToneFailed event")
@@ -512,14 +537,18 @@ app.get('/downloadMetadata', async (req, res) => {
 
 async function handlePlayAsync(callConnectionMedia: CallMedia, textToPlay: string, context: string) {
 
-	const play: FileSource = {
-		url: MEDIA_URI + "MainMenu.wav",
-		kind: "fileSource",
-	};
+	// const play: FileSource = {
+	// 	url: MEDIA_URI + "MainMenu.wav",
+	// 	kind: "fileSource",
+	// };
 
-	//const play: TextSource = { text: textToPlay, voiceName: "en-US-NancyNeural", kind: "textSource" }
-	const playOptions: PlayOptions = { operationContext: context };
+	const play: TextSource = { text: textToPlay, voiceName: "en-US-NancyNeural", kind: "textSource" }
+	const playOptions: PlayOptions = { operationContext: context, loop: false };
+	//await callConnectionMedia.play([play], [targetPhoneNumber], playOptions);
+
 	await callConnectionMedia.playToAll([play], playOptions);
+	// delayWithSetTimeout();
+	//await callMedia.cancelAllOperations();
 }
 
 async function startRecording(serverCallId: string) {
@@ -577,7 +606,7 @@ function printCurrentTime() {
 async function startRecognizing(target: CommunicationIdentifier, CallMedia, textToPlay: string, context: string, isDtmf: boolean) {
 	const playSource: TextSource = { text: textToPlay, voiceName: "en-US-NancyNeural", kind: "textSource" };
 
-	const recognizeSpeechOptions: CallMediaRecognizeChoiceOptions = {
+	const recognizeChoiceOptions: CallMediaRecognizeChoiceOptions = {
 		choices: await getChoices(),
 		interruptPrompt: false,
 		initialSilenceTimeoutInSeconds: 10,
@@ -596,7 +625,24 @@ async function startRecognizing(target: CommunicationIdentifier, CallMedia, text
 		kind: "callMediaRecognizeDtmfOptions",
 	};
 
-	const recognizeOptions = isDtmf ? recognizeDtmfOptions : recognizeSpeechOptions;
+	const recognizeSpeechOptions: CallMediaRecognizeSpeechOptions = {
+		endSilenceTimeoutInSeconds: 1,
+		playPrompt: playSource,
+		operationContext: "OpenQuestionSpeech",
+		kind: "callMediaRecognizeSpeechOptions",
+	}
+
+	const recongnizeSpeechOrDtmfOptions: CallMediaRecognizeSpeechOrDtmfOptions = {
+		maxTonesToCollect: 2,
+		endSilenceTimeoutInSeconds: 1,
+		playPrompt: playSource,
+		initialSilenceTimeoutInSeconds: 30,
+		interruptPrompt: true,
+		operationContext: "OpenQuestionSpeechOrDtmf",
+		kind: "callMediaRecognizeSpeechOrDtmfOptions",
+	}
+
+	const recognizeOptions = isDtmf ? recognizeDtmfOptions : recognizeChoiceOptions;
 
 	await callMedia.startRecognizing(target, recognizeOptions)
 }
