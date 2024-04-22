@@ -21,12 +21,12 @@ function App(): JSX.Element {
   const callAdapterArgs = useMemo(
     () => {
       try {
-        const { userIdentity, userToken, callLocator, displayName, callerId } = INPUTS;
+        const { userIdentity, userToken, targetCallees, displayName, callerId } = INPUTS;
         return {
           userId: fromFlatCommunicationIdentifier(userIdentity) as CommunicationUserIdentifier,
           credential: new AzureCommunicationTokenCredential(userToken),
           displayName: displayName,
-          locator: callLocator,
+          targetCallees: targetCallees,
           alternateCallerId: callerId,
         };
       }
