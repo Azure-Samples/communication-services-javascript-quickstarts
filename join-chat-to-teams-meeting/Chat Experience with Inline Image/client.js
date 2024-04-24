@@ -202,7 +202,7 @@ sendMessageButton.addEventListener("click", async () => {
   let message = messagebox.value;
   let attachments = uploadedImageModels;
 
-    // inject image tags for images we have selected
+  // inject image tags for images we have selected
   // so they can be treated as inline images
   // alternatively, we can use some 3rd party libraries 
   // to have a rich text editor with inline image support
