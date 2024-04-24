@@ -211,6 +211,13 @@ var uploadedImageModels = [];
 sendMessageButton.addEventListener("click", async () => {
   let message = messagebox.value;
   let attachments = uploadedImageModels;
+
+    // inject image tags for images we have selected
+  // so they can be treated as inline images
+  // alternatively, we can use some 3rd party libraries 
+  // to have a rich text editor with inline image support
+  message += attachments.map((attachment) => `<img id="${attachment.id}" />`).join("");
+
   let sendMessageRequest = {
     content: message,
     attachments: attachments,
@@ -218,7 +225,9 @@ sendMessageButton.addEventListener("click", async () => {
 
   let sendMessageOptions = {
     senderDisplayName: "Jack",
+    type: "html"
   };
+
   let sendChatMessageResult = await chatThreadClient.sendMessage(
     sendMessageRequest,
     sendMessageOptions
