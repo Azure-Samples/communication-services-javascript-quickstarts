@@ -1,5 +1,5 @@
 // Make sure to install the necessary dependencies
-const { CallClient, VideoStreamRenderer, LocalVideoStream } = require('@azure/communication-calling');
+const { CallClient, VideoStreamRenderer, LocalVideoStream, Features } = require('@azure/communication-calling');
 const { AzureCommunicationTokenCredential } = require('@azure/communication-common');
 const { AzureLogger, setLogLevel } = require("@azure/logger");
 // Set the log level and output
@@ -72,7 +72,8 @@ startCallButton.onclick = async () => {
     try {
         const localVideoStream = await createLocalVideoStream();
         const videoOptions = localVideoStream ? { localVideoStreams: [localVideoStream] } : undefined;
-        call = callAgent.startCall([{ communicationUserId: calleeAcsUserId.value.trim() }], { videoOptions });
+        const teamsCallLocator = { meetingLink: calleeAcsUserId.value.trim() };
+        call = callAgent.join(teamsCallLocator, { videoOptions });
         // Subscribe to the call's properties and events.
         subscribeToCall(call);
     } catch (error) {
@@ -167,6 +168,24 @@ subscribeToCall = (call) => {
             e.removed.forEach(remoteParticipant => {
                 console.log('Remote participant removed from the call.');
             });
+        });
+        call.feature(Features.BreakoutRooms).on('assignedBreakoutRoomUpdated', (breakoutRoom) => { 
+            console.log('DDDDD assignedBreakoutRoomUpdated breakoutRoom.call: ', breakoutRoom.call);
+        });
+        call.feature(Features.BreakoutRooms).on('breakoutRoomSettingsAvailable', (breakoutRoomSettings) => { 
+            console.log('DDDDD breakoutRoomSettingsAvailable: ', breakoutRoomSettings);
+            // Only if there any changes in the BR settings, eg. room duration, can return to main meeting
+        });
+        call.feature(Features.BreakoutRooms).on('breakoutRoomJoined', (BRcall) => { 
+            console.log('DDDDD breakoutRoomJoined: ', BRcall);
+            if (call.id !== BRcall.id) {
+                console.log('DDDDD subscribing to breakoutRoom call');
+                subscribeToCall(BRcall)
+            }
+            // Only when BR is opened
+        });
+        call.feature(Features.BreakoutRooms).on('breakoutRoomsUpdated', (breakoutRooms) => { 
+            console.log('DDDDD breakoutRooms: ', breakoutRooms);
         });
     } catch (error) {
         console.error(error);

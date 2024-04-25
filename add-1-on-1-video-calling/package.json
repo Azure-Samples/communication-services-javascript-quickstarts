@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@azure/communication-calling": "^1.16.3",
+    "@azure/communication-calling": "file:C:/Users/miguelgamis/source/communication-services-javascript-quickstarts/add-1-on-1-video-calling/azure-communication-calling-2.0.0.tgz",
     "@azure/communication-common": "^2.2.1"
   },
   "devDependencies": {
