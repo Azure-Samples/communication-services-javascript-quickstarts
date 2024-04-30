@@ -25,7 +25,7 @@ var chatThreadId = "";
 
 async function init() {
   const connectionString = "<YOU_CONNECTION_STRING>";
-  const endpointUrl = connectionString.split(";")[0];
+  const endpointUrl = connectionString.split(";")[0].replace("endpoint=", "");
 
   const identityClient = new CommunicationIdentityClient(connectionString);
 
@@ -96,12 +96,8 @@ callButton.addEventListener("click", async () => {
         if (chatThreadId != e.threadId) {
           return;
         }
-
-        if (e.sender.communicationUserId != userId) {
-          renderReceivedMessage(e);
-        } else {
-          renderSentMessage(e.message);
-        }
+        const isMyMessage = e.sender.communicationUserId === userId;
+        renderReceivedMessage(e, isMyMessage);
       });
     }
   });
@@ -113,15 +109,19 @@ callButton.addEventListener("click", async () => {
   console.log(call);
 });
 
+document.getElementById("upload").addEventListener("change", uploadImages);
+
+
 /**
  * Render the message bubble for event chat message received
  *
  * @param {ChatMessageReceivedEvent} e - the event object that contains data
+ * @param {boolean} isMyMessage - whether the message is sent by the current user
  */
-function renderReceivedMessage(e) {
+function renderReceivedMessage(e, isMyMessage) {
   const messageContent = e.message;
   const card = document.createElement("div");
-  card.className = "container lighter";
+  card.className = isMyMessage ? "container darker" : "container lighter";
   card.innerHTML = messageContent;
 
   messagesContainer.appendChild(card);
@@ -178,13 +178,6 @@ async function setImgHandler(element, imageAttachments) {
   }
 }
 
-async function renderSentMessage(message) {
-  const card = document.createElement("div");
-  card.className = "container darker";
-  card.innerHTML = message;
-  messagesContainer.appendChild(card);
-}
-
 hangUpButton.addEventListener("click", async () => {
   // end the current call
   await call.hangUp();
@@ -203,22 +196,38 @@ hangUpButton.addEventListener("click", async () => {
   chatThreadClient = undefined;
 });
 
+var uploadedImageModels = [];
+
 sendMessageButton.addEventListener("click", async () => {
   let message = messagebox.value;
+  let attachments = uploadedImageModels;
+
+  // inject image tags for images we have selected
+  // so they can be treated as inline images
+  // alternatively, we can use some 3rd party libraries 
+  // to have a rich text editor with inline image support
+  message += attachments.map((attachment) => `<img id="${attachment.id}"/>`).join("");
 
   let sendMessageRequest = {
     content: message,
+    attachments: attachments,
   };
+
   let sendMessageOptions = {
     senderDisplayName: "Jack",
+    type: "html"
   };
+
   let sendChatMessageResult = await chatThreadClient.sendMessage(
     sendMessageRequest,
     sendMessageOptions
   );
   let messageId = sendChatMessageResult.id;
+  uploadedImageModels = [];
+  document.getElementById("upload-result").innerHTML = ``;
 
   messagebox.value = "";
+  document.getElementById("upload").value = "";
   console.log(`Message sent!, message id:${messageId}`);
 });
 
@@ -250,3 +259,27 @@ function fetchFullScaleImage(e, imageAttachments) {
 loadingImageOverlay.addEventListener("click", () => {
   overlayContainer.style.display = "none";
 });
+
+
+async function uploadImages(e) {
+  const files = e.target.files;
+  if (files.length === 0) {
+    return;
+  }
+  for (let key in files) {
+    if (files.hasOwnProperty(key)) {
+        await uploadImage(files[key]);
+    }
+}
+}
+
+async function uploadImage(file) {
+  const buffer = await file.arrayBuffer();
+  const blob = new Blob([new Uint8Array(buffer)], {type: file.type });
+  const url = window.URL.createObjectURL(blob);
+  document.getElementById("upload-result").innerHTML += `<img src="${url}" height="auto" width="100" />`;
+  let uploadedImageModel = await chatThreadClient.uploadImage(blob, file.name, {
+    imageBytesLength: file.size
+  });
+  uploadedImageModels.push(uploadedImageModel);
+}

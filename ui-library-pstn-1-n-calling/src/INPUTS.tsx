@@ -18,12 +18,13 @@ export const INPUTS = {
 
   /**
    * Who the user is calling.
-   * This is an array of phone numbers if you want to call a PSTN number. For example, `['+18001234567']`.
-   * Or an array of identifiers for other ACS users you wish to call. For example, `['8:acs:dd9753c0-6e62-4f74-ab0f-c94f9723b4eb_00000018-11f6-813b-7137-8e3a0d004b5d']`.
+   * This is an array of {@link CommunicationIdentifiers}. These can be mixed of ACS, Teams, and phone numbers.
    */
-  callLocator: {
-    participantIds: ['<Phone number or ACS identifier>']
-  },
+  targetCallees: [
+    {
+      phoneNumber: '<Enter your phone number to call here>', rawId: '4:<Enter your phone number to call here>'
+    }
+  ],
 
   /**
    * Display name for your user making the outbound call. This will be transmitted to the other ACS users in the call.
