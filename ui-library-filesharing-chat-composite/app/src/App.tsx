@@ -8,10 +8,10 @@ import {
   useAzureCommunicationChatAdapter,
 } from "@azure/communication-react";
 import React, { useMemo } from "react";
-import fileDownloadHandler from "./FileDownloadhandler";
+import { downloadOptions } from "./AttachmentDownloadOptions";
 import { initializeIcons } from "@fluentui/react";
 import { initializeFileTypeIcons } from "@fluentui/react-file-type-icons";
-import fileUploadHandler from "./FileUploadHandler";
+import { uploadOptions } from "./AtachmentUploadOptions";
 
 function App(): JSX.Element {
   initializeIcons();
@@ -56,11 +56,10 @@ function App(): JSX.Element {
         <ChatComposite
           adapter={chatAdapter}
           options={{
-            fileSharing: {
-              uploadHandler: fileUploadHandler,
-              downloadHandler: fileDownloadHandler,
-              multiple: true,
-            },
+            attachmentOptions: {
+              uploadOptions: uploadOptions,
+              downloadOptions: downloadOptions,
+            }
           }}
         />
       </div>
