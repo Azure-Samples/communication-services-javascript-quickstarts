@@ -10,7 +10,7 @@ If you want to just try it out follow the instructions below. If you are interes
 ## The React application
 <img src="./media/splash-screen-react.png" width=450px>
 
-To setup the completed `react` project, In the `ui-library-click-to-call` directory, run:
+To setup the completed `React` project, In the `ui-library-click-to-call` directory, run:
 
 ### `npm install`
 
@@ -64,9 +64,9 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-## Cross platform Javascript bundle
+## Cross platform JavaScript bundle
 
-This project also includes a bundle that can be used to run the `react` based `CallComposite` pre-configured for use as a click
+This project also includes a bundle that can be used to run the `React` based `CallComposite`, pre-configured for use as a click
 to call experience. This bundle and a sample `index.html` file can be found in the `cross-platform-js` folder and can be used by other frameworks by importing it through a script tag.
 
 ```html
@@ -75,7 +75,7 @@ to call experience. This bundle and a sample `index.html` file can be found in t
 
 ### Setting up the bundle
 
-In the `index.html` file find the `userId`, `token`, and `displayName` values and enter yor information like in the `react` app.
+In the `index.html` file find the `userId`, `token`, and `displayName` values and enter yor information like in the `React` app.
 
 `./cross-platform-js/index.html`
 ```javascript
