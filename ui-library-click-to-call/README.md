@@ -17,7 +17,7 @@ To setup the completed `react` project, In the `ui-library-click-to-call` direct
 ### Swap placeholders for identifiers
 
 After the install is done go to the `src` folder and find the `App.tsx` file.
-There input values for the `token`, `userId` and `teamsAppIdentifier`.
+There are input values for the `token`, `userId` and `teamsAppIdentifier`.
 
 `./src/App.tsx`
 ```typescript
