@@ -1,4 +1,4 @@
-import { usePropsFor, MessageThread, SendBox, ActiveFileUpload, AttachmentMetadata } from "@azure/communication-react";
+import { usePropsFor, MessageThread, SendBox, AttachmentMetadataWithProgress, AttachmentMetadata } from "@azure/communication-react";
 import React from "react";
 import axios from "axios";
 import Form from "form-data";
@@ -8,21 +8,21 @@ export default function ChatComponents(): JSX.Element {
   // We use a ref variable to keep a track of all the active file uploads and their progress.
   // Since a ref variable preserves it's value across re-renders, it ensures that modifying the progress of one file upload
   // doesn't overwrite the other file uploads.
-  const allActiveFileUploads = React.useRef<ActiveFileUpload[]>([]);
+  const allAttachmentsWithProgress = React.useRef<AttachmentMetadataWithProgress[]>([]);
   // We use a ref variable to keep a track of all the completed file uploads since a ref variable preserves it's state
   // across re-renders.
   const completedFileUploads = React.useRef<AttachmentMetadata[] | []>([]);
   // Tracks the files selected by the file input.
   const [files, setFiles] = React.useState<File[] | []>();
   // Tracks the progress of the file uploads. Passed to SendBox component for driving file upload UI.
-  const [activeFileUploads, setActiveFileUploads] = React.useState<ActiveFileUpload[]>([]);
+  const [attachmentsWithProgress, setAttachmentsWithProgress] = React.useState<AttachmentMetadataWithProgress[]>([]);
 
   const messageThreadProps = usePropsFor(MessageThread);
   const sendBoxProps = usePropsFor(SendBox);
 
   const updateFileUploadProgress = (fileId: string, progress: number, complete: boolean = false) => {
-    allActiveFileUploads.current = updateProgressForOneFile(allActiveFileUploads.current, fileId, progress, complete);
-    setActiveFileUploads(allActiveFileUploads.current);
+    allAttachmentsWithProgress.current = updateProgressForOneFile(allAttachmentsWithProgress.current, fileId, progress, complete);
+    setAttachmentsWithProgress(allAttachmentsWithProgress.current);
   };
 
   const completeFileUpload = (fileId: string, attachmentMetadata: AttachmentMetadata) => {
@@ -72,17 +72,17 @@ export default function ChatComponents(): JSX.Element {
   const onChange = (files: FileList | null) => {
     if (!files) return;
     setFiles(Array.from(files));
-    allActiveFileUploads.current = Array.from(files).map((file) => ({
-      filename: file.name,
+    allAttachmentsWithProgress.current = Array.from(files).map((file) => ({
+      name: file.name,
       id: file.name,
       progress: 0,
     }));
-    setActiveFileUploads(allActiveFileUploads.current);
+    setAttachmentsWithProgress(allAttachmentsWithProgress.current);
   };
 
   const onCancelFileUpload = (fileId: string) => {
-    allActiveFileUploads.current = allActiveFileUploads.current.filter((upload) => upload.id !== fileId);
-    setActiveFileUploads(allActiveFileUploads.current);
+    allAttachmentsWithProgress.current = allAttachmentsWithProgress.current.filter((upload) => upload.id !== fileId);
+    setAttachmentsWithProgress(allAttachmentsWithProgress.current);
   };
 
   const onSendMessage = async (message: string) => {
@@ -94,9 +94,9 @@ export default function ChatComponents(): JSX.Element {
       },
     });
 
-    allActiveFileUploads.current = [];
+    allAttachmentsWithProgress.current = [];
     completedFileUploads.current = [];
-    setActiveFileUploads([]);
+    setAttachmentsWithProgress([]);
   };
 
   return (
@@ -105,8 +105,8 @@ export default function ChatComponents(): JSX.Element {
       {sendBoxProps && (
         <SendBox
           {...sendBoxProps}
-          activeFileUploads={activeFileUploads}
-          onCancelFileUpload={onCancelFileUpload}
+          attachmentsWithProgress={attachmentsWithProgress}
+          onCancelAttachmentUpload={onCancelFileUpload}
           onSendMessage={onSendMessage}
         />
       )}
@@ -126,12 +126,12 @@ export default function ChatComponents(): JSX.Element {
 }
 
 const updateProgressForOneFile = (
-  allActiveFileUploads: ActiveFileUpload[],
+  allAttachmentsWithProgress: AttachmentMetadataWithProgress[],
   fileId: string,
   progress: number,
   complete: boolean
 ) => {
-  return allActiveFileUploads.map((active) => {
+  return allAttachmentsWithProgress.map((active) => {
     if (active.id === fileId) {
       return {
         ...active,
