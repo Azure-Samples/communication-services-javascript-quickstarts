@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Embedded call composite basic example</title>
+
+  <!-- Ensure that fonts have loaded before tests are run -->
+  <!-- <link rel="stylesheet" href="index.css" /> -->
+</head>
+
+<body>
+  <div id="outbound-call-composite-container"></div>
+  <button id="start-call-button">Show Calling Experience</button>
+  <!-- replace with https://github.com/Azure/communication-ui-library/releases/latest/download/outboundCallComposite.js for development and prototyping -->
+  <script src="./outboundCallComposite.js"></script>
+  <script type="module">
+    const createCallingExperience = async () => {
+      const userId = {
+        communicationUserId: "<Enter your local user ACS ID here>",
+      };
+      const token = "<Enter your local user ACS Token here>";
+      const displayName = "<Enter your DisplayName here>";
+
+      const callAdapter = await outboundCallComposite.loadCallComposite(
+        {
+          userId: userId,
+          token: token,
+          displayName: displayName,
+          targetCallees: [
+            {
+              teamsAppId: "<Enter your Teams voice application ID here>",
+              cloud: "public",
+            },
+          ], // Provide the identifier you want to call, can be flat as a string.
+        },
+        document.getElementById("outbound-call-composite-container")
+      );
+
+      window.onbeforeunload = () => {
+        callAdapter.dispose();
+      };
+      const callContainer = document.getElementById(
+        "outbound-call-composite-container"
+      );
+      callContainer.style.height = "22rem";
+      callContainer.style.width = "32rem";
+      callContainer.style.position = "absolute";
+      callContainer.style.bottom = "1rem";
+      callContainer.style.right = "1rem";
+      callContainer.style.boxShadow = "0 0 0.5rem 0";
+      callContainer.style.borderRadius = "1rem";
+      callContainer.style.padding = "0.5rem";
+    };
+    const startCallButton = document.getElementById("start-call-button");
+    startCallButton.onclick = createCallingExperience;
+  </script>
+</body>
