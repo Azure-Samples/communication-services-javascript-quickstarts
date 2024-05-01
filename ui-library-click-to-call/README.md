@@ -64,7 +64,7 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-## Cross platform JavaScript bundle
+## Cross platform JavaScript bundle (Beta)
 
 This project also includes a bundle that can be used to run the `React` based `CallComposite`, pre-configured for use as a click
 to call experience. This bundle and a sample `index.html` file can be found in the `cross-platform-js` folder and can be used by other frameworks by importing it through a script tag.
