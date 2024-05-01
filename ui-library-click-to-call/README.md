@@ -105,6 +105,6 @@ const callAdapter = await outboundCallComposite.loadCallComposite(
 ```
 
 ### Running the bundle
-from the root of the `ui-library-click-to-call` folder run `npm run start:js` after in the browser go to [http://localhost:3000](http://localhost:3000) you will then be greeted with a simplified example of click to call with the `CallComposite` configuration page as the start point after the `show calling experience` button is actioned.
+There is no need to install any packages, using [npm](https://nodejs.org/en/learn/getting-started/an-introduction-to-the-npm-package-manager) from the root of the `ui-library-click-to-call` folder run `npm run start:js` after in the browser go to [http://localhost:3000](http://localhost:3000) you will then be greeted with a simplified example of click to call with the `CallComposite` configuration page as the start point after the `show calling experience` button is actioned.
 
 <img src="./media/splash-screen.png" alt="splash screen with calling experience in waiting state" width=450px>
