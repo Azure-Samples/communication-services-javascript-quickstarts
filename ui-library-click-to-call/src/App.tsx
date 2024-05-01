@@ -14,6 +14,7 @@ import { CallAdd20Regular, Dismiss20Regular } from "@fluentui/react-icons";
 import logo from "./logo.svg";
 
 import { CallingWidgetComponent } from "./components/CallingWidgetComponent";
+import { isValidTeamsAppId, isValidToken, isValidUserId } from "./utils";
 
 registerIcons({
   icons: { dismiss: <Dismiss20Regular />, callAdd: <CallAdd20Regular /> },
@@ -46,15 +47,14 @@ function App() {
     teamsAppIdentifier,
   };
 
-  if (!token || !userId || !teamsAppIdentifier) {
+  if (!isValidToken(token) || !isValidUserId(userId) || !isValidTeamsAppId(teamsAppIdentifier)) {
     return (
-      <Stack verticalAlign="center" style={{ height: "100%", width: "100%" }}>
+      <Stack horizontalAlign="center" verticalAlign="center" style={{ height: "40rem", width: "100%" }}>
         <Spinner
-          label={"Getting user credentials from server"}
           ariaLive="assertive"
           labelPosition="top"
         />
-        ;
+        <Text variant="large">Invalid token, local userId or teamsAppId</Text>
       </Stack>
     );
   }
