@@ -7,6 +7,24 @@ Calling Widget is a tool that is meant for allowing instant interaction, whether
 
 If you want to just try it out follow the instructions below. If you are interested in information on how to build it into your application and how this sample is constructed please checkout our [tutorial here](https://learn.microsoft.com/en-us/azure/communication-services/tutorials/calling-widget/calling-widget-overview).
 
+## Pre-requisites to running the application
+To run and edit the code in this project, you'll require a code editor and terminal. We recommend using [VSCode](https://code.visualstudio.com/Download) for optimal functionality.
+
+In order to use this application as intended, you **need** to complete the following tutorials. Contact your Teams admin if you do not have access to Teams Admin Center.
+- [Join a Teams call queue from a calling application](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-call-queue)
+- [Join a Teams auto attendant from a calling application](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-auto-attendant)
+
+[Download the repository](https://github.com/Azure-Samples/communication-services-javascript-quickstarts/archive/refs/heads/main.zip) and extract the zip file. Alternatively, you can get the repo through the github CLI.
+```bash
+git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git
+```
+
+Finally, you will need to make sure you have [NodeJS](https://nodejs.org/en/download/) installed on your machine. You can check if you have it with the following command, the latest LTS is recommended.
+```bash
+node -v
+```
+
+This project is found in the `ui-library-click-to-call` directory.
 ## The React application
 <img src="./media/splash-screen-react.png" width=450px>
 
