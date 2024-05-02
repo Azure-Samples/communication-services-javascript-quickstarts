@@ -17,7 +17,7 @@ In order to use this application as intended you **need** to complete the follow
 git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git
 ```
 
-Finally you will need to make sure you have [NodeJS](https://nodejs.org/en/download/) installed on your machine. You can check if you have it with the following command. Latest LTS is recommended.
+Finally you will need to make sure you have [NodeJS](https://nodejs.org/en/download/) installed on your machine. You can check if you have it with the following command, the latest LTS is recommended.
 ```bash
 node -v
 ```
