@@ -7,25 +7,40 @@ Calling Widget is a tool that is meant for allowing instant interaction, whether
 
 If you want to just try it out follow the instructions below. If you are interested in information on how to build it into your application and how this sample is constructed please checkout our [tutorial here](https://learn.microsoft.com/en-us/azure/communication-services/tutorials/calling-widget/calling-widget-overview).
 
+### Pick your platform
+
+In this sample we have 2 different setups for you to try out.
+
+- [React application quickstart](#the-react-application) - You should use this if you are more comfortable with Node and React
+- [JS bundle quickstart (beta)](#cross-platform-javascript-bundle-beta) - This is the setup you should run if you're more into frameworks other than React with a very simple setup
+
+The pre-requisites need to be met for both setups in the next section.
+
 ## Pre-requisites to running the application
+
 To run and edit the code in this project, you'll require a code editor and terminal. We recommend using [VSCode](https://code.visualstudio.com/Download) for optimal functionality.
 
 In order to use this application as intended, you **need** to complete the following tutorials. Contact your Teams admin if you do not have access to Teams Admin Center.
+
 - [Join a Teams call queue from a calling application](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-call-queue)
 - [Join a Teams auto attendant from a calling application](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-auto-attendant)
 
 [Download the repository](https://github.com/Azure-Samples/communication-services-javascript-quickstarts/archive/refs/heads/main.zip) and extract the zip file. Alternatively, you can get the repo through the github CLI.
+
 ```bash
 git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git
 ```
 
 Finally, you will need to make sure you have [NodeJS](https://nodejs.org/en/download/) installed on your machine. You can check if you have it with the following command, the latest LTS is recommended.
+
 ```bash
 node -v
 ```
 
 This project is found in the `ui-library-click-to-call` directory.
+
 ## The React application
+
 <img src="./media/splash-screen-react.png" width=450px>
 
 To setup the completed `React` project, In the `ui-library-click-to-call` directory, run:
@@ -38,6 +53,7 @@ After the install is done go to the `src` folder and find the `App.tsx` file.
 There are input values for the `token`, `userId` and `teamsAppIdentifier`.
 
 `./src/App.tsx`
+
 ```typescript
 /**
  * Token for local user.
@@ -84,6 +100,7 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 ## Cross platform JavaScript bundle (Beta)
 
+<a name="cross-platform"></a>
 This project also includes a bundle that can be used to run the `React` based `CallComposite`, pre-configured for use as a click
 to call experience. This bundle and a sample `index.html` file can be found in the `cross-platform-js` folder and can be used by other frameworks by importing it through a script tag.
 
@@ -96,6 +113,7 @@ to call experience. This bundle and a sample `index.html` file can be found in t
 In the `index.html` file find the `userId`, `token`, and `displayName` values and enter yor information like in the `React` app.
 
 `./cross-platform-js/index.html`
+
 ```javascript
 const userId = { communicationUserId: "<Enter your local user ACS ID here>" };
 const token = "<Enter your local user ACS Token here>";
@@ -105,6 +123,7 @@ const displayName = "<Enter your DisplayName here>";
 Then set your `teamsAppId` in the `targetCallees` property of the `loadCallComposite` function
 
 `./cross-platform-js/index.html`
+
 ```javascript
 const callAdapter = await outboundCallComposite.loadCallComposite(
   {
@@ -123,6 +142,7 @@ const callAdapter = await outboundCallComposite.loadCallComposite(
 ```
 
 ### Running the bundle
+
 There is no need to install any packages, using [npm](https://nodejs.org/en/learn/getting-started/an-introduction-to-the-npm-package-manager) from the root of the `ui-library-click-to-call` folder run `npm run start:js` after in the browser go to [http://localhost:3000](http://localhost:3000) you will then be greeted with a simplified example of click to call with the `CallComposite` configuration page as the start point after the `show calling experience` button is actioned.
 
 <img src="./media/splash-screen.png" alt="splash screen with calling experience in waiting state" width=450px>
