@@ -12,7 +12,10 @@ In order to use this application as intended you **need** to complete the follow
 - [Join a Teams call queue from a calling application](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-call-queue)
 - [Join a Teams auto attendant from a calling application](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-auto-attendant)
 
-[Download the repository](https://github.com/Azure-Samples/communication-services-javascript-quickstarts/archive/refs/heads/main.zip)
+[Download the repository](https://github.com/Azure-Samples/communication-services-javascript-quickstarts/archive/refs/heads/main.zip) and extract the zip file. Alternatively you can get the repo through the github CLI.
+```bash
+git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git
+```
 
 ## The React application
 <img src="./media/splash-screen-react.png" width=450px>
