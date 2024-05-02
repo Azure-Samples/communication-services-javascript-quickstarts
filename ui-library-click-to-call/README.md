@@ -8,7 +8,8 @@ Calling Widget is a tool that is meant for allowing instant interaction, whether
 If you want to just try it out follow the instructions below. If you are interested in information on how to build it into your application and how this sample is constructed please checkout our [tutorial here](https://learn.microsoft.com/en-us/azure/communication-services/tutorials/calling-widget/calling-widget-overview).
 
 ## Pre-requisites to running the application
-In order to use this application as intended you **need** to complete the following tutorials.
+You will need in order to run and edit the code in this project a code editor and terminal, [VSCode](https://code.visualstudio.com/Download) is recommended.
+In order to use this application as intended you **need** to complete the following tutorials. Contact your Teams admin if you do not have access to Teams Admin Center.
 - [Join a Teams call queue from a calling application](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-call-queue)
 - [Join a Teams auto attendant from a calling application](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-auto-attendant)
 
