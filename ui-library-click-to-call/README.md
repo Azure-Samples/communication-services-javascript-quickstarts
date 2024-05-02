@@ -17,6 +17,12 @@ In order to use this application as intended you **need** to complete the follow
 git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git
 ```
 
+Finally you will need to make sure you have [NodeJS](https://nodejs.org/en/download/) installed on your machine. You can check if you have it with the following command. Latest LTS is recommended.
+```bash
+node -v
+```
+
+This project is found in the `ui-library-click-to-call` directory.
 ## The React application
 <img src="./media/splash-screen-react.png" width=450px>
 
