@@ -7,6 +7,13 @@ Calling Widget is a tool that is meant for allowing instant interaction, whether
 
 If you want to just try it out follow the instructions below. If you are interested in information on how to build it into your application and how this sample is constructed please checkout our [tutorial here](https://learn.microsoft.com/en-us/azure/communication-services/tutorials/calling-widget/calling-widget-overview).
 
+## Pre-requisites to running the application
+In order to use this application as intended you **need** to complete the following tutorials.
+- [Join a Teams call queue from a calling application](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-call-queue)
+- [Join a Teams auto attendant from a calling application](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-auto-attendant)
+
+[Download the repository](https://github.com/Azure-Samples/communication-services-javascript-quickstarts/archive/refs/heads/main.zip)
+
 ## The React application
 <img src="./media/splash-screen-react.png" width=450px>
 
