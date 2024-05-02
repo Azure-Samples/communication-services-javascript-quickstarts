@@ -1,0 +1,46 @@
+#start-call-button {
+  border: none;
+}
+
+h1 {
+  background: none;
+  border: 0;
+  color: rgb(var(--colour-text-and-icon-3, 118, 118, 118));
+  align-items: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.4285714286;
+  margin: 0;
+  padding: 1rem 0.25rem;
+  text-align: center;
+  outline: none;
+}
+
+#logo-img {
+  width: 120px;
+}
+
+#help-button-row {
+  padding: 0.5rem;
+  flex-direction: row;
+  display: flex;
+  justify-content: center;
+}
+
+#help-option-container {
+  flex: 50%;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+  margin-left: 7px;
+  margin-right: 7px;
+}
+
+#help-button-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+  padding: 1rem;
+}

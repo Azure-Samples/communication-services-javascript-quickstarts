@@ -5,21 +5,85 @@
   <title>Embedded call composite basic example</title>
 
   <!-- Ensure that fonts have loaded before tests are run -->
-  <!-- <link rel="stylesheet" href="index.css" /> -->
+  <link rel="stylesheet" href="index.css" />
 </head>
 
 <body>
   <div id="outbound-call-composite-container"></div>
-  <button id="start-call-button">Show Calling Experience</button>
+  <img width="90px" height="36px" src="./assets/ikea.png" alt="logo" />
+
+  <div id="help-button-container">
+    <h1>Where do you need help?</h1>
+    <div id="help-button-row">
+      <div id="help-option-container">
+        <img
+          id="help-option"
+          width="150px"
+          src="./assets/living-room.png"
+          alt=""
+        />
+        <h1>Living Room</h1>
+      </div>
+      <div id="help-option-container">
+        <img id="help-option" width="150px" src="./assets/bedroom.png" alt="" />
+        <h1>Bedroom</h1>
+      </div>
+      <div id="help-option-container">
+        <img id="help-option" width="150px" src="./assets/kitchen.png" alt="" />
+        <h1>Kitchen</h1>
+      </div>
+    </div>
+    <div id="help-button-row">
+      <div id="help-option-container">
+        <img id="help-option" width="150px" src="./assets/outdoor.png" alt="" />
+        <h1>Outdoor</h1>
+      </div>
+      <div id="help-option-container">
+        <img id="help-option" width="150px" src="./assets/dining.png" alt="" />
+        <h1>Dining</h1>
+      </div>
+      <div id="help-option-container">
+        <img
+          id="help-option"
+          width="150px"
+          src="./assets/bathroom.png"
+          alt=""
+        />
+        <h1>Bathroom</h1>
+      </div>
+    </div>
+    <div id="help-button-row">
+      <div id="help-option-container">
+        <img id="help-option" width="150px" src="./assets/laundry.png" alt="" />
+        <h1>Laundry</h1>
+      </div>
+      <div id="help-option-container">
+        <img
+          id="help-option"
+          width="150px"
+          src="./assets/baby-kids-room.png"
+          alt=""
+        />
+        <h1>Baby & Kids Room</h1>
+      </div>
+      <div id="help-option-container">
+        <img id="help-option" width="150px" src="./assets/hallway.png" alt="" />
+        <h1>Hallway</h1>
+      </div>
+    </div>
+  </div>
+
   <!-- replace with https://github.com/Azure/communication-ui-library/releases/latest/download/outboundCallComposite.js for development and prototyping -->
   <script src="./outboundCallComposite.js"></script>
   <script type="module">
     const createCallingExperience = async () => {
       const userId = {
-        communicationUserId: "<Enter your local user ACS ID here>",
+        communicationUserId:
+          "<Enter your Local ACS User ID>",
       };
-      const token = "<Enter your local user ACS Token here>";
-      const displayName = "<Enter your DisplayName here>";
+      const token =
+        "Enter your local ACS token here";
+      const displayName = "Customer in need";
 
       const callAdapter = await outboundCallComposite.loadCallComposite(
         {
@@ -28,7 +92,7 @@
           displayName: displayName,
           targetCallees: [
             {
-              teamsAppId: "<Enter your Teams voice application ID here>",
+              teamsAppId: "Enter your Teams App ID",
               cloud: "public",
             },
           ], // Provide the identifier you want to call, can be flat as a string.
@@ -51,7 +115,7 @@
       callContainer.style.borderRadius = "1rem";
       callContainer.style.padding = "0.5rem";
     };
-    const startCallButton = document.getElementById("start-call-button");
+    const startCallButton = document.getElementById("help-option");
     startCallButton.onclick = createCallingExperience;
   </script>
 </body>
