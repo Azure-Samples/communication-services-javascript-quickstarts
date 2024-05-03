@@ -12,39 +12,39 @@
   <div id="outbound-call-composite-container"></div>
   <img width="90px" height="36px" src="./assets/ikea.png" alt="logo" />
 
-  <div id="help-button-container">
+  <div class="help-button-container">
     <h1>Where do you need help?</h1>
-    <div id="help-button-row">
-      <div id="help-option-container">
+    <div class="help-button-row">
+      <div class="help-option-container">
         <img
-          id="help-option"
+          class="help-option"
           width="150px"
           src="./assets/living-room.png"
           alt=""
         />
         <h1>Living Room</h1>
       </div>
-      <div id="help-option-container">
-        <img id="help-option" width="150px" src="./assets/bedroom.png" alt="" />
+      <div class="help-option-container">
+        <img class="help-option" width="150px" src="./assets/bedroom.png" alt="" />
         <h1>Bedroom</h1>
       </div>
-      <div id="help-option-container">
-        <img id="help-option" width="150px" src="./assets/kitchen.png" alt="" />
+      <div class="help-option-container">
+        <img class="help-option" width="150px" src="./assets/kitchen.png" alt="" />
         <h1>Kitchen</h1>
       </div>
     </div>
-    <div id="help-button-row">
-      <div id="help-option-container">
-        <img id="help-option" width="150px" src="./assets/outdoor.png" alt="" />
+    <div class="help-button-row">
+      <div class="help-option-container">
+        <img class="help-option" width="150px" src="./assets/outdoor.png" alt="" />
         <h1>Outdoor</h1>
       </div>
-      <div id="help-option-container">
-        <img id="help-option" width="150px" src="./assets/dining.png" alt="" />
+      <div class="help-option-container">
+        <img class="help-option" width="150px" src="./assets/dining.png" alt="" />
         <h1>Dining</h1>
       </div>
-      <div id="help-option-container">
+      <div class="help-option-container">
         <img
-          id="help-option"
+          class="help-option"
           width="150px"
           src="./assets/bathroom.png"
           alt=""
@@ -52,22 +52,22 @@
         <h1>Bathroom</h1>
       </div>
     </div>
-    <div id="help-button-row">
-      <div id="help-option-container">
-        <img id="help-option" width="150px" src="./assets/laundry.png" alt="" />
+    <div class="help-button-row">
+      <div class="help-option-container">
+        <img class="help-option" width="150px" src="./assets/laundry.png" alt="" />
         <h1>Laundry</h1>
       </div>
-      <div id="help-option-container">
+      <div class="help-option-container">
         <img
-          id="help-option"
+          class="help-option"
           width="150px"
           src="./assets/baby-kids-room.png"
           alt=""
         />
         <h1>Baby & Kids Room</h1>
       </div>
-      <div id="help-option-container">
-        <img id="help-option" width="150px" src="./assets/hallway.png" alt="" />
+      <div class="help-option-container">
+        <img class="help-option" width="150px" src="./assets/hallway.png" alt="" />
         <h1>Hallway</h1>
       </div>
     </div>
@@ -79,10 +79,10 @@
     const createCallingExperience = async () => {
       const userId = {
         communicationUserId:
-          "<Enter your Local ACS User ID>",
+          "<Enter your local ACS userId>",
       };
       const token =
-        "Enter your local ACS token here";
+        "<Enter your local ACS token>";
       const displayName = "Customer in need";
 
       const callAdapter = await outboundCallComposite.loadCallComposite(
@@ -92,7 +92,7 @@
           displayName: displayName,
           targetCallees: [
             {
-              teamsAppId: "Enter your Teams App ID",
+              teamsAppId: "<Enter your local Teams App Id>",
               cloud: "public",
             },
           ], // Provide the identifier you want to call, can be flat as a string.
@@ -114,11 +114,14 @@
       callContainer.style.boxShadow = "0 0 0.5rem 0";
       callContainer.style.borderRadius = "1rem";
       callContainer.style.padding = "0.5rem";
+      callContainer.style.backgroundColor = "white";
     };
     /**
      * This needs to be repeated for each image in the dom thats to start a call 
      */
-    const startCallButton = document.getElementById("help-option");
-    startCallButton.onclick = createCallingExperience;
+    const startCallButtons = document.getElementsByClassName("help-option");
+    for (let i = 0; i < startCallButtons.length; i++) {
+      startCallButtons[i].onclick = createCallingExperience;
+    }
   </script>
 </body>

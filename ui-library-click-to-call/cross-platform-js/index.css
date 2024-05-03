@@ -16,18 +16,18 @@ h1 {
   outline: none;
 }
 
-#logo-img {
+.logo-img {
   width: 120px;
 }
 
-#help-button-row {
+.help-button-row {
   padding: 0.5rem;
   flex-direction: row;
   display: flex;
   justify-content: center;
 }
 
-#help-option-container {
+.help-option-container {
   flex: 50%;
   justify-content: center;
   align-items: center;
@@ -36,7 +36,7 @@ h1 {
   margin-right: 7px;
 }
 
-#help-button-container {
+.help-button-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
