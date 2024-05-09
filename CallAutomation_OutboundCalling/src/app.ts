@@ -2,17 +2,23 @@ import { config } from 'dotenv';
 import fs from "fs";
 import express, { Application } from 'express';
 import { PhoneNumberIdentifier } from "@azure/communication-common";
-import {  } from "@azure/communication-common";
+import { } from "@azure/communication-common";
 import {
-	CallAutomationClient, 
+	CallAutomationClient,
 	CallConnection,
 	CallMediaRecognizeChoiceOptions,
 	RecognitionChoice,
-	TextSource, 
-	CallInvite,	
+	TextSource,
+	CallInvite,
 	CreateCallOptions,
 	CallMedia,
-	DtmfTone } from "@azure/communication-call-automation";
+	DtmfTone,
+	parseCallAutomationEvent,
+	CallAutomationEvent,
+	MediaStreamingOptions,
+	StartMediaStreamingOptions,
+	StopMediaStreamingOptions
+} from "@azure/communication-call-automation";
 import path from 'path';
 
 config();
@@ -55,44 +61,55 @@ async function createOutboundCall() {
 		},
 	};
 
-	const options: CreateCallOptions ={ callIntelligenceOptions: { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT } };
+	const mediaStreamingOptions: MediaStreamingOptions = {
+		transportUrl: "wss://f08b-2409-40c2-11a0-1063-9c00-ece1-b35a-c92f.ngrok-free.app",
+		transportType: "websocket",
+		contentType: "audio",
+		audioChannelType: "mixed",
+		startMediaStreaming: false
+	}
+
+	const options: CreateCallOptions = {
+		callIntelligenceOptions: { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT },
+		mediaStreamingOptions: mediaStreamingOptions
+	};
 	console.log("Placing outbound call...");
 	acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks", options);
 }
 
-async function handlePlay(callConnectionMedia:CallMedia, textContent:string){
-	const play : TextSource = { text:textContent , voiceName: "en-US-NancyNeural", kind: "textSource"}
+async function handlePlay(callConnectionMedia: CallMedia, textContent: string) {
+	const play: TextSource = { text: textContent, voiceName: "en-US-NancyNeural", kind: "textSource" }
 	await callConnectionMedia.playToAll([play]);
 }
 
-async function getChoices(){
-	const choices: RecognitionChoice[] = [ 
-		{  
-			label: confirmLabel, 
-			phrases: [ "Confirm", "First", "One" ], 
-			tone: DtmfTone.One 
-		}, 
-		{ 
-			label: cancelLabel, 
-			phrases: [ "Cancel", "Second", "Two" ], 
-			tone: DtmfTone.Two 
-		} 
-	]; 
+async function getChoices() {
+	const choices: RecognitionChoice[] = [
+		{
+			label: confirmLabel,
+			phrases: ["Confirm", "First", "One"],
+			tone: DtmfTone.One
+		},
+		{
+			label: cancelLabel,
+			phrases: ["Cancel", "Second", "Two"],
+			tone: DtmfTone.Two
+		}
+	];
 
 	return choices;
 }
 
-async function startRecognizing(callMedia: CallMedia, textToPlay: string, context: string){
-	const playSource: TextSource = { text: textToPlay, voiceName: "en-US-NancyNeural", kind: "textSource" }; 
+async function startRecognizing(callMedia: CallMedia, textToPlay: string, context: string) {
+	const playSource: TextSource = { text: textToPlay, voiceName: "en-US-NancyNeural", kind: "textSource" };
 
-	const recognizeOptions: CallMediaRecognizeChoiceOptions = { 
-		choices: await getChoices(), 
-		interruptPrompt: false, 
-		initialSilenceTimeoutInSeconds: 10, 
-		playPrompt: playSource, 
-		operationContext: context, 
+	const recognizeOptions: CallMediaRecognizeChoiceOptions = {
+		choices: await getChoices(),
+		interruptPrompt: false,
+		initialSilenceTimeoutInSeconds: 10,
+		playPrompt: playSource,
+		operationContext: context,
 		kind: "callMediaRecognizeChoiceOptions"
-	}; 
+	};
 
 	await callMedia.startRecognizing(callee, recognizeOptions)
 }
@@ -110,38 +127,85 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 	console.log("Call back event received, callConnectionId=%s, serverCallId=%s, eventType=%s", callConnectionId, serverCallId, event.type);
 	callConnection = acsClient.getCallConnection(callConnectionId);
 	const callMedia = callConnection.getCallMedia();
+
+	//event parser.
+	let callAutomationEvent: CallAutomationEvent = parseCallAutomationEvent(event);
+	console.log(`Event:--> ${callAutomationEvent.kind}`);
+	switch (callAutomationEvent.kind) {
+		case "MediaStreamingStarted":
+			console.log(callAutomationEvent.mediaStreamingUpdateResult.contentType);
+			console.log(callAutomationEvent.mediaStreamingUpdateResult.mediaStreamingStatus);
+			console.log(callAutomationEvent.mediaStreamingUpdateResult.mediaStreamingStatusDetails);
+			break;
+		case "MediaStreamingStopped":
+			console.log(callAutomationEvent.mediaStreamingUpdateResult.contentType);
+			console.log(callAutomationEvent.mediaStreamingUpdateResult.mediaStreamingStatus);
+			console.log(callAutomationEvent.mediaStreamingUpdateResult.mediaStreamingStatusDetails);
+			break;
+		case "MediaStreamingFailed":
+			console.log(callAutomationEvent.resultInformation.message);
+			console.log(callAutomationEvent.resultInformation.code);
+			console.log(callAutomationEvent.resultInformation.subCode);
+			break;
+		default:
+			console.log("Waiting...")
+	}
+
 	if (event.type === "Microsoft.Communication.CallConnected") {
 		// (Optional) Add a Microsoft Teams user to the call.  Uncomment the below snippet to enable Teams Interop scenario.
 		// await acsClient.getCallConnection(callConnectionId).addParticipant({
 		// 	targetParticipant: { microsoftTeamsUserId: process.env.TARGET_TEAMS_USER_ID },
 		// 	sourceDisplayName: "Jack (Contoso Tech Support)"
 		// });
-
 		console.log("Received CallConnected event");
+
+		const streamingOptions: StartMediaStreamingOptions = {
+			operationContext: "startMediaStreamingContext",
+			operationCallbackUri: "https://d329-2409-40c2-11a0-1063-9c00-ece1-b35a-c92f.ngrok-free.app"
+		}
+
+		// //With options.
+		// await callMedia.startMediaStreaming(streamingOptions);
+
+		//Without options.
+		await callMedia.startMediaStreaming();
+		console.log("Streaming Started.")
+
 		await startRecognizing(callMedia, mainMenu, "");
 	}
 	else if (event.type === "Microsoft.Communication.RecognizeCompleted") {
-		if(eventData.recognitionType === "choices"){
+		if (eventData.recognitionType === "choices") {
 			var context = eventData.operationContext;
-			const labelDetected = eventData.choiceResult.label; 
-        	const phraseDetected = eventData.choiceResult.recognizedPhrase;
-        	console.log("Recognition completed, labelDetected=%s, phraseDetected=%s, context=%s", labelDetected, phraseDetected, eventData.operationContext);
-			const textToPlay = labelDetected === confirmLabel ? confirmText : cancelText;			
+			const labelDetected = eventData.choiceResult.label;
+			const phraseDetected = eventData.choiceResult.recognizedPhrase;
+			console.log("Recognition completed, labelDetected=%s, phraseDetected=%s, context=%s", labelDetected, phraseDetected, eventData.operationContext);
+			const textToPlay = labelDetected === confirmLabel ? confirmText : cancelText;
+
+			const stopMediaStreamingOptions: StopMediaStreamingOptions = {
+				operationCallbackUri: "https://d329-2409-40c2-11a0-1063-9c00-ece1-b35a-c92f.ngrok-free.app"
+			}
+
+			// // with option.
+			// await callMedia.stopMediaStreaming(stopMediaStreamingOptions);
+
+			// without option.
+			await callMedia.stopMediaStreaming();
+
 			await handlePlay(callMedia, textToPlay);
 		}
-	} 
+	}
 	else if (event.type === "Microsoft.Communication.RecognizeFailed") {
 		var context = eventData.operationContext;
-		if(context !== "" && (context === retryContext)){
+		if (context !== "" && (context === retryContext)) {
 			await handlePlay(callMedia, noResponse);
 		}
-		else{
+		else {
 			const resultInformation = eventData.resultInformation
 			var code = resultInformation.subCode;
 			console.log("Recognize failed: data=%s", JSON.stringify(eventData, null, 2));
 
 			let replyText = '';
-			switch(code){
+			switch (code) {
 				case 8510:
 				case 8511:
 					replyText = customerQueryTimeout;
@@ -160,8 +224,8 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 	else if (event.type === "Microsoft.Communication.PlayCompleted" || event.type === "Microsoft.Communication.playFailed") {
 		console.log("Terminating call.");
 		hangUpCall();
-	} 
-	
+	}
+
 	res.sendStatus(200);
 });
 
