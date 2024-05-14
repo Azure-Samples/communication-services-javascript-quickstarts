@@ -16,10 +16,10 @@
   <script type="module">
     const createCallingExperience = async () => {
       const userId = {
-        communicationUserId: "<Enter your local user ACS ID here>",
+        communicationUserId: "<Enter your ACS User id here>",
       };
-      const token = "<Enter your local user ACS Token here>";
-      const displayName = "<Enter your DisplayName here>";
+      const token = "<Enter your ACS Token here>";
+      const displayName = "<Enter your display name here>";
 
       const callAdapter = await outboundCallComposite.loadCallComposite(
         {
@@ -28,12 +28,25 @@
           displayName: displayName,
           targetCallees: [
             {
-              teamsAppId: "<Enter your Teams voice application ID here>",
+              teamsAppId: "<Enter your Teams voice app ID here>",
               cloud: "public",
             },
           ], // Provide the identifier you want to call, can be flat as a string.
         },
-        document.getElementById("outbound-call-composite-container")
+        document.getElementById("outbound-call-composite-container"),
+        {
+          options: {
+            callControls: {
+              cameraButton: true,
+              screenShareButton: false,
+              moreButton: true,
+              peopleButton: false,
+              raiseHandButton: false,
+              displayType: "compact",
+            },
+            localVideoTile: { position: "floating" },
+          },
+        }
       );
 
       window.onbeforeunload = () => {
@@ -42,8 +55,8 @@
       const callContainer = document.getElementById(
         "outbound-call-composite-container"
       );
-      callContainer.style.height = "22rem";
-      callContainer.style.width = "32rem";
+      callContainer.style.height = "37rem";
+      callContainer.style.width = "37rem";
       callContainer.style.position = "absolute";
       callContainer.style.bottom = "1rem";
       callContainer.style.right = "1rem";
