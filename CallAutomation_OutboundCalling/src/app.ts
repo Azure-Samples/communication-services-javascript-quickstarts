@@ -2,17 +2,23 @@ import { config } from 'dotenv';
 import fs from "fs";
 import express, { Application } from 'express';
 import { PhoneNumberIdentifier } from "@azure/communication-common";
-import {  } from "@azure/communication-common";
+import { } from "@azure/communication-common";
 import {
-	CallAutomationClient, 
+	CallAutomationClient,
 	CallConnection,
 	CallMediaRecognizeChoiceOptions,
 	RecognitionChoice,
-	TextSource, 
-	CallInvite,	
+	TextSource,
+	CallInvite,
 	CreateCallOptions,
 	CallMedia,
-	DtmfTone } from "@azure/communication-call-automation";
+	DtmfTone,
+	CallMediaRecognizeDtmfOptions,
+	CallMediaRecognizeSpeechOptions,
+	CallMediaRecognizeSpeechOrDtmfOptions,
+	FileSource,
+	SsmlSource
+} from "@azure/communication-call-automation";
 import path from 'path';
 
 config();
@@ -40,6 +46,7 @@ const invalidAudio = `I’m sorry, I didn’t understand your response, please t
 const confirmLabel = `Confirm`;
 const cancelLabel = `Cancel`;
 const retryContext = `Retry`;
+const MEDIA_URI = process.env.CALLBACK_URI + "/audioprompt/"
 
 async function createAcsClient() {
 	const connectionString = process.env.CONNECTION_STRING || "";
@@ -55,46 +62,94 @@ async function createOutboundCall() {
 		},
 	};
 
-	const options: CreateCallOptions ={ callIntelligenceOptions: { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT } };
+	const options: CreateCallOptions = { callIntelligenceOptions: { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT } };
 	console.log("Placing outbound call...");
 	acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks", options);
 }
 
-async function handlePlay(callConnectionMedia:CallMedia, textContent:string){
-	const play : TextSource = { text:textContent , voiceName: "en-US-NancyNeural", kind: "textSource"}
+async function handlePlay(callConnectionMedia: CallMedia, textContent: string) {
+	const play: TextSource = { text: textContent, voiceName: "en-US-NancyNeural", kind: "textSource" }
 	await callConnectionMedia.playToAll([play]);
 }
 
-async function getChoices(){
-	const choices: RecognitionChoice[] = [ 
-		{  
-			label: confirmLabel, 
-			phrases: [ "Confirm", "First", "One" ], 
-			tone: DtmfTone.One 
-		}, 
-		{ 
-			label: cancelLabel, 
-			phrases: [ "Cancel", "Second", "Two" ], 
-			tone: DtmfTone.Two 
-		} 
-	]; 
+async function getChoices() {
+	const choices: RecognitionChoice[] = [
+		{
+			label: confirmLabel,
+			phrases: ["Confirm", "First", "One"],
+			tone: DtmfTone.One
+		},
+		{
+			label: cancelLabel,
+			phrases: ["Cancel", "Second", "Two"],
+			tone: DtmfTone.Two
+		}
+	];
 
 	return choices;
 }
 
-async function startRecognizing(callMedia: CallMedia, textToPlay: string, context: string){
-	const playSource: TextSource = { text: textToPlay, voiceName: "en-US-NancyNeural", kind: "textSource" }; 
+async function startRecognizing(callMedia: CallMedia, textToPlay: string, context: string) {
+	//const playSource: TextSource = { text: textToPlay, voiceName: "en-US-NancyNeural", kind: "textSource" };
 
-	const recognizeOptions: CallMediaRecognizeChoiceOptions = { 
-		choices: await getChoices(), 
-		interruptPrompt: false, 
-		initialSilenceTimeoutInSeconds: 10, 
-		playPrompt: playSource, 
-		operationContext: context, 
+	const prompts: (FileSource | TextSource | SsmlSource)[] = [
+		{ kind: "fileSource", url: MEDIA_URI + "MainMenu.wav" },
+		{ voiceName: "en-US-NancyNeural", kind: "textSource", text: "Hi press one to continue." },
+		{ voiceName: "en-US-NancyNeural", kind: "textSource", text: "Hi, Please confirm or cancel." },
+	];
+	const recognizeChoiceOptions: CallMediaRecognizeChoiceOptions = {
+		choices: await getChoices(),
+		interruptPrompt: false,
+		initialSilenceTimeoutInSeconds: 10,
+		playPrompts: prompts,
+		operationContext: "OpenQuestionChoice",
 		kind: "callMediaRecognizeChoiceOptions"
-	}; 
+	};
 
-	await callMedia.startRecognizing(callee, recognizeOptions)
+	const recognizeDtmfOptions: CallMediaRecognizeDtmfOptions = {
+		playPrompts: prompts,
+		interToneTimeoutInSeconds: 5,
+		initialSilenceTimeoutInSeconds: 15,
+		maxTonesToCollect: 4,
+		interruptPrompt: false,
+		operationContext: "OpenQuestionDtmf",
+		kind: "callMediaRecognizeDtmfOptions",
+	};
+
+	const recognizeSpeechOptions: CallMediaRecognizeSpeechOptions = {
+		endSilenceTimeoutInSeconds: 1,
+		playPrompts: prompts,
+		operationContext: "OpenQuestionSpeech",
+		kind: "callMediaRecognizeSpeechOptions",
+	}
+
+	const recongnizeSpeechOrDtmfOptions: CallMediaRecognizeSpeechOrDtmfOptions = {
+		maxTonesToCollect: 2,
+		endSilenceTimeoutInSeconds: 1,
+		playPrompts: prompts,
+		initialSilenceTimeoutInSeconds: 30,
+		interruptPrompt: true,
+		operationContext: "OpenQuestionSpeechOrDtmf",
+		kind: "callMediaRecognizeSpeechOrDtmfOptions",
+	}
+
+
+	// const recognizeOptions: CallMediaRecognizeChoiceOptions = {
+	// 	choices: await getChoices(),
+	// 	interruptPrompt: false,
+	// 	initialSilenceTimeoutInSeconds: 10,
+	// 	playPrompt: playSource,
+	// 	operationContext: context,
+	// 	kind: "callMediaRecognizeChoiceOptions"
+	// };
+
+	await callMedia.startRecognizing(callee, recognizeChoiceOptions)
+
+	//await callMedia.startRecognizing(callee, recognizeDtmfOptions)
+
+	//await callMedia.startRecognizing(callee, recognizeSpeechOptions)
+
+	//await callMedia.startRecognizing(callee, recongnizeSpeechOrDtmfOptions)
 }
 
 async function hangUpCall() {
@@ -121,27 +176,45 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 		await startRecognizing(callMedia, mainMenu, "");
 	}
 	else if (event.type === "Microsoft.Communication.RecognizeCompleted") {
-		if(eventData.recognitionType === "choices"){
+		if (eventData.recognitionType === "choices") {
 			var context = eventData.operationContext;
-			const labelDetected = eventData.choiceResult.label; 
-        	const phraseDetected = eventData.choiceResult.recognizedPhrase;
-        	console.log("Recognition completed, labelDetected=%s, phraseDetected=%s, context=%s", labelDetected, phraseDetected, eventData.operationContext);
-			const textToPlay = labelDetected === confirmLabel ? confirmText : cancelText;			
+			const labelDetected = eventData.choiceResult.label;
+			const phraseDetected = eventData.choiceResult.recognizedPhrase;
+			console.log("Recognition completed, labelDetected=%s, phraseDetected=%s, context=%s", labelDetected, phraseDetected, eventData.operationContext);
+			const textToPlay = labelDetected === confirmLabel ? confirmText : cancelText;
 			await handlePlay(callMedia, textToPlay);
 		}
-	} 
+		else if (eventData.recognitionType === "speech") {
+			const text = eventData.speechResult.speech;
+			console.log("Recognition completed, text=%s, context=%s", text, eventData.operationContext);
+			await handlePlay(callMedia, "This is coming from speech test.");
+		}
+		else if (eventData.recognitionType === "dtmf") {
+			const tones = eventData.dtmfResult.tones;
+			console.log(`DTMF TONES:-->${tones}`);
+			console.log(`Current context-->${eventData.operationContext}`);
+			await handlePlay(callMedia, "This is coming from DTMF test.");
+		}
+		else if (eventData.recognitionType === "sppechOrDtmf") {
+			await handlePlay(callMedia, "This is coming from  speech or dtmf test.");
+		}
+		else {
+			await handlePlay(callMedia, "good bye.");
+		}
+
+	}
 	else if (event.type === "Microsoft.Communication.RecognizeFailed") {
 		var context = eventData.operationContext;
-		if(context !== "" && (context === retryContext)){
+		if (context !== "" && (context === retryContext)) {
 			await handlePlay(callMedia, noResponse);
 		}
-		else{
+		else {
 			const resultInformation = eventData.resultInformation
 			var code = resultInformation.subCode;
 			console.log("Recognize failed: data=%s", JSON.stringify(eventData, null, 2));
 
 			let replyText = '';
-			switch(code){
+			switch (code) {
 				case 8510:
 				case 8511:
 					replyText = customerQueryTimeout;
@@ -160,8 +233,8 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 	else if (event.type === "Microsoft.Communication.PlayCompleted" || event.type === "Microsoft.Communication.playFailed") {
 		console.log("Terminating call.");
 		hangUpCall();
-	} 
-	
+	}
+
 	res.sendStatus(200);
 });
 
