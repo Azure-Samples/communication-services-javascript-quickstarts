@@ -12,7 +12,8 @@ import {
 	CallInvite,	
 	CreateCallOptions,
 	CallMedia,
-	DtmfTone } from "@azure/communication-call-automation";
+	DtmfTone, 
+	PlayToAllOptions} from "@azure/communication-call-automation";
 import path from 'path';
 
 config();
@@ -26,6 +27,7 @@ app.use(express.json());
 let callConnectionId: string;
 let callConnection: CallConnection;
 let serverCallId: string;
+let correlationId: string;
 let callee: PhoneNumberIdentifier;
 let acsClient: CallAutomationClient;
 
@@ -57,12 +59,18 @@ async function createOutboundCall() {
 
 	const options: CreateCallOptions ={ callIntelligenceOptions: { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT } };
 	console.log("Placing outbound call...");
-	acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks", options);
+	const result = await acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks", options);
+	console.log("answered by", result.callConnectionProperties.answeredby);
+
 }
 
 async function handlePlay(callConnectionMedia:CallMedia, textContent:string){
 	const play : TextSource = { text:textContent , voiceName: "en-US-NancyNeural", kind: "textSource"}
-	await callConnectionMedia.playToAll([play]);
+	const playInterrupt : TextSource = { text:"Interrupt prompt message" , voiceName: "en-US-NancyNeural", kind: "textSource"}
+	const playInterruptT : PlayToAllOptions = { interruptCallMediaOperation: false }
+	const playInterruptF : PlayToAllOptions = { interruptCallMediaOperation: false }
+	await callConnectionMedia.playToAll([play], playInterruptF);
+	await callConnectionMedia.playToAll([playInterrupt], playInterruptT);
 }
 
 async function getChoices(){
@@ -84,12 +92,17 @@ async function getChoices(){
 
 async function startRecognizing(callMedia: CallMedia, textToPlay: string, context: string){
 	const playSource: TextSource = { text: textToPlay, voiceName: "en-US-NancyNeural", kind: "textSource" }; 
-
+	const playSources: (TextSource )[] = [
+		{ voiceName: "en-US-NancyNeural", kind: "textSource", text: "Recognize Prompt One" },
+		{ voiceName: "en-US-NancyNeural", kind: "textSource", text: "Recognize Prompt Two" },
+		{ voiceName: "en-US-NancyNeural", kind: "textSource", text: "Hi, Please confirm or cancel." },
+	];
 	const recognizeOptions: CallMediaRecognizeChoiceOptions = { 
 		choices: await getChoices(), 
 		interruptPrompt: false, 
 		initialSilenceTimeoutInSeconds: 10, 
-		playPrompt: playSource, 
+		// playPrompt: playSource,
+		playPrompts:playSources,
 		operationContext: context, 
 		kind: "callMediaRecognizeChoiceOptions"
 	}; 
@@ -107,7 +120,9 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 	const eventData = event.data;
 	callConnectionId = eventData.callConnectionId;
 	serverCallId = eventData.serverCallId;
-	console.log("Call back event received, callConnectionId=%s, serverCallId=%s, eventType=%s", callConnectionId, serverCallId, event.type);
+	correlationId = eventData.correlationId;
+	console.log("Call back event received, callConnectionId=%s, serverCallId=%s, correlationId=%s, eventType=%s", callConnectionId, serverCallId, correlationId, event.type);
+	console.log("Call back event received", eventData);
 	callConnection = acsClient.getCallConnection(callConnectionId);
 	const callMedia = callConnection.getCallMedia();
 	if (event.type === "Microsoft.Communication.CallConnected") {
@@ -151,9 +166,13 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 			await startRecognizing(callMedia, replyText, retryContext);
 		}
 	}
+	else if (event.type === "Microsoft.Communication.PlayStarted") {
+		console.log("Play Started Event Triggerd.");
+		// hangUpCall();
+	} 
 	else if (event.type === "Microsoft.Communication.PlayCompleted" || event.type === "Microsoft.Communication.playFailed") {
 		console.log("Terminating call.");
-		hangUpCall();
+		// hangUpCall();
 	} 
 	
 	res.sendStatus(200);
