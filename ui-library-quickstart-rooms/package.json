@@ -6,6 +6,7 @@
     "@azure/communication-calling": "1.24.1",
     "@azure/communication-chat": "1.5.0",
     "@azure/communication-react": "1.16.0",
+    "@azure/communication-rooms": "1.1.0",
     "@fluentui/react": "8.117.1",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",
