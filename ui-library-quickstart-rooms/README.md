@@ -21,7 +21,8 @@ This code sample showcases the ability to join a Rooms call using the CallCompos
 - Create a room and add you user id to the room using the provided sample scripts from the Rooms client [quickstart](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/rooms/get-started-rooms?pivots=programming-language-javascript&tabs=windows).
     - First, enter your connection string from your Communication Services resource in `node .\src\scripts\settings.js` to run the Rooms client scripts.
     - Run the sample script to create a room by running `node .\src\scripts\createRoom.js` and copy the room id.
-    - Run the sample script to add the user to the created room by running `node .\src\scripts\addParticipantToRoom.js <user id> <room id>`
+    - Run the sample script to add the user as Presenter to the created room by running `node .\src\scripts\addParticipantToRoom.js <user id> <room id>`
+        - You can also change the role of the user to Attendee or Consumer in `.\src\scripts\addParticipantToRoom.js` and rerun the script
 
 ## Run the code
 
