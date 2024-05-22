@@ -19,11 +19,13 @@ The pre-requisites need to be met for both setups in the next section.
 ## Pre-requisites to running the application
 
 To run and edit the code in this project, you'll require a code editor and terminal. We recommend using [VSCode](https://code.visualstudio.com/Download) for optimal functionality.
-
+ 
 In order to use this application as intended, you **need** to complete the following tutorials. Contact your Teams admin if you do not have access to Teams Admin Center.
 
 - [Join a Teams call queue from a calling application](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-call-queue)
 - [Join a Teams auto attendant from a calling application](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-auto-attendant)
+
+You also need to have a [Azure Communication Services Resource](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/create-communication-resource?branch=pr-en-us-275623&tabs=windows&pivots=platform-azp) to mint [ID's and Tokens](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/identity/access-tokens?tabs=windows&pivots=platform-azportal) for your local user.
 
 [Download the repository](https://github.com/Azure-Samples/communication-services-javascript-quickstarts/archive/refs/heads/main.zip) and extract the zip file. Alternatively, you can get the repo through the github CLI.
 
@@ -50,7 +52,7 @@ To setup the completed `React` project, In the `ui-library-click-to-call` direct
 ### Swap placeholders for identifiers
 
 After the install is done go to the `src` folder and find the `App.tsx` file.
-There are input values for the `token`, `userId` and `teamsAppIdentifier`.
+There are input values for the [ACS token, userId](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/identity/access-tokens?tabs=windows&pivots=platform-azportal) and your [Resource Account's](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/get-started-teams-auto-attendant?branch=pr-en-us-275623#find-object-id-for-auto-attendant) `teamsAppIdentifier` object ID.
 
 `./src/App.tsx`
 
@@ -110,7 +112,7 @@ to call experience. This bundle and a sample `index.html` file can be found in t
 
 ### Setting up the bundle
 
-In the `index.html` file find the `userId`, `token`, and `displayName` values and enter yor information like in the `React` app.
+In the `index.html` file find the `userId`, `token`, and `displayName` values and enter your information, as similarly done in the [React app](#swap-placeholders-for-identifiers).
 
 `./cross-platform-js/index.html`
 
@@ -143,6 +145,12 @@ const callAdapter = await outboundCallComposite.loadCallComposite(
 
 ### Running the bundle
 
-There is no need to install any packages, using [npm](https://nodejs.org/en/learn/getting-started/an-introduction-to-the-npm-package-manager) from the root of the `ui-library-click-to-call` folder run `npm run start:js` after in the browser go to [http://localhost:3000](http://localhost:3000) you will then be greeted with a simplified example of click to call with the `CallComposite` configuration page as the start point after the `show calling experience` button is actioned.
+You do not need need to install any packages.
+Rather, using  [npm](https://nodejs.org/en/learn/getting-started/an-introduction-to-the-npm-package-manager) from the root of the `ui-library-click-to-call` folder run 
+
+```bash
+npm run start:js
+```
+now in the browser, go to [http://localhost:3000](http://localhost:3000) you will then be greeted with a simplified example of click to call with the `CallComposite` configuration page as the start point after the `show calling experience` button is actioned.
 
 <img src="./media/splash-screen.png" alt="splash screen with calling experience in waiting state" width=450px>
