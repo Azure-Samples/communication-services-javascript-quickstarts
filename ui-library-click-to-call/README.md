@@ -150,6 +150,6 @@ There is no need to install any packages, using [npm](https://nodejs.org/en/lear
 ```bash
 npm run start:js
 ```
- after in the browser go to [http://localhost:3000](http://localhost:3000) you will then be greeted with a simplified example of click to call with the `CallComposite` configuration page as the start point after the `show calling experience` button is actioned.
+now in the browser, go to [http://localhost:3000](http://localhost:3000) you will then be greeted with a simplified example of click to call with the `CallComposite` configuration page as the start point after the `show calling experience` button is actioned.
 
 <img src="./media/splash-screen.png" alt="splash screen with calling experience in waiting state" width=450px>
