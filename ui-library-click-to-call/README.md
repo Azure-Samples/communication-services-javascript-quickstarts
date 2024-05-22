@@ -145,7 +145,8 @@ const callAdapter = await outboundCallComposite.loadCallComposite(
 
 ### Running the bundle
 
-There is no need to install any packages, using [npm](https://nodejs.org/en/learn/getting-started/an-introduction-to-the-npm-package-manager) from the root of the `ui-library-click-to-call` folder run 
+You do not need need to install any packages.
+Rather, using  [npm](https://nodejs.org/en/learn/getting-started/an-introduction-to-the-npm-package-manager) from the root of the `ui-library-click-to-call` folder run 
 
 ```bash
 npm run start:js
