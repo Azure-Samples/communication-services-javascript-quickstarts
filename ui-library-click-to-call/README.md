@@ -112,7 +112,7 @@ to call experience. This bundle and a sample `index.html` file can be found in t
 
 ### Setting up the bundle
 
-In the `index.html` file find the `userId`, `token`, and `displayName` values and enter your information like is used in the [React app](#swap-placeholders-for-identifiers).
+In the `index.html` file find the `userId`, `token`, and `displayName` values and enter your information, as similarly done in the [React app](#swap-placeholders-for-identifiers).
 
 `./cross-platform-js/index.html`
 
