@@ -7,7 +7,7 @@ const handler = () => {
 
 // alternatively, you can return different actions based on the attachment or message
 export const customHandler = (attachment: AttachmentMetadata, message?: ChatMessage) => {
-  if (attachment.extension === "pdf") {
+  if (attachment.name.includes("pdf")) {
     return [
       {
         title: "Custom button",
