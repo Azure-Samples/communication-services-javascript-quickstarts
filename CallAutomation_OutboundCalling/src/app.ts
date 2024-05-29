@@ -1,18 +1,20 @@
 import { config } from 'dotenv';
 import fs from "fs";
 import express, { Application } from 'express';
-import { PhoneNumberIdentifier } from "@azure/communication-common";
-import {  } from "@azure/communication-common";
+import { CommunicationUserIdentifier, PhoneNumberIdentifier, isCommunicationUserIdentifier } from "@azure/communication-common";
+import { } from "@azure/communication-common";
 import {
-	CallAutomationClient, 
+	CallAutomationClient,
 	CallConnection,
 	CallMediaRecognizeChoiceOptions,
 	RecognitionChoice,
-	TextSource, 
-	CallInvite,	
+	TextSource,
+	CallInvite,
 	CreateCallOptions,
 	CallMedia,
-	DtmfTone } from "@azure/communication-call-automation";
+	DtmfTone,
+	CallLocator
+} from "@azure/communication-call-automation";
 import path from 'path';
 
 config();
@@ -47,6 +49,29 @@ async function createAcsClient() {
 	console.log("Initialized ACS Client.");
 }
 
+async function connectCall() {
+
+	const callLocator: CallLocator = {
+		id: "99493585848985044",
+		kind: "roomCallLocator"
+	}
+
+	// const callLocator: CallLocator = {
+	// 	id: "29228d3e-040e-4656-a70e-890ab4e173e5",
+	// 	kind: "groupCallLocator"
+	// }
+
+	// const callLocator: CallLocator = {
+	// 	id: "aHR0cHM6Ly9hcGkuZmxpZ2h0cHJveHkuc2t5cGUuY29tL2FwaS92Mi9jcC9jb252LWpwZWEtMDItcHJvZC1ha3MuY29udi5za3lwZS5jb20vY29udi8wSVhqRjhQUWxrbVUxVlFMVzloUmtBP2k9MTAtNjAtMS0xNzImZT02Mzg1MTkxODQ4MzcxNDUxMjA",
+	// 	kind: "serverCallLocator"
+	// }
+
+	const response = await acsClient.connectCall(callLocator, process.env.CALLBACK_URI + "/api/callbacks")
+	console.log("CORRELATION ID:-->" + response.callConnectionProperties.correlationId);
+	console.log("CONNECTION ID:-->" + response.callConnectionProperties.callConnectionId);
+	console.log("connecting call....")
+}
+
 async function createOutboundCall() {
 	const callInvite: CallInvite = {
 		targetParticipant: callee,
@@ -55,44 +80,44 @@ async function createOutboundCall() {
 		},
 	};
 
-	const options: CreateCallOptions ={ callIntelligenceOptions: { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT } };
+	const options: CreateCallOptions = { callIntelligenceOptions: { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT } };
 	console.log("Placing outbound call...");
 	acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks", options);
 }
 
-async function handlePlay(callConnectionMedia:CallMedia, textContent:string){
-	const play : TextSource = { text:textContent , voiceName: "en-US-NancyNeural", kind: "textSource"}
+async function handlePlay(callConnectionMedia: CallMedia, textContent: string) {
+	const play: TextSource = { text: textContent, voiceName: "en-US-NancyNeural", kind: "textSource" }
 	await callConnectionMedia.playToAll([play]);
 }
 
-async function getChoices(){
-	const choices: RecognitionChoice[] = [ 
-		{  
-			label: confirmLabel, 
-			phrases: [ "Confirm", "First", "One" ], 
-			tone: DtmfTone.One 
-		}, 
-		{ 
-			label: cancelLabel, 
-			phrases: [ "Cancel", "Second", "Two" ], 
-			tone: DtmfTone.Two 
-		} 
-	]; 
+async function getChoices() {
+	const choices: RecognitionChoice[] = [
+		{
+			label: confirmLabel,
+			phrases: ["Confirm", "First", "One"],
+			tone: DtmfTone.One
+		},
+		{
+			label: cancelLabel,
+			phrases: ["Cancel", "Second", "Two"],
+			tone: DtmfTone.Two
+		}
+	];
 
 	return choices;
 }
 
-async function startRecognizing(callMedia: CallMedia, textToPlay: string, context: string){
-	const playSource: TextSource = { text: textToPlay, voiceName: "en-US-NancyNeural", kind: "textSource" }; 
+async function startRecognizing(callMedia: CallMedia, textToPlay: string, context: string) {
+	const playSource: TextSource = { text: textToPlay, voiceName: "en-US-NancyNeural", kind: "textSource" };
 
-	const recognizeOptions: CallMediaRecognizeChoiceOptions = { 
-		choices: await getChoices(), 
-		interruptPrompt: false, 
-		initialSilenceTimeoutInSeconds: 10, 
-		playPrompt: playSource, 
-		operationContext: context, 
+	const recognizeOptions: CallMediaRecognizeChoiceOptions = {
+		choices: await getChoices(),
+		interruptPrompt: false,
+		initialSilenceTimeoutInSeconds: 10,
+		playPrompt: playSource,
+		operationContext: context,
 		kind: "callMediaRecognizeChoiceOptions"
-	}; 
+	};
 
 	await callMedia.startRecognizing(callee, recognizeOptions)
 }
@@ -118,30 +143,79 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 		// });
 
 		console.log("Received CallConnected event");
-		await startRecognizing(callMedia, mainMenu, "");
+		// await startRecognizing(callMedia, mainMenu, "");
+
+		// const callInvite: CallInvite = {
+		// 	targetParticipant: { phoneNumber: process.env.TARGET_PHONE_NUMBER },
+		// 	sourceCallIdNumber: {
+		// 		phoneNumber: process.env.ACS_RESOURCE_PHONE_NUMBER || "",
+		// 	},
+		// };
+
+		const callInvite: CallInvite = {
+			targetParticipant: { communicationUserId: "" },
+		};
+
+		const response = await callConnection.addParticipant(callInvite)
+		console.log(response.invitationId)
+		const participants = await callConnection.listParticipants();
+		participants.values.forEach(element => {
+			console.log(JSON.stringify(element.identifier))
+		});
+	}
+	else if (event.type === "Microsoft.Communication.ConnectFailed") {
+		const resultInformation = eventData.resultInformation
+		console.log(JSON.stringify(resultInformation));
+	}
+	else if (event.type === "Microsoft.Communication.AddParticipantSucceeded") {
+		const participants = await callConnection.listParticipants();
+		participants.values.forEach(element => {
+			console.log(JSON.stringify(element.identifier))
+		});
+
+		// const participant: PhoneNumberIdentifier = {
+		// 	phoneNumber: process.env.TARGET_PHONE_NUMBER
+		// }
+
+		const participant: CommunicationUserIdentifier = {
+			communicationUserId: ""
+		}
+
+		await callConnection.removeParticipant(participant)
+		//await callConnection.hangUp(false);
+
+	}
+	else if (event.type === "Microsoft.Communication.AddParticipantFailed") {
+		const resultInformation = eventData.resultInformation
+		console.log(JSON.stringify(resultInformation));
+		await callConnection.hangUp(false);
+	}
+	else if (event.type === "Microsoft.Communication.RemoveParticipantSucceeded") {
+		console.log("Participant removed successfully..")
+		await callConnection.hangUp(false);
 	}
 	else if (event.type === "Microsoft.Communication.RecognizeCompleted") {
-		if(eventData.recognitionType === "choices"){
+		if (eventData.recognitionType === "choices") {
 			var context = eventData.operationContext;
-			const labelDetected = eventData.choiceResult.label; 
-        	const phraseDetected = eventData.choiceResult.recognizedPhrase;
-        	console.log("Recognition completed, labelDetected=%s, phraseDetected=%s, context=%s", labelDetected, phraseDetected, eventData.operationContext);
-			const textToPlay = labelDetected === confirmLabel ? confirmText : cancelText;			
+			const labelDetected = eventData.choiceResult.label;
+			const phraseDetected = eventData.choiceResult.recognizedPhrase;
+			console.log("Recognition completed, labelDetected=%s, phraseDetected=%s, context=%s", labelDetected, phraseDetected, eventData.operationContext);
+			const textToPlay = labelDetected === confirmLabel ? confirmText : cancelText;
 			await handlePlay(callMedia, textToPlay);
 		}
-	} 
+	}
 	else if (event.type === "Microsoft.Communication.RecognizeFailed") {
 		var context = eventData.operationContext;
-		if(context !== "" && (context === retryContext)){
+		if (context !== "" && (context === retryContext)) {
 			await handlePlay(callMedia, noResponse);
 		}
-		else{
+		else {
 			const resultInformation = eventData.resultInformation
 			var code = resultInformation.subCode;
 			console.log("Recognize failed: data=%s", JSON.stringify(eventData, null, 2));
 
 			let replyText = '';
-			switch(code){
+			switch (code) {
 				case 8510:
 				case 8511:
 					replyText = customerQueryTimeout;
@@ -160,8 +234,8 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 	else if (event.type === "Microsoft.Communication.PlayCompleted" || event.type === "Microsoft.Communication.playFailed") {
 		console.log("Terminating call.");
 		hangUpCall();
-	} 
-	
+	}
+
 	res.sendStatus(200);
 });
 
@@ -201,6 +275,13 @@ app.get('/outboundCall', async (req, res) => {
 	};
 
 	await createOutboundCall();
+	res.redirect('/');
+});
+
+// GET endpoint to place phone call
+app.get('/connectCall', async (req, res) => {
+
+	await connectCall();
 	res.redirect('/');
 });
 
