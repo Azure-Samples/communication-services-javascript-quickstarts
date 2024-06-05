@@ -1,4 +1,10 @@
-import { usePropsFor, MessageThread, SendBox, AttachmentMetadataWithProgress, AttachmentMetadata } from "@azure/communication-react";
+import {
+  usePropsFor,
+  MessageThread,
+  SendBox,
+  AttachmentMetadataInProgress,
+  AttachmentMetadata,
+} from "@azure/communication-react";
 import React from "react";
 import axios from "axios";
 import Form from "form-data";
@@ -8,20 +14,25 @@ export default function ChatComponents(): JSX.Element {
   // We use a ref variable to keep a track of all the active file uploads and their progress.
   // Since a ref variable preserves it's value across re-renders, it ensures that modifying the progress of one file upload
   // doesn't overwrite the other file uploads.
-  const allAttachmentsWithProgress = React.useRef<AttachmentMetadataWithProgress[]>([]);
+  const allAttachmentsWithProgress = React.useRef<AttachmentMetadataInProgress[]>([]);
   // We use a ref variable to keep a track of all the completed file uploads since a ref variable preserves it's state
   // across re-renders.
   const completedFileUploads = React.useRef<AttachmentMetadata[] | []>([]);
   // Tracks the files selected by the file input.
   const [files, setFiles] = React.useState<File[] | []>();
   // Tracks the progress of the file uploads. Passed to SendBox component for driving file upload UI.
-  const [attachmentsWithProgress, setAttachmentsWithProgress] = React.useState<AttachmentMetadataWithProgress[]>([]);
+  const [attachmentsWithProgress, setAttachmentsWithProgress] = React.useState<AttachmentMetadataInProgress[]>([]);
 
   const messageThreadProps = usePropsFor(MessageThread);
   const sendBoxProps = usePropsFor(SendBox);
 
   const updateFileUploadProgress = (fileId: string, progress: number, complete: boolean = false) => {
-    allAttachmentsWithProgress.current = updateProgressForOneFile(allAttachmentsWithProgress.current, fileId, progress, complete);
+    allAttachmentsWithProgress.current = updateProgressForOneFile(
+      allAttachmentsWithProgress.current,
+      fileId,
+      progress,
+      complete
+    );
     setAttachmentsWithProgress(allAttachmentsWithProgress.current);
   };
 
@@ -31,7 +42,6 @@ export default function ChatComponents(): JSX.Element {
   };
 
   const uploadFile = async (file: File): Promise<void> => {
-    const extension = file.name.split(".").pop() || "";
     const uniqueFileName = `${v4()}-${file.name}`;
     const data = new Form();
     data.append("file", file);
@@ -49,7 +59,6 @@ export default function ChatComponents(): JSX.Element {
         completeFileUpload(file.name, {
           id: uniqueFileName,
           name: file.name,
-          extension,
           url: res.data.url,
         });
       })
@@ -105,7 +114,7 @@ export default function ChatComponents(): JSX.Element {
       {sendBoxProps && (
         <SendBox
           {...sendBoxProps}
-          attachmentsWithProgress={attachmentsWithProgress}
+          attachments={attachmentsWithProgress}
           onCancelAttachmentUpload={onCancelFileUpload}
           onSendMessage={onSendMessage}
         />
@@ -126,7 +135,7 @@ export default function ChatComponents(): JSX.Element {
 }
 
 const updateProgressForOneFile = (
-  allAttachmentsWithProgress: AttachmentMetadataWithProgress[],
+  allAttachmentsWithProgress: AttachmentMetadataInProgress[],
   fileId: string,
   progress: number,
   complete: boolean
