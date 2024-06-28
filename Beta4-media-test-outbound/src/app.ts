@@ -24,6 +24,9 @@ import {
 	HoldOptions,
 	UnholdOptions,
 	FileSource,
+	PlayToAllOptions,
+	PlayOptions,
+	TransferCallToParticipantOptions,
 
 } from "@azure/communication-call-automation";
 import path from 'path';
@@ -68,16 +71,16 @@ async function createOutboundCall() {
 			phoneNumber: process.env.ACS_RESOURCE_PHONE_NUMBER || "",
 		},
 	};
-	// const mediaStreamingOptions: MediaStreamingOptions = {
-	// 	transportUrl: "wss://7959-2409-40c2-119a-dfed-156f-2d5b-7ddb-db03.ngrok-free.app",
-	// 	transportType: "websocket",
-	// 	contentType: "audio",
-	// 	audioChannelType: "unmixed",
-	// 	startMediaStreaming: false
-	// }
+	const mediaStreamingOptions: MediaStreamingOptions = {
+		transportUrl: "wss://cc62-2409-40c2-4004-eced-cc09-9d15-d943-decd.ngrok-free.app",
+		transportType: "websocket",
+		contentType: "audio",
+		audioChannelType: "unmixed",
+		startMediaStreaming: false
+	}
 
 	// const transcriptionOptions: TranscriptionOptions = {
-	// 	transportUrl: "wss://7959-2409-40c2-119a-dfed-156f-2d5b-7ddb-db03.ngrok-free.app",
+	// 	transportUrl: "wss://cc62-2409-40c2-4004-eced-cc09-9d15-d943-decd.ngrok-free.app",
 	// 	transportType: "websocket",
 	// 	locale: "en-US",
 	// 	startTranscription: false
@@ -85,16 +88,32 @@ async function createOutboundCall() {
 
 	const options: CreateCallOptions = {
 		callIntelligenceOptions: { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT },
-		// mediaStreamingOptions: mediaStreamingOptions
+		mediaStreamingOptions: mediaStreamingOptions
 		// transcriptionOptions: transcriptionOptions
 	};
 	console.log("Placing outbound call...");
 	acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks", options);
 }
 
-async function handlePlay(callConnectionMedia: CallMedia, textContent: string) {
+async function handlePlay(callConnectionMedia: CallMedia, textContent: string, context: string) {
 	const play: TextSource = { text: textContent, voiceName: "en-US-NancyNeural", kind: "textSource" }
-	await callConnectionMedia.playToAll([play]);
+	const playToAllOptions: PlayToAllOptions = {
+		operationContext: context
+	}
+	await callConnectionMedia.playToAll([play], playToAllOptions);
+}
+
+async function handlePlayWithFileSource(callConnectionMedia: CallMedia, textContent: string, options: PlayOptions, context: string) {
+	const playSource: FileSource = {
+		url: MEDIA_URI + "MainMenu.wav",
+		kind: "fileSource",
+	};
+	const playToAllOptions: PlayToAllOptions = {
+		operationContext: context
+	}
+	//const playSource: TextSource = { text: textContent, voiceName: "en-US-NancyNeural", kind: "textSource" }
+	await callConnectionMedia.playToAll([playSource], playToAllOptions);
+	//await callConnectionMedia.play([playSource], [callee], options);
 }
 
 async function getChoices() {
@@ -185,10 +204,9 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 			console.log(callAutomationEvent.resultInformation.code);
 			console.log(callAutomationEvent.resultInformation.subCode);
 			break;
-		case "TranscriptionUpdated":
+		case "PlayStarted":
+			console.log("PlayStared Event received.")
 			console.log(callAutomationEvent.operationContext);
-			console.log(callAutomationEvent.transcriptionUpdate.transcriptionStatus);
-			console.log(callAutomationEvent.transcriptionUpdate.transcriptionStatusDetails);
 			break;
 		default:
 			console.log("Waiting...")
@@ -206,28 +224,32 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 		const properties = await getCallProperties(eventData.callConnectionId);
 		console.log("CORRELATION ID****--> " + properties.correlationId)
 		console.log("CALL CONNECTION ID****--> " + properties.callConnectionId)
+		console.log("Answered For:-> " + properties.answeredFor);
 
 		// const streamingOptions: StartMediaStreamingOptions = {
 		// 	operationContext: "startMediaStreamingContext",
-		// 	// operationCallbackUrl: process.env.CALLBACK_URI + "/api/callbacks"
+		// 	operationCallbackUrl: process.env.CALLBACK_URI + "/api/callbacks"
 		// }
-
-		// //With options.
 		// await callMedia.startMediaStreaming(streamingOptions);
 
 		//Without options.
-		// await callMedia.startMediaStreaming();
-		// console.log("Streaming Started.")
+		await callMedia.startMediaStreaming();
+
 
 		// await callMedia.startTranscription();
 
 		// const startTranscriptionOptions: StartTranscriptionOptions = {
-		// 	// locale: "en-AU",
+		// 	locale: "en-AU",
 		// 	operationContext: "startTranscriptionContext"
 		// }
 		// await callMedia.startTranscription(startTranscriptionOptions);
 
 		await startRecognizing(callMedia, mainMenu, "");
+
+		// const transferOptions: TransferCallToParticipantOptions = {
+		// 	sourceCallIdNumber: { phoneNumber: "" }
+		// }
+		// const repsonse = acsClient.getCallConnection(properties.callConnectionId).transferCallToParticipant({ phoneNumber: "" }, transferOptions)
 	}
 	else if (event.type === "Microsoft.Communication.RecognizeCompleted") {
 		if (eventData.recognitionType === "choices") {
@@ -239,12 +261,10 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 			// const stopMediaStreamingOptions: StopMediaStreamingOptions = {
 			// 	operationCallbackUrl: process.env.CALLBACK_URI + "/api/callbacks"
 			// }
-
-			// with option.
 			// await callMedia.stopMediaStreaming(stopMediaStreamingOptions);
 
 			// without option.
-			// await callMedia.stopMediaStreaming();
+			await callMedia.stopMediaStreaming();
 
 			// await callMedia.stopTranscription();
 
@@ -256,19 +276,19 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 			// await callMedia.updateTranscription("en-AU");
 
 			//const playSource: TextSource = { text: "You are on hold please wait.", voiceName: "en-US-NancyNeural", kind: "textSource" }
-			const playSource: FileSource = {
-				url: MEDIA_URI + "MainMenu.wav",
-				kind: "fileSource",
-			};
-			const options: HoldOptions = {
-				// playSource: playSource,
-				operationContext: "holdUserContext",
-				// operationCallbackUrl: process.env.CALLBACK_URI + "/api/callbacks"
-			}
+			// const playSource: FileSource = {
+			// 	url: MEDIA_URI + "MainMenu.wav",
+			// 	kind: "fileSource",
+			// };
+			// const options: HoldOptions = {
+			// 	// playSource: playSource,
+			// 	operationContext: "holdUserContext",
+			// 	// operationCallbackUrl: process.env.CALLBACK_URI + "/api/callbacks"
+			// }
 
-			const unholdOptions: UnholdOptions = {
-				operationContext: "unholdUserContext"
-			}
+			// const unholdOptions: UnholdOptions = {
+			// 	operationContext: "unholdUserContext"
+			// }
 
 			// // await callMedia.hold(callee);
 			// await callMedia.hold(callee, options);
@@ -277,19 +297,41 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 			// // const participant = await acsClient.getCallConnection(eventData.callConnectionId).getParticipant(callee);
 			// // await new Promise(f => setTimeout(f, 5000));
 			// // console.log("Is Participant on hold:--> " + JSON.stringify(participant))
-			await new Promise(f => setTimeout(f, 10000));
+			// await new Promise(f => setTimeout(f, 10000));
 			// await callMedia.unhold(callee);
-			await callMedia.unhold(callee, unholdOptions);
-			console.log('Paritcipant is unhold.')
+			// await callMedia.unhold(callee, unholdOptions);
+			// console.log('Paritcipant is unhold.')
+			//await callMedia.startMediaStreaming();
+			// const streamingOptions: StartMediaStreamingOptions = {
+			// 	operationContext: "startMediaStreamingContext",
+			// 	operationCallbackUrl: process.env.CALLBACK_URI + "/api/callbacks"
+			// }
+			// await callMedia.startMediaStreaming(streamingOptions);
+
+			// await callMedia.startTranscription();
+			// const startTranscriptionOptions: StartTranscriptionOptions = {
+			// 	locale: "en-AU",
+			// 	operationContext: "startTranscriptionContext"
+			// }
+			// await callMedia.startTranscription(startTranscriptionOptions);
+			// await callMedia.updateTranscription("en-US");
 
 			const textToPlay = labelDetected === confirmLabel ? confirmText : cancelText;
-			await handlePlay(callMedia, textToPlay);
+			await handlePlay(callMedia, textToPlay, "textSourceContext");
+
+			// const interruptOption: PlayToAllOptions = {
+			// 	loop: true,
+			// 	interruptCallMediaOperation: true,
+			// 	operationContext: "interruptOperationContext",
+			// 	operationCallbackUrl: process.env.CALLBACK_URI + "/api/callbacks"
+			// }
+			// await handlePlay(callMedia, "This is me barging the play", interruptOption);
 		}
 	}
 	else if (event.type === "Microsoft.Communication.RecognizeFailed") {
 		var context = eventData.operationContext;
 		if (context !== "" && (context === retryContext)) {
-			await handlePlay(callMedia, noResponse);
+			await handlePlay(callMedia, noResponse, undefined);
 		}
 		else {
 			const resultInformation = eventData.resultInformation
@@ -313,13 +355,74 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 			await startRecognizing(callMedia, replyText, retryContext);
 		}
 	}
+	else if (event.type === "Microsoft.Communication.CallTransferAccepted") {
+		console.log("Received CallTransferAccepted event")
+		console.log(`Call transfer test completed.`);
+		console.log(`Call automation has no control.`)
+	}
+	else if (event.type === "Microsoft.Communication.CallTransferFailed") {
+		console.log("Received CallTransferFailed event")
+		console.log(`Message:-->${eventData.resultInformation.message}`);
+	}
 	else if (event.type === "Microsoft.Communication.PlayCompleted" || event.type === "Microsoft.Communication.playFailed") {
 		console.log("Terminating call.");
+		console.log("**********************************")
 		// const stopTranscriptionOptions: StopTranscriptionOptions = {
 		// 	operationContext: "stopTranscriptionOptions"
 		// }
 		// await callMedia.stopTranscription(stopTranscriptionOptions);
 
+		//await callMedia.stopTranscription();
+
+
+		//await callMedia.stopMediaStreaming();
+		// const stopMediaStreamingOptions: StopMediaStreamingOptions = {
+		// 	operationCallbackUrl: process.env.CALLBACK_URI + "/api/callbacks"
+		// }
+		// await callMedia.stopMediaStreaming(stopMediaStreamingOptions);
+
+
+		// hangUpCall();
+
+		// if (eventData.operationContext === "textSourceContext") {
+		// 	//await callMedia.startMediaStreaming();
+		// 	// const streamingOptions: StartMediaStreamingOptions = {
+		// 	// 	operationContext: "startMediaStreamingContext",
+		// 	// 	operationCallbackUrl: process.env.CALLBACK_URI + "/api/callbacks"
+		// 	// }
+		// 	// await callMedia.startMediaStreaming(streamingOptions);
+		// 	//await callMedia.startTranscription();
+		// 	const startTranscriptionOptions: StartTranscriptionOptions = {
+		// 		locale: "en-AU",
+		// 		operationContext: "startTranscriptionContext"
+		// 	}
+		// 	await callMedia.startTranscription(startTranscriptionOptions);
+		// 	await callMedia.updateTranscription("en-US");
+		// 	await handlePlayWithFileSource(callMedia, noResponse, undefined, "fileSourceContext");
+		// }
+		// else if (eventData.operationContext === "fileSourceContext") {
+		// 	console.log("OPERATION CONTEXT:-->" + eventData.operationContext)
+		// 	//await callMedia.startMediaStreaming();
+		// 	// const streamingOptions: StartMediaStreamingOptions = {
+		// 	// 	operationContext: "startMediaStreamingContext",
+		// 	// 	operationCallbackUrl: process.env.CALLBACK_URI + "/api/callbacks"
+		// 	// }
+		// 	// await callMedia.startMediaStreaming(streamingOptions);
+
+		// 	//await callMedia.startTranscription();
+		// 	const startTranscriptionOptions: StartTranscriptionOptions = {
+		// 		locale: "en-AU",
+		// 		operationContext: "startTranscriptionContext"
+		// 	}
+		// 	await callMedia.startTranscription(startTranscriptionOptions);
+		// 	await callMedia.updateTranscription("en-US");
+		// 	await handlePlay(callMedia, "good bye", "goodbyeContext");
+		// }
+		// else {
+		// 	console.log("OPERATION CONTEXT:-->" + eventData.operationContext)
+		// 	hangUpCall();
+
+		// }
 		hangUpCall();
 	}
 
