@@ -12,7 +12,7 @@ const recordingStateElement = document.getElementById('recording-state');
 
 async function init() {
     const callClient = new CallClient();
-    const tokenCredential = new AzureCommunicationTokenCredential("<ACS access token>");
+    const tokenCredential = new AzureCommunicationTokenCredential("<USER ACCESS TOKEN>");
     callAgent = await callClient.createCallAgent(tokenCredential, { displayName: 'ACS user' });
     placeInteropGroupCallButton.disabled = false;
 }
