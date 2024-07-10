@@ -18,15 +18,19 @@ This code sample showcases the ability to join a Rooms call using the CallCompos
 - [Node.js](https://nodejs.org/en/) Active LTS and Maintenance LTS versions (8.11.1 and 10.14.1 recommended).
 - An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource). You will need the endpoint value for the resource
 - An identity with both VoIP and Chat scopes. Generate an identity using the [Azure Portal](https://docs.microsoft.com/azure/communication-services/quickstarts/identity/quick-create-identity).
-- Generate Room ID and add the generated user ID to the Room to be able to join the call [Quickstart: Create and manage a room resource](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/rooms/get-started-rooms?pivots=programming-language-csharp).
+- Create a room and add you user id to the room using the provided sample scripts from this Rooms API [quickstart](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/rooms/get-started-rooms?pivots=programming-language-javascript).
+    - First, enter your connection string from your Communication Services resource in `node .\src\scripts\settings.js` to run the Rooms client scripts.
+    - Run the sample script to create a room by running `node .\src\scripts\createRoom.js` and copy the room id.
+    - Run the sample script to add the user as Presenter to the created room by running `node .\src\scripts\addParticipantToRoom.js <user id> <room id>`
+        - You can also change the role of the user to Attendee or Consumer in `.\src\scripts\addParticipantToRoom.js` and rerun the script
 
 ## Run the code
 
 1. Run `npm i` on the directory of the project to install dependencies
-2. Swap placeholders for identifiers in the code.
-    - Go to the `src` folder and find the `app.tsx` file.
+2. Swap placeholders with values in the code.
+    - Go to the `src` folder and find the `App.tsx` file.
     - Enter the `USER_ID` and `TOKEN` for the identity you created.
-    - Also input value for the `ROOM_ID` to join the room and make sure the user is added to the room to be able to join the room.
+    - Enter the generated `ROOM_ID` to join the room and make sure the user is added to the room to be able to join the room.
     - Optional: You can update the display name to match a string value of your choice.
     - Save the file.
 4. Run `npm run start`
