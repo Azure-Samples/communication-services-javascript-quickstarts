@@ -18,7 +18,7 @@ This code sample showcases the ability to join a Rooms call using the CallCompos
 - [Node.js](https://nodejs.org/en/) Active LTS and Maintenance LTS versions (8.11.1 and 10.14.1 recommended).
 - An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource). You will need the endpoint value for the resource
 - An identity with both VoIP and Chat scopes. Generate an identity using the [Azure Portal](https://docs.microsoft.com/azure/communication-services/quickstarts/identity/quick-create-identity).
-- Create a room and add your user id to the room using the provided sample scripts based on this Rooms client [quickstart](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/rooms/get-started-rooms?pivots=programming-language-javascript).
+- Create a room and add your user id to the room by using the provided sample scripts which are based on this Rooms client [quickstart](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/rooms/get-started-rooms?pivots=programming-language-javascript).
     - First, enter your connection string from your Communication Services resource in `.\src\scripts\settings.js` to run the Rooms client scripts.
     - Create a room by running `node .\src\scripts\createRoom.js` and copy the room id from the output.
     - Add your user as a Presenter to the generated room by running `node .\src\scripts\addParticipantToRoom.js <USER_ID> <ROOM_ID>` with the corresponding ids
