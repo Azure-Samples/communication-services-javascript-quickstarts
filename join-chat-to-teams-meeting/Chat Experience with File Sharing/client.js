@@ -31,9 +31,14 @@ async function init() {
 
   let identityResponse = await identityClient.createUser();
   userId = identityResponse.communicationUserId;
-  console.log(`\nCreated an identity with ID: ${identityResponse.communicationUserId}`);
+  console.log(
+    `\nCreated an identity with ID: ${identityResponse.communicationUserId}`
+  );
 
-  let tokenResponse = await identityClient.getToken(identityResponse, ["voip", "chat"]);
+  let tokenResponse = await identityClient.getToken(identityResponse, [
+    "voip",
+    "chat",
+  ]);
 
   const { token, expiresOn } = tokenResponse;
   tokenString = token;
@@ -45,7 +50,10 @@ async function init() {
   callAgent = await callClient.createCallAgent(tokenCredential);
   callButton.disabled = false;
 
-  chatClient = new ChatClient(endpointUrl, new AzureCommunicationTokenCredential(token));
+  chatClient = new ChatClient(
+    endpointUrl,
+    new AzureCommunicationTokenCredential(token)
+  );
 
   console.log("Azure Communication Chat client created!");
 }
@@ -71,7 +79,9 @@ callButton.addEventListener("click", async () => {
   try {
     call = joinCall(meetingLinkInput.value, callAgent);
   } catch {
-    throw new Error("Could not join meeting - have you set your connection string?");
+    throw new Error(
+      "Could not join meeting - have you set your connection string?"
+    );
   }
 
   // Chat thread ID is provided from the call info, after connection.
@@ -117,12 +127,14 @@ async function renderReceivedMessage(event) {
   messages += `<div class="container lighter"> ${event.message} </div>`;
   messagesContainer.innerHTML = messages;
   console.log(event);
+  // filter out inline images from attachments
+  const imageAttachments = event.attachments?.filter(
+    (attachment) =>
+      attachment.attachmentType === "image" && !messages.includes(attachment.id)
+  );
   // Inject image tag for all image attachments
   var imageAttachmentHtml =
-    event.attachments
-      ?.filter(
-        (attachment) => attachment.attachmentType === "image" && !messages.includes(attachment.id)
-      )
+    imageAttachments
       .map((attachment) => renderImageAttachments(attachment))
       .join("") ?? "";
   messagesContainer.innerHTML += imageAttachmentHtml;
@@ -134,11 +146,6 @@ async function renderReceivedMessage(event) {
       .map((attachment) => renderFileAttachments(attachment))
       .join("") ?? "";
   messagesContainer.innerHTML += attachmentHtml;
-
-  // filter out inline images from attachments
-  const imageAttachments = event.attachments?.filter(
-    (attachment) => attachment.attachmentType === "image" && messages.includes(attachment.id)
-  );
 
   // fetch and render preview images
   fetchPreviewImages(imageAttachments);
