@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@azure/communication-calling": "1.25.1",
-    "@azure/communication-chat": "1.5.0",
-    "@azure/communication-react": "1.17.0",
+    "@azure/communication-calling": "^1.26.1",
+    "@azure/communication-chat": "^1.5.1",
+    "@azure/communication-react": "^1.18.1",
     "@fluentui/react": "8.117.1",
     "@testing-library/jest-dom": "^5.15.0",
     "@testing-library/react": "^11.2.7",
