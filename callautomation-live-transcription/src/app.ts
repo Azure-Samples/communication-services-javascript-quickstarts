@@ -6,8 +6,8 @@ import {
 	TextSource, AnswerCallResult,
 	CallIntelligenceOptions, PlayOptions,
 	CallMediaRecognizeDtmfOptions,
-	TranscriptionConfiguration,
-	CallLocator, StartRecordingOptions, CallInvite
+	TranscriptionOptions,
+	CallLocator, StartRecordingOptions, CallInvite,
 }
 	from "@azure/communication-call-automation";
 import { v4 as uuidv4 } from 'uuid';
@@ -75,7 +75,7 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 
 		return;
 	}
-	
+
 	if (event.eventType === "Microsoft.Communication.IncomingCall") {
 		callerId = eventData.from.rawId;
 		const uuid = uuidv4();
@@ -83,9 +83,9 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 		const incomingCallContext = eventData.incomingCallContext;
 		console.log(`Cognitive service endpoint:  ${process.env.COGNITIVE_SERVICE_ENDPOINT.trim()}`);
 		const callIntelligenceOptions: CallIntelligenceOptions = { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICE_ENDPOINT.trim() };
-		const transcriptionConfiguration: TranscriptionConfiguration = { transportUrl: transportUrl, transportType: transportType, locale: locale, startTranscription: false }
-		const answerCallOptions: AnswerCallOptions = { callIntelligenceOptions: callIntelligenceOptions, transcriptionConfiguration: transcriptionConfiguration };
-		console.log(`TranscriptionOption:" ${JSON.stringify(transcriptionConfiguration)}`);
+		const transcriptionOptions: TranscriptionOptions = { transportUrl: transportUrl, transportType: transportType, locale: locale, startTranscription: false }
+		const answerCallOptions: AnswerCallOptions = { callIntelligenceOptions: callIntelligenceOptions, transcriptionOptions: transcriptionOptions };
+		console.log(`TranscriptionOption:" ${JSON.stringify(transcriptionOptions)}`);
 		answerCallResult = await acsClient.answerCall(incomingCallContext, callbackUri, answerCallOptions);
 		callConnection = answerCallResult.callConnection;
 	}
@@ -97,15 +97,22 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 	const eventData = event.data;
 
 	console.log("Received eventType=%s, callConnectionId=%s, correlationId=%s, serverCallId=%s, context=%s",
-	event.type , eventData.callConnectionId, eventData.correlationId, eventData.serverCallId, eventData.operationContext);
+		event.type, eventData.callConnectionId, eventData.correlationId, eventData.serverCallId, eventData.operationContext);
 	console.log(`event type match ${event.type === "Microsoft.Communication.CallConnected"}`);
 	if (event.type === "Microsoft.Communication.CallConnected") {
+
+		const props = await acsClient.getCallConnection(eventData.callConnectionId).getCallConnectionProperties();
+		const transcriptionSubscription = props.transcriptionSubscription;
+		console.log("TranscriptionSubscription:-->" + JSON.stringify(transcriptionSubscription));
+
 		await startRecording(eventData.serverCallId);
 		console.log(`Recording started. RecordingId: ${recordingId}`);
 		callMedia = acsClient.getCallConnection(eventData.callConnectionId).getCallMedia();
 		await initiateTranscription(callMedia);
 		console.log("Transcription initiated.");
 		await pauseOrStopTranscriptionAndRecording(callMedia, false, recordingId);
+
+		await new Promise(resolve => setTimeout(resolve, 5000));
 
 		/* Play hello prompt to user */
 		await handleDtmfRecognizeAsync(callMedia, callerId, helpIVRPrompt, "hellocontext");
@@ -120,15 +127,14 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 			const addParticipantOptions = { operationContext: addAgentContext };
 			const addParticipantResult = await acsClient.getCallConnection(eventData.callConnectionId).addParticipant(callInvite, addParticipantOptions);
 			console.log(`Adding agent to the call: ${addParticipantResult.invitationId}`);
-		} 
-		else if ( eventData.operationContext === goodbyeContext ||
-			eventData.operationContext === addParticipantFailureContext )
-		{
+		}
+		else if (eventData.operationContext === goodbyeContext ||
+			eventData.operationContext === addParticipantFailureContext) {
 			await pauseOrStopTranscriptionAndRecording(callMedia, true, recordingId);
 			await acsClient.getCallConnection(eventData.callConnectionId).hangUp(true);
 		}
 	}
-	else if (event.type === "Microsoft.Communication.playFailed") { 
+	else if (event.type === "Microsoft.Communication.playFailed") {
 		await pauseOrStopTranscriptionAndRecording(callMedia, true, recordingId);
 		await acsClient.getCallConnection(eventData.callConnectionId).hangUp(true);
 	}
@@ -142,10 +148,10 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		if (match && match[0]) {
 			await resumeTranscriptionAndRecording(callMedia, recordingId);
 			await handlePlayAsync(callMedia, addAgentPrompt, addAgentContext);
-		} 
+		}
 		else {
 			await handleDtmfRecognizeAsync(callMedia, callerId, incorrectDobPrompt, incorrectDobContext);
-		} 
+		}
 	}
 	else if (event.type === "Microsoft.Communication.RecognizeFailed") {
 		const resultInformation = eventData.resultInformation
@@ -167,6 +173,9 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 	}
 	else if (event.type === "Microsoft.Communication.TranscriptionStarted") {
 		console.log("Received transcription event: {type}", event.type);
+		console.log(eventData.operationContext);
+		console.log(`Transcription status:--> ${eventData.transcriptionUpdate.transcriptionStatus}`);
+		console.log(`Transcription status details:--> ${eventData.transcriptionUpdate.transcriptionStatusDetails}`);
 	}
 	else if (event.type === "Microsoft.Communication.TranscriptionResumed") {
 		isTrasncriptionActive = true;
@@ -174,7 +183,9 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 	}
 	else if (event.type === "Microsoft.Communication.TranscriptionStopped") {
 		isTrasncriptionActive = false;
-		console.log(`Received transcription event: ${event.constructor.name}`);
+		console.log(`Received transcription event: ${event.type}`);
+		console.log(`Transcription status:--> ${eventData.transcriptionUpdate.transcriptionStatus}`);
+		console.log(`Transcription status details:--> ${eventData.transcriptionUpdate.transcriptionStatusDetails}`);
 	}
 	else if (event.type === "Microsoft.Communication.TranscriptionFailed") {
 		console.log("Received transcription event=%s, CorrelationId=%s, SubCode=%s, Message=%s",
@@ -234,9 +245,9 @@ async function resumeTranscriptionAndRecording(callMedia: CallMedia, recordingId
 }
 
 async function pauseOrStopTranscriptionAndRecording(callMedia: CallMedia, stopRecording: boolean, recordingId: string) {
+	console.log("Is trancription active-->" + isTrasncriptionActive)
 	if (isTrasncriptionActive) {
 		await callMedia.stopTranscription();
-		console.log("Transcription stopped.");
 	}
 	console.log(`stopRecording = ${stopRecording}`);
 	if (stopRecording) {
@@ -272,7 +283,7 @@ async function handlePlayAsync(callConnectionMedia: CallMedia, textToPlay: strin
 }
 async function initiateTranscription(callConnectionMedia: CallMedia) {
 	const startTranscriptionOptions = {
-		locale:locale,
+		locale: locale,
 		operationContext: "StartTranscript"
 	};
 
