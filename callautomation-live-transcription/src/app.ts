@@ -177,11 +177,13 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		console.log(`Transcription status:--> ${eventData.transcriptionUpdate.transcriptionStatus}`);
 		console.log(`Transcription status details:--> ${eventData.transcriptionUpdate.transcriptionStatusDetails}`);
 	}
-	else if (event.type === "Microsoft.Communication.TranscriptionResumed") {
-		isTrasncriptionActive = true;
-		console.log("Received transcription event: {type}", event.type);
-	}
 	else if (event.type === "Microsoft.Communication.TranscriptionStopped") {
+		isTrasncriptionActive = false;
+		console.log(`Received transcription event: ${event.type}`);
+		console.log(`Transcription status:--> ${eventData.transcriptionUpdate.transcriptionStatus}`);
+		console.log(`Transcription status details:--> ${eventData.transcriptionUpdate.transcriptionStatusDetails}`);
+	}
+	else if (event.type === "Microsoft.Communication.TranscriptionUpdated") {
 		isTrasncriptionActive = false;
 		console.log(`Received transcription event: ${event.type}`);
 		console.log(`Transcription status:--> ${eventData.transcriptionUpdate.transcriptionStatus}`);
