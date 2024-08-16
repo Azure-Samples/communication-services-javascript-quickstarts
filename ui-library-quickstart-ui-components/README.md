@@ -25,3 +25,13 @@ Open your browser to ` http://localhost:3000`. You should see the following:
 ![Components End State](../media/ComponentsEnd.png)
 
 Feel free to style the components to your desired size and layout inside of your application. Check out the stateful client quickstart to learn how to connect the components to the communications data plane.
+
+## Enable Rich Text Editor
+ By default, the chat composite is using the plain text editor for the SendBox component and the MessageThread component's edit function.
+ We also provide a Rich Text Editor which provides rich text formatting, table inserting etc.
+ To try it out:
+     - Go to the `src` folder and find the `ChatComponents.tsx` file.
+     - Change the value for `richTextEditorEnabled` to true.
+
+Open your browser to ` http://localhost:3000`. You should see the following with the Rich Text Editor enabled:
+![Components with Rich Text Editor](../media/ComponentsWithRichTextEditor.png)

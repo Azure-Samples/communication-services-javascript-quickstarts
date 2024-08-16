@@ -51,7 +51,7 @@ const DISPLAY_NAME = '<Display Name>';
  * Please use the `ui-library-quickstart-teams-interop-meeting-chat` Quickstart to try out the inline image inserting function.
  * https://github.com/Azure-Samples/communication-services-javascript-quickstarts/tree/main/ui-library-quickstart-teams-interop-meeting-chat
  */
-const richTextEditorEnabled = true
+const richTextEditorEnabled = false
 
 initializeIcons();
 

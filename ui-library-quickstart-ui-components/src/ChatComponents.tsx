@@ -4,12 +4,21 @@ import {
   SendBox,
   MessageStatus,
   MessageContentType,
-  DEFAULT_COMPONENT_ICONS
+  DEFAULT_COMPONENT_ICONS,
+  RichTextSendBox
 } from '@azure/communication-react';
 import React, { useEffect } from 'react';
 import { registerIcons } from '@fluentui/react';
 
 export const ChatComponents = (): JSX.Element => {
+
+  /**
+   * By default, the `richTextEditorEnabled` is set to false,
+   * which means the plain text editor will be used for the SendBox component and the MessageThread component's edit function.
+   * Change this value to true to use the Rich Text Editor instead,
+   * which provides rich text formatting, table inserting etc.
+   */
+  const richTextEditorEnabled = false
 
   useEffect(() => {
     registerIcons({ icons: DEFAULT_COMPONENT_ICONS });
@@ -55,20 +64,44 @@ export const ChatComponents = (): JSX.Element => {
     ];
   };
 
-  return (
-    <div style={{ height: '30rem', width: '30rem' }}>
-      {/* Chat thread component with message status indicator feature enabled */}
-      <MessageThread userId={'1'} messages={GetHistoryChatMessages()} showMessageStatus={true} />
+  const getSendBoxComponent = () => {
+    if (richTextEditorEnabled) {
+      return (
+        <RichTextSendBox
+          onSendMessage={async () => {
+          return;
+        }} 
+        onInsertInlineImage={() => {
+          return
+        }}
+        />
+      )
+    }
 
+    return (
       <SendBox
-        disabled={false}
-        onSendMessage={async () => {
-          return;
-        }}
-        onTyping={async () => {
-          return;
-        }}
+      disabled={false}
+      onSendMessage={async () => {
+        return;
+      }}
+      onTyping={async () => {
+        return;
+      }}
+    />
+    )
+  }
+
+  return (
+    <div style={{ height: '30rem', width: '30rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      {/* Chat thread component with message status indicator feature enabled */}
+      <MessageThread userId={'1'} messages={GetHistoryChatMessages()} showMessageStatus={true} 
+        richTextEditorOptions={{ 
+          onInsertInlineImage: () => {
+            return
+          } 
+        }} 
       />
+      {getSendBoxComponent()}
     </div>
   );
 };
