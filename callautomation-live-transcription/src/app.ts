@@ -110,10 +110,9 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		callMedia = acsClient.getCallConnection(eventData.callConnectionId).getCallMedia();
 		await initiateTranscription(callMedia);
 		console.log("Transcription initiated.");
+		await delayWithSetTimeout();
 		await pauseOrStopTranscriptionAndRecording(callMedia, false, recordingId);
-
-		await new Promise(resolve => setTimeout(resolve, 5000));
-
+		await delayWithSetTimeout();
 		/* Play hello prompt to user */
 		await handleDtmfRecognizeAsync(callMedia, callerId, helpIVRPrompt, "hellocontext");
 	}
@@ -308,6 +307,14 @@ function convertWordsArrayToNumberString(wordArray) {
 	const numbers = wordArray.map(word => wordToNumberMapping[word.toLowerCase()] || word);
 	const result = numbers.join('');
 	return result;
+}
+
+async function delayWithSetTimeout(): Promise<void> {
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve();
+		}, 5000); // 5000 milliseconds = 5 seconds
+	});
 }
 
 // Start the server
