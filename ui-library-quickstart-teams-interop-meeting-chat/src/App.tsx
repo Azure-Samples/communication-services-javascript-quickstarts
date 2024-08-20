@@ -78,6 +78,14 @@ export const CallWithChatExperience = (props: CallWithChatExampleProps): JSX.Ele
  * Entry point of your application.
  */
 function App(): JSX.Element {
+  /**
+   * By default, the `richTextEditorEnabled` is set to false,
+   * which means the plain text editor will be used for the SendBox component and the MessageThread component's edit function.
+   * Change this value to true to use the Rich Text Editor instead,
+   * which provides rich text formatting, table inserting etc.
+   */
+    const richTextEditorEnabled = false;
+
     return (
       <CallWithChatExperience
         userId = {{ communicationUserId: USER_ID }}
@@ -85,6 +93,7 @@ function App(): JSX.Element {
         displayName = { DISPLAY_NAME }
         endpointUrl={ ENDPOINT_URL }
         locator = { { meetingLink: TEAMS_MEETING_LINK } }
+        compositeOptions={{ richTextEditor: richTextEditorEnabled }}
       />
     );
 }
