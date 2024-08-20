@@ -11,11 +11,11 @@ import {
   VideoTile
 } from '@azure/communication-react';
 
-import { IContextualMenuProps, mergeStyles, Stack } from '@fluentui/react';
+import { mergeStyles, Stack } from '@fluentui/react';
 import React, { useState } from 'react';
 
 export const CallingComponents = (): JSX.Element => {
-  const exampleOptionsMenuProps: IContextualMenuProps = {
+  const exampleOptionsMenuProps = {
     items: [
       {
         key: '1',
