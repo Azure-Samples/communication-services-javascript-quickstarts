@@ -69,11 +69,11 @@ export const ChatComponents = (): JSX.Element => {
       return (
         <RichTextSendBox
           onSendMessage={async () => {
-          return;
-        }} 
-        onInsertInlineImage={() => {
-          return
-        }}
+            return;
+          }} 
+          onInsertInlineImage={() => {
+            return
+          }}
         />
       )
     }
@@ -94,12 +94,15 @@ export const ChatComponents = (): JSX.Element => {
   return (
     <div style={{ height: '30rem', width: '30rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
       {/* Chat thread component with message status indicator feature enabled */}
-      <MessageThread userId={'1'} messages={GetHistoryChatMessages()} showMessageStatus={true} 
-        richTextEditorOptions={{ 
+      <MessageThread
+        userId={'1'}
+        messages={GetHistoryChatMessages()}
+        showMessageStatus={true}
+        richTextEditorOptions={ richTextEditorEnabled ? { 
           onInsertInlineImage: () => {
             return
-          } 
-        }} 
+          }
+        } : undefined} 
       />
       {getSendBoxComponent()}
     </div>
