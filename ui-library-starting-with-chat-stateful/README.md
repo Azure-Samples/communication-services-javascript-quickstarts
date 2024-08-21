@@ -31,7 +31,7 @@ Feel free to style the composites to your desired size and layout inside of your
 
 ## Enable Rich Text Editor
  By default, this Quickstart is using the plain text editor for the SendBox component and the MessageThread component's edit function.
- We also provide a Rich Text Editor which provides rich text formatting, table inserting etc.
+ We also provide a Rich Text Editor for rich text formatting, table inserting etc.
  To try it out:
      - Go to the `src` folder and find the `ChatComponentsStateful.tsx` file.
      - Change the value for `richTextEditorEnabled` to true.
