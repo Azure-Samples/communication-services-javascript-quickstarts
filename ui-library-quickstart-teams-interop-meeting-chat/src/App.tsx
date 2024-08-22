@@ -33,7 +33,13 @@ const TEAMS_MEETING_LINK = '<Teams Meeting Link>';
  * goes through your authentication flow.
  */
 const DISPLAY_NAME = '<Azure Communication User Display Name>';
-
+/**
+ * By default, the `richTextEditorEnabled` is set to false,
+ * which means the plain text editor will be used for the SendBox component and the MessageThread component's edit function.
+ * Change this value to true to use the Rich Text Editor instead,
+ * which provides rich text formatting, table inserting etc.
+ */
+const richTextEditorEnabled = false;
 
 
 export type CallWithChatExampleProps = {
@@ -78,14 +84,6 @@ export const CallWithChatExperience = (props: CallWithChatExampleProps): JSX.Ele
  * Entry point of your application.
  */
 function App(): JSX.Element {
-  /**
-   * By default, the `richTextEditorEnabled` is set to false,
-   * which means the plain text editor will be used for the SendBox component and the MessageThread component's edit function.
-   * Change this value to true to use the Rich Text Editor instead,
-   * which provides rich text formatting, table inserting etc.
-   */
-    const richTextEditorEnabled = false;
-
     return (
       <CallWithChatExperience
         userId = {{ communicationUserId: USER_ID }}
