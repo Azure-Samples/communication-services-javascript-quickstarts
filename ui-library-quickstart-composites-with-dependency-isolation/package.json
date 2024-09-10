@@ -1,5 +1,5 @@
 {
-  "name": "ui-library-quickstart-composites",
+  "name": "ui-library-quickstart-composites-with-dependency-isolation",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
