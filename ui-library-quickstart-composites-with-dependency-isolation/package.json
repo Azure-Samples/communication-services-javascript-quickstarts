@@ -23,10 +23,8 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "start": "webpack serve --mode development --open",
-    "build": "webpack --mode production",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "webpack-cli serve --mode=development --env development --open",
+    "build": "npm run clean && webpack --mode=development --env development"
   },
   "eslintConfig": {
     "extends": [
