@@ -1,0 +1,14 @@
+{
+  "name": "send-email-inline-attachments",
+  "version": "1.0.0",
+  "description": "",
+  "main": "send-email-inline-attachments.js",
+  "scripts": {
+    "start": "node send-email-inline-attachments.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/communication-email": "^1.0.1-beta.1"
+  }
+}
