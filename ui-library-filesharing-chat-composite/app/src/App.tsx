@@ -18,35 +18,35 @@ function App(): JSX.Element {
   initializeFileTypeIcons();
 
   // Common variables
-  const endpointUrl = "<Azure Communication Services Resource Endpoint>";
-  const token = "<Azure Communication Services Resource Access Token>";
-  const userId = "<User Id associated to the token>";
-  const threadId = "<Get thread id from chat service>";
-  const displayName = "<Display Name>";
+  const ENDPOINT_URL = "<Azure Communication Services Resource Endpoint>";
+  const TOKEN = "<Azure Communication Services Resource Access Token>";
+  const USER_ID = "<User Id associated to the token>";
+  const THREAD_ID = "<Get thread id from chat service>";
+  const DISPLAY_NAME = "<Display Name>";
 
   // We can't even initialize the Chat and Call adapters without a well-formed token.
   const credential = useMemo(() => {
     try {
-      return new AzureCommunicationTokenCredential(token);
+      return new AzureCommunicationTokenCredential(TOKEN);
     } catch {
       console.error("Failed to construct token credential");
       return undefined;
     }
-  }, [token]);
+  }, [TOKEN]);
 
   // Memoize arguments to `useAzureCommunicationChatAdapter` so that
   // a new adapter is only created when an argument changes.
   const chatAdapterArgs = useMemo(
     () => ({
-      endpoint: endpointUrl,
+      endpoint: ENDPOINT_URL,
       userId: fromFlatCommunicationIdentifier(
-        userId
+        USER_ID
       ) as CommunicationUserIdentifier,
-      displayName,
+      DISPLAY_NAME,
       credential,
-      threadId,
+      THREAD_ID,
     }),
-    [userId, displayName, credential, threadId]
+    [USER_ID, DISPLAY_NAME, credential, THREAD_ID]
   );
   const chatAdapter = useAzureCommunicationChatAdapter(chatAdapterArgs);
 
@@ -59,7 +59,7 @@ function App(): JSX.Element {
             attachmentOptions: {
               uploadOptions: uploadOptions,
               downloadOptions: downloadOptions,
-            }
+            },
           }}
         />
       </div>

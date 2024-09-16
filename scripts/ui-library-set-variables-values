@@ -1,0 +1,145 @@
+const fs = require("fs");
+const readline = require("readline");
+const path = require("path");
+
+// Function to update the file content
+function updateFileContent(filePath, replacements) {
+  fs.readFile(filePath, "utf8", (err, data) => {
+    if (err) {
+      console.error(`Error reading file ${filePath}:`, err);
+      return;
+    }
+
+    let updatedContent = data
+      .split("\n")
+      .map((line) => {
+        for (const [pattern, value] of Object.entries(replacements)) {
+          //   console.log(`line`, line);
+          if (line.includes(pattern)) {
+            console.log(`Replacing ${pattern} with ${value}`);
+            return updateLine(line, value);
+          }
+        }
+        return line;
+      })
+      .join("\n");
+
+    fs.writeFile(filePath, updatedContent, "utf8", (err) => {
+      if (err) {
+        console.error(`Error writing file ${filePath}:`, err);
+      } else {
+        console.log(`File ${filePath} updated successfully.`);
+      }
+    });
+  });
+}
+
+// List of files to be updated
+const filesToUpdate = [
+  // ui-library-filesharing-chat-composite
+  "../ui-library-filesharing-chat-composite/api/local.settings.json",
+  "../ui-library-filesharing-chat-composite/app/src/App.tsx",
+ 
+  
+  // Add more file paths as needed
+];
+
+// Function to prompt the user for input
+function promptUser(query) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  return new Promise((resolve) =>
+    rl.question(query, (answer) => {
+      rl.close();
+      resolve(answer);
+    })
+  );
+}
+
+// Main function to run the script
+async function main() {
+  const endpointUrl = await promptUser(
+    "Enter Azure Communication Services Resource Endpoint: "
+  );
+    const azureStorageConnectionString = await promptUser(
+      "Enter Azure Communication Services Storage Connection String: "
+    );
+    const token = await promptUser(
+      "Enter Azure Communication Services Resource Access Token: "
+    );
+    const userId = await promptUser("Enter User Id associated to the token: ");
+    const threadId = await promptUser(
+      "Enter Azure Communication Services thread id: "
+    );
+    const teamsMeetingLink = await promptUser("Enter Teams Meeting link: ");
+    const displayName = await promptUser("Enter Display Name: ");
+
+  const replacements = {
+    "const ENDPOINT_URL =": endpointUrl,
+    "const TOKEN =": token,
+    "const USER_ID =": userId,
+    "const DISPLAY_NAME =": displayName,
+    '"azureStorageConnectionString":': azureStorageConnectionString,
+    "const TEAMS_MEETING_LINK =": teamsMeetingLink,
+    "const THREAD_ID =": threadId;
+  };
+  console.log(replacements);
+  filesToUpdate.forEach((filePath) => {
+    updateFileContent(filePath, replacements);
+  });
+}
+
+const defaultValues = {
+  "const ENDPOINT_URL =": "<Azure Communication Services Resource Endpoint>",
+  "const TOKEN =": "<Azure Communication Services Resource Access Token>",
+  "const USER_ID =": "<User Id associated to the token>",
+  "const DISPLAY_NAME =": "<Display Name>",
+  '"azureStorageConnectionString":': "<CONNECTION_STRING>",
+  "const TEAMS_MEETING_LINK =": "<Teams Meeting Link>",
+  "const THREAD_ID =": "<Get thread id from chat service>",
+};
+
+const updateLine = (line, value) => {
+  const lastChar = line[line.length - 1];
+  const shouldAddLastChar = /[,;]/.test(lastChar);
+  const usesEqualSign = line.includes(" = ");
+
+  const [key] = usesEqualSign ? line.split("=") : line.split(":");
+  console.log(`key`, key, value);
+  return `${key}${usesEqualSign ? "=" : ":"} \"${value}\"${
+    shouldAddLastChar ? lastChar : ""
+  }`;
+};
+
+// Function to restore files from backups
+function restoreBackups() {
+  filesToUpdate.forEach((filePath) => {
+    const currentContent = fs.readFileSync(filePath, "utf8").split("\n");
+    const patterns = Object.keys(defaultValues);
+
+    const restoredContent = currentContent
+      .map((line) => {
+        const matchingPattern = patterns.find((pattern) =>
+          line.includes(pattern)
+        );
+        if (matchingPattern) {
+          return updateLine(line, defaultValues[matchingPattern]);
+        }
+        return line;
+      })
+      .join("\n");
+
+    fs.writeFileSync(filePath, restoredContent, "utf8");
+    console.log(`File ${filePath} restored from backup.`);
+  });
+}
+
+// Check if the script should restore backups
+if (process.argv.includes("--restore")) {
+  restoreBackups();
+} else {
+  main();
+}
