@@ -94,7 +94,6 @@ async function main() {
     "const TEAMS_MEETING_LINK =": teamsMeetingLink,
     "const THREAD_ID =": threadId,
   };
-  console.log(replacements);
   filesToUpdate.forEach((filePath) => {
     updateFileContent(filePath, replacements);
   });
@@ -112,11 +111,11 @@ const defaultValues = {
 
 const updateLine = (line, value) => {
   const lastChar = line[line.length - 1];
+  // check if last char is a comma or semicolon to add it back if needed
   const shouldAddLastChar = /[,;]/.test(lastChar);
   const usesEqualSign = line.includes(" = ");
 
   const [key] = usesEqualSign ? line.split("=") : line.split(":");
-  console.log(`key`, key, value);
   return `${key}${usesEqualSign ? "=" : ":"} \"${value}\"${
     shouldAddLastChar ? lastChar : ""
   }`;
