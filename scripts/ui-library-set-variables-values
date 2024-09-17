@@ -1,6 +1,5 @@
 const fs = require("fs");
 const readline = require("readline");
-const path = require("path");
 
 // Function to update the file content
 function updateFileContent(filePath, replacements) {
@@ -39,8 +38,17 @@ const filesToUpdate = [
   // ui-library-filesharing-chat-composite
   "../ui-library-filesharing-chat-composite/api/local.settings.json",
   "../ui-library-filesharing-chat-composite/app/src/App.tsx",
- 
-  
+
+  // ui-library-starting-with-chat-stateful
+  "../ui-library-starting-with-chat-stateful/src/App.tsx",
+
+  // ui-library-filesharing-ui-components
+  "../ui-library-filesharing-ui-components/api/local.settings.json",
+  "../ui-library-filesharing-ui-components/app/src/App.tsx",
+
+  // ui-library-quickstart-teams-interop-meeting-chat
+  "../ui-library-quickstart-teams-interop-meeting-chat/src/App.tsx",
+
   // Add more file paths as needed
 ];
 
@@ -64,18 +72,18 @@ async function main() {
   const endpointUrl = await promptUser(
     "Enter Azure Communication Services Resource Endpoint: "
   );
-    const azureStorageConnectionString = await promptUser(
-      "Enter Azure Communication Services Storage Connection String: "
-    );
-    const token = await promptUser(
-      "Enter Azure Communication Services Resource Access Token: "
-    );
-    const userId = await promptUser("Enter User Id associated to the token: ");
-    const threadId = await promptUser(
-      "Enter Azure Communication Services thread id: "
-    );
-    const teamsMeetingLink = await promptUser("Enter Teams Meeting link: ");
-    const displayName = await promptUser("Enter Display Name: ");
+  const azureStorageConnectionString = await promptUser(
+    "Enter Azure Communication Services Storage Connection String: "
+  );
+  const token = await promptUser(
+    "Enter Azure Communication Services Resource Access Token: "
+  );
+  const userId = await promptUser("Enter User Id associated to the token: ");
+  const threadId = await promptUser(
+    "Enter Azure Communication Services thread id: "
+  );
+  const teamsMeetingLink = await promptUser("Enter Teams Meeting link: ");
+  const displayName = await promptUser("Enter Display Name: ");
 
   const replacements = {
     "const ENDPOINT_URL =": endpointUrl,
@@ -84,7 +92,7 @@ async function main() {
     "const DISPLAY_NAME =": displayName,
     '"azureStorageConnectionString":': azureStorageConnectionString,
     "const TEAMS_MEETING_LINK =": teamsMeetingLink,
-    "const THREAD_ID =": threadId;
+    "const THREAD_ID =": threadId,
   };
   console.log(replacements);
   filesToUpdate.forEach((filePath) => {
@@ -133,7 +141,7 @@ function restoreBackups() {
       .join("\n");
 
     fs.writeFileSync(filePath, restoredContent, "utf8");
-    console.log(`File ${filePath} restored from backup.`);
+    console.log(`Constants in ${filePath} restored to default values.`);
   });
 }
 
