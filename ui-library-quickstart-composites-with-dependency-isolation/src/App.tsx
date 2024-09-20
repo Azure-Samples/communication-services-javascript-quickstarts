@@ -1,24 +1,18 @@
 import {
   AzureCommunicationTokenCredential,
   CommunicationUserIdentifier,
-} from '@azure/communication-common';
+} from "@azure/communication-common";
 import {
   CallComposite,
   ChatComposite,
   fromFlatCommunicationIdentifier,
   useAzureCommunicationCallAdapter,
   useAzureCommunicationChatAdapter,
-} from '@azure/communication-react';
-import {
-  CSSProperties,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { ChatClient } from '@azure/communication-chat';
-import { initializeIcons } from '@fluentui/react';
+} from "@azure/communication-react";
+import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { ChatClient } from "@azure/communication-chat";
+import { initializeIcons } from "@fluentui/react";
 
 /**
  * Authentication information needed for your client application to use
@@ -30,9 +24,9 @@ import { initializeIcons } from '@fluentui/react';
  * In a real application, your backend service would provide these to the client
  * application after the user goes through your authentication flow.
  */
-const ENDPOINT_URL = '<Azure Communication Services Resource Endpoint>';
-const USER_ID = '<Azure Communication Services Identifier>';
-const TOKEN = '<Azure Communication Services Access Token>';
+const ENDPOINT_URL = "<Azure Communication Services Resource Endpoint>";
+const USER_ID = "<User Id associated to the token>";
+const TOKEN = "<Azure Communication Services Resource Access Token>";
 
 /**
  * Display name for the local participant.
@@ -40,7 +34,7 @@ const TOKEN = '<Azure Communication Services Access Token>';
  * backend services provides to the client application after the user
  * goes through your authentication flow.
  */
-const DISPLAY_NAME = '<Display Name>';
+const DISPLAY_NAME = "<Display Name>";
 
 /**
  * By default, the `richTextEditorEnabled` is set to false,
@@ -51,7 +45,7 @@ const DISPLAY_NAME = '<Display Name>';
  * Please use the `ui-library-quickstart-teams-interop-meeting-chat` Quickstart to try out the inline image inserting function.
  * https://github.com/Azure-Samples/communication-services-javascript-quickstarts/tree/main/ui-library-quickstart-teams-interop-meeting-chat
  */
-const richTextEditorEnabled = true
+const richTextEditorEnabled = true;
 
 initializeIcons();
 
@@ -69,7 +63,7 @@ function App(): JSX.Element {
     try {
       return new AzureCommunicationTokenCredential(token);
     } catch {
-      console.error('Failed to construct token credential');
+      console.error("Failed to construct token credential");
       return undefined;
     }
   }, [token]);
@@ -109,9 +103,12 @@ function App(): JSX.Element {
 
   if (!!callAdapter && !!chatAdapter) {
     return (
-      <div style={{ height: '100vh', display: 'flex' }}>
+      <div style={{ height: "100vh", display: "flex" }}>
         <div style={containerStyle}>
-          <ChatComposite adapter={chatAdapter} options={{richTextEditor: richTextEditorEnabled}} />
+          <ChatComposite
+            adapter={chatAdapter}
+            options={{ richTextEditor: richTextEditorEnabled }}
+          />
         </div>
         <div style={containerStyle}>
           <CallComposite adapter={callAdapter} />
@@ -128,9 +125,9 @@ function App(): JSX.Element {
 }
 
 const containerStyle: CSSProperties = {
-  border: 'solid 0.125rem olive',
-  margin: '0.5rem',
-  width: '50vw',
+  border: "solid 0.125rem olive",
+  margin: "0.5rem",
+  width: "50vw",
 };
 /**
  * This hook returns all the arguments required to use the Azure Communication services
@@ -145,7 +142,7 @@ function useAzureCommunicationServiceArgs(): {
   groupId: string;
   threadId: string;
 } {
-  const [threadId, setThreadId] = useState('');
+  const [threadId, setThreadId] = useState("");
   // For the quickstart, create a new thread with just the local participant in it.
   useEffect(() => {
     (async () => {
@@ -155,7 +152,7 @@ function useAzureCommunicationServiceArgs(): {
       );
       const { chatThread } = await client.createChatThread(
         {
-          topic: 'Composites Quickstarts',
+          topic: "Composites Quickstarts",
         },
         {
           participants: [
@@ -166,7 +163,7 @@ function useAzureCommunicationServiceArgs(): {
           ],
         }
       );
-      setThreadId(chatThread?.id ?? '');
+      setThreadId(chatThread?.id ?? "");
     })();
   }, []);
 

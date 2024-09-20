@@ -42,9 +42,9 @@ function App(): JSX.Element {
       userId: fromFlatCommunicationIdentifier(
         USER_ID
       ) as CommunicationUserIdentifier,
-      DISPLAY_NAME,
+      displayName: DISPLAY_NAME,
       credential,
-      THREAD_ID,
+      threadId: THREAD_ID,
     }),
     [USER_ID, DISPLAY_NAME, credential, THREAD_ID]
   );

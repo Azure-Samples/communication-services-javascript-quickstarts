@@ -30,7 +30,8 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
-    baseURL: "http://localhost:3000/",
+    // baseURL: "http://localhost:3000/",
+    baseURL: "http://localhost:4280/",
     headless: false,
   },
 
@@ -54,21 +55,35 @@ export default defineConfig({
     /* Test against branded browsers. */
     {
       name: "Microsoft Edge",
-      use: {
-        ...devices["Desktop Edge"],
-        channel: "msedge",
-        permissions: ["microphone", "camera"],
-      },
+      use: { ...devices["Desktop Edge"], channel: "msedge" },
     },
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-    command: "npm run start",
-    port: 3000,
-    reuseExistingServer: false,
-    timeout: 120 * 1000,
-    // uncomment to see more logs
-    // stdout: "pipe",
-  },
+  webServer: [
+    {
+      command: "cd app && npm start",
+      port: 3000,
+      reuseExistingServer: false,
+      timeout: 120 * 1000,
+      // uncomment to see more logs
+      // stdout: "pipe",
+    },
+    {
+      command: "cd api && npm start",
+      port: 7071,
+      reuseExistingServer: false,
+      timeout: 120 * 1000,
+      // uncomment to see more logs
+      // stdout: "pipe",
+    },
+    {
+      command: "npx -p node@16 npm run start:dev",
+      port: 4280,
+      reuseExistingServer: false,
+      timeout: 120 * 1000,
+      // uncomment to see more logs
+      // stdout: "pipe",
+    },
+  ],
 });

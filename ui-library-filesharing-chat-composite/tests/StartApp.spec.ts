@@ -4,9 +4,8 @@ test("Start the app", async ({ page, context, browser }) => {
   // set timeout to 10 minutes
   test.setTimeout(10 * 60 * 1000);
 
-  await page.goto("http://localhost:3000/");
-  // Create a locator that matches both the textarea and the contentEditable component
-  const input = page.locator('textarea, [contenteditable="true"]').first();
+  await page.goto("http://localhost:4280/");
+  const input = page.getByPlaceholder("Enter a message");
   await input.click();
   await input.fill(`${new Date()} - Test`);
   await page.getByLabel("Send message").click();

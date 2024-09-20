@@ -40,13 +40,15 @@ function App(): JSX.Element {
   initializeThreadState(chatThreadClient);
 
   return (
-    <FluentThemeProvider>
-      <ChatClientProvider chatClient={statefulChatClient}>
-        <ChatThreadClientProvider chatThreadClient={chatThreadClient}>
-          <ChatComponents />
-        </ChatThreadClientProvider>
-      </ChatClientProvider>
-    </FluentThemeProvider>
+    <div style={containerStyle}>
+      <FluentThemeProvider>
+        <ChatClientProvider chatClient={statefulChatClient}>
+          <ChatThreadClientProvider chatThreadClient={chatThreadClient}>
+            <ChatComponents />
+          </ChatThreadClientProvider>
+        </ChatClientProvider>
+      </FluentThemeProvider>
+    </div>
   );
 }
 
@@ -56,5 +58,9 @@ async function initializeThreadState(chatThreadClient: ChatThreadClient): Promis
     // Simply fetching participants updates the cached state in client.
   }
 }
+
+const containerStyle = {
+  height: "100%",
+};
 
 export default App;

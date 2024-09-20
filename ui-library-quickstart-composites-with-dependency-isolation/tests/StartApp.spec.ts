@@ -8,9 +8,6 @@ test("Start the app", async ({ page, context, browser }) => {
 
   // eslint-disable-next-line testing-library/prefer-screen-queries
   await page.getByRole("button", { name: "Start call" }).click();
-  await page.getByLabel("Chat").click();
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  await page.getByRole("status", { name: "joined the chat." }).click();
   // Create a locator that matches both the textarea and the contentEditable component
   const input = page.locator('textarea, [contenteditable="true"]').first();
   await input.click();

@@ -42,5 +42,6 @@ module.exports = {
     client: {
       overlay: true,
     },
+    port: 3000,
   },
 };
