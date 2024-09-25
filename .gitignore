@@ -359,3 +359,7 @@ MigrationBackup/
 
 .DS_Store
 dist/
+*/test-results/
+*/playwright-report/
+*/blob-report/
+*/playwright/.cache/
