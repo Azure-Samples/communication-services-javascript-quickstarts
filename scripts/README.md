@@ -50,7 +50,7 @@ Script to automate testing for various chat UI library samples. This script prom
 1. Run `npm install` in Terminal.
 1. (if the dependencies needs to be updated) Run `node update-chat-sample-deps.mjs`.
 1. Run `node ui-library-set-variables-values.mjs` to update variables for samples.
-1. Run `node ui-library-run-playwright-tests.mjs --install` to select a sample, install dependencies and start it.
+1. Run `node ui-library-run-playwright-tests.mjs` or `node ui-library-run-playwright-tests.mjs --install` to select a sample, install dependencies if needed and start it.
 1. Do any additional testing in the window that was opened by Playwright. Please note that some tests like Teams sample or file sharing need manual testing (allow the user to the Teams meeting, send files) as they need to be done outside of the Web apps or have dependency on file manager of a user.
 1. **CLOSE the browser tab or window after the test is complete**. Otherwise, the process will continue running and you might need to kill it manually.
 1. Repeat steps 5-7 to test all needed samples.
