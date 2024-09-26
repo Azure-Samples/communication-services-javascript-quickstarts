@@ -47,7 +47,7 @@ Script to automate testing for various chat UI library samples. This script prom
 ## Recommended usage of the scripts for testing Web UI library Quickstarts
 
 1. Change to the scripts directory.
-1. Run `npm install` in Terminal.
+1. Run `npm install` in Terminal to install dependencies for the scripts.
 1. (if the dependencies needs to be updated) Run `node update-chat-sample-deps.mjs`.
 1. Run `node ui-library-set-variables-values.mjs` to update variables for samples.
 1. Run `node ui-library-run-playwright-tests.mjs` or `node ui-library-run-playwright-tests.mjs --install` to select a sample, install dependencies if needed and start it.
