@@ -8,26 +8,32 @@
 //        Optionally, use `--restore` to restore default values
 
 import fs from "fs";
+import path from "path";
 import readline from "readline";
+import { fileURLToPath } from "url";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const repoRoot = path.resolve(__dirname, "..");
 // List of files to be updated
 const filesToUpdate = [
   // ui-library-filesharing-chat-composite
-  "../ui-library-filesharing-chat-composite/api/local.settings.json",
-  "../ui-library-filesharing-chat-composite/app/src/App.tsx",
+  "ui-library-filesharing-chat-composite/api/local.settings.json",
+  "ui-library-filesharing-chat-composite/app/src/App.tsx",
 
   // ui-library-starting-with-chat-stateful
-  "../ui-library-starting-with-chat-stateful/src/App.tsx",
+  "ui-library-starting-with-chat-stateful/src/App.tsx",
 
   // ui-library-filesharing-ui-components
-  "../ui-library-filesharing-ui-components/api/local.settings.json",
-  "../ui-library-filesharing-ui-components/app/src/App.tsx",
+  "ui-library-filesharing-ui-components/api/local.settings.json",
+  "ui-library-filesharing-ui-components/app/src/App.tsx",
 
   // ui-library-quickstart-teams-interop-meeting-chat
-  "../ui-library-quickstart-teams-interop-meeting-chat/src/App.tsx",
+  "ui-library-quickstart-teams-interop-meeting-chat/src/App.tsx",
 
   // ui-library-quickstart-composites-with-dependency-isolation
-  "../ui-library-quickstart-composites-with-dependency-isolation/src/App.tsx",
+  "ui-library-quickstart-composites-with-dependency-isolation/src/App.tsx",
 
   // Add more file paths as needed
 ];
@@ -109,9 +115,11 @@ const defaultValues = {
 
 function updateFiles(files, replacements) {
   files.forEach((filePath) => {
-    fs.readFile(filePath, "utf8", (err, data) => {
+    // Path to the file from the root of the repository
+    const fullFilePath = path.join(repoRoot, filePath);
+    fs.readFile(fullFilePath, "utf8", (err, data) => {
       if (err) {
-        console.error(`Error reading file ${filePath}:`, err);
+        console.error(`Error reading file ${fullFilePath}:`, err);
         return;
       }
       // delete the next line after the update if it's multiLine string
@@ -142,11 +150,11 @@ function updateFiles(files, replacements) {
         .filter((line) => line !== "[TO BE REMOVED]")
         .join("\n");
 
-      fs.writeFile(filePath, updatedContent, "utf8", (err) => {
+      fs.writeFile(fullFilePath, updatedContent, "utf8", (err) => {
         if (err) {
-          console.error(`Error writing file ${filePath}:`, err);
+          console.error(`Error writing file ${fullFilePath}:`, err);
         } else {
-          console.log(`File ${filePath} updated successfully.`);
+          console.log(`File ${fullFilePath} updated successfully.`);
         }
       });
     });
