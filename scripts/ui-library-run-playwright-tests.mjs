@@ -12,6 +12,13 @@
 
 import { exec } from "child_process";
 import { select } from "@inquirer/prompts";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const repoRoot = path.resolve(__dirname, "..");
 
 // The options for the user to choose from
 const options = [
@@ -29,6 +36,10 @@ const options = [
   },
   { value: "ui-library-quickstart-composites-with-dependency-isolation" },
 ];
+
+const quickstartFolderPath = (folder) => {
+  return path.join(repoRoot, folder);
+};
 
 // Prompt the user to choose an option
 const promptUser = async (installDependencies) => {
@@ -50,11 +61,21 @@ const promptUser = async (installDependencies) => {
 
   // The commands for each option
   const commands = {
-    "ui-library-starting-with-chat-stateful": `cd ../ui-library-starting-with-chat-stateful ${appDepsInstall} && npm run test:e2e`,
-    "ui-library-quickstart-teams-interop-meeting-chat": `cd ../ui-library-quickstart-teams-interop-meeting-chat ${appDepsInstall} && npm run test:e2e`,
-    "ui-library-filesharing-chat-composite": `cd ../ui-library-filesharing-chat-composite ${appAndAPIDepsInstall} && npm run test:e2e`,
-    "ui-library-filesharing-ui-components": `cd ../ui-library-filesharing-ui-components ${appAndAPIDepsInstall} && npm run test:e2e`,
-    "ui-library-quickstart-composites-with-dependency-isolation": `cd ../ui-library-quickstart-composites-with-dependency-isolation ${appDepsInstall} && npm run test:e2e`,
+    "ui-library-starting-with-chat-stateful": `cd ${quickstartFolderPath(
+      "ui-library-starting-with-chat-stateful"
+    )} ${appDepsInstall} && npm run test:e2e`,
+    "ui-library-quickstart-teams-interop-meeting-chat": `cd ${quickstartFolderPath(
+      "ui-library-quickstart-teams-interop-meeting-chat"
+    )} ${appDepsInstall} && npm run test:e2e`,
+    "ui-library-filesharing-chat-composite": `cd ${quickstartFolderPath(
+      "ui-library-filesharing-chat-composite"
+    )} ${appAndAPIDepsInstall} && npm run test:e2e`,
+    "ui-library-filesharing-ui-components": `cd ${quickstartFolderPath(
+      "ui-library-filesharing-ui-components"
+    )} ${appAndAPIDepsInstall} && npm run test:e2e`,
+    "ui-library-quickstart-composites-with-dependency-isolation": `cd ${quickstartFolderPath(
+      "ui-library-quickstart-composites-with-dependency-isolation"
+    )} ${appDepsInstall} && npm run test:e2e`,
   };
 
   // Run the command for the selected option
