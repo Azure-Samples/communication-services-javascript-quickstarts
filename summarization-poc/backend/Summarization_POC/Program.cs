@@ -1,3 +1,5 @@
+using Azure;
+using Azure.AI.OpenAI;
 using Azure.Communication;
 using Azure.Communication.CallAutomation;
 using Azure.Messaging;
@@ -6,14 +8,16 @@ using Azure.Messaging.EventGrid.SystemEvents;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
+using Microsoft.VisualBasic;
 using NAudio.Wave;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Text.Json;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Your ACS resource connection string
+/// Your ACS resource connection string
 var acsConnectionString = "";
 
 // Your ACS resource phone number will act as source number to start outbound call
@@ -28,8 +32,9 @@ var callbackUriHost = "";
 //Call back URL
 var callbackUri = new Uri(new Uri(callbackUriHost), "/api/callbacks");
 
-// Your cognitive service endpoint and key
+// Your cognitive service endpoint
 var cognitiveServiceEndpoint = "";
+
 var CognitiveServicesKey = "";
 
 //Transport URL
@@ -45,6 +50,7 @@ string contentLocation = string.Empty;
 string filePath = string.Empty;
 string recordingPrompt = "Recording is Started.";
 bool isBYOS = false;
+
 
 CallAutomationClient callAutomationClient = new CallAutomationClient(acsConnectionString);
 var app = builder.Build();
@@ -67,13 +73,13 @@ app.MapPost("/outboundCall", async (ILogger<Program> logger) =>
 
     CallInvite callInvite = new CallInvite(target, caller);
 
-    TranscriptionOptions transcriptionOptions = new TranscriptionOptions(new Uri(transportUrl),
-        "en-us", true, TranscriptionTransport.Websocket);
+    //TranscriptionOptions transcriptionOptions = new TranscriptionOptions(new Uri(transportUrl),
+    //    "en-us", true, TranscriptionTransport.Websocket);
 
     var createCallOptions = new CreateCallOptions(callInvite, callbackUri)
     {
         CallIntelligenceOptions = new CallIntelligenceOptions() { CognitiveServicesEndpoint = new Uri(cognitiveServiceEndpoint) },
-        TranscriptionOptions = transcriptionOptions
+        //TranscriptionOptions = transcriptionOptions
     };
 
     CreateCallResult createCallResult = await callAutomationClient.CreateCallAsync(createCallOptions);
@@ -163,7 +169,7 @@ app.MapPost("/api/events", async ([FromBody] EventGridEvent[] eventGridEvents, I
 {
     foreach (var eventGridEvent in eventGridEvents)
     {
-        logger.LogInformation($"Incoming Call event received : {JsonSerializer.Serialize(eventGridEvent)}");
+        logger.LogInformation($"Incoming Call event received : {System.Text.Json.JsonSerializer.Serialize(eventGridEvent)}");
 
         // Handle system events
         if (eventGridEvent.TryGetSystemEventData(out object eventData))
@@ -182,8 +188,8 @@ app.MapPost("/api/events", async ([FromBody] EventGridEvent[] eventGridEvents, I
         {
             var incomingCallContext = incomingCallEventData?.IncomingCallContext;
 
-            TranscriptionOptions transcriptionOptions = new TranscriptionOptions(new Uri(transportUrl),
-                "en-us", true, TranscriptionTransport.Websocket);
+            //TranscriptionOptions transcriptionOptions = new TranscriptionOptions(new Uri(transportUrl),
+            //    "en-us", true, TranscriptionTransport.Websocket);
 
             var options = new AnswerCallOptions(incomingCallContext, callbackUri)
             {
@@ -191,7 +197,7 @@ app.MapPost("/api/events", async ([FromBody] EventGridEvent[] eventGridEvents, I
                 {
                     CognitiveServicesEndpoint = new Uri(cognitiveServiceEndpoint),
                 },
-                TranscriptionOptions = transcriptionOptions
+                //TranscriptionOptions = transcriptionOptions
             };
 
             AnswerCallResult answerCallResult = await callAutomationClient.AnswerCallAsync(options);
@@ -251,8 +257,48 @@ app.MapPost("/stopRecording", async (ILogger<Program> logger) =>
 app.MapPost("/summarize", async (ILogger<Program> logger) =>
 {
     string transcript = await ConvertSpeechToText(filePath);
-    logger.LogInformation($"text: {transcript}");
-    return transcript;
+    //logger.LogInformation($"text: {transcript}");
+    //return transcript;
+    logger.LogInformation("Get a Brief summary of the conversation");
+    //string transcript = req.Query["transcript"];
+
+    //string requestBody = await new StreamReader(filePath).ReadToEndAsync();
+    //dynamic data = JsonConvert.DeserializeObject(requestBody);
+    //string transcript = data?.transcript;
+
+
+    //Stream Chat Message with open AI
+    var openAIClient = getClient();
+
+    var chatCompletionsOptions = new ChatCompletionsOptions()
+    {
+        Messages =
+                   {
+                        new ChatMessage(ChatRole.System, recordingPrompt),
+                        new ChatMessage(ChatRole.User, transcript),
+                        new ChatMessage(ChatRole.User, recordingPrompt)
+                    },
+        Temperature = (float)1,
+        MaxTokens = 800
+    };
+
+
+    Response<StreamingChatCompletions> chatresponse = await openAIClient.GetChatCompletionsStreamingAsync(
+     deploymentOrModelName: "gpt-4", chatCompletionsOptions);
+    using StreamingChatCompletions streamingChatCompletions = chatresponse.Value;
+
+    string responseMessage = "";
+
+    await foreach (StreamingChatChoice choice in streamingChatCompletions.GetChoicesStreaming())
+    {
+        await foreach (ChatMessage message in choice.GetMessageStreaming())
+        {
+            responseMessage = responseMessage + message.Content;
+            Console.Write(message.Content);
+        }
+        Console.WriteLine();
+    }
+    return new OkObjectResult(responseMessage);
 });
 
 app.MapPost("/disConnectCall", async (ILogger<Program> logger) =>
@@ -512,6 +558,10 @@ async Task ConvertMp3ToWav(string inputFile, string outputFile)
     {
         reader.CopyTo(writer);
     }
+}
+static OpenAIClient getClient()
+{
+    return new OpenAIClient("OpenAIApiKey");
 }
 
 app.Run();
