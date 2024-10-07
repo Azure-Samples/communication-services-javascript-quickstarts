@@ -83,15 +83,15 @@ export const CallingComponents = (
             localVideoViewOptions={localViewVideoOptions}
           />
           <Stack>
-            {assignedBreakoutRoom?.state === "open" &&
-              assignedBreakoutRoom.call && (
-                <PrimaryButton
-                  text="Join breakout room"
-                  onClick={() => assignedBreakoutRoom.join()}
-                  style={{ height: "3.5rem" }}
-                />
-              )}
             <ControlBar layout="floatingBottom">
+              {assignedBreakoutRoom?.state === "open" &&
+                assignedBreakoutRoom.call && (
+                  <PrimaryButton
+                    text="Join breakout room"
+                    onClick={() => assignedBreakoutRoom.join()}
+                    style={{ height: "3.5rem" }}
+                  />
+                )}
               {cameraProps && (
                 <CameraButton
                   {...cameraProps}
@@ -110,7 +110,12 @@ export const CallingComponents = (
                   disabled={buttonsDisabled}
                 />
               )}
-              {endCallProps && <EndCallButton {...endCallProps} />}
+              {endCallProps && (
+                <EndCallButton
+                  {...endCallProps}
+                  menuProps={breakoutRoomMenuProps}
+                />
+              )}
             </ControlBar>
           </Stack>
         </Stack>

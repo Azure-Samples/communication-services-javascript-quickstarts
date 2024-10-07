@@ -4,19 +4,25 @@ import {
   CallAgent,
   Features,
 } from "@azure/communication-calling";
+import { ChatThreadClient } from "@azure/communication-chat";
 import { AzureCommunicationTokenCredential } from "@azure/communication-common";
 import {
   CallAgentProvider,
   CallClientProvider,
   CallProvider,
+  ChatClientProvider,
+  ChatThreadClientProvider,
   createStatefulCallClient,
+  createStatefulChatClient,
   DEFAULT_COMPONENT_ICONS,
   FluentThemeProvider,
   StatefulCallClient,
+  StatefulChatClient,
 } from "@azure/communication-react";
 import { initializeIcons, registerIcons, Stack } from "@fluentui/react";
 import { useCallback, useEffect, useState } from "react";
 import CallingComponents from "./CallingComponentsStateful";
+import ChatComponents from "./ChatComponentsStateful";
 
 initializeIcons();
 registerIcons({ icons: DEFAULT_COMPONENT_ICONS });
@@ -27,6 +33,7 @@ function App(): JSX.Element {
   const userId = "<User Id associated to the token>";
   const meetingLink = "<Teams meeting link>";
   const displayName = "<Display Name>";
+  const endpointUrl = "<Azure Communication Services Resource Endpoint>";
 
   const [statefulCallClient, setStatefulCallClient] =
     useState<StatefulCallClient>();
@@ -34,6 +41,10 @@ function App(): JSX.Element {
   const [call, setCall] = useState<Call>();
   // Main meeting call is used to return to the main meeting from a breakout room
   const [mainMeetingCall, setMainMeetingCall] = useState<Call>();
+
+  const [chatClient, setChatClient] = useState<StatefulChatClient>();
+  const [chatThreadClient, setChatThreadClient] = useState<ChatThreadClient>();
+  const [threadId, setThreadId] = useState<string>();
 
   useEffect(() => {
     const statefulCallClient = createStatefulCallClient({
@@ -62,6 +73,17 @@ function App(): JSX.Element {
       };
       createUserAgent();
     }
+
+    // set up chat client
+    const chatClient = createStatefulChatClient({
+      credential: tokenCredential,
+      userId: { communicationUserId: userId },
+      displayName,
+      endpoint: endpointUrl,
+    });
+    // start realtime notification
+    chatClient.startRealtimeNotifications();
+    setChatClient(chatClient);
   }, [statefulCallClient, displayName, callAgent]);
 
   useEffect(() => {
@@ -105,6 +127,7 @@ function App(): JSX.Element {
             // This case covers the scenario when the user is re-assigned to another breakout room that is open.
             const call = assignedBreakoutRoom.call as Call;
             setCall(call);
+            setThreadId(call.info.threadId);
           }
         } else {
           if (assignedBreakoutRoom?.call) {
@@ -120,7 +143,7 @@ function App(): JSX.Element {
         }
       }
     },
-    [call, setCall, mainMeetingCall, returnToMainMeeting]
+    [call, setCall, mainMeetingCall, returnToMainMeeting, setThreadId]
   );
 
   useEffect(() => {
@@ -129,8 +152,21 @@ function App(): JSX.Element {
       call
         .feature(Features.BreakoutRooms)
         ?.on("breakoutRoomsUpdated", onBreakoutRoomsUpdated);
+      // Subscribe to state change event to track threadId
+      call.on("stateChanged", () => {
+        if (call.info.threadId && call.info.threadId !== threadId) {
+          setThreadId(call.info.threadId);
+        }
+      });
     }
-  }, [call, onBreakoutRoomsUpdated]);
+  }, [call, onBreakoutRoomsUpdated, threadId, setThreadId]);
+
+  // Set chat thread client when threadId changes
+  useEffect(() => {
+    if (chatClient && threadId) {
+      setChatThreadClient(chatClient.getChatThreadClient(threadId));
+    }
+  }, [threadId, chatClient, chatThreadClient]);
 
   return (
     <FluentThemeProvider>
@@ -150,6 +186,15 @@ function App(): JSX.Element {
                 </CallAgentProvider>
               )}
             </CallClientProvider>
+          </Stack>
+        )}
+        {call?.state === "Connected" && chatClient && chatThreadClient && (
+          <Stack style={{ width: "20rem" }}>
+            <ChatClientProvider chatClient={chatClient}>
+              <ChatThreadClientProvider chatThreadClient={chatThreadClient}>
+                <ChatComponents />
+              </ChatThreadClientProvider>
+            </ChatClientProvider>
           </Stack>
         )}
       </Stack>
