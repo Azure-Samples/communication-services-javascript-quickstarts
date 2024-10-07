@@ -1,6 +1,6 @@
 import React from "react";
 import { CallClient, LocalVideoStream, Features, CallAgentKind, VideoStreamRenderer } from '@azure/communication-calling';
-import { AzureCommunicationTokenCredential, createIdentifierFromRawId} from '@azure/communication-common';
+import { AzureCommunicationTokenCredential, createIdentifierFromRawId } from '@azure/communication-common';
 import {
     PrimaryButton,
     TextField,
@@ -16,6 +16,8 @@ import MediaConstraint from './MediaConstraint';
 import { setLogLevel, AzureLogger } from '@azure/logger';
 import { inflate } from 'pako';
 import { URL_PARAM } from "../Constants";
+import { utils } from "../Utils/Utils";
+import { summarizationService } from "../Summarization/summarizationService";
 export default class MakeCall extends React.Component {
     constructor(props) {
         super(props);
@@ -27,11 +29,11 @@ export default class MakeCall extends React.Component {
         this.destinationGroup = null;
         this.userToUser = null;
         this.xHeaders = [
-            { key: null, value: null},
-            { key: null, value: null},
-            { key: null, value: null},
-            { key: null, value: null},
-            { key: null, value: null},
+            { key: null, value: null },
+            { key: null, value: null },
+            { key: null, value: null },
+            { key: null, value: null },
+            { key: null, value: null },
         ];
         this.meetingLink = null;
         this.meetingId = null;
@@ -76,7 +78,8 @@ export default class MakeCall extends React.Component {
             },
             preCallDiagnosticsResults: {},
             isTeamsUser: false,
-            identityMri: undefined
+            identityMri: undefined,
+            summaryText: undefined
         };
 
         setInterval(() => {
@@ -101,7 +104,7 @@ export default class MakeCall extends React.Component {
             }
         };
     }
-    
+
     autoJoinMeetingByMeetingLink = () => {
         if (this.state.loggedIn) {
             const params = new URLSearchParams(window.location.search);
@@ -135,7 +138,7 @@ export default class MakeCall extends React.Component {
                         appName: 'azure-communication-services',
                         appVersion: '1.3.1-beta.1',
                         tags: ["javascript_calling_sdk",
-                        `#clientTag:${userDetails.clientTag}`]
+                            `#clientTag:${userDetails.clientTag}`]
                     },
                     networkConfiguration: {
                         proxy: proxyConfiguration,
@@ -145,11 +148,11 @@ export default class MakeCall extends React.Component {
 
                 this.deviceManager = await this.callClient.getDeviceManager();
                 const permissions = await this.deviceManager.askDevicePermission({ audio: true, video: true });
-                this.setState({permissions: permissions});
+                this.setState({ permissions: permissions });
 
-                this.setState({ isTeamsUser: userDetails.isTeamsUser});
-                this.setState({ identityMri: createIdentifierFromRawId(userDetails.communicationUserId)})
-                this.callAgent =  this.state.isTeamsUser ?
+                this.setState({ isTeamsUser: userDetails.isTeamsUser });
+                this.setState({ identityMri: createIdentifierFromRawId(userDetails.communicationUserId) })
+                this.callAgent = this.state.isTeamsUser ?
                     await this.callClient.createTeamsCallAgent(tokenCredential) :
                     await this.callClient.createCallAgent(tokenCredential, { displayName: userDetails.displayName });
 
@@ -162,20 +165,20 @@ export default class MakeCall extends React.Component {
                         this.setState({ call: call });
 
                         const diagnosticChangedListener = (diagnosticInfo) => {
-                                const rmsg = `UFD Diagnostic changed:
+                            const rmsg = `UFD Diagnostic changed:
                                 Diagnostic: ${diagnosticInfo.diagnostic}
                                 Value: ${diagnosticInfo.value}
                                 Value type: ${diagnosticInfo.valueType}`;
-                                if (this.state.ufdMessages.length > 0) {
-                                    // limit speakingWhileMicrophoneIsMuted diagnostic until another diagnostic is received
-                                    if (diagnosticInfo.diagnostic === 'speakingWhileMicrophoneIsMuted' && this.state.ufdMessages[0].includes('speakingWhileMicrophoneIsMuted')) {
-                                        console.info(rmsg);
-                                        return;
-                                    }
-                                    this.setState({ ufdMessages: [rmsg, ...this.state.ufdMessages] });
-                                } else {
-                                    this.setState({ ufdMessages: [rmsg] });
+                            if (this.state.ufdMessages.length > 0) {
+                                // limit speakingWhileMicrophoneIsMuted diagnostic until another diagnostic is received
+                                if (diagnosticInfo.diagnostic === 'speakingWhileMicrophoneIsMuted' && this.state.ufdMessages[0].includes('speakingWhileMicrophoneIsMuted')) {
+                                    console.info(rmsg);
+                                    return;
                                 }
+                                this.setState({ ufdMessages: [rmsg, ...this.state.ufdMessages] });
+                            } else {
+                                this.setState({ ufdMessages: [rmsg] });
+                            }
                         };
 
                         const remoteDiagnosticChangedListener = (diagnosticArgs) => {
@@ -269,7 +272,7 @@ export default class MakeCall extends React.Component {
                 }
             });
 
-            const callOptions = await this.getCallOptions({video: withVideo, micMuted: false});
+            const callOptions = await this.getCallOptions({ video: withVideo, micMuted: false });
 
             if (this.callAgent.kind === CallAgentKind.CallAgent && this.alternateCallerId.value !== '') {
                 callOptions.alternateCallerId = { phoneNumber: this.alternateCallerId.value.trim() };
@@ -286,7 +289,7 @@ export default class MakeCall extends React.Component {
                     callOptions.customContext = callOptions.customContext || {};
                     callOptions.customContext.userToUser = this.userToUser.value;
                 }
-                
+
                 const xHeaders = this.xHeaders
                     .filter(header => !!header.key.value && !!header.value.value)
                     .map(header => {
@@ -298,6 +301,9 @@ export default class MakeCall extends React.Component {
                 }
             }
 
+            const callAutomationBot = await utils.getCommunicationUserToken(undefined, false);
+            identitiesToCall.push(callAutomationBot.userId);
+
             this.callAgent.startCall(identitiesToCall, callOptions);
 
         } catch (e) {
@@ -305,6 +311,11 @@ export default class MakeCall extends React.Component {
             this.setState({ callError: 'Failed to place a call: ' + e });
         }
     };
+
+    getSummary = async () => {
+        const summaryText = await summarizationService.getSummary();
+        this.setState({ summaryText: summaryText });
+    }
 
     downloadLog = async () => {
         const date = new Date();
@@ -334,9 +345,9 @@ export default class MakeCall extends React.Component {
             newDebugInfo = {
                 lastCallId: debugInfoFeature.lastCallId,
                 lastLocalParticipantId: debugInfoFeature.lastLocalParticipantId,
-                debugInfoDumpId:debugInfoDumpId,
+                debugInfoDumpId: debugInfoDumpId,
                 debugInfoDumpUnzipped: JSON.parse(inflate(debugInfoZippedDump, { to: 'string' })),
-             }
+            }
         } catch (e) {
             console.error('ERROR, failed to dumpDebugInfo', e);
         }
@@ -352,7 +363,7 @@ export default class MakeCall extends React.Component {
 
     joinGroup = async (withVideo) => {
         try {
-            const callOptions = await this.getCallOptions({video: withVideo, micMuted: false});
+            const callOptions = await this.getCallOptions({ video: withVideo, micMuted: false });
             this.callAgent.join({ groupId: this.destinationGroup.value }, callOptions);
         } catch (e) {
             console.error('Failed to join a call', e);
@@ -362,7 +373,7 @@ export default class MakeCall extends React.Component {
 
     joinRooms = async (withVideo) => {
         try {
-            const callOptions = await this.getCallOptions({video: withVideo, micMuted: false});
+            const callOptions = await this.getCallOptions({ video: withVideo, micMuted: false });
             this.callAgent.join({ roomId: this.roomsId.value }, callOptions);
         } catch (e) {
             console.error('Failed to join a call', e);
@@ -372,13 +383,13 @@ export default class MakeCall extends React.Component {
 
     joinTeamsMeeting = async (withVideo, micMuted = false) => {
         try {
-            const callOptions = await this.getCallOptions({video: withVideo, micMuted: micMuted});
+            const callOptions = await this.getCallOptions({ video: withVideo, micMuted: micMuted });
             if (this.meetingLink.value && !this.messageId.value && !this.threadId.value && this.tenantId && this.organizerId) {
                 this.callAgent.join({ meetingLink: this.meetingLink.value }, callOptions);
-            } else if (this.meetingId.value  || this.passcode.value && !this.meetingLink.value && !this.messageId.value && !this.threadId.value && this.tenantId && this.organizerId) {
-                this.callAgent.join({ 
+            } else if (this.meetingId.value || this.passcode.value && !this.meetingLink.value && !this.messageId.value && !this.threadId.value && this.tenantId && this.organizerId) {
+                this.callAgent.join({
                     meetingId: this.meetingId.value,
-                    passcode: this.passcode.value 
+                    passcode: this.passcode.value
                 }, callOptions);
             } else if (!this.meetingLink.value && this.messageId.value && this.threadId.value && this.tenantId && this.organizerId) {
                 this.callAgent.join({
@@ -412,7 +423,7 @@ export default class MakeCall extends React.Component {
 
         // On iOS, device permissions are lost after a little while, so re-ask for permissions
         const permissions = await this.deviceManager.askDevicePermission({ audio: true, video: true });
-        this.setState({permissions: permissions});
+        this.setState({ permissions: permissions });
 
         const cameras = await this.deviceManager.getCameras();
         const cameraDevice = cameras[0];
@@ -496,17 +507,17 @@ export default class MakeCall extends React.Component {
             });
             const preCallDiagnosticsResult = await this.callClient.feature(Features.PreCallDiagnostics).startTest(this.tokenCredential);
 
-            const deviceAccess =  await preCallDiagnosticsResult.deviceAccess;
-            this.setState({preCallDiagnosticsResults: {...this.state.preCallDiagnosticsResults, deviceAccess}});
+            const deviceAccess = await preCallDiagnosticsResult.deviceAccess;
+            this.setState({ preCallDiagnosticsResults: { ...this.state.preCallDiagnosticsResults, deviceAccess } });
 
             const deviceEnumeration = await preCallDiagnosticsResult.deviceEnumeration;
-            this.setState({preCallDiagnosticsResults: {...this.state.preCallDiagnosticsResults, deviceEnumeration}});
+            this.setState({ preCallDiagnosticsResults: { ...this.state.preCallDiagnosticsResults, deviceEnumeration } });
 
-            const inCallDiagnostics =  await preCallDiagnosticsResult.inCallDiagnostics;
-            this.setState({preCallDiagnosticsResults: {...this.state.preCallDiagnosticsResults, inCallDiagnostics}});
+            const inCallDiagnostics = await preCallDiagnosticsResult.inCallDiagnostics;
+            this.setState({ preCallDiagnosticsResults: { ...this.state.preCallDiagnosticsResults, inCallDiagnostics } });
 
-            const browserSupport =  await preCallDiagnosticsResult.browserSupport;
-            this.setState({preCallDiagnosticsResults: {...this.state.preCallDiagnosticsResults, browserSupport}});
+            const browserSupport = await preCallDiagnosticsResult.browserSupport;
+            this.setState({ preCallDiagnosticsResults: { ...this.state.preCallDiagnosticsResults, browserSupport } });
 
             this.setState({
                 showPreCallDiagnostcisResults: true,
@@ -887,7 +898,7 @@ this.callAgent.on('incomingCall', async (args) => {
 
         return (
             <div>
-                <Login onLoggedIn={this.handleLogIn} ref={this.logInComponentRef}/>
+                <Login onLoggedIn={this.handleLogIn} ref={this.logInComponentRef} />
                 {
                     this.state?.callSurvey &&
                     <CallSurvey
@@ -905,6 +916,12 @@ this.callAgent.on('incomingCall', async (args) => {
                             <div className="ms-Grid-col ms-lg6 ms-sm6 text-right">
                                 <PrimaryButton
                                     className="secondary-button"
+                                    iconProps={{ iconName: 'TestPlan', style: { verticalAlign: 'middle', fontSize: 'large' } }}
+                                    text={`Get Summary`}
+                                    onClick={this.getSummary}>
+                                </PrimaryButton>
+                                <PrimaryButton
+                                    className="secondary-button"
                                     iconProps={{ iconName: 'Download', style: { verticalAlign: 'middle', fontSize: 'large' } }}
                                     text={`Get Logs`}
                                     onClick={this.downloadLog}>
@@ -915,17 +932,29 @@ this.callAgent.on('incomingCall', async (args) => {
                                     text={`Get Debug Info Log Dump`}
                                     onClick={this.downloadDebugInfoLogDump}>
                                 </PrimaryButton>
-                                <PrimaryButton
+                                {/* <PrimaryButton
                                     className="secondary-button"
                                     iconProps={{ iconName: 'TransferCall', style: { verticalAlign: 'middle', fontSize: 'large' } }}
                                     text={`${this.state.showCallSampleCode ? 'Hide' : 'Show'} code`}
                                     onClick={() => this.setState({ showCallSampleCode: !this.state.showCallSampleCode })}>
-                                </PrimaryButton>
+                                </PrimaryButton> */}
                             </div>
                         </div>
                         <div className="ms-Grid-row">
                             <div className="ms-Grid-col mb-2">Having provisioned an ACS Identity and initialized the SDK from the section above, you are now ready to place calls, join group calls, and receiving calls.</div>
                         </div>
+                        {
+                            this.state.summaryText &&
+                            <h2>Summary</h2>
+                        }
+                        {
+                            this.state.summaryText &&
+                            <pre>
+                                <code style={{ color: 'white' }}>
+                                    {this.state.summaryText}
+                                </code>
+                            </pre>
+                        }
                         {
                             this.state.showCallSampleCode &&
                             <pre>
@@ -1011,15 +1040,15 @@ this.callAgent.on('incomingCall', async (args) => {
                                             disabled={this.state.call || !this.state.loggedIn}
                                             onClick={() => this.placeCall(true)}>
                                         </PrimaryButton>
-                                        <PrimaryButton 
+                                        <PrimaryButton
                                             className="primary-button"
-                                            iconProps={{iconName: 'Settings', style: {verticalAlign: 'middle', fontSize: 'large'}}}
+                                            iconProps={{ iconName: 'Settings', style: { verticalAlign: 'middle', fontSize: 'large' } }}
                                             text={this.state.showCustomContext ? 'Remove context' : 'Custom context'}
                                             disabled={this.state.call || !this.state.loggedIn}
-                                            onClick={() => this.setState({showCustomContext: !this.state.showCustomContext})}>
+                                            onClick={() => this.setState({ showCustomContext: !this.state.showCustomContext })}>
                                         </PrimaryButton>
-                                        <div className="ms-Grid-row" 
-                                             style={{display: this.state.showCustomContext ? 'block' : 'none'}}>
+                                        <div className="ms-Grid-row"
+                                            style={{ display: this.state.showCustomContext ? 'block' : 'none' }}>
                                             <div className="md-Grid-col ml-2 mt-0 ms-sm11 ms-md11 ms-lg9 ms-xl9 ms-xxl11">
                                                 <TextField
                                                     className="mt-0"
@@ -1031,7 +1060,7 @@ this.callAgent.on('incomingCall', async (args) => {
                                         </div>
                                         {[...Array(this.state.xHeadersMaxCount)].map((_, i) =>
                                             <div className="ms-Grid-row" key={i}
-                                                 style={{display: i < this.state.xHeadersCount && this.state.showCustomContext ? 'block' : 'none'}}>
+                                                style={{ display: i < this.state.xHeadersCount && this.state.showCustomContext ? 'block' : 'none' }}>
                                                 <div className="md-Grid-col inline-flex ml-2 mt-0 ms-sm11 ms-md11 ms-lg9 ms-xl9 ms-xxl11">
                                                     <TextField
                                                         className="mt-0 ms-sm6 ms-md6 ms-lg6 ms-xl6 ms-xxl6"
