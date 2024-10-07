@@ -8,40 +8,50 @@ using Azure.Messaging.EventGrid.SystemEvents;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
-using Microsoft.VisualBasic;
 using NAudio.Wave;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Text.Json;
+using Summarization_POC;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-/// Your ACS resource connection string
-var acsConnectionString = "";
+/* Read config values from appsettings.json*/
+var acsConnectionString = builder.Configuration.GetValue<string>("AcsConnectionString");
+ArgumentNullException.ThrowIfNullOrEmpty(acsConnectionString);
 
-// Your ACS resource phone number will act as source number to start outbound call
-var acsPhoneNumber = "";
+var cognitiveServiceEndpoint = builder.Configuration.GetValue<string>("CognitiveServiceEndpoint");
+ArgumentNullException.ThrowIfNullOrEmpty(cognitiveServiceEndpoint);
 
-// Target phone number you want to receive the call.
-var targetPhoneNumber = "";
+var transportUrl = builder.Configuration.GetValue<string>("TransportUrl");
+ArgumentNullException.ThrowIfNullOrEmpty(transportUrl);
 
-// Base url of the app
-var callbackUriHost = "";
+var acsPhoneNumber = builder.Configuration.GetValue<string>("AcsPhoneNumber");
+ArgumentNullException.ThrowIfNullOrEmpty(acsPhoneNumber);
+
+
+var callbackUriHost = builder.Configuration.GetValue<string>("CallbackUriHost");
+ArgumentNullException.ThrowIfNullOrEmpty(callbackUriHost);
+
+var targetPhoneNumber = builder.Configuration.GetValue<string>("TargetPhoneNumber");
+ArgumentNullException.ThrowIfNullOrEmpty(targetPhoneNumber);
+
+var bringYourOwnStorageUrl = builder.Configuration.GetValue<string>("BringYourOwnStorageUrl");
+ArgumentNullException.ThrowIfNullOrEmpty(bringYourOwnStorageUrl);
+
+var cognitiveServicesKey = builder.Configuration.GetValue<string>("CognitiveServicesKey");
+ArgumentNullException.ThrowIfNullOrEmpty(cognitiveServicesKey);
+
+var openAIEndPoint = builder.Configuration.GetValue<string>("OpenAIEndPoint");
+ArgumentNullException.ThrowIfNullOrEmpty(openAIEndPoint);
+
+var openAIKey = builder.Configuration.GetValue<string>("OpenAIKey");
+ArgumentNullException.ThrowIfNullOrEmpty(openAIKey);
+
+var openAiModelName = builder.Configuration.GetValue<string>("OpenAiModelName");
+ArgumentNullException.ThrowIfNullOrEmpty(openAiModelName);
 
 //Call back URL
 var callbackUri = new Uri(new Uri(callbackUriHost), "/api/callbacks");
-
-// Your cognitive service endpoint
-var cognitiveServiceEndpoint = "";
-
-var CognitiveServicesKey = "";
-
-//Transport URL
-var transportUrl = "";
-
-//Bring Your Own Storage URL
-var bringYourOwnStorageUrl = "";
 
 string callConnectionId = string.Empty;
 string recordingId = string.Empty;
@@ -49,10 +59,14 @@ string metadataLocation = string.Empty;
 string contentLocation = string.Empty;
 string filePath = string.Empty;
 string recordingPrompt = "Recording is Started.";
+string getBriefSummarySystemPrompt = "You are an AI assist, listening to the conversation between the users.";
+string getBriefSummaryUserPrompt = "From the conversation generate a brief summary of the discussion. Please provide a concise summary highlighting the main points and any important details. If possible, include any key quotes or statements made during the recording.";
 bool isBYOS = false;
 
-
 CallAutomationClient callAutomationClient = new CallAutomationClient(acsConnectionString);
+var openAIClient = new OpenAIClient(new Uri(openAIEndPoint), new AzureKeyCredential(openAIKey));
+builder.Services.AddSingleton(openAIClient);
+
 var app = builder.Build();
 
 app.MapPost("/createIncomingCall", async (string targetId, ILogger<Program> logger) =>
@@ -262,21 +276,17 @@ app.MapPost("/summarize", async (ILogger<Program> logger) =>
     logger.LogInformation("Get a Brief summary of the conversation");
     //string transcript = req.Query["transcript"];
 
-    //string requestBody = await new StreamReader(filePath).ReadToEndAsync();
+    //string requestBody = await new StreamReader(filePath).ReadLineAsync();
     //dynamic data = JsonConvert.DeserializeObject(requestBody);
     //string transcript = data?.transcript;
-
-
-    //Stream Chat Message with open AI
-    var openAIClient = getClient();
 
     var chatCompletionsOptions = new ChatCompletionsOptions()
     {
         Messages =
                    {
-                        new ChatMessage(ChatRole.System, recordingPrompt),
+                        new ChatMessage(ChatRole.System, getBriefSummarySystemPrompt),
                         new ChatMessage(ChatRole.User, transcript),
-                        new ChatMessage(ChatRole.User, recordingPrompt)
+                        new ChatMessage(ChatRole.User, getBriefSummaryUserPrompt)
                     },
         Temperature = (float)1,
         MaxTokens = 800
@@ -284,7 +294,7 @@ app.MapPost("/summarize", async (ILogger<Program> logger) =>
 
 
     Response<StreamingChatCompletions> chatresponse = await openAIClient.GetChatCompletionsStreamingAsync(
-     deploymentOrModelName: "gpt-4", chatCompletionsOptions);
+     deploymentOrModelName: openAiModelName, chatCompletionsOptions);
     using StreamingChatCompletions streamingChatCompletions = chatresponse.Value;
 
     string responseMessage = "";
@@ -298,7 +308,7 @@ app.MapPost("/summarize", async (ILogger<Program> logger) =>
         }
         Console.WriteLine();
     }
-    return new OkObjectResult(responseMessage);
+    return Results.Ok(responseMessage);
 });
 
 app.MapPost("/disConnectCall", async (ILogger<Program> logger) =>
@@ -496,7 +506,7 @@ async Task DownloadRecordingMetadata(ILogger<Program> logger)
 //Input parameter: the path of the recorded file
 async Task<string> ConvertSpeechToText(string audioFilePath)
 {
-    var speechConfig = SpeechConfig.FromSubscription(CognitiveServicesKey, "eastus");
+    var speechConfig = SpeechConfig.FromSubscription(cognitiveServicesKey, "eastus");
     speechConfig.OutputFormat = OutputFormat.Detailed;
 
     var stopRecognition = new TaskCompletionSource<int>();
@@ -559,9 +569,25 @@ async Task ConvertMp3ToWav(string inputFile, string outputFile)
         reader.CopyTo(writer);
     }
 }
-static OpenAIClient getClient()
-{
-    return new OpenAIClient("OpenAIApiKey");
-}
 
+app.UseWebSockets();
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path == "/ws")
+    {
+        if (context.WebSockets.IsWebSocketRequest)
+        {
+            using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+            await Helper.ProcessRequest(webSocket);
+        }
+        else
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+        }
+    }
+    else
+    {
+        await next(context);
+    }
+});
 app.Run();
