@@ -3,13 +3,14 @@ import {
   ControlBar,
   EndCallButton,
   MicrophoneButton,
+  NotificationStack,
   ScreenShareButton,
   useCall,
   usePropsFor,
   VideoGallery,
   VideoStreamOptions,
 } from "@azure/communication-react";
-import { Stack } from "@fluentui/react";
+import { IStackStyles, Stack } from "@fluentui/react";
 
 function CallingComponents(): JSX.Element {
   const videoGalleryProps = usePropsFor(VideoGallery);
@@ -17,6 +18,7 @@ function CallingComponents(): JSX.Element {
   const microphoneProps = usePropsFor(MicrophoneButton);
   const screenShareProps = usePropsFor(ScreenShareButton);
   const endCallProps = usePropsFor(EndCallButton);
+  const notificationProps = usePropsFor(NotificationStack);
 
   const call = useCall();
 
@@ -34,6 +36,9 @@ function CallingComponents(): JSX.Element {
     <Stack style={{ height: "100%" }}>
       {videoGalleryProps && (
         <Stack verticalAlign="center" style={{ height: "100%" }}>
+          <Stack styles={NotificationStackContainerStyles}>
+            <NotificationStack {...notificationProps} />
+          </Stack>
           <VideoGallery
             {...videoGalleryProps}
             styles={VideoGalleryStyles}
@@ -59,11 +64,7 @@ function CallingComponents(): JSX.Element {
                   disabled={buttonsDisabled}
                 />
               )}
-              {endCallProps && (
-                <EndCallButton
-                  {...endCallProps}
-                />
-              )}
+              {endCallProps && <EndCallButton {...endCallProps} />}
             </ControlBar>
           </Stack>
         </Stack>
@@ -87,6 +88,16 @@ const VideoGalleryStyles = {
     width: "100%",
     minHeight: "10rem",
     minWidth: "6rem",
+  },
+};
+
+const NotificationStackContainerStyles: IStackStyles = {
+  root: {
+    zIndex: 1,
+    position: "absolute",
+    top: "2rem",
+    left: "50%",
+    transform: "translate(-50%, 0)",
   },
 };
 
