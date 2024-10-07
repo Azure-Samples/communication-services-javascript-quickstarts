@@ -1,3 +1,4 @@
+import { Features } from "@azure/communication-calling";
 import {
   CameraButton,
   ControlBar,
@@ -10,9 +11,15 @@ import {
   VideoGallery,
   VideoStreamOptions,
 } from "@azure/communication-react";
-import { IStackStyles, Stack } from "@fluentui/react";
+import { IStackStyles, PrimaryButton, Stack } from "@fluentui/react";
 
-function CallingComponents(): JSX.Element {
+export type CallingComponentsProps = {
+  returnToMainMeeting?: () => Promise<void>;
+};
+
+export const CallingComponents = (
+  props: CallingComponentsProps
+): JSX.Element => {
   const videoGalleryProps = usePropsFor(VideoGallery);
   const cameraProps = usePropsFor(CameraButton);
   const microphoneProps = usePropsFor(MicrophoneButton);
@@ -32,6 +39,37 @@ function CallingComponents(): JSX.Element {
     return <CallEnded />;
   }
 
+  let breakoutRoomMenuProps = undefined;
+  // Breakout room menu items are shown only if the breakout room settings allow returning to the main meeting
+  if (
+    props.returnToMainMeeting &&
+    call?.feature(Features.BreakoutRooms).breakoutRoomsSettings
+      ?.disableReturnToMainMeeting === false
+  ) {
+    breakoutRoomMenuProps = {
+      items: [
+        {
+          key: "leaveRoom",
+          text: "Leave room",
+          title: "Leave room",
+          onClick: () => {
+            call.hangUp();
+            props.returnToMainMeeting?.();
+          },
+        },
+        {
+          key: "leaveMeeting",
+          text: "Leave meeting",
+          title: "Leave meeting",
+          onClick: () => endCallProps.onHangUp(),
+        },
+      ],
+    };
+  }
+  const assignedBreakoutRoom = call?.feature(
+    Features.BreakoutRooms
+  ).assignedBreakoutRooms;
+
   return (
     <Stack style={{ height: "100%" }}>
       {videoGalleryProps && (
@@ -45,6 +83,14 @@ function CallingComponents(): JSX.Element {
             localVideoViewOptions={localViewVideoOptions}
           />
           <Stack>
+            {assignedBreakoutRoom?.state === "open" &&
+              assignedBreakoutRoom.call && (
+                <PrimaryButton
+                  text="Join breakout room"
+                  onClick={() => assignedBreakoutRoom.join()}
+                  style={{ height: "3.5rem" }}
+                />
+              )}
             <ControlBar layout="floatingBottom">
               {cameraProps && (
                 <CameraButton
@@ -71,7 +117,7 @@ function CallingComponents(): JSX.Element {
       )}
     </Stack>
   );
-}
+};
 
 const localViewVideoOptions: VideoStreamOptions = {
   isMirrored: true,
