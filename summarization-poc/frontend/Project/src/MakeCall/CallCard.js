@@ -1169,26 +1169,21 @@ export default class CallCard extends React.Component {
             isByos: this.state.isByos
         };
 
-        summarizationService.startRecording(recordRequest)
-            .then(res => {
-                this.setState({ recordingId: res.recordingId })
-                this.setState({ isCallRecordingActive: true });
-            })
-            .catch(error => {
-                console.error('Error recording call:', error);
-            });
+        try {
+            await summarizationService.startRecording(recordRequest);
+            this.setState({ isCallRecordingActive: true });
+        } catch (e) {
+            console.error('Error recording call:', e);
+        }
     }
 
     handleStopRecording = async () => {
-        const recordingId = this.state.recordingId;
-        if (recordingId !== undefined) {
-            const res = await summarizationService.stopRecording(recordingId);
-            if (res) {
-                this.setState({ isCallRecordingActive: false });
-            }
+        try {
+            await summarizationService.stopRecording();
+            this.setState({ isCallRecordingActive: false });
         }
-        else {
-            alert("Recording id is empty.")
+        catch (e) {
+            console.error('Error stop recording:', e);
         }
     }
 
