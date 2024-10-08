@@ -36,8 +36,8 @@
     padding-left: 0em;
   }
 
-  .login-pannel.teams{
-    margin-top:10px;
+  .login-pannel.teams {
+    margin-top: 10px;
   }
 }
 
@@ -101,7 +101,7 @@ h6 {
 }
 
 .login-pannel {
-  height:300px;
+  height: 300px;
 }
 
 input:disabled {
@@ -224,7 +224,8 @@ ul {
   background-color: #201f1e;
 }
 
-.ms-Persona-primaryText, .ms-Persona-primaryText:hover {
+.ms-Persona-primaryText,
+.ms-Persona-primaryText:hover {
   color: #edebe9;
   text-wrap: wrap;
 }
@@ -364,7 +365,7 @@ div.ms-Checkbox>input[type="checkbox"]+label.ms-Checkbox-label>span.ms-Checkbox-
 }
 
 .call-input-panel-input-label-disabled {
-    color: #484644 !important;
+  color: #484644 !important;
 }
 
 .in-call-button,
@@ -394,25 +395,26 @@ div.ms-Checkbox>input[type="checkbox"]+label.ms-Checkbox-label>span.ms-Checkbox-
   padding-bottom: 25px;
   grid-template-columns: repeat(auto-fit, minmax(min(99%/1, 100%/4), 1fr));
 }
-@media screen and (max-width: 1024px){
+
+@media screen and (max-width: 1024px) {
   .video-grid-row {
     display: block;
   }
 }
 
-.video-grid-row >  .stream-container.rendering:nth-child(3n-1):nth-last-of-type(1) {
+.video-grid-row>.stream-container.rendering:nth-child(3n-1):nth-last-of-type(1) {
   grid-column: span 2;
 }
 
-.video-grid-row > .stream-container.rendering:nth-child(3n-2):nth-last-of-type(1) {
+.video-grid-row>.stream-container.rendering:nth-child(3n-2):nth-last-of-type(1) {
   grid-column: span 3;
 }
 
 .pptLive {
   display: block;
-  padding: 2vh 2vw;  
-  width: 100%;  
-  height: 50vh; 
+  padding: 2vh 2vw;
+  width: 100%;
+  height: 50vh;
 }
 
 .video-title {
@@ -1140,7 +1142,7 @@ div.volumeVisualizer::before {
 }
 
 .scrollable-captions-container .captions-area .caption-item {
-    transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .custom-video-effects-buttons:not(.outgoing) {
@@ -1168,10 +1170,10 @@ div.volumeVisualizer::before {
 }
 
 .spotlightEnabled {
-  border: 1px solid  #75b6e7;
+  border: 1px solid #75b6e7;
 }
 
-.lobby-action{
+.lobby-action {
   margin-top: 2px;
 }
 
@@ -1183,23 +1185,30 @@ div.volumeVisualizer::before {
   color: green;
 }
 
-.participantMenu, .participantMenu:hover{
+.participantMenu,
+.participantMenu:hover {
   background-color: inherit;
   width: fit-content;
   color: white;
   border: none;
   margin-right: 5px;
 }
+
 .participantMenu .ms-Icon {
   font-size: 30px;
   border: none;
 }
 
-.callFeatureEnabled, .callFeatureEnabled:hover {
+.callFeatureEnabled,
+.callFeatureEnabled:hover {
   color: #75b6e7;
 }
 
 .dominant-speakers-list {
   max-height: 12em;
   overflow-y: auto;
+}
+
+.dropdown-pos {
+  float: right;
 }
