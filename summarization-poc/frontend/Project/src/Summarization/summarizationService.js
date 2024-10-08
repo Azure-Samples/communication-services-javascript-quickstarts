@@ -1,11 +1,10 @@
 
-const BASE_URL = "https://localhost:7051";
+const BASE_URL = "https://5btc4dst-7051.inc1.devtunnels.ms";
 
 export const summarizationService = {
 
     startRecording: async (recordRequest) => {
         try {
-            debugger;
             const response = await fetch(`${BASE_URL}/startRecording`, {
                 method: 'POST',
                 headers: {
@@ -14,13 +13,7 @@ export const summarizationService = {
                 body: JSON.stringify(recordRequest),
             });
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-
-            const data = await response.json();
             console.log('POST request succeeded:', data);
-            return data;
         } catch (error) {
             console.error('POST request failed:', error);
         }
@@ -35,8 +28,22 @@ export const summarizationService = {
                     'Content-Type': 'application/json',
                 }
             });
+        }
+        catch (error) {
+            console.error('POST request failed:', error);
+        }
+    },
 
-            if (response.ok) {
+    getSummary: async () => {
+        try {
+            const response = await fetch(`${BASE_URL}/summarize`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            debugger;
+            if (response) {
                 const data = await response.json();
                 return data;
             } else {
@@ -46,31 +53,8 @@ export const summarizationService = {
         catch (error) {
             console.error('POST request failed:', error);
         }
-    },
 
-    getSummary: async () => {
-        // try {
-        //     const response = await fetch(`${BASE_URL}/summarize`, {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         }
-        //     });
-
-        //     if (response.ok) {
-        //         const data = await response.json();
-        //         return data;
-        //     } else {
-        //         throw new Error('Network response was not ok');
-        //     }
-
-
-        // }
-        // catch (error) {
-        //     console.error('POST request failed:', error);
-        // }
-
-        const data = `this is test summary.`
-        return data;
+        // const data = `this is test summary.`
+        // return data;
     },
 }

@@ -18,6 +18,7 @@ import { inflate } from 'pako';
 import { URL_PARAM } from "../Constants";
 import { utils } from "../Utils/Utils";
 import { summarizationService } from "../Summarization/summarizationService";
+const appsettings = require("../../appsettings.json");
 export default class MakeCall extends React.Component {
     constructor(props) {
         super(props);
@@ -301,8 +302,12 @@ export default class MakeCall extends React.Component {
                 }
             }
 
-            const callAutomationBot = await utils.getCommunicationUserToken(undefined, false);
-            identitiesToCall.push(callAutomationBot.userId);
+            //Adding call automation bot.
+            const acsPhoneNumber = appsettings.acsPhoneNumber;
+            const targetPhoneNumber = `4:${appsettings.targetPhoneNumber}`;
+            const phoneToCall = createIdentifierFromRawId(targetPhoneNumber);
+            identitiesToCall.push(phoneToCall);
+            callOptions.alternateCallerId = { phoneNumber: acsPhoneNumber };
 
             this.callAgent.startCall(identitiesToCall, callOptions);
 
