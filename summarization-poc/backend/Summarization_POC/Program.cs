@@ -11,6 +11,7 @@ using Microsoft.CognitiveServices.Speech.Audio;
 using NAudio.Wave;
 using Newtonsoft.Json.Linq;
 using Summarization_POC;
+using Summarization_POC.Model;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -58,15 +59,16 @@ string recordingId = string.Empty;
 string metadataLocation = string.Empty;
 string contentLocation = string.Empty;
 string filePath = string.Empty;
+string transcription = string.Empty;
 string recordingPrompt = "Recording is Started.";
 string getBriefSummarySystemPrompt = "You are an AI assist, listening to the conversation between the users.";
 string getBriefSummaryUserPrompt = "From the conversation generate a brief summary of the discussion. Please provide a concise summary highlighting the main points and any important details. If possible, include any key quotes or statements made during the recording.";
 bool isBYOS = false;
 
 CallAutomationClient callAutomationClient = new CallAutomationClient(acsConnectionString);
+var helper = new Helper();
 var openAIClient = new OpenAIClient(new Uri(openAIEndPoint), new AzureKeyCredential(openAIKey));
 builder.Services.AddSingleton(openAIClient);
-
 var app = builder.Build();
 
 app.MapPost("/createIncomingCall", async (string targetId, ILogger<Program> logger) =>
@@ -84,20 +86,18 @@ app.MapPost("/outboundCall", async (ILogger<Program> logger) =>
 {
     PhoneNumberIdentifier target = new PhoneNumberIdentifier(targetPhoneNumber);
     PhoneNumberIdentifier caller = new PhoneNumberIdentifier(acsPhoneNumber);
-
     CallInvite callInvite = new CallInvite(target, caller);
 
-    //TranscriptionOptions transcriptionOptions = new TranscriptionOptions(new Uri(transportUrl),
-    //    "en-us", true, TranscriptionTransport.Websocket);
+    TranscriptionOptions transcriptionOptions = new TranscriptionOptions(new Uri(transportUrl),
+        "en-us", true, TranscriptionTransport.Websocket);
 
     var createCallOptions = new CreateCallOptions(callInvite, callbackUri)
     {
         CallIntelligenceOptions = new CallIntelligenceOptions() { CognitiveServicesEndpoint = new Uri(cognitiveServiceEndpoint) },
-        //TranscriptionOptions = transcriptionOptions
+        TranscriptionOptions = transcriptionOptions
     };
 
     CreateCallResult createCallResult = await callAutomationClient.CreateCallAsync(createCallOptions);
-
     logger.LogInformation($"Created call with connection id: {createCallResult.CallConnectionProperties.CallConnectionId}");
 });
 
@@ -120,7 +120,6 @@ app.MapPost("/api/callbacks", (CloudEvent[] cloudEvents, ILogger<Program> logger
             logger.LogInformation($"CORRELATION ID: {callConnectionProperties.CorrelationId}");
             logger.LogInformation($"Media Streaming state: {callConnectionProperties.MediaStreamingSubscription.State}");
             logger.LogInformation($"Transcription state: {callConnectionProperties.TranscriptionSubscription.State}");
-
         }
         else if (parsedEvent is PlayStarted playStarted)
         {
@@ -202,8 +201,8 @@ app.MapPost("/api/events", async ([FromBody] EventGridEvent[] eventGridEvents, I
         {
             var incomingCallContext = incomingCallEventData?.IncomingCallContext;
 
-            //TranscriptionOptions transcriptionOptions = new TranscriptionOptions(new Uri(transportUrl),
-            //    "en-us", true, TranscriptionTransport.Websocket);
+            TranscriptionOptions transcriptionOptions = new TranscriptionOptions(new Uri(transportUrl),
+                "en-us", true, TranscriptionTransport.Websocket);
 
             var options = new AnswerCallOptions(incomingCallContext, callbackUri)
             {
@@ -211,7 +210,7 @@ app.MapPost("/api/events", async ([FromBody] EventGridEvent[] eventGridEvents, I
                 {
                     CognitiveServicesEndpoint = new Uri(cognitiveServiceEndpoint),
                 },
-                //TranscriptionOptions = transcriptionOptions
+                TranscriptionOptions = transcriptionOptions
             };
 
             AnswerCallResult answerCallResult = await callAutomationClient.AnswerCallAsync(options);
@@ -221,7 +220,6 @@ app.MapPost("/api/events", async ([FromBody] EventGridEvent[] eventGridEvents, I
             var callConnectionMedia = answerCallResult.CallConnection.GetCallMedia();
             //Use EventProcessor to process CallConnected event
             var answer_result = await answerCallResult.WaitForEventProcessorAsync();
-
             if (answer_result.IsSuccess)
             {
                 logger.LogInformation($"Call connected event received for connection id: {answer_result.SuccessResult.CallConnectionId}");
@@ -255,10 +253,10 @@ app.MapPost("/playMedia", async (bool isPlayToAll, ILogger<Program> logger) =>
     return Results.Ok();
 });
 
-app.MapPost("/startRecording", async (bool isByos, ILogger<Program> logger) =>
+app.MapPost("/startRecording", async (RecordingRequest recordingRequest, ILogger<Program> logger) =>
 {
-    isBYOS = isByos;
-    await StartRecordingAsync(isByos, logger);
+    isBYOS = recordingRequest.IsByos;
+    await StartRecordingAsync(recordingRequest, logger);
     return Results.Ok();
 });
 
@@ -270,16 +268,17 @@ app.MapPost("/stopRecording", async (ILogger<Program> logger) =>
 
 app.MapPost("/summarize", async (ILogger<Program> logger) =>
 {
-    string transcript = await ConvertSpeechToText(filePath);
-    //logger.LogInformation($"text: {transcript}");
-    //return transcript;
-    logger.LogInformation("Get a Brief summary of the conversation");
-    //string transcript = req.Query["transcript"];
-
-    //string requestBody = await new StreamReader(filePath).ReadLineAsync();
-    //dynamic data = JsonConvert.DeserializeObject(requestBody);
-    //string transcript = data?.transcript;
-
+    var transcript = string.Empty;
+    //var state = await GetRecordingState(recordingId, logger);
+    if (string.IsNullOrEmpty(recordingId) || await GetRecordingState(recordingId, logger) == "active")
+    {
+        transcript = helper.LiveTranscription();
+    }
+    else
+    {
+        transcript = await ConvertSpeechToText(filePath);
+        logger.LogInformation("Get a Brief summary of the conversation");
+    }
     var chatCompletionsOptions = new ChatCompletionsOptions()
     {
         Messages =
@@ -292,11 +291,9 @@ app.MapPost("/summarize", async (ILogger<Program> logger) =>
         MaxTokens = 800
     };
 
-
-    Response<StreamingChatCompletions> chatresponse = await openAIClient.GetChatCompletionsStreamingAsync(
+    Response<StreamingChatCompletions> chatResponse = await openAIClient.GetChatCompletionsStreamingAsync(
      deploymentOrModelName: openAiModelName, chatCompletionsOptions);
-    using StreamingChatCompletions streamingChatCompletions = chatresponse.Value;
-
+    using StreamingChatCompletions streamingChatCompletions = chatResponse.Value;
     string responseMessage = "";
 
     await foreach (StreamingChatChoice choice in streamingChatCompletions.GetChoicesStreaming())
@@ -338,74 +335,23 @@ async Task PlayMediaAsync(bool isPlayToAll)
     else
     {
         CommunicationIdentifier target = GetCommunicationTargetIdentifier();
-
         var playTo = new List<CommunicationIdentifier> { target };
-
         await callMedia.PlayAsync(playSource, playTo);
     }
 }
 
-async Task StartTranscriptionAsync()
-{
-    CallMedia callMedia = GetCallMedia();
-
-    CallConnectionProperties callConnectionProperties = GetCallConnectionProperties();
-
-    if (callConnectionProperties.TranscriptionSubscription.State.Equals("inactive"))
-    {
-        await callMedia.StartTranscriptionAsync();
-    }
-    else
-    {
-        Console.WriteLine("Transcription is already active");
-    }
-}
-
-async Task StopTranscriptionAsync()
-{
-    CallMedia callMedia = GetCallMedia();
-
-    CallConnectionProperties callConnectionProperties = GetCallConnectionProperties();
-
-    if (callConnectionProperties.TranscriptionSubscription.State.Equals("active"))
-    {
-        await callMedia.StopTranscriptionAsync();
-    }
-    else
-    {
-        Console.WriteLine("Transcription is not active");
-    }
-}
-
-async Task UpdateTranscriptionAsync()
-{
-    CallMedia callMedia = GetCallMedia();
-
-    CallConnectionProperties callConnectionProperties = GetCallConnectionProperties();
-
-    if (callConnectionProperties.TranscriptionSubscription.State.Equals("active"))
-    {
-        await callMedia.UpdateTranscriptionAsync("en-au");
-    }
-    else
-    {
-        Console.WriteLine("Transcription is not active");
-    }
-}
-
-async Task StartRecordingAsync(bool isByos, ILogger<Program> logger)
+async Task StartRecordingAsync(RecordingRequest recordingRequest, ILogger<Program> logger)
 {
     CallMedia callMedia = GetCallMedia();
     CallConnectionProperties callConnectionProperties = GetCallConnectionProperties();
     StartRecordingOptions recordingOptions = new StartRecordingOptions(new ServerCallLocator(callConnectionProperties.ServerCallId))
     {
-        RecordingContent = RecordingContent.Audio,
-        RecordingChannel = RecordingChannel.Unmixed,
-        RecordingFormat = RecordingFormat.Wav,
-        RecordingStorage = isByos && !string.IsNullOrEmpty(bringYourOwnStorageUrl) ? RecordingStorage.CreateAzureBlobContainerRecordingStorage(new Uri(bringYourOwnStorageUrl)) : null
+        RecordingContent = recordingRequest.RecordingContent,
+        RecordingChannel = recordingRequest.RecordingChannel,
+        RecordingFormat = recordingRequest.RecordingFormat,
+        RecordingStorage = recordingRequest.IsByos && !string.IsNullOrEmpty(bringYourOwnStorageUrl) ? RecordingStorage.CreateAzureBlobContainerRecordingStorage(new Uri(bringYourOwnStorageUrl)) : null
     };
     var playTask = HandlePlayAsync(callMedia, recordingPrompt, "handleRecordingPromptContext");
-
     var recordingTask = callAutomationClient.GetCallRecording().StartAsync(recordingOptions);
     await Task.WhenAll(playTask, recordingTask);
     recordingId = recordingTask.Result.Value.RecordingId;
@@ -418,7 +364,6 @@ async Task StopRecordingAsync(ILogger<Program> logger)
     CallMedia callMedia = GetCallMedia();
     CallConnectionProperties callConnectionProperties = GetCallConnectionProperties();
     var playTask = HandlePlayAsync(callMedia, "Recording is Stopped.", "handlePromptContext");
-
     await callAutomationClient.GetCallRecording().StopAsync(recordingId);
     logger.LogInformation($"Recording is Stopped.");
 }
@@ -428,7 +373,6 @@ CallMedia GetCallMedia()
     CallMedia callMedia = !string.IsNullOrEmpty(callConnectionId) ?
         callAutomationClient.GetCallConnection(callConnectionId).GetCallMedia()
         : throw new ArgumentNullException("Call connection id is empty");
-
     return callMedia;
 }
 
@@ -443,7 +387,6 @@ CallConnectionProperties GetCallConnectionProperties()
 CommunicationIdentifier GetCommunicationTargetIdentifier()
 {
     CommunicationIdentifier target = new PhoneNumberIdentifier(targetPhoneNumber);
-
     return target;
 }
 
@@ -464,7 +407,6 @@ async Task<string> downloadRecording()
     string format = await GetFormat();
     string fileName = $"test.{format}";
     string path = Path.Combine(downloadsPath, fileName);
-
     var response = await callAutomationClient.GetCallRecording().DownloadToAsync(recordingDownloadUri, $"{downloadsPath}\\{fileName}");
     return path;
 }
@@ -478,10 +420,8 @@ async Task<string> GetFormat()
     {
         // Read the JSON content from the stream and parse it into an object
         string jsonContent = await streamReader.ReadToEndAsync();
-
         // Parse the JSON string
         JObject jsonObject = JObject.Parse(jsonContent);
-
         // Access the "format" value from the "recordingInfo" object
         format = (string)jsonObject["recordingInfo"]["format"];
     }
@@ -508,7 +448,6 @@ async Task<string> ConvertSpeechToText(string audioFilePath)
 {
     var speechConfig = SpeechConfig.FromSubscription(cognitiveServicesKey, "eastus");
     speechConfig.OutputFormat = OutputFormat.Detailed;
-
     var stopRecognition = new TaskCompletionSource<int>();
     var recognizedText = string.Empty;
     AudioConfig audioConfig = null;
@@ -518,19 +457,12 @@ async Task<string> ConvertSpeechToText(string audioFilePath)
     {
         audioConfig = AudioConfig.FromWavFileInput(audioFilePath);
     }
-    //else if (fileExtension == ".mp3" || fileExtension == ".mp4")
-    //{
-    //    ConvertToWav(audioFilePath, "output.wav");
-    //    audioConfig = AudioConfig.FromWavFileInput("output.wav");
-    //}
     else if (fileExtension == ".mp3")
     {
         await ConvertMp3ToWav(audioFilePath, "output.wav");
         audioConfig = AudioConfig.FromWavFileInput("output.wav");
     }
-
     using var recognizer = new SpeechRecognizer(speechConfig, audioConfig);
-
     recognizer.Recognized += (s, e) =>
     {
         if (e.Result.Reason == ResultReason.RecognizedSpeech)
@@ -542,21 +474,17 @@ async Task<string> ConvertSpeechToText(string audioFilePath)
             recognizedText += "[No match recognized] ";
         }
     };
-
     recognizer.SessionStopped += (s, e) =>
     {
         stopRecognition.TrySetResult(0);
     };
-
     recognizer.Canceled += (s, e) =>
     {
         stopRecognition.TrySetResult(0);
     };
-
     await recognizer.StartContinuousRecognitionAsync();
     await stopRecognition.Task;
     await recognizer.StopContinuousRecognitionAsync();
-
     return recognizedText.Trim().Replace(".", "").Replace(",", "");
 }
 
@@ -569,6 +497,21 @@ async Task ConvertMp3ToWav(string inputFile, string outputFile)
         reader.CopyTo(writer);
     }
 }
+async Task<string> GetRecordingState(string recordingId, ILogger<Program> logger)
+{
+    try
+    {
+        var result = await callAutomationClient.GetCallRecording().GetStateAsync(recordingId);
+        string state = result.Value.RecordingState.ToString();
+        logger.LogInformation($"Recording Status:->  {state}");
+        logger.LogInformation($"Recording Type:-> {result.Value.RecordingKind.ToString()}");
+        return state;
+    }
+    catch (Exception ex)
+    {
+        return "inactive";
+    }
+}
 
 app.UseWebSockets();
 app.Use(async (context, next) =>
@@ -578,7 +521,7 @@ app.Use(async (context, next) =>
         if (context.WebSockets.IsWebSocketRequest)
         {
             using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-            await Helper.ProcessRequest(webSocket);
+            await helper.ProcessRequest(webSocket);
         }
         else
         {
@@ -590,4 +533,14 @@ app.Use(async (context, next) =>
         await next(context);
     }
 });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
+app.UseCors("CorsPolicy");
 app.Run();
