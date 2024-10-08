@@ -1,84 +1,99 @@
 ﻿using Azure.Communication.CallAutomation;
-using Microsoft.AspNetCore.Mvc;
-using System.Collections;
 using System.Net.WebSockets;
 using System.Text;
 
 namespace Summarization_POC
 {
-    public static class Helper
+    public class Helper
     {
-        /// <summary>
-        /// Accept WebSocket Connection, and then Loop in receiving data transmitted from client.
-        /// </summary>
-        /// <param name="webSocket"></param>
-        public static async Task ProcessRequest(WebSocket webSocket)
+        public static string data = string.Empty;
+        public async Task ProcessRequest(WebSocket webSocket)
         {
-            try
+            //string data = string.Empty;
+            var buffer = new byte[1024 * 4];
+            var receiveResult = await webSocket.ReceiveAsync(
+                new ArraySegment<byte>(buffer), CancellationToken.None);
+            // using Dictionary<TKey,TValue> class
+            //Dictionary<string, string> data = new Dictionary<string, string>();
+            while (!receiveResult.CloseStatus.HasValue)
             {
-                while (webSocket.State == WebSocketState.Open || webSocket.State == WebSocketState.CloseSent)
+                string msg = Encoding.UTF8.GetString(buffer, 0, receiveResult.Count);
+
+                //var response = StreamingDataParser.Parse(buffer.Take(receiveResult.Count).ToArray());
+
+                var response = StreamingDataParser.Parse(msg);
+
+                if (response != null)
                 {
-                    var buffer = new byte[1024 * 4];
-                    var cancellationToken = new CancellationTokenSource(TimeSpan.FromSeconds(60)).Token;
-                    WebSocketReceiveResult receiveResult = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
-
-                    while (!receiveResult.CloseStatus.HasValue)
+                    if (response is AudioMetadata audioMetadata)
                     {
-                        string msg = Encoding.UTF8.GetString(buffer, 0, receiveResult.Count);
-
-                        var response = StreamingDataParser.Parse(msg);
-
-                        if (response != null)
-                        {
-                            if (response is TranscriptionMetadata transcriptionMetadata)
-                            {
-                                Console.WriteLine("***************************************************************************************");
-                                Console.WriteLine("TRANSCRIPTION SUBSCRIPTION ID-->" + transcriptionMetadata.TranscriptionSubscriptionId);
-                                Console.WriteLine("LOCALE-->" + transcriptionMetadata.Locale);
-                                Console.WriteLine("CALL CONNECTION ID--?" + transcriptionMetadata.CallConnectionId);
-                                Console.WriteLine("CORRELATION ID-->" + transcriptionMetadata.CorrelationId);
-                                Console.WriteLine("***************************************************************************************");
-                            }
-                            if (response is TranscriptionData transcriptionData)
-                            {
-                                Console.WriteLine("***************************************************************************************");
-                                Console.WriteLine("TEXT-->" + transcriptionData.Text);
-                                Console.WriteLine("FORMAT-->" + transcriptionData.Format);
-                                Console.WriteLine("OFFSET-->" + transcriptionData.Offset.Ticks);
-                                Console.WriteLine("DURATION-->" + transcriptionData.Duration.Ticks);
-                                Console.WriteLine("PARTICIPANT-->" + transcriptionData.Participant.RawId);
-                                Console.WriteLine("CONFIDENCE-->" + transcriptionData.Confidence);
-                                Console.WriteLine("RESULT STATUS-->" + transcriptionData.ResultState);
-                                foreach (var word in transcriptionData.Words)
-                                {
-                                    Console.WriteLine("WORDS TEXT-->" + word.Text);
-                                    Console.WriteLine("WORDS OFFSET-->" + word.Offset.Ticks);
-                                    Console.WriteLine("WORDS DURATION-->" + word.Duration.Ticks);
-                                }
-                                Console.WriteLine("***************************************************************************************");
-                            }
-
-                        }
-
-                        await webSocket.SendAsync(
-                            new ArraySegment<byte>(buffer, 0, receiveResult.Count),
-                            receiveResult.MessageType,
-                            receiveResult.EndOfMessage,
-                            CancellationToken.None);
+                        Console.WriteLine("***************************************************************************************");
+                        Console.WriteLine("MEDIA SUBSCRIPTION ID-->" + audioMetadata.MediaSubscriptionId);
+                        Console.WriteLine("ENCODING-->" + audioMetadata.Encoding);
+                        Console.WriteLine("SAMPLE RATE-->" + audioMetadata.SampleRate);
+                        Console.WriteLine("CHANNELS-->" + audioMetadata.Channels);
+                        Console.WriteLine("LENGTH-->" + audioMetadata.Length);
+                        Console.WriteLine("***************************************************************************************");
+                    }
+                    if (response is AudioData audioData)
+                    {
+                        Console.WriteLine("***************************************************************************************");
+                        Console.WriteLine("DATA-->" + audioData.Data);
+                        Console.WriteLine("TIMESTAMP-->" + audioData.Timestamp);
+                        Console.WriteLine("IS SILENT-->" + audioData.IsSilent);
+                        Console.WriteLine("***************************************************************************************");
                     }
 
-                    await webSocket.CloseAsync(receiveResult.CloseStatus.Value, receiveResult.CloseStatusDescription, CancellationToken.None);
+                    if (response is TranscriptionMetadata transcriptionMetadata)
+                    {
+                        Console.WriteLine("***************************************************************************************");
+                        Console.WriteLine("TRANSCRIPTION SUBSCRIPTION ID-->" + transcriptionMetadata.TranscriptionSubscriptionId);
+                        Console.WriteLine("LOCALE-->" + transcriptionMetadata.Locale);
+                        Console.WriteLine("CALL CONNECTION ID--?" + transcriptionMetadata.CallConnectionId);
+                        Console.WriteLine("CORRELATION ID-->" + transcriptionMetadata.CorrelationId);
+                        Console.WriteLine("***************************************************************************************");
+                    }
+                    if (response is TranscriptionData transcriptionData)
+                    {
+                        Console.WriteLine("***************************************************************************************");
+                        Console.WriteLine("TEXT-->" + transcriptionData.Text);
+                        Console.WriteLine("FORMAT-->" + transcriptionData.Format);
+                        Console.WriteLine("OFFSET-->" + transcriptionData.Offset);
+                        Console.WriteLine("DURATION-->" + transcriptionData.Duration);
+                        Console.WriteLine("PARTICIPANT-->" + transcriptionData.Participant.RawId);
+                        Console.WriteLine("CONFIDENCE-->" + transcriptionData.Confidence);
+                        data += data + transcriptionData.Participant.RawId + ":" + transcriptionData.Text + " ";
+                        //Console.WriteLine("RESULT STATUS-->"+transcriptionData.ResultStatus);
+                        foreach (var word in transcriptionData.Words)
+                        {
+                            Console.WriteLine("TEXT-->" + word.Text);
+                            Console.WriteLine("OFFSET-->" + word.Offset);
+                            Console.WriteLine("DURATION-->" + word.Duration);
+                        }
+                        Console.WriteLine("***************************************************************************************");
+                    }
+
                 }
+
+                await webSocket.SendAsync(
+                    new ArraySegment<byte>(buffer, 0, receiveResult.Count),
+                    receiveResult.MessageType,
+                    receiveResult.EndOfMessage,
+                    CancellationToken.None);
+
+                receiveResult = await webSocket.ReceiveAsync(
+                    new ArraySegment<byte>(buffer), CancellationToken.None);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Exception -> {ex}");
-            }
-            finally
-            {
-            }
+
+            await webSocket.CloseAsync(
+                receiveResult.CloseStatus.Value,
+                receiveResult.CloseStatusDescription,
+                CancellationToken.None);
+            //return data;
         }
-
+        public string LiveTranscription()
+        {
+            return data;
+        }
     }
-
 }
