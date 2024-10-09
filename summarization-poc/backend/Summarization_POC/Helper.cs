@@ -62,7 +62,7 @@ namespace Summarization_POC
                         Console.WriteLine("DURATION-->" + transcriptionData.Duration);
                         Console.WriteLine("PARTICIPANT-->" + transcriptionData.Participant.RawId);
                         Console.WriteLine("CONFIDENCE-->" + transcriptionData.Confidence);
-                        data += data + transcriptionData.Participant.RawId + ":" + transcriptionData.Text + " ";
+                        data += data + transcriptionData.Participant.RawId + ":" + transcriptionData.Text + ", ";
                         //Console.WriteLine("RESULT STATUS-->"+transcriptionData.ResultStatus);
                         foreach (var word in transcriptionData.Words)
                         {

@@ -15,6 +15,16 @@ using Summarization_POC.Model;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "CorsPolicy",
+                      policy =>
+                      {
+                          policy.AllowAnyOrigin()
+                                .AllowAnyMethod()
+                                .AllowAnyHeader();
+                      });
+});
 
 /* Read config values from appsettings.json*/
 var acsConnectionString = builder.Configuration.GetValue<string>("AcsConnectionString");
@@ -35,6 +45,9 @@ ArgumentNullException.ThrowIfNullOrEmpty(callbackUriHost);
 
 var targetPhoneNumber = builder.Configuration.GetValue<string>("TargetPhoneNumber");
 ArgumentNullException.ThrowIfNullOrEmpty(targetPhoneNumber);
+
+var participantPhoneNumber = builder.Configuration.GetValue<string>("ParticipantPhoneNumber");
+ArgumentNullException.ThrowIfNullOrEmpty(participantPhoneNumber);
 
 var bringYourOwnStorageUrl = builder.Configuration.GetValue<string>("BringYourOwnStorageUrl");
 ArgumentNullException.ThrowIfNullOrEmpty(bringYourOwnStorageUrl);
@@ -70,6 +83,8 @@ var helper = new Helper();
 var openAIClient = new OpenAIClient(new Uri(openAIEndPoint), new AzureKeyCredential(openAIKey));
 builder.Services.AddSingleton(openAIClient);
 var app = builder.Build();
+app.UseHttpsRedirection();
+app.UseRouting();
 
 app.MapPost("/createIncomingCall", async (string targetId, ILogger<Program> logger) =>
 {
@@ -245,6 +260,17 @@ app.MapPost("/api/events", async ([FromBody] EventGridEvent[] eventGridEvents, I
     }
     return Results.Ok();
 });
+app.MapPost("/addParticipant", async (ILogger<Program> logger) =>
+{
+    var response = await AddParticipantAsync();
+    return Results.Ok(response);
+});
+
+app.MapPost("/removeParticipant", async (ILogger<Program> logger) =>
+{
+    var response = await RemoveParticipantAsync();
+    return Results.Ok(response);
+});
 
 app.MapPost("/playMedia", async (bool isPlayToAll, ILogger<Program> logger) =>
 {
@@ -314,6 +340,39 @@ app.MapPost("/disConnectCall", async (ILogger<Program> logger) =>
     await callConnection.HangUpAsync(true);
     return Results.Ok();
 });
+async Task<AddParticipantResult> AddParticipantAsync()
+{
+    CallInvite callInvite;
+
+    CallConnection callConnection = callAutomationClient.GetCallConnection(callConnectionId);
+
+    string operationContext = "addPSTNUserContext";
+    callInvite = new CallInvite(new PhoneNumberIdentifier(participantPhoneNumber),
+              new PhoneNumberIdentifier(acsPhoneNumber));
+
+    var addParticipantOptions = new AddParticipantOptions(callInvite)
+    {
+        OperationContext = operationContext,
+        InvitationTimeoutInSeconds = 30,
+        OperationCallbackUri = callbackUri
+    };
+
+    return await callConnection.AddParticipantAsync(addParticipantOptions);
+}
+
+async Task<RemoveParticipantResult> RemoveParticipantAsync()
+{
+    CallConnection callConnection = callAutomationClient.GetCallConnection(callConnectionId);
+
+    string operationContext = "removePSTNUserContext";
+    var removeParticipantOptions = new RemoveParticipantOptions(new PhoneNumberIdentifier(targetPhoneNumber))
+    {
+        OperationContext = operationContext,
+        OperationCallbackUri = callbackUri
+    };
+
+    return await callConnection.RemoveParticipantAsync(removeParticipantOptions);
+}
 
 async Task PlayMediaAsync(bool isPlayToAll)
 {
@@ -512,7 +571,7 @@ async Task<string> GetRecordingState(string recordingId, ILogger<Program> logger
         return "inactive";
     }
 }
-
+app.UseCors("CorsPolicy");
 app.UseWebSockets();
 app.Use(async (context, next) =>
 {
@@ -533,14 +592,5 @@ app.Use(async (context, next) =>
         await next(context);
     }
 });
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("CorsPolicy", builder =>
-    {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
-    });
-});
-app.UseCors("CorsPolicy");
+
 app.Run();
