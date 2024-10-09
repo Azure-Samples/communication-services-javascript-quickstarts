@@ -25,25 +25,7 @@ namespace Summarization_POC
 
                 if (response != null)
                 {
-                    if (response is AudioMetadata audioMetadata)
-                    {
-                        Console.WriteLine("***************************************************************************************");
-                        Console.WriteLine("MEDIA SUBSCRIPTION ID-->" + audioMetadata.MediaSubscriptionId);
-                        Console.WriteLine("ENCODING-->" + audioMetadata.Encoding);
-                        Console.WriteLine("SAMPLE RATE-->" + audioMetadata.SampleRate);
-                        Console.WriteLine("CHANNELS-->" + audioMetadata.Channels);
-                        Console.WriteLine("LENGTH-->" + audioMetadata.Length);
-                        Console.WriteLine("***************************************************************************************");
-                    }
-                    if (response is AudioData audioData)
-                    {
-                        Console.WriteLine("***************************************************************************************");
-                        Console.WriteLine("DATA-->" + audioData.Data);
-                        Console.WriteLine("TIMESTAMP-->" + audioData.Timestamp);
-                        Console.WriteLine("IS SILENT-->" + audioData.IsSilent);
-                        Console.WriteLine("***************************************************************************************");
-                    }
-
+                   
                     if (response is TranscriptionMetadata transcriptionMetadata)
                     {
                         Console.WriteLine("***************************************************************************************");

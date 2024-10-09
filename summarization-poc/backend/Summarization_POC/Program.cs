@@ -75,7 +75,7 @@ string filePath = string.Empty;
 string transcription = string.Empty;
 string recordingPrompt = "Recording is Started.";
 string getBriefSummarySystemPrompt = "You are an AI assist, listening to the conversation between the users.";
-string getBriefSummaryUserPrompt = "From the conversation generate a brief summary of the discussion. Please provide a concise summary highlighting the main points and any important details. If possible, include any key quotes or statements made during the recording.";
+string getBriefSummaryUserPrompt = "The assistant's role is to provide a summary on the given transcript.";
 bool isBYOS = false;
 
 CallAutomationClient callAutomationClient = new CallAutomationClient(acsConnectionString);
@@ -282,6 +282,9 @@ app.MapPost("/playMedia", async (bool isPlayToAll, ILogger<Program> logger) =>
 app.MapPost("/startRecording", async (RecordingRequest recordingRequest, ILogger<Program> logger) =>
 {
     isBYOS = recordingRequest.IsByos;
+    CallConnectionProperties callConnectionProperties = GetCallConnectionProperties();
+    logger.LogInformation($"CORRELATION ID: {callConnectionProperties.CorrelationId}");
+
     await StartRecordingAsync(recordingRequest, logger);
     return Results.Ok();
 });
@@ -294,6 +297,9 @@ app.MapPost("/stopRecording", async (ILogger<Program> logger) =>
 
 app.MapPost("/summarize", async (ILogger<Program> logger) =>
 {
+
+    CallConnectionProperties callConnectionProperties = GetCallConnectionProperties();
+    logger.LogInformation($"CORRELATION ID: {callConnectionProperties.CorrelationId}");
     var transcript = string.Empty;
     //var state = await GetRecordingState(recordingId, logger);
     if (string.IsNullOrEmpty(recordingId) || await GetRecordingState(recordingId, logger) == "active")
@@ -305,6 +311,8 @@ app.MapPost("/summarize", async (ILogger<Program> logger) =>
         transcript = await ConvertSpeechToText(filePath);
         logger.LogInformation("Get a Brief summary of the conversation");
     }
+    logger.LogInformation($"transcription text: {transcript}");
+
     var chatCompletionsOptions = new ChatCompletionsOptions()
     {
         Messages =
@@ -313,8 +321,7 @@ app.MapPost("/summarize", async (ILogger<Program> logger) =>
                         new ChatMessage(ChatRole.User, transcript),
                         new ChatMessage(ChatRole.User, getBriefSummaryUserPrompt)
                     },
-        Temperature = (float)1,
-        MaxTokens = 800
+        Temperature = (float)1
     };
 
     Response<StreamingChatCompletions> chatResponse = await openAIClient.GetChatCompletionsStreamingAsync(
@@ -331,6 +338,8 @@ app.MapPost("/summarize", async (ILogger<Program> logger) =>
         }
         Console.WriteLine();
     }
+    logger.LogInformation($"Summarization: {Results.Ok(responseMessage)}");
+
     return Results.Ok(responseMessage);
 });
 
