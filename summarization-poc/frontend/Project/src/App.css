@@ -1212,3 +1212,12 @@ div.volumeVisualizer::before {
 .dropdown-pos {
   float: right;
 }
+
+.summary-text {
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  font-size: 15px;
+}

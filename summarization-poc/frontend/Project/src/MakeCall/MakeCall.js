@@ -954,8 +954,8 @@ this.callAgent.on('incomingCall', async (args) => {
                         }
                         {
                             this.state.summaryText &&
-                            <pre>
-                                <code style={{ color: 'white' }}>
+                            <pre className="summary-text">
+                                <code>
                                     {this.state.summaryText}
                                 </code>
                             </pre>
