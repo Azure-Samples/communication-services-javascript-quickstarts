@@ -18,7 +18,7 @@ import { inflate } from 'pako';
 import { URL_PARAM } from "../Constants";
 import { utils } from "../Utils/Utils";
 import { summarizationService } from "../Summarization/summarizationService";
-const appsettings = require("../../appsettings.json");
+const appsettings = require("../Summarization/appsettings.json");
 export default class MakeCall extends React.Component {
     constructor(props) {
         super(props);
