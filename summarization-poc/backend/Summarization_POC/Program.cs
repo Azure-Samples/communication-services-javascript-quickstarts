@@ -321,7 +321,8 @@ app.MapPost("/summarize", async (ILogger<Program> logger) =>
                         new ChatMessage(ChatRole.User, transcript),
                         new ChatMessage(ChatRole.User, getBriefSummaryUserPrompt)
                     },
-        Temperature = (float)1
+        Temperature = (float)1,
+        MaxTokens = 800
     };
 
     Response<StreamingChatCompletions> chatResponse = await openAIClient.GetChatCompletionsStreamingAsync(
