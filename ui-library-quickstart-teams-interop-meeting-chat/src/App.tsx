@@ -1,15 +1,16 @@
-import React, {
-  useMemo,
-} from 'react';
-import { TeamsMeetingLinkLocator } from '@azure/communication-calling';
-import { AzureCommunicationTokenCredential, CommunicationUserIdentifier } from '@azure/communication-common';
+import React, { useMemo } from "react";
+import { TeamsMeetingLinkLocator } from "@azure/communication-calling";
+import {
+  AzureCommunicationTokenCredential,
+  CommunicationUserIdentifier,
+} from "@azure/communication-common";
 import {
   CallAndChatLocator,
   CallWithChatComposite,
   useAzureCommunicationCallWithChatAdapter,
-  CallWithChatCompositeOptions
-} from '@azure/communication-react';
-import { Theme, PartialTheme, Spinner } from '@fluentui/react';
+  CallWithChatCompositeOptions,
+} from "@azure/communication-react";
+import { Theme, PartialTheme, Spinner } from "@fluentui/react";
 
 /**
  * Authentication information needed for your client application to use
@@ -21,10 +22,10 @@ import { Theme, PartialTheme, Spinner } from '@fluentui/react';
  * In a real application, your backend service would provide these to the client
  * application after the user goes through your authentication flow.
  */
-const ENDPOINT_URL = '<Azure Communication Resource Endpoint URL>';
-const USER_ID = '<Azure Communication User ID>';
-const TOKEN = '<Azure Communication Service Resource Token>';
-const TEAMS_MEETING_LINK = '<Teams Meeting Link>';
+const ENDPOINT_URL = "<Azure Communication Services Resource Endpoint>";
+const USER_ID = "<User Id associated to the token>";
+const TOKEN = "<Azure Communication Services Resource Access Token>";
+const TEAMS_MEETING_LINK = "<Teams Meeting Link>";
 
 /**
  * Display name for the local participant.
@@ -32,7 +33,7 @@ const TEAMS_MEETING_LINK = '<Teams Meeting Link>';
  * backend services provides to the client application after the user
  * goes through your authentication flow.
  */
-const DISPLAY_NAME = '<Azure Communication User Display Name>';
+const DISPLAY_NAME = "<Display Name>";
 /**
  * By default, the `richTextEditorEnabled` is set to false,
  * which means the plain text editor will be used for the SendBox component and the MessageThread component's edit function.
@@ -40,7 +41,6 @@ const DISPLAY_NAME = '<Azure Communication User Display Name>';
  * which provides rich text formatting, table inserting etc.
  */
 const richTextEditorEnabled = false;
-
 
 export type CallWithChatExampleProps = {
   // Props needed for the construction of the CallWithChatAdapter
@@ -56,10 +56,15 @@ export type CallWithChatExampleProps = {
   callInvitationURL?: string;
 };
 
-export const CallWithChatExperience = (props: CallWithChatExampleProps): JSX.Element => {
+export const CallWithChatExperience = (
+  props: CallWithChatExampleProps
+): JSX.Element => {
   // Construct a credential for the user with the token retrieved from your server. This credential
   // must be memoized to ensure useAzureCommunicationCallWithChatAdapter is not retriggered on every render pass.
-  const credential = useMemo(() => new AzureCommunicationTokenCredential(props.token), [props.token]);
+  const credential = useMemo(
+    () => new AzureCommunicationTokenCredential(props.token),
+    [props.token]
+  );
 
   // Create the adapter using a custom react hook provided in the @azure/communication-react package.
   // See https://aka.ms/acsstorybook?path=/docs/composite-adapters--page for more information on adapter construction and alternative constructors.
@@ -68,7 +73,7 @@ export const CallWithChatExperience = (props: CallWithChatExampleProps): JSX.Ele
     displayName: props.displayName,
     credential,
     locator: props.locator,
-    endpoint: props.endpointUrl
+    endpoint: props.endpointUrl,
   });
 
   // The adapter is created asynchronously by the useAzureCommunicationCallWithChatAdapter hook.
@@ -77,23 +82,29 @@ export const CallWithChatExperience = (props: CallWithChatExampleProps): JSX.Ele
     return <Spinner label="Initializing..." />;
   }
 
-  return <CallWithChatComposite adapter={adapter} fluentTheme={props.fluentTheme} options={props.compositeOptions} />;
+  return (
+    <CallWithChatComposite
+      adapter={adapter}
+      fluentTheme={props.fluentTheme}
+      options={props.compositeOptions}
+    />
+  );
 };
 
 /**
  * Entry point of your application.
  */
 function App(): JSX.Element {
-    return (
-      <CallWithChatExperience
-        userId = {{ communicationUserId: USER_ID }}
-        token={ TOKEN }
-        displayName = { DISPLAY_NAME }
-        endpointUrl={ ENDPOINT_URL }
-        locator = { { meetingLink: TEAMS_MEETING_LINK } }
-        compositeOptions={{ richTextEditor: richTextEditorEnabled }}
-      />
-    );
+  return (
+    <CallWithChatExperience
+      userId={{ communicationUserId: USER_ID }}
+      token={TOKEN}
+      displayName={DISPLAY_NAME}
+      endpointUrl={ENDPOINT_URL}
+      locator={{ meetingLink: TEAMS_MEETING_LINK }}
+      compositeOptions={{ richTextEditor: richTextEditorEnabled }}
+    />
+  );
 }
 
 export default App;

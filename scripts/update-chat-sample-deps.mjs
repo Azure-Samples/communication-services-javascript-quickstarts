@@ -21,6 +21,7 @@ const BETA_PROJECTS = [
   "ui-library-filesharing-ui-components/app",
   "ui-library-quickstart-teams-interop-meeting-chat",
   "ui-library-starting-with-chat-stateful",
+  "ui-library-quickstart-composites-with-dependency-isolation",
 ];
 
 const UI_LIBRARY_NPMJS_API = "https://registry.npmjs.org/@azure/communication-react/";

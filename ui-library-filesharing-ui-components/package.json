@@ -5,12 +5,14 @@
   "scripts": {
     "start": "swa start app/build --api-location ./api",
     "start:dev": "swa start http://localhost:3000 --api-location http://localhost:7071",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:e2e": "playwright test"
   },
   "dependencies": {},
   "devDependencies": {
     "@azure/static-web-apps-cli": "^0.8.3",
-    "azure-functions-core-tools": "^4.0.5455"
+    "azure-functions-core-tools": "^4.0.5455",
+    "@playwright/test": "^1.47.1"
   },
   "prettier": {
     "printWidth": 120

@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "@inquirer/prompts": "^6.0.1"
+  }
+}
