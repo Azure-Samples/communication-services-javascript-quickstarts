@@ -2,7 +2,7 @@
 |---|---|---|
 |sample|<table><tr><td>Typescript</tr></td></table>|<table><tr><td>azure</td><td>azure-communication-services</td></tr></table>|
 
-# Chath with Azure OpenAI - Quick Start Sample
+# Chat with Azure OpenAI - Quick Start Sample
 
 This sample application demonstrates how to integrate Azure Communication Services Chat SDK with Azure OpenAI Service to enable intelligent message analysis. The application listens for a user message, processes the text through the Azure OpenAI Service, and generates appropriate analysis. Or optionally, developers can replace the logic with their own AI model for message analysis.
 
