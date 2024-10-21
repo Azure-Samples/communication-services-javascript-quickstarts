@@ -36,17 +36,17 @@ devtunnel host
 Open the `.env` file to configure the following settings:
 
 1. `PORT`: Localhost port to run the server app on.
-1. `CONNECTION_STRING`: Azure Communication Services resource connection string.
-1. `ACS_URL_ENDPOINT`: Azure Communication Services resource URL endpoint.
-1. `AZURE_OPENAI_SERVICE_KEY`: Azure Open AI service key.
-1. `AZURE_OPENAI_SERVICE_ENDPOINT`: Azure Open AI endpoint.
-1. `AZURE_OPENAI_DEPLOYMENT_MODEL_NAME`: Azure Open AI deployment name.
+2. `CONNECTION_STRING`: Azure Communication Services resource connection string.
+3. `ACS_URL_ENDPOINT`: Azure Communication Services resource URL endpoint.
+4. `AZURE_OPENAI_SERVICE_KEY`: Azure Open AI service key.
+5. `AZURE_OPENAI_SERVICE_ENDPOINT`: Azure Open AI endpoint.
+6. `AZURE_OPENAI_DEPLOYMENT_MODEL_NAME`: Azure Open AI deployment name.
 
 ### Run app locally
 
 1. Open a new Powershell window, cd into the `chat-openai-sample` folder and run `npm run dev`.
-1. The browser displays the following dialog box. If not navigate to `http://localhost:8080/`.
-1. To test the AI analysis API endpoint on your local machine, in another new Powersehll window for the same directory, run `npm run client` to observe how messages are generated and processed.
-1. Register an EventGrid Webhook for the `ChatMessageReceived` event that points to your DevTunnel URI for `<DevTunnelUri>/api/chatMessageReceived`.
+2. The browser displays the following dialog box. If not navigate to `http://localhost:8080/`.
+3. To test the AI analysis API endpoint on your local machine, in another new Powersehll window for the same directory, run `npm run client` to observe how messages are generated and processed.
+4. Register an EventGrid Webhook for the `ChatMessageReceived` event that points to your DevTunnel URI for `<DevTunnelUri>/api/chatMessageReceived`.
 
 Once that's completed you should have a running application. The best way to test this is to send a message in a chat thread to be analyzed by your intelligent agent.
