@@ -6,7 +6,7 @@
 
 This sample application demonstrates how to integrate Azure Communication Services Chat SDK with Azure OpenAI Service to enable intelligent message analysis. The application listens for a user message, processes the text through the Azure OpenAI Service, and generates appropriate analysis. Or optionally, developers can replace the logic with their own AI model for message analysis.
 
-- app.ts - Node JS application providing HTTP endpoints for message analysis (including EventGrid webhook endpoint)
+- app.ts - Node JS application providing HTTP endpoints for message analysis (including Event Grid webhook endpoint)
 - client.ts - script to setup chat messages and test HTTP endpoints locally for message analysis
 
 ## Prerequisites
@@ -53,6 +53,6 @@ Open the `.env` file to configure the following settings:
 1. Open a new Powershell window, cd into the `chat-openai-sample` folder and run `npm run dev`.
 2. The browser displays the following dialog box. If not navigate to `http://localhost:8080/`.
 3. To test the AI analysis API endpoint on your local machine, in another new Powersehll window for the same directory, run `npm run client` to observe how messages are generated and processed.
-4. (optional) To setup EventGrid, follow [Setup and host your Azure DevTunnel](#setup-and-host-your-azure-devtunnel) and register an EventGrid Webhook for the [ChatMessageReceived event](https://learn.microsoft.com/en-us/azure/event-grid/communication-services-chat-events#microsoftcommunicationchatmessagereceived-event) that points to your DevTunnel URI for `<DevTunnelUri>/api/chatMessageReceived`. See here for Event Grid Webhook configuration example [here](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/events/subscribe-to-events?pivots=platform-azp).
+4. (optional) To setup Event Grid, follow [Setup and host your Azure DevTunnel](#setup-and-host-your-azure-devtunnel) and register an Event Grid Webhook for the [ChatMessageReceived event](https://learn.microsoft.com/en-us/azure/event-grid/communication-services-chat-events#microsoftcommunicationchatmessagereceived-event) that points to your DevTunnel URI for `<DevTunnelUri>/api/chatMessageReceived`. See here for Event Grid Webhook configuration example [here](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/events/subscribe-to-events?pivots=platform-azp).
 
 Once that's completed you should have a running application. The best way to test this is to send a message in a chat thread to be analyzed by your intelligent agent.

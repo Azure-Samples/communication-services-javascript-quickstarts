@@ -105,7 +105,7 @@ app.get('/api/chat/:threadId/message/:messageId/translation/:language', async (r
     }
 });
 
-// EventGrid
+/* Event Grid */
 app.post("/api/chatMessageReceived", async (req: any, res:any)=>{
     console.log(`Received chatMessageReceived event - data --> ${JSON.stringify(req.body)} `);
     const event = req.body[0];
