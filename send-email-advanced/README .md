@@ -38,6 +38,11 @@ The advanced version of send-email includes the following sub samples.
 - ./send-email-advanced/send-email-attachments/package.json
 - ./send-email-advanced/send-email-attachments/send-email-attachments.js
 
+### Send email with inline attachments
+
+- ./send-email-advanced/send-email-inline-attachments/package.json
+- ./send-email-advanced/send-email-inline-attachments/send-email-inline-attachments.js
+
 ### Send email to multiple recipients
 
 - ./send-email-advanced/send-email-multiple-recipients/package.json

@@ -17,48 +17,50 @@ function App(): JSX.Element {
   registerIcons({ icons: DEFAULT_COMPONENT_ICONS });
   initializeFileTypeIcons();
 
-  const endpointUrl = '<Azure Communication Services Resource Endpoint>';
-  const token = '<Azure Communication Services Resource Access Token>';
-  const userId = '<User Id associated to the token>';
-  const threadId = '<Get thread id from chat service>';
-  const displayName = '<Display Name>';
+  const ENDPOINT_URL = "<Azure Communication Services Resource Endpoint>";
+  const TOKEN = "<Azure Communication Services Resource Access Token>";
+  const USER_ID = "<User Id associated to the token>";
+  const THREAD_ID = "<Get thread id from chat service>";
+  const DISPLAY_NAME = "<Display Name>";
 
-  const tokenCredential = new AzureCommunicationTokenCredential(
-    token
-  );
+  const tokenCredential = new AzureCommunicationTokenCredential(TOKEN);
 
   // Instantiate the statefulChatClient
   const statefulChatClient = createStatefulChatClient({
-    userId: { communicationUserId: userId },
-    displayName: displayName,
-    endpoint: endpointUrl,
+    userId: { communicationUserId: USER_ID },
+    displayName: DISPLAY_NAME,
+    endpoint: ENDPOINT_URL,
     credential: tokenCredential,
   });
 
   statefulChatClient.startRealtimeNotifications();
 
-  const chatThreadClient = statefulChatClient.getChatThreadClient(threadId);
+  const chatThreadClient = statefulChatClient.getChatThreadClient(THREAD_ID);
 
   initializeThreadState(chatThreadClient);
 
   return (
-    <FluentThemeProvider>
-      <ChatClientProvider chatClient={statefulChatClient}>
-        <ChatThreadClientProvider chatThreadClient={chatThreadClient}>
-          <ChatComponents />
-        </ChatThreadClientProvider>
-      </ChatClientProvider>
-    </FluentThemeProvider>
+    <div style={containerStyle}>
+      <FluentThemeProvider>
+        <ChatClientProvider chatClient={statefulChatClient}>
+          <ChatThreadClientProvider chatThreadClient={chatThreadClient}>
+            <ChatComponents />
+          </ChatThreadClientProvider>
+        </ChatClientProvider>
+      </FluentThemeProvider>
+    </div>
   );
 }
 
-async function initializeThreadState(
-  chatThreadClient: ChatThreadClient
-): Promise<void> {
+async function initializeThreadState(chatThreadClient: ChatThreadClient): Promise<void> {
   await chatThreadClient.getProperties();
   for await (const _page of chatThreadClient.listParticipants().byPage()) {
     // Simply fetching participants updates the cached state in client.
   }
 }
+
+const containerStyle = {
+  height: "100%",
+};
 
 export default App;

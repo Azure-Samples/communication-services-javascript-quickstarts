@@ -30,7 +30,7 @@ const fileSelectionHandler: AttachmentSelectionHandler = async (
       continue;
     }
 
-    const uniqueFileName = `${task}-${v4()}-${task.file?.name}`;
+    const uniqueFileName = `${task.taskId}-${v4()}-${task.file?.name}`;
     const formData = new FormData();
     formData.append("file", task.file, task.file?.name);
 

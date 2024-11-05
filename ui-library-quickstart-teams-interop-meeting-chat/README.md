@@ -50,3 +50,13 @@ then click on the chat button to reveal the chat panel:
 ![Meeting Chat Lobby](../media/interop-meeting-chat.png)
 
 Feel free to style the composites to your desired size and layout inside of your application.
+
+## Enable Rich Text Editor
+ By default, this Quickstart is using the plain text editor for the SendBox component and the MessageThread component's edit function.
+ We also provide a Rich Text Editor for rich text formatting, table inserting etc.
+ To try it out:
+     - Go to the `src` folder and find the `App.tsx` file.
+     - Change the value for `richTextEditorEnabled` to true.
+
+Open your browser to `http://localhost:3000`. You should see the following with the Rich Text Editor enabled:
+![Meeting Chat with Rich Text Editor](../media/interop-meeting-chat-with-rich-text-editor.png)
