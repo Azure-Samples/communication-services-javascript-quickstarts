@@ -16,6 +16,7 @@ This sample application demonstrates how to integrate Azure Communication Servic
 - Install [Node.js](https://nodejs.org/en/download).
 - Create an Azure Communication Services resource. For details, see [Create an Azure Communication Resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource). You need to record your resource **connection string** for this sample.
 - An Azure OpenAI Resource and Deployed Model. See [instructions](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal).
+- (optional) For Event Grid with localhost as webhook, install [Azure DevTunnels](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started?tabs=windows)
 
 ## Before running the sample for the first time
 
@@ -24,18 +25,6 @@ This sample application demonstrates how to integrate Azure Communication Servic
 3. cd into the `chat-openai-sample` folder.
 4. From the root of the `chat-openai-sample` folder run `npm install`.
 
-### Setup and host your Azure DevTunnel
-
-[Azure DevTunnels](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started?tabs=windows) is an Azure service that enables you to share local web services hosted on the internet. Use the following commands to connect your local development environment to the public internet. This creates a tunnel with a persistent endpoint URL and enables anonymous access. We use this endpoint to notify your application of chat events from the Azure Communication Services Chat service.
-
-```bash
-// Only needs to be done the first time
-devtunnel user login
-
-devtunnel create --allow-anonymous
-devtunnel port create -p 8080
-devtunnel host
-```
 
 ### Configuring application
 
@@ -56,3 +45,16 @@ Open the `.env` file to configure the following settings:
 4. (optional) To setup Event Grid, follow [Setup and host your Azure DevTunnel](#setup-and-host-your-azure-devtunnel) and register an Event Grid Webhook for the [ChatMessageReceived event](https://learn.microsoft.com/en-us/azure/event-grid/communication-services-chat-events#microsoftcommunicationchatmessagereceived-event) that points to your DevTunnel URI for `<DevTunnelUri>/api/chatMessageReceived`. See here for Event Grid Webhook configuration example [here](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/events/subscribe-to-events?pivots=platform-azp).
 
 Once that's completed you should have a running application. The best way to test this is to send a message in a chat thread to be analyzed by your intelligent agent.
+
+### Setup and host your Azure DevTunnel
+
+(optional) [Azure DevTunnels](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started?tabs=windows) is an Azure service that enables you to share local web services hosted on the internet. Use the following commands to connect your local development environment to the public internet. This creates a tunnel with a persistent endpoint URL and enables anonymous access. We use this endpoint to notify your application of chat events from the Azure Communication Services Chat service.
+
+```bash
+// Only needs to be done the first time
+devtunnel user login
+
+devtunnel create --allow-anonymous
+devtunnel port create -p 8080
+devtunnel host
+```
