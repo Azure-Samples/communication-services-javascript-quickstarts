@@ -1,21 +1,20 @@
 import WebSocket from 'ws';
-import { sendAudioToExternalAi } from './azureOpenAiService'
+import { sendAudioToExternalAi, startConversation, handleRealtimeMessages } from './azureOpenAiService'
 
 const wss = new WebSocket.Server({ port: 5001 });
 
-wss.on('connection', (ws: WebSocket) => {
+wss.on('connection', async (ws: WebSocket) => {
     console.log('Client connected');
-    ws.on('message', (packetData: ArrayBuffer) => {
+    //await startConversation();
+    ws.on('message', async (packetData: ArrayBuffer) => {
         const decoder = new TextDecoder();
         const stringJson = decoder.decode(packetData);
-        //console.log("STRING JSON=>--" + stringJson)
         const jsonObject = JSON.parse(stringJson);
         const kind: string = jsonObject.kind;
-
+        await startConversation();
         if (kind === "AudioData") {
             const audioData = jsonObject.audioData.data;
-            console.log(audioData);
-            sendAudioToExternalAi(audioData).then();
+            await sendAudioToExternalAi(audioData)
         }
     });
 
