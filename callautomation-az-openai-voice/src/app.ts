@@ -8,7 +8,7 @@ import {
 	CallIntelligenceOptions,
 	MediaStreamingOptions,
 	CreateCallOptions,
-	CallInvite
+	CallInvite,
 } from "@azure/communication-call-automation";
 
 import { v4 as uuidv4 } from 'uuid';
@@ -32,56 +32,56 @@ async function createAcsClient() {
 	console.log("Initialized ACS Client.");
 }
 
-app.post("/api/incomingCall", async (req: any, res: any) => {
-	console.log(`Received incoming call event - data --> ${JSON.stringify(req.body)} `);
-	const event = req.body[0];
-	try {
-		const eventData = event.data;
-		if (event.eventType === "Microsoft.EventGrid.SubscriptionValidationEvent") {
-			console.log("Received SubscriptionValidation event");
-			res.status(200).json({
-				validationResponse: eventData.validationCode,
-			});
+// app.post("/api/incomingCall", async (req: any, res: any) => {
+// 	console.log(`Received incoming call event - data --> ${JSON.stringify(req.body)} `);
+// 	const event = req.body[0];
+// 	try {
+// 		const eventData = event.data;
+// 		if (event.eventType === "Microsoft.EventGrid.SubscriptionValidationEvent") {
+// 			console.log("Received SubscriptionValidation event");
+// 			res.status(200).json({
+// 				validationResponse: eventData.validationCode,
+// 			});
 
-			return;
-		}
+// 			return;
+// 		}
 
-		callerId = eventData.from.rawId;
-		const uuid = uuidv4();
-		const callbackUri = `${process.env.CALLBACK_URI}/api/callbacks/${uuid}?callerId=${callerId}`;
-		const incomingCallContext = eventData.incomingCallContext;
-		console.log(`Cognitive service endpoint:  ${process.env.COGNITIVE_SERVICES_ENDPOINT.trim()}`);
-		const callIntelligenceOptions: CallIntelligenceOptions = { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT.trim() };
+// 		callerId = eventData.from.rawId;
+// 		const uuid = uuidv4();
+// 		const callbackUri = `${process.env.CALLBACK_URI}/api/callbacks/${uuid}?callerId=${callerId}`;
+// 		const incomingCallContext = eventData.incomingCallContext;
+// 		console.log(`Cognitive service endpoint:  ${process.env.COGNITIVE_SERVICES_ENDPOINT.trim()}`);
+// 		const callIntelligenceOptions: CallIntelligenceOptions = { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT.trim() };
 
-		const mediaStreamingOptions: MediaStreamingOptions = {
-			transportUrl: transportUrl,
-			transportType: "websocket",
-			contentType: "audio",
-			audioChannelType: "unmixed",
-			startMediaStreaming: true,
-			// enableBidirectional: true,
-			// audioFormat: "Pcm24KMono"
-		}
+// 		const mediaStreamingOptions: MediaStreamingOptions = {
+// 			transportUrl: transportUrl,
+// 			transportType: "websocket",
+// 			contentType: "audio",
+// 			audioChannelType: "unmixed",
+// 			startMediaStreaming: true,
+// 			// enableBidirectional: true,
+// 			// audioFormat: "Pcm24KMono"
+// 		}
 
-		const answerCallOptions: AnswerCallOptions = {
-			callIntelligenceOptions: callIntelligenceOptions,
-			mediaStreamingOptions: mediaStreamingOptions
-		};
+// 		const answerCallOptions: AnswerCallOptions = {
+// 			callIntelligenceOptions: callIntelligenceOptions,
+// 			mediaStreamingOptions: mediaStreamingOptions
+// 		};
 
-		answerCallResult = await acsClient.answerCall(
-			incomingCallContext,
-			callbackUri,
-			answerCallOptions
-		);
+// 		answerCallResult = await acsClient.answerCall(
+// 			incomingCallContext,
+// 			callbackUri,
+// 			answerCallOptions
+// 		);
 
-		callConnection = answerCallResult.callConnection;
-	}
-	catch (error) {
-		console.error("Error during the incoming call event.", error);
-	}
-});
+// 		callConnection = answerCallResult.callConnection;
+// 	}
+// 	catch (error) {
+// 		console.error("Error during the incoming call event.", error);
+// 	}
+// });
 
-app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
+app.post('/api/callbacks', async (req: any, res: any) => {
 	const contextId = req.params.contextId;
 	const event = req.body[0];
 	const eventData = event.data;
@@ -137,7 +137,9 @@ async function createOutboundCall() {
 		transportType: "websocket",
 		contentType: "audio",
 		audioChannelType: "unmixed",
-		startMediaStreaming: true
+		startMediaStreaming: true,
+		// enableBidirectional: true,
+		// audioFormat: "Pcm24KMono"
 	}
 
 	// const transcriptionOptions: TranscriptionOptions = {

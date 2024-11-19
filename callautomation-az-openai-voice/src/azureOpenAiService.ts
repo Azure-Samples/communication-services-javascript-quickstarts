@@ -21,10 +21,12 @@ let session: Session;
 export async function sendAudioToExternalAi(data: string) {
     try {
         const audio = data
-        realtimeStreaming.send({
-            type: "input_audio_buffer.append",
-            audio: audio,
-        });
+        if (audio) {
+            realtimeStreaming.send({
+                type: "input_audio_buffer.append",
+                audio: audio,
+            });
+        }
 
         // const encoder = new TextEncoder();
         // const audio = encoder.encode(data)
@@ -71,11 +73,20 @@ async function startRealtime(endpoint: string, apiKey: string, deploymentOrModel
         console.log("sending session config");
         await realtimeStreaming.send(createConfigMessage());
         console.log("sent");
-        await handleRealtimeMessages();
+
     } catch (error) {
         console.error("Error during startRealtime:", error);
     }
+
+    setImmediate(async () => {
+        try {
+            await handleRealtimeMessages();
+        } catch (error) {
+            console.error('Error handling real-time messages:', error);
+        }
+    });
 }
+
 
 function createConfigMessage(): SessionUpdateMessage {
 
@@ -100,7 +111,7 @@ function createConfigMessage(): SessionUpdateMessage {
 
 export async function handleRealtimeMessages() {
     for await (const message of realtimeStreaming.messages()) {
-        let consoleLog = "" + message.type;
+        // let consoleLog = "" + message.type;
         console.log("Message type:--> " + message.type)
         switch (message.type) {
             case "session.created":
@@ -110,7 +121,9 @@ export async function handleRealtimeMessages() {
                 console.log(message.delta)
                 break;
             case "response.audio.delta":
-                console.log(message.delta)
+                const binary = atob(message.delta);
+                const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+                await receiveAudioForOutbound(bytes)
                 break;
             case "input_audio_buffer.speech_started":
                 console.log(message.audio_start_ms)
@@ -119,15 +132,23 @@ export async function handleRealtimeMessages() {
                 console.log(message.transcript)
                 break;
             case "response.done":
+                console.log(message.response.status)
                 break;
             default:
-                consoleLog = JSON.stringify(message, null, 2);
+                // consoleLog = JSON.stringify(message, null, 2);
                 break
         }
-        if (consoleLog) {
-            console.log(consoleLog);
-        }
+        // if (consoleLog) {
+        //     console.log(consoleLog);
+        // }
     }
 }
 
 
+async function receiveAudioForOutbound(data: Uint8Array) {
+    try {
+        const outData: Uint8Array = data;
+    }
+    catch (e) {
+    }
+}

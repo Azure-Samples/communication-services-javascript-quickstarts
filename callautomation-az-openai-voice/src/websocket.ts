@@ -1,28 +1,21 @@
 import WebSocket from 'ws';
-import { sendAudioToExternalAi, startConversation, handleRealtimeMessages } from './azureOpenAiService'
-
+import { sendAudioToExternalAi, startConversation } from './azureOpenAiService'
+import { processWebsocketMessageAsync } from './mediaStreamingHandler'
 const wss = new WebSocket.Server({ port: 5001 });
-
 wss.on('connection', async (ws: WebSocket) => {
     console.log('Client connected');
-    await startConversation();
-    //await createSession()
+    await startConversation()
     ws.on('message', async (packetData: ArrayBuffer) => {
-        const decoder = new TextDecoder();
-        const stringJson = decoder.decode(packetData);
-        const jsonObject = JSON.parse(stringJson);
-        const kind: string = jsonObject.kind;
-        //await startConversation();
-        await handleRealtimeMessages()
-        if (kind === "AudioData") {
-            const audioData = jsonObject.audioData.data;
-            await sendAudioToExternalAi(audioData)
+        try {
+            if (ws.readyState === WebSocket.OPEN) {
+                await processWebsocketMessageAsync(ws, packetData);
+            } else {
+                console.warn(`ReadyState: ${ws.readyState}`);
+            }
+        } catch (error) {
+            console.error('Error processing WebSocket message:', error);
         }
     });
-
-    // const data = "";
-    // ws.send(data);
-
     ws.on('close', () => {
         console.log('Client disconnected');
     });
