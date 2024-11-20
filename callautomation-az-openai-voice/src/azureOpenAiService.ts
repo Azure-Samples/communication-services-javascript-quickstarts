@@ -1,8 +1,10 @@
-
+import WebSocket from 'ws';
 import { config } from 'dotenv';
-import { LowLevelRTClient, RTClient, Session, SessionUpdateMessage, SessionUpdateParams, Voice } from "rt-client";
+import { LowLevelRTClient, RTClient, Session, SessionUpdateMessage } from "rt-client";
 
 config();
+
+let ws: WebSocket;
 
 const openAiServiceEndpoint = process.env.AZURE_OPENAI_SERVICE_ENDPOINT || "";
 const openAiKey = process.env.AZURE_OPENAI_SERVICE_KEY || "";
@@ -15,8 +17,6 @@ Also get the users name and number so that a technician who goes onsite can cont
 they've shared that it's all correct and then let them know that you've created a ticket and that a technician should be onsite within the next 24 to 48 hours.`
 
 let realtimeStreaming: LowLevelRTClient;
-let rtClient: RTClient;
-let session: Session;
 
 export async function sendAudioToExternalAi(data: string) {
     try {
@@ -27,41 +27,11 @@ export async function sendAudioToExternalAi(data: string) {
                 audio: audio,
             });
         }
-
-        // const encoder = new TextEncoder();
-        // const audio = encoder.encode(data)
-        // await rtClient.sendAudio(audio)
     }
     catch (e) {
         console.log(e)
     }
 }
-
-// async function createRtClient() {
-//     rtClient = new RTClient(new URL(openAiServiceEndpoint), { key: openAiKey }, { deployment: openAiDeploymentModel })
-//     await rtClient.init();
-//     console.log("RT client created");
-// }
-
-// export async function createSession(): Promise<Session> {
-//     await createRtClient();
-//     const sessionParams: SessionUpdateParams = {
-//         instructions: answerPromptSystemTemplate,
-//         voice: "alloy",
-//         input_audio_format: "pcm16",
-//         output_audio_format: "pcm16",
-//         turn_detection: {
-//             type: "server_vad",
-//         },
-//         input_audio_transcription: {
-//             model: "whisper-1"
-//         }
-//     }
-//     session = await rtClient.configure(sessionParams)
-//     console.log("session created.");
-//     return session;
-// }
-
 
 export async function startConversation() {
     await startRealtime(openAiServiceEndpoint, openAiKey, openAiDeploymentModel);
@@ -87,7 +57,6 @@ async function startRealtime(endpoint: string, apiKey: string, deploymentOrModel
     });
 }
 
-
 function createConfigMessage(): SessionUpdateMessage {
 
     let configMessage: SessionUpdateMessage = {
@@ -111,44 +80,48 @@ function createConfigMessage(): SessionUpdateMessage {
 
 export async function handleRealtimeMessages() {
     for await (const message of realtimeStreaming.messages()) {
-        // let consoleLog = "" + message.type;
-        console.log("Message type:--> " + message.type)
         switch (message.type) {
             case "session.created":
                 console.log("session started with id:-->" + message.session.id)
                 break;
             case "response.audio_transcript.delta":
-                console.log(message.delta)
                 break;
             case "response.audio.delta":
-                const binary = atob(message.delta);
-                const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
-                await receiveAudioForOutbound(bytes)
+                await receiveAudioForOutbound(message.delta)
                 break;
             case "input_audio_buffer.speech_started":
-                console.log(message.audio_start_ms)
+                console.log(`Voice activity detection started at ${message.audio_start_ms} ms`)
                 break;
             case "conversation.item.input_audio_transcription.completed":
-                console.log(message.transcript)
+                console.log(`User:- ${message.transcript}`)
                 break;
+            case "response.audio_transcript.done":
+                console.log(`AI:- ${message.transcript}`)
+                break
             case "response.done":
                 console.log(message.response.status)
                 break;
             default:
-                // consoleLog = JSON.stringify(message, null, 2);
                 break
         }
-        // if (consoleLog) {
-        //     console.log(consoleLog);
-        // }
     }
 }
 
+export async function initWebsocket(socket: WebSocket) {
+    ws = socket;
+}
 
-async function receiveAudioForOutbound(data: Uint8Array) {
+async function receiveAudioForOutbound(data: string) {
     try {
-        const outData: Uint8Array = data;
+        const binary = atob(data);
+        const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(bytes.buffer)
+        } else {
+            console.log("socket connection is not open.")
+        }
     }
     catch (e) {
+        console.log(e)
     }
 }

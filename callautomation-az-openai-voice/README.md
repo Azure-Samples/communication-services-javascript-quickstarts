@@ -46,7 +46,7 @@ Open the `.env` file to configure the following settings
 4. `AZURE_OPENAI_SERVICE_KEY`: Azure Open AI service key
 5. `AZURE_OPENAI_SERVICE_ENDPOINT`: Azure Open AI endpoint
 6. `AZURE_OPENAI_DEPLOYMENT_MODEL_NAME`: Azure Open AI deployment name
-7. `TRANSPORT_URL`: Ngrok url for the server port (in this example port 5001) make sure to replace https:// with wss://
+7. `WEBSOCKET_URL`: Ngrok url for the server port (in this example port 5001) make sure to replace https:// with wss://
 
 ### Run app locally
 
