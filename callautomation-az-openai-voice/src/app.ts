@@ -7,8 +7,6 @@ import {
 	AnswerCallResult,
 	CallIntelligenceOptions,
 	MediaStreamingOptions,
-	CreateCallOptions,
-	CallInvite,
 } from "@azure/communication-call-automation";
 
 import { v4 as uuidv4 } from 'uuid';
@@ -33,7 +31,6 @@ async function createAcsClient() {
 }
 
 app.post("/api/incomingCall", async (req: any, res: any) => {
-	//console.log(`Received incoming call event - data --> ${JSON.stringify(req.body)} `);
 	const event = req.body[0];
 	try {
 		const eventData = event.data;
@@ -85,7 +82,6 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 	const contextId = req.params.contextId;
 	const event = req.body[0];
 	const eventData = event.data;
-	// console.log(`Received callback event - data --> ${JSON.stringify(req.body)} `);
 
 	if (event.type === "Microsoft.Communication.CallConnected") {
 		console.log("Received CallConnected event");
@@ -93,7 +89,6 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		console.log(`Correlation Id:-> ${props.correlationId}`);
 		const mediaStreamingSubscription = props.mediaStreamingSubscription;
 		console.log("MediaStreamingSubscription:-->" + JSON.stringify(mediaStreamingSubscription));
-
 	}
 	else if (event.type === "Microsoft.Communication.MediaStreamingStarted") {
 		console.log("Received MediaStreamingStarted event")
@@ -127,47 +122,9 @@ app.get('/', (req, res) => {
 	res.send('Hello ACS CallAutomation!');
 });
 
-//outbound call.
-async function createOutboundCall() {
-	console.log("TRANSPORTURL--> " + transportUrl)
-	const isAcsUserTarget = false;
-	console.log(`Is call to acs user:--> ${isAcsUserTarget}`)
-	const callInvite: CallInvite = { targetParticipant: { phoneNumber: "" }, sourceCallIdNumber: { phoneNumber: "" } }
-	//const callInvite: CallInvite = { targetParticipant: { communicationUserId: "" } }
-	const mediaStreamingOptions: MediaStreamingOptions = {
-		transportUrl: transportUrl,
-		transportType: "websocket",
-		contentType: "audio",
-		audioChannelType: "unmixed",
-		startMediaStreaming: true,
-		enableBidirectional: true,
-		audioFormat: "Pcm24KMono"
-	}
-
-	// const transcriptionOptions: TranscriptionOptions = {
-	// 	transportUrl: transportUrl,
-	// 	transportType: "websocket",
-	// 	locale: "en-US",
-	// 	startTranscription: false
-	// }
-
-	const options: CreateCallOptions = {
-		callIntelligenceOptions: { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT },
-		mediaStreamingOptions: mediaStreamingOptions,
-		//transcriptionOptions: transcriptionOptions,
-	};
-	console.log("Placing outbound call...");
-	const response = await acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks", options);
-	console.log(`Create call with Correlation Id: - ${response.callConnectionProperties.correlationId}`)
-}
-
 // Start the server
 app.listen(PORT, async () => {
 	console.log(`Server is listening on port ${PORT}`);
 	await createAcsClient();
 });
 
-app.get('/outboundCall', async (req, res) => {
-	await createOutboundCall();
-	res.redirect('/');
-});

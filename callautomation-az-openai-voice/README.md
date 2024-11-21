@@ -53,7 +53,7 @@ Open the `.env` file to configure the following settings
 1. Open a new Powershell window, cd into the `callautomation-az-openai-voice` folder and run `npm run dev:app`
 2. Browser should pop up with the below page. If not navigate it to `http://localhost:8080/`
 3. Open a new Powershell window, cd into the `callautomation-az-openai-voice` folder and `run npm  run dev:websocket`
-4. Configure websocket url as transport url ex. wss://localhost:5001
+4. Configure websocket url as websocket url ex. wss://localhost:5001
 3. Register an EventGrid Webhook for the IncomingCall Event that points to your DevTunnel URI. Instructions [here](https://learn.microsoft.com/en-us/azure/communication-services/concepts/call-automation/incoming-call-notification).
 
 Once that's completed you should have a running application. The best way to test this is to place a call to your ACS phone number

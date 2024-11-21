@@ -1,6 +1,7 @@
 import WebSocket from 'ws';
 import { config } from 'dotenv';
-import { LowLevelRTClient, RTClient, Session, SessionUpdateMessage } from "rt-client";
+import { LowLevelRTClient, SessionUpdateMessage } from "rt-client";
+import { AudioData, OutStreamingData } from './models';
 
 config();
 
@@ -63,7 +64,7 @@ function createConfigMessage(): SessionUpdateMessage {
         type: "session.update",
         session: {
             instructions: answerPromptSystemTemplate,
-            voice: "alloy",
+            voice: "shimmer",
             input_audio_format: "pcm16",
             output_audio_format: "pcm16",
             turn_detection: {
@@ -113,10 +114,22 @@ export async function initWebsocket(socket: WebSocket) {
 
 async function receiveAudioForOutbound(data: string) {
     try {
-        const binary = atob(data);
-        const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+        const audioData: AudioData = {
+            data: data,
+            timestamp: "0001-01-01T00:00:00+00:00",
+            participant: undefined,
+            isSilent: false,
+        }
+        const outStreamingData: OutStreamingData = {
+            kind: "AudioData",
+            audioData: audioData,
+            stopAudio: null
+        }
+
+        const jsonData = JSON.stringify(outStreamingData);
+
         if (ws.readyState === WebSocket.OPEN) {
-            ws.send(bytes.buffer)
+            ws.send(jsonData);
         } else {
             console.log("socket connection is not open.")
         }

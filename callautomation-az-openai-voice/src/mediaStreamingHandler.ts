@@ -1,4 +1,4 @@
-import { sendAudioToExternalAi, startConversation, handleRealtimeMessages } from './azureOpenAiService'
+import { sendAudioToExternalAi } from './azureOpenAiService'
 
 export async function processWebsocketMessageAsync(streamData: ArrayBuffer) {
     const decoder = new TextDecoder();
