@@ -1,7 +1,7 @@
 import WebSocket from 'ws';
 import { config } from 'dotenv';
 import { LowLevelRTClient, SessionUpdateMessage } from "rt-client";
-import { AudioData, OutStreamingData } from './models';
+import { OutStreamingData } from '@azure/communication-call-automation';
 
 config();
 
@@ -114,19 +114,8 @@ export async function initWebsocket(socket: WebSocket) {
 
 async function receiveAudioForOutbound(data: string) {
     try {
-        const audioData: AudioData = {
-            data: data,
-            timestamp: "0001-01-01T00:00:00+00:00",
-            participant: undefined,
-            isSilent: false,
-        }
-        const outStreamingData: OutStreamingData = {
-            kind: "AudioData",
-            audioData: audioData,
-            stopAudio: null
-        }
 
-        const jsonData = JSON.stringify(outStreamingData);
+        const jsonData = OutStreamingData.getStreamingDataForOutbound(data)
 
         if (ws.readyState === WebSocket.OPEN) {
             ws.send(jsonData);
