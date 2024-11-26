@@ -59,7 +59,6 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 		}
 
 		const answerCallOptions: AnswerCallOptions = {
-			callIntelligenceOptions: callIntelligenceOptions,
 			mediaStreamingOptions: mediaStreamingOptions
 		};
 
