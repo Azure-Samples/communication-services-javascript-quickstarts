@@ -2,7 +2,6 @@ import WebSocket from 'ws';
 import { config } from 'dotenv';
 import { LowLevelRTClient, SessionUpdateMessage } from "rt-client";
 import { OutStreamingData } from '@azure/communication-call-automation';
-
 config();
 
 let ws: WebSocket;
@@ -92,6 +91,7 @@ export async function handleRealtimeMessages() {
                 break;
             case "input_audio_buffer.speech_started":
                 console.log(`Voice activity detection started at ${message.audio_start_ms} ms`)
+                stopAudio();
                 break;
             case "conversation.item.input_audio_transcription.completed":
                 console.log(`User:- ${message.transcript}`)
@@ -112,18 +112,31 @@ export async function initWebsocket(socket: WebSocket) {
     ws = socket;
 }
 
+async function stopAudio() {
+    try {
+
+        const jsonData = OutStreamingData.getStopAudioForOutbound()
+        sendMessage(jsonData);
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
 async function receiveAudioForOutbound(data: string) {
     try {
 
         const jsonData = OutStreamingData.getStreamingDataForOutbound(data)
-
-        if (ws.readyState === WebSocket.OPEN) {
-            ws.send(jsonData);
-        } else {
-            console.log("socket connection is not open.")
-        }
+        sendMessage(jsonData);
     }
     catch (e) {
         console.log(e)
+    }
+}
+
+async function sendMessage(data:string) {
+    if (ws.readyState === WebSocket.OPEN) {
+        ws.send(data);
+    } else {
+        console.log("socket connection is not open.")
     }
 }

@@ -1,13 +1,14 @@
-import { StreamingData, StreamingDataKind } from '@azure/communication-call-automation';
+import { StreamingData, StreamingDataKind, AudioData } from '@azure/communication-call-automation';
 import { sendAudioToExternalAi } from './azureOpenAiService'
 
-export async function processWebsocketMessageAsync(streamData: ArrayBuffer) {
-    const result = StreamingData.parse(streamData)
+ /* Parsing the received buffer data to streaming data */
+ export async function processWebsocketMessageAsync(receivedBuffer: ArrayBuffer) {
+    const result = StreamingData.parse(receivedBuffer)
     const kind = StreamingData.getStreamingKind()
+
+    // Get the streaming data kind 
     if (kind === StreamingDataKind.AudioData) {
-        if ('isSilent' in result) {
-            const audioData = result.data
-            await sendAudioToExternalAi(audioData)
-        }
+        const audioData = (result as AudioData).data
+        await sendAudioToExternalAi(audioData)
     }
 }

@@ -17,8 +17,6 @@ const PORT = process.env.PORT;
 const app: Application = express();
 app.use(express.json());
 
-let callConnectionId: string;
-let callConnection: CallConnection;
 let acsClient: CallAutomationClient;
 let answerCallResult: AnswerCallResult;
 let callerId: string;
@@ -71,7 +69,7 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 			answerCallOptions
 		);
 
-		callConnection = answerCallResult.callConnection;
+		console.log(`Answer call ConnectionId:--> ${answerCallResult.callConnectionProperties.callConnectionId}`);
 	}
 	catch (error) {
 		console.error("Error during the incoming call event.", error);
@@ -79,42 +77,33 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 });
 
 app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
-	const contextId = req.params.contextId;
 	const event = req.body[0];
 	const eventData = event.data;
-
+	const callConnectionId = eventData.callConnectionId;
+	console.log(`Received Event:-> ${event.type}, Correlation Id:-> ${eventData.correlationId}, CallConnectionId:-> ${callConnectionId}`);
 	if (event.type === "Microsoft.Communication.CallConnected") {
-		console.log("Received CallConnected event");
-		const props = await acsClient.getCallConnection(eventData.callConnectionId).getCallConnectionProperties();
-		console.log(`Correlation Id:-> ${props.correlationId}`);
-		const mediaStreamingSubscription = props.mediaStreamingSubscription;
+		const callConnectionProperties = await acsClient.getCallConnection(callConnectionId).getCallConnectionProperties();
+		const mediaStreamingSubscription = callConnectionProperties.mediaStreamingSubscription;
 		console.log("MediaStreamingSubscription:-->" + JSON.stringify(mediaStreamingSubscription));
 	}
 	else if (event.type === "Microsoft.Communication.MediaStreamingStarted") {
-		console.log("Received MediaStreamingStarted event")
-		callConnectionId = eventData.callConnectionId;
 		console.log(`Operation context:--> ${eventData.operationContext}`);
 		console.log(`Media streaming content type:--> ${eventData.mediaStreamingUpdate.contentType}`);
 		console.log(`Media streaming status:--> ${eventData.mediaStreamingUpdate.mediaStreamingStatus}`);
 		console.log(`Media streaming status details:--> ${eventData.mediaStreamingUpdate.mediaStreamingStatusDetails}`);
 	}
 	else if (event.type === "Microsoft.Communication.MediaStreamingStopped") {
-		console.log("Received MediaStreamingStopped event")
-		callConnectionId = eventData.callConnectionId;
-		callConnectionId = eventData.callConnectionId;
 		console.log(`Operation context:--> ${eventData.operationContext}`);
 		console.log(`Media streaming content type:--> ${eventData.mediaStreamingUpdate.contentType}`);
 		console.log(`Media streaming status:--> ${eventData.mediaStreamingUpdate.mediaStreamingStatus}`);
 		console.log(`Media streaming status details:--> ${eventData.mediaStreamingUpdate.mediaStreamingStatusDetails}`);
 	}
 	else if (event.type === "Microsoft.Communication.MediaStreamingFailed") {
-		console.log("Received MediaStreamingFailed event")
 		console.log(`Operation context:--> ${eventData.operationContext}`);
 		console.log(`Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`)
 		console.log(`Message:->${eventData.resultInformation.message}`);
 	}
 	else if (event.type === "Microsoft.Communication.CallDisconnected") {
-		console.log("Received CallDisconnected event");
 	}
 });
 
