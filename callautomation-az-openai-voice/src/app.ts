@@ -2,10 +2,8 @@ import { config } from 'dotenv';
 import express, { Application } from 'express';
 import {
 	CallAutomationClient,
-	CallConnection,
 	AnswerCallOptions,
 	AnswerCallResult,
-	CallIntelligenceOptions,
 	MediaStreamingOptions,
 } from "@azure/communication-call-automation";
 
@@ -45,8 +43,6 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 		const uuid = uuidv4();
 		const callbackUri = `${process.env.CALLBACK_URI}/api/callbacks/${uuid}?callerId=${callerId}`;
 		const incomingCallContext = eventData.incomingCallContext;
-		console.log(`Cognitive service endpoint:  ${process.env.COGNITIVE_SERVICES_ENDPOINT.trim()}`);
-		const callIntelligenceOptions: CallIntelligenceOptions = { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT.trim() };
 
 		const mediaStreamingOptions: MediaStreamingOptions = {
 			transportUrl: transportUrl,

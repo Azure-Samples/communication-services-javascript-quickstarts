@@ -13,7 +13,6 @@ This sample application shows how the Azure Communication Services - Call Automa
 - [Node.js](https://nodejs.org/en/download) installed
 - Create an Azure Communication Services resource. For details, see [Create an Azure Communication Resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource). You will need to record your resource **connection string** for this sample.
 - Get a phone number for your new Azure Communication Services resource. For details, see [Get a phone number](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/telephony/get-phone-number?tabs=windows&pivots=programming-language-csharp)
-- Create Azure AI Multi Service resource. For details, see [Create an Azure AI Multi service](https://learn.microsoft.com/en-us/azure/cognitive-services/cognitive-services-apis-create-account).
 - An Azure OpenAI Resource and Deployed Model. See [instructions](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal).
 
 ## Before running the sample for the first time
@@ -55,11 +54,10 @@ Open the `.env` file to configure the following settings
 
 1. `CONNECTION_STRING`: Azure Communication Service resource's connection string.
 2. `CALLBACK_URI`: Base url of the app. (For local development replace the dev tunnel url)
-3. `COGNITIVE_SERVICE_ENDPOINT`: Azure Cognitive Service endpoint
-4. `AZURE_OPENAI_SERVICE_KEY`: Azure Open AI service key
-5. `AZURE_OPENAI_SERVICE_ENDPOINT`: Azure Open AI endpoint
-6. `AZURE_OPENAI_DEPLOYMENT_MODEL_NAME`: Azure Open AI deployment name
-7. `WEBSOCKET_URL`: Ngrok url for the server port (in this example port 5001) make sure to replace https:// with wss://
+3. `AZURE_OPENAI_SERVICE_KEY`: Azure Open AI service key
+4. `AZURE_OPENAI_SERVICE_ENDPOINT`: Azure Open AI endpoint
+5. `AZURE_OPENAI_DEPLOYMENT_MODEL_NAME`: Azure Open AI deployment name
+6. `WEBSOCKET_URL`: Ngrok url for the server port (in this example port 5001) make sure to replace https:// with wss://
 
 ### Run app locally
 
