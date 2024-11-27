@@ -1,5 +1,6 @@
 import { config } from 'dotenv';
 import express, { Application } from 'express';
+import http from 'http';
 import {
 	CallAutomationClient,
 	AnswerCallOptions,
@@ -9,16 +10,21 @@ import {
 
 import { v4 as uuidv4 } from 'uuid';
 
+import WebSocket from 'ws';
+import { startConversation, initWebsocket } from './azureOpenAiService'
+import { processWebsocketMessageAsync } from './mediaStreamingHandler'
+
 config();
 
 const PORT = process.env.PORT;
 const app: Application = express();
 app.use(express.json());
+// Create common server for app and websocket
+const server = http.createServer(app);
 
 let acsClient: CallAutomationClient;
 let answerCallResult: AnswerCallResult;
 let callerId: string;
-const transportUrl = process.env.WEBSOCKET_URL.trim()
 
 async function createAcsClient() {
 	const connectionString = process.env.CONNECTION_STRING || "";
@@ -43,9 +49,9 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 		const uuid = uuidv4();
 		const callbackUri = `${process.env.CALLBACK_URI}/api/callbacks/${uuid}?callerId=${callerId}`;
 		const incomingCallContext = eventData.incomingCallContext;
-
+		const websocketUrl = process.env.CALLBACK_URI.replace(/^https:\/\//, 'wss://');
 		const mediaStreamingOptions: MediaStreamingOptions = {
-			transportUrl: transportUrl,
+			transportUrl: websocketUrl,
 			transportType: "websocket",
 			contentType: "audio",
 			audioChannelType: "unmixed",
@@ -107,8 +113,32 @@ app.get('/', (req, res) => {
 });
 
 // Start the server
-app.listen(PORT, async () => {
+server.listen(PORT, async () => {
 	console.log(`Server is listening on port ${PORT}`);
 	await createAcsClient();
 });
 
+
+//Websocket for receiving mediastreaming.
+const wss = new WebSocket.Server({ server });
+wss.on('connection', async (ws: WebSocket) => {
+	console.log('Client connected');
+	await initWebsocket(ws);
+	await startConversation()
+	ws.on('message', async (packetData: ArrayBuffer) => {
+		try {
+			if (ws.readyState === WebSocket.OPEN) {
+				await processWebsocketMessageAsync(packetData);
+			} else {
+				console.warn(`ReadyState: ${ws.readyState}`);
+			}
+		} catch (error) {
+			console.error('Error processing WebSocket message:', error);
+		}
+	});
+	ws.on('close', () => {
+		console.log('Client disconnected');
+	});
+});
+
+console.log(`WebSocket server running on port ${PORT}`);
