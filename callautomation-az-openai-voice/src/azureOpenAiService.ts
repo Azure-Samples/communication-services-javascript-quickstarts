@@ -18,7 +18,7 @@ export async function sendAudioToExternalAi(data: string) {
     try {
         const audio = data
         if (audio) {
-            realtimeStreaming.send({
+            await realtimeStreaming.send({
                 type: "input_audio_buffer.append",
                 audio: audio,
             });
