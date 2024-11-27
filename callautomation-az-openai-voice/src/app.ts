@@ -118,7 +118,6 @@ server.listen(PORT, async () => {
 	await createAcsClient();
 });
 
-
 //Websocket for receiving mediastreaming.
 const wss = new WebSocket.Server({ server });
 wss.on('connection', async (ws: WebSocket) => {
