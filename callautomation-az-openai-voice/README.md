@@ -46,6 +46,6 @@ Open the `.env` file to configure the following settings
 
 1. Open a new Powershell window, cd into the `callautomation-az-openai-voice` folder and run `npm run dev`
 2. Browser should pop up with the below page. If not navigate it to `http://localhost:8080/`
-3. Register an EventGrid Webhook for the IncomingCall Event that points to your 8080 port URI (ex. https://<devtunelurl>/api/incomingCall). Instructions [here](https://learn.microsoft.com/en-us/azure/communication-services/concepts/call-automation/incoming-call-notification).
+3. Register an EventGrid Webhook for the IncomingCall Event that points to your 8080 port URI (ex. `https://<devtunnel>/api/incomingCall`). Instructions [here](https://learn.microsoft.com/en-us/azure/communication-services/concepts/call-automation/incoming-call-notification).
 
 Once that's completed you should have a running application. The best way to test this is to place a call to your ACS phone number
