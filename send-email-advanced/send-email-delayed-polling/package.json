@@ -1,0 +1,14 @@
+{
+  "name": "send-email-delayed-polling",
+  "version": "1.0.0",
+  "description": "",
+  "main": "send-email-delayed-polling.js",
+  "scripts": {
+    "start": "node send-email-delayed-polling.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/communication-email": "^1.0.0"
+  }
+}
