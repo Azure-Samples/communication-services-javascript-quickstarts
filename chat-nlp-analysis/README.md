@@ -2,7 +2,7 @@
 |---|---|---|
 |sample|<table><tr><td>Typescript</tr></td></table>|<table><tr><td>azure</td><td>azure-communication-services</td></tr></table>|
 
-# Chat with Azure OpenAI - Quick Start Sample
+# Natural Language Processing of Chat Messsages - Quick Start Sample
 
 This sample application demonstrates how to integrate Azure Communication Services Chat SDK with Azure OpenAI Service to enable intelligent message analysis. The application listens for a user message, processes the text through the Azure OpenAI Service, and generates appropriate analysis. Or optionally, developers can replace the logic with their own AI model for message analysis.
 
@@ -22,8 +22,8 @@ This sample application demonstrates how to integrate Azure Communication Servic
 
 1. Open an instance of PowerShell, Windows Terminal, Command Prompt or equivalent and navigate to the directory where you want to clone the sample.
 2. git clone `https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git`.
-3. cd into the `chat-openai-sample` folder.
-4. From the root of the `chat-openai-sample` folder run `npm install`.
+3. cd into the `chat-nlp-analysis` folder.
+4. From the root of the `chat-nlp-analysis` folder run `npm install`.
 
 
 ### Configuring application
@@ -39,7 +39,7 @@ Open the `.env` file to configure the following settings:
 
 ### Run app locally
 
-1. Open a new Powershell window, cd into the `chat-openai-sample` folder and run `npm run dev`.
+1. Open a new Powershell window, cd into the `chat-nlp-analysis` folder and run `npm run dev`.
 2. The browser displays the following dialog box. If not navigate to `http://localhost:8080/`.
 3. To test the AI analysis API endpoint on your local machine, in another new Powersehll window for the same directory, run `npm run client` to observe how messages are generated and processed.
 4. (optional) To setup Event Grid, follow [Setup and host your Azure DevTunnel](#optional-setup-and-host-your-azure-devtunnel) and register an Event Grid Webhook for the [ChatMessageReceived event](https://learn.microsoft.com/en-us/azure/event-grid/communication-services-chat-events#microsoftcommunicationchatmessagereceived-event) that points to your DevTunnel URI for `<DevTunnelUri>/api/chatMessageReceived`. See here for Event Grid Webhook configuration example [here](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/events/subscribe-to-events?pivots=platform-azp).
