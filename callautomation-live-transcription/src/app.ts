@@ -89,19 +89,8 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 
 		console.log(`Cognitive service endpoint:  ${process.env.COGNITIVE_SERVICE_ENDPOINT.trim()}`);
 		const callIntelligenceOptions: CallIntelligenceOptions = { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICE_ENDPOINT.trim() };
-		const transcriptionOptions: TranscriptionOptions = 
-		{ 
-			transportUrl: websocketUrl, 
-			transportType: transportType, 
-			locale: locale, 
-			startTranscription: false 
-		}
-		const answerCallOptions: AnswerCallOptions = 
-		{ 
-			callIntelligenceOptions: callIntelligenceOptions, 
-			transcriptionOptions: transcriptionOptions
-
-		};
+        const transcriptionOptions: TranscriptionOptions = { transportUrl: websocketUrl, transportType: transportType, locale: locale, startTranscription: false }
+		const answerCallOptions: AnswerCallOptions = { callIntelligenceOptions: callIntelligenceOptions, transcriptionOptions: transcriptionOptions};
 		console.log(`TranscriptionOption:" ${JSON.stringify(transcriptionOptions)}`);
 		answerCallResult = await acsClient.answerCall(incomingCallContext, callbackUri, answerCallOptions);
 		callConnection = answerCallResult.callConnection;
