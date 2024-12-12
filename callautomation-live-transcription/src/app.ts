@@ -86,22 +86,10 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 		const callbackUri = `${process.env.CALLBACK_HOST_URI}/api/callbacks/${uuid}?callerId=${callerId}`;
 		const incomingCallContext = eventData.incomingCallContext;
 		const websocketUrl = process.env.CALLBACK_HOST_URI.replace(/^https:\/\//, 'wss://');
-
 		console.log(`Cognitive service endpoint:  ${process.env.COGNITIVE_SERVICE_ENDPOINT.trim()}`);
-		const callIntelligenceOptions: CallIntelligenceOptions = { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICE_ENDPOINT.trim() };
-		const transcriptionOptions: TranscriptionOptions = 
-		{ 
-			transportUrl: websocketUrl, 
-			transportType: transportType, 
-			locale: locale, 
-			startTranscription: false 
-		}
-		const answerCallOptions: AnswerCallOptions = 
-		{ 
-			callIntelligenceOptions: callIntelligenceOptions, 
-			transcriptionOptions: transcriptionOptions
-
-		};
+        const callIntelligenceOptions: CallIntelligenceOptions = { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICE_ENDPOINT.trim() };
+        const transcriptionOptions: TranscriptionOptions = { transportUrl: websocketUrl, transportType: transportType, locale: locale, startTranscription: false }
+		const answerCallOptions: AnswerCallOptions = { callIntelligenceOptions: callIntelligenceOptions, transcriptionOptions: transcriptionOptions};
 		console.log(`TranscriptionOption:" ${JSON.stringify(transcriptionOptions)}`);
 		answerCallResult = await acsClient.answerCall(incomingCallContext, callbackUri, answerCallOptions);
 		callConnection = answerCallResult.callConnection;
