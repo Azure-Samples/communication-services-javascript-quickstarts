@@ -54,7 +54,7 @@ Open the `.env` file to configure the following settings
 
 ### Run app locally
 
-1. Open a new Powershell window, cd into the `callautomation-live-transcription` folder and run `npm run dev`
+1. Open a new Powershell window, cd into the `callautomation-az-openai-voice` folder and run `npm run dev`
 2. Browser should pop up with the below page. If not navigate it to `http://localhost:8080/`
 3. Register an EventGrid Webhook for the IncomingCall Event that points to your DevTunnel URI endpoint ex `{CALLBACK_HOST_URI}/api/incomingCall` and register Recording File Status Updated event to you recordingstatus api endpoint ex. `{CALLBACK_HOST_URI}/api/recordingFileStatus`. Instructions [here](https://learn.microsoft.com/en-us/azure/communication-services/concepts/call-automation/incoming-call-notification).
 
