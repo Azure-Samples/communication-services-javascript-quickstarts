@@ -15,8 +15,7 @@ It accepts an incoming call from a phone number, performs DTMF recognition, and 
 - Create an Azure Communication Services resource. For details, see [Create an Azure Communication Resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource). You will need to record your resource **connection string** for this sample.
 - Get a phone number for your new Azure Communication Services resource. For details, see [Get a phone number](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/telephony/get-phone-number?tabs=windows&pivots=programming-language-csharp)
 - Create Azure AI Multi Service resource. For details, see [Create an Azure AI Multi service](https://learn.microsoft.com/en-us/azure/cognitive-services/cognitive-services-apis-create-account).
-- Install ngrok. Instructions [here](https://ngrok.com/)
-- Setup websocket
+
 
 ## Before running the sample for the first time
 
@@ -44,13 +43,12 @@ devtunnel host
 
 Open the `.env` file to configure the following settings
 
-1. `CALLBACK_HOST_URI`:  Base url of the app. (For local development replace the above ngrok url from the above for the port 8080).
-1. `COGNITIVE_SERVICE_ENDPOINT`: Azure Multi Service endpoint.
-1. `ACS_CONNECTION_STRING`: Azure Communication Service resource's connection string.
-2. `ACS_PHONE_NUMBER`: Phone number associated with the Azure Communication Service resource. For e.g. "+1425XXXAAAA"
-3. `TRANSPORT_URL`: Ngrok url for the server port (in this example port 5001) make sure to replace https:// with wss://
-3. `LOCALE`: Transcription locale
-4. `AGENT_PHONE_NUMBER`: Phone number associated to with Agent
+1. `CALLBACK_HOST_URI`:  Base url of the app. (For local development use dev tunnel url.).
+2. `COGNITIVE_SERVICE_ENDPOINT`: Azure Multi Service endpoint.
+3. `ACS_CONNECTION_STRING`: Azure Communication Service resource's connection string.
+4. `ACS_PHONE_NUMBER`: Phone number associated with the Azure Communication Service resource. For e.g. "+1425XXXAAAA"
+5. `LOCALE`: Transcription locale
+6. `AGENT_PHONE_NUMBER`: Phone number associated to with Agent
 
 ### Run app locally
 
