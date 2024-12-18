@@ -10,7 +10,7 @@ import { Request, Response } from "express";
 import { PhoneNumberIdentifier } from "@azure/communication-common";
 import { SubscriptionValidationEventData, AcsRecordingFileStatusUpdatedEventData } from "@azure/eventgrid";
 
-const escapeHtml = require('escape-html');
+const he = require('he');
 
 var cfg = require("../../config");
 var CallAutomationClient = require("@azure/communication-call-automation");
@@ -119,8 +119,8 @@ exports.recordingFileStatus = async function (req: Request, res: Response) {
 
     if (eventGridEvent.eventType == "Microsoft.Communication.RecordingFileStatusUpdated") {
       var statusUpdated: AcsRecordingFileStatusUpdatedEventData = eventGridEvent.data;
-      contentLocation = escapeHtml(statusUpdated.recordingStorageInfo.recordingChunks[0].contentLocation);
-      deleteLocation = escapeHtml(statusUpdated.recordingStorageInfo.recordingChunks[0].deleteLocation);
+      contentLocation = he.escape(statusUpdated.recordingStorageInfo.recordingChunks[0].contentLocation);
+      deleteLocation = he.escape(statusUpdated.recordingStorageInfo.recordingChunks[0].deleteLocation);
     }
   }
   return res.status(200).send(`Recording Download Location :${contentLocation}, Recording Delete Location: ${deleteLocation}`);
