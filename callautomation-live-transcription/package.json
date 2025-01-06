@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "dev:app": "nodemon ./src/app.ts",
-    "dev:websocket": "nodemon ./src/websocket.ts"
+    "dev": "nodemon ./src/app.ts"
   },
   "keywords": [],
   "author": "",

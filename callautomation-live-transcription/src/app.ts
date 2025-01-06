@@ -1,5 +1,6 @@
 import { config } from 'dotenv';
 import express, { Application } from 'express';
+import http from 'http';
 import { PhoneNumberIdentifier, createIdentifierFromRawId } from "@azure/communication-common";
 import {
 	CallAutomationClient, CallConnection, AnswerCallOptions, CallMedia,
@@ -7,15 +8,19 @@ import {
 	CallIntelligenceOptions, PlayOptions,
 	CallMediaRecognizeDtmfOptions,
 	TranscriptionOptions,
-	CallLocator, StartRecordingOptions, CallInvite,
+	CallLocator, StartRecordingOptions, CallInvite,streamingData
 }
 	from "@azure/communication-call-automation";
 import { v4 as uuidv4 } from 'uuid';
+import WebSocket from 'ws';
 config();
 
 const PORT = process.env.PORT;
 const app: Application = express();
 app.use(express.json());
+
+// Create common server for app and websocket
+const server = http.createServer(app);
 
 let callConnectionId: string;
 let callConnection: CallConnection;
@@ -54,7 +59,6 @@ let recordingId: string;
 let recordingLocation: string;
 const agentPhonenumber = process.env.AGENT_PHONE_NUMBER;
 const acsPhoneNumber = process.env.ACS_PHONE_NUMBER;
-const transportUrl = process.env.TRANSPORT_URL;
 const transportType = process.env.TRANSPORT_TYPE;
 const locale = process.env.LOCALE;
 
@@ -81,10 +85,11 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 		const uuid = uuidv4();
 		const callbackUri = `${process.env.CALLBACK_HOST_URI}/api/callbacks/${uuid}?callerId=${callerId}`;
 		const incomingCallContext = eventData.incomingCallContext;
+		const websocketUrl = process.env.CALLBACK_HOST_URI.replace(/^https:\/\//, 'wss://');
 		console.log(`Cognitive service endpoint:  ${process.env.COGNITIVE_SERVICE_ENDPOINT.trim()}`);
-		const callIntelligenceOptions: CallIntelligenceOptions = { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICE_ENDPOINT.trim() };
-		const transcriptionOptions: TranscriptionOptions = { transportUrl: transportUrl, transportType: transportType, locale: locale, startTranscription: false }
-		const answerCallOptions: AnswerCallOptions = { callIntelligenceOptions: callIntelligenceOptions, transcriptionOptions: transcriptionOptions };
+        const callIntelligenceOptions: CallIntelligenceOptions = { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICE_ENDPOINT.trim() };
+        const transcriptionOptions: TranscriptionOptions = { transportUrl: websocketUrl, transportType: transportType, locale: locale, startTranscription: false }
+		const answerCallOptions: AnswerCallOptions = { callIntelligenceOptions: callIntelligenceOptions, transcriptionOptions: transcriptionOptions};
 		console.log(`TranscriptionOption:" ${JSON.stringify(transcriptionOptions)}`);
 		answerCallResult = await acsClient.answerCall(incomingCallContext, callbackUri, answerCallOptions);
 		callConnection = answerCallResult.callConnection;
@@ -318,7 +323,57 @@ async function delayWithSetTimeout(): Promise<void> {
 }
 
 // Start the server
-app.listen(PORT, async () => {
+server.listen(PORT, async () => {
 	console.log(`Server is listening on port ${PORT}`);
 	await createAcsClient();
 });
+
+
+const wss = new WebSocket.Server({ server});
+
+wss.on('connection', (ws: WebSocket) => {
+    console.log('Client connected');
+    ws.on('message', (packetData: ArrayBuffer) => {
+        const decoder = new TextDecoder();
+        const stringJson = decoder.decode(packetData);
+        console.log("STRING JSON=>--" + stringJson)
+        var response = streamingData(packetData);
+        if ('locale' in response) {
+            console.log("--------------------------------------------")
+            console.log("Transcription Metadata")
+            console.log("CALL CONNECTION ID:-->" + response.callConnectionId);
+            console.log("CORRELATION ID:-->" + response.correlationId);
+            console.log("LOCALE:-->" + response.locale);
+            console.log("SUBSCRIPTION ID:-->" + response.subscriptionId);
+            console.log("--------------------------------------------")
+        }
+        if ('text' in response) {
+            console.log("--------------------------------------------")
+            console.log("Transcription Data")
+            console.log("TEXT:-->" + response.text);
+            console.log("FORMAT:-->" + response.format);
+            console.log("CONFIDENCE:-->" + response.confidence);
+            console.log("OFFSET IN TICKS:-->" + response.offsetInTicks);
+            console.log("DURATION IN TICKS:-->" + response.durationInTicks);
+            console.log("RESULT STATE:-->" + response.resultState);
+            if ('phoneNumber' in response.participant) {
+                console.log("PARTICIPANT:-->" + response.participant.phoneNumber);
+            }
+            if ('communicationUserId' in response.participant) {
+                console.log("PARTICIPANT:-->" + response.participant.communicationUserId);
+            }
+            response.words.forEach(element => {
+                console.log("TEXT:-->" + element.text)
+                console.log("DURATION IN TICKS:-->" + element.durationInTicks)
+                console.log("OFFSET IN TICKS:-->" + element.offsetInTicks)
+            });
+            console.log("--------------------------------------------")
+        }
+    });
+
+    ws.on('close', () => {
+        console.log('Client disconnected');
+    });
+});
+
+console.log(`WebSocket server running on port ${PORT}`);
