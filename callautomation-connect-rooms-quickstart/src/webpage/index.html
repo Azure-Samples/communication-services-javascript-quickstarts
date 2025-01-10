@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
   <title>Azure Communication Services Quickstart</title>
@@ -7,18 +7,52 @@
 
 <body>
   <h4>Azure Communication Services</h4>
-  <h1>Connect Rooms Call Quickstart</h1>
-  <form style="display: block;">
-    <div style="margin-bottom: 10px;">
-      <input class="large-button" type="submit" formaction="/connectCall" value="Connect call!">
+  <h2>Connect Rooms Call Quickstart</h2>
+
+  <form>
+    <div>
+      <input type="submit" formaction="/connectCall" value="Connect call!">
+      <input type="submit" formaction="/addParticipant" value="Add participant!">
+      <input type="submit" formaction="/hangup" value="Hangup call!">
     </div>
-    <div style="margin-bottom: 10px;">
-      <input class="large-button" type="submit" formaction="/addParticipant" value="Add participant!">
+
+    <h3>Room Details</h3>
+
+    <div id="roomId-info">
+      <h4>Room</h4>
+      <p>Room Id: <span id="roomId-text">Loading roomId...</span></p>
     </div>
-    <div style="margin-bottom: 10px;">
-      <input class="large-button" type="submit" formaction="/hangup" value="Hangup call!">
+
+    <div id="presenter-info">
+      <h4>Presenter</h4>
+      <p>User Id: <span id="presenter-id">Loading presenter userId...</span></p>
+      <p>Token: <span id="presenter-token">Loading presenter token...</span></p>
+    </div>
+
+    <div id="attendee-info">
+      <h4>Attendee</h4>
+      <p>User Id: <span id="attendee-id">Loading attendee userId...</span></p>
+      <p>Token: <span id="attendee-token">Loading attendee token...</span></p>
     </div>
   </form>
+
+  <script>
+    fetch('/room-data')
+      .then(response => response.json())
+      .then(data => {
+
+        document.getElementById('roomId-text').innerText = `${data.roomId}`;
+
+        document.getElementById('presenter-id').innerText = `${data.user1.user.communicationUserId}`;
+        document.getElementById('presenter-token').innerText = `${data.user1.token}`;
+
+        document.getElementById('attendee-id').innerText = `${data.user2.user.communicationUserId}`;
+        document.getElementById('attendee-token').innerText = `${data.user2.token}`;
+      })
+      .catch(error => {
+        console.error('Error fetching user data:', error);
+      });
+  </script>
 </body>
 
 </html>

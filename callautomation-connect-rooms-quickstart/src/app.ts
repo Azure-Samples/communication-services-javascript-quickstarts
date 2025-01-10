@@ -9,7 +9,7 @@ import {
 	CallInvite,
 	AddParticipantOptions
 } from "@azure/communication-call-automation";
-import { CommunicationIdentityClient } from '@azure/communication-identity';
+import { CommunicationIdentityClient, CommunicationUserToken } from '@azure/communication-identity';
 import { CreateRoomOptions, RoomsClient } from '@azure/communication-rooms';
 
 config();
@@ -25,6 +25,8 @@ let callConnection: CallConnection;
 let serverCallId: string;
 let acsClient: CallAutomationClient;
 let roomId: string;
+let user1: CommunicationUserToken;
+let user2: CommunicationUserToken;
 const connectionString = process.env.CONNECTION_STRING || ""
 
 async function createAcsClient() {
@@ -34,8 +36,8 @@ async function createAcsClient() {
 
 async function createRoom() {
 	const identityClient = new CommunicationIdentityClient(connectionString);
-	const user1 = await identityClient.createUserAndToken(["voip"]);
-	const user2 = await identityClient.createUserAndToken(["voip"]);
+	user1 = await identityClient.createUserAndToken(["voip"]);
+	user2 = await identityClient.createUserAndToken(["voip"]);
 	const delay = ms => new Promise(res => setTimeout(res, ms));
 
 	console.log(`Presenter:--> ${user1.user.communicationUserId}, Token:-->${user1.token}`)
@@ -148,6 +150,10 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 // GET endpoint to serve the webpage
 app.get('/', (req, res) => {
 	res.sendFile('index.html', { root: 'src/webpage' });
+});
+
+app.get('/room-data', (req, res) => {
+	res.json({ roomId, user1, user2 });
 });
 
 // GET endpoint to establish connect call
