@@ -1,5 +1,6 @@
 import { config } from 'dotenv';
 import fs from "fs";
+import sanitize from "sanitize-filename";
 import express, { Application } from 'express';
 import { PhoneNumberIdentifier } from "@azure/communication-common";
 import {  } from "@azure/communication-common";
@@ -168,25 +169,32 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 // GET endpoint to serve the audio file
 app.get("/audioprompt/:filename", (req, res) => {
 	const filename = req.params.filename;
-	const audioFilePath = path.join(process.env.BASE_MEDIA_PATH || "", filename);
+	const sanitizedFilename = sanitize(filename);
 
-	// Read the audio file
-	fs.readFile(audioFilePath, (err, data) => {
-		if (err) {
-			console.error("Failed to read audio file:", err);
-			res.status(500).send("Internal Server Error");
-			return;
-		}
+	try {
+		const audioFilePath = fs.realpathSync(path.join(process.env.BASE_MEDIA_PATH || "", sanitizedFilename));
 
-		// Set the appropriate response headers
-		res.set("Content-Type", "audio/wav");
-		res.set("Content-Length", data.length.toString());
-		res.set("Cache-Control", "no-cache, no-store");
-		res.set("Pragma", "no-cache");
+		// Read the audio file
+		fs.readFile(audioFilePath, (err, data) => {
+			if (err) {
+				console.error("Failed to read audio file:", err);
+				res.status(500).send("Internal Server Error");
+				return;
+			}
 
-		// Send the audio file as the response
-		res.send(data);
-	});
+			// Set the appropriate response headers
+			res.set("Content-Type", "audio/wav");
+			res.set("Content-Length", data.length.toString());
+			res.set("Cache-Control", "no-cache, no-store");
+			res.set("Pragma", "no-cache");
+
+			// Send the audio file as the response
+			res.send(data);
+		});
+	} catch (err) {
+		console.error("Failed to find audio file: ", err);
+		res.status(500).send("Internal Server Error");
+	}
 });
 
 // GET endpoint to serve the webpage
