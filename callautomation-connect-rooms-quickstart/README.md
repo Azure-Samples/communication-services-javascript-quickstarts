@@ -64,6 +64,6 @@ Open the `.env` file to configure the following settings
 3. Copy tokens for presenter and attendee from ![tokens](./data/tokens.png)
 4. Initialize call agent with tokens for both presenter and attendee.
 5. Take room id ![room id](./data/roomId.png) and initiate rooms call for both users. ![join room call](./data/joinRoomCall.png)
-6. Connect room call with callautomation connect call endpoint. ![connect room call](./data/connectCall.png)
+6. Connect room call with call automation connect call endpoint. ![connect room call](./data/connectCall.png)
 
 
