@@ -19,7 +19,7 @@ For full instructions on how to build this code sample from scratch, look at [Qu
 
 ## Install the package
 
-npm install @azure/communication-phone-numbers@1.3.0-beta.4 --save
+npm install @azure/communication-phone-numbers@1.3.0 --save
 
 ## Before running sample code
 
