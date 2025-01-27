@@ -16,7 +16,9 @@ import { processWebsocketMessageAsync } from './mediaStreamingHandler'
 config();
 
 const PORT = process.env.PORT;
+const WS_PORT = process.env.WS_PORT;
 const app: Application = express();
+
 
 const server = http.createServer(app);
 
@@ -44,8 +46,8 @@ async function createOutboundCall() {
 		},
 	};
 
-	const websocketUrl = process.env.CALLBACK_URI.replace(/^https:\/\//, 'wss://');
-
+	//const websocketUrl = process.env.CALLBACK_URI.replace(/^https:\/\//, 'wss://');
+	const websocketUrl = process.env.WEBSOCKET_URL
 	console.log(websocketUrl);
 
 	const mediaStreamingOptions: MediaStreamingOptions = {
@@ -123,7 +125,7 @@ app.get('/outboundCall', async (req, res) => {
 	res.redirect('/');
 });
 
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({ port: WS_PORT });
 wss.on('connection', async (ws: WebSocket) => {
 	console.log('Client connected!');
 	await initWebsocket(ws);
@@ -144,7 +146,7 @@ wss.on('connection', async (ws: WebSocket) => {
 	});
 });
 
-console.log(`WebSocket server running on port ${PORT}`);
+console.log(`WebSocket server running on port ${WS_PORT}`);
 
 // Start the server
 app.listen(PORT, async () => {
