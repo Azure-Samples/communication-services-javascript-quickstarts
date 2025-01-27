@@ -26,6 +26,18 @@ This is a sample application demonstrated during Microsoft Build 2024. It highli
 
 [Azure DevTunnels](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started?tabs=windows) is an Azure service that enables you to share local web services hosted on the internet. Use the commands below to connect your local development environment to the public internet. This creates a tunnel with a persistent endpoint URL and which allows anonymous access. We will then use this endpoint to notify your application of calling events from the ACS Call Automation service.
 
+We will deploy application and websocket on different ports.
+
+Tunneling for application:
+
+```bash
+devtunnel create --allow-anonymous
+devtunnel port create -p 3000
+devtunnel host
+```
+
+Tunneling for websocket
+
 ```bash
 devtunnel create --allow-anonymous
 devtunnel port create -p 8080
@@ -38,9 +50,10 @@ Open the `.env` file to configure the following settings
 
 1. `CONNECTION_STRING`: Azure Communication Service resource's connection string.
 2. `CALLBACK_URI`: Base url of the app. (For local development replace the dev tunnel url)
-3. `AZURE_OPENAI_SERVICE_KEY`: Azure Open AI service key
-4. `AZURE_OPENAI_SERVICE_ENDPOINT`: Azure Open AI endpoint
-5. `AZURE_OPENAI_DEPLOYMENT_MODEL_NAME`: Azure Open AI deployment name
+3. `WEBSOCKET_URL`: Base url of the app. (For local development replace the dev tunnel url)
+4. `AZURE_OPENAI_SERVICE_KEY`: Azure Open AI service key
+5. `AZURE_OPENAI_SERVICE_ENDPOINT`: Azure Open AI endpoint
+6. `AZURE_OPENAI_DEPLOYMENT_MODEL_NAME`: Azure Open AI deployment name
 
 ### Run app locally
 
