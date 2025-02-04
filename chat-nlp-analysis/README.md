@@ -9,6 +9,8 @@ This sample application demonstrates how to integrate Azure Communication Servic
 - app.ts - Node JS application providing HTTP endpoints for message analysis (including Event Grid webhook endpoint)
 - client.ts - script to setup chat messages and test HTTP endpoints locally for message analysis
 
+Optionally you can swap out Azure OpenAI to your preferred LLM service (eg. DeepSeek, OpenAI-o3, BERT, etc...) by replacing the logic in `getChatCompletions` inside of `app.ts`.
+
 ## Prerequisites
 
 - Create an Azure account with an active subscription. For details, see [Create an account for free](https://azure.microsoft.com/free/).
