@@ -43,7 +43,7 @@ devtunnel host
 Open the `.env` file to configure the following settings
 
 1. `CALLBACK_HOST_URI`:  Base url of the app. (For local development use dev tunnel url.).
-2. `COGNITIVE_SERVICE_ENDPOINT`: Azure Multi Service endpoint.
+2. `COGNITIVE_SERVICES_ENDPOINT`: Azure Multi Service endpoint.
 3. `ACS_CONNECTION_STRING`: Azure Communication Service resource's connection string.
 4. `ACS_PHONE_NUMBER`: Phone number associated with the Azure Communication Service resource. For e.g. "+1425XXXAAAA"
 5. `LOCALE`: Transcription locale
