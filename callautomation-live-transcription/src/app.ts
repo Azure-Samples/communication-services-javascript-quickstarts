@@ -8,7 +8,10 @@ import {
 	CallIntelligenceOptions, PlayOptions,
 	CallMediaRecognizeDtmfOptions,
 	TranscriptionOptions,
-	CallLocator, StartRecordingOptions, CallInvite,streamingData
+	CallLocator, StartRecordingOptions, CallInvite, streamingData,
+	StopTranscriptionOptions,
+	CallConnectionProperties,
+	RecordingStateResult
 }
 	from "@azure/communication-call-automation";
 import { v4 as uuidv4 } from 'uuid';
@@ -40,7 +43,6 @@ const addAgentContext = "AddAgent";
 const incorrectDobContext = "IncorrectDob";
 const addParticipantFailureContext = "FailedToAddParticipant";
 const DobRegex = "^(0[1-9]|[12][0-9]|3[01])(0[1-9]|1[012])[12][0-9]{3}$";
-let isTrasncriptionActive = false;
 var maxTimeout = 2;
 const wordToNumberMapping = {
 	zero: '0',
@@ -57,6 +59,7 @@ const wordToNumberMapping = {
 
 let recordingId: string;
 let recordingLocation: string;
+let recordingCallBackUri: string;
 const agentPhonenumber = process.env.AGENT_PHONE_NUMBER;
 const acsPhoneNumber = process.env.ACS_PHONE_NUMBER;
 const transportType = process.env.TRANSPORT_TYPE;
@@ -84,13 +87,14 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 		callerId = eventData.from.rawId;
 		const uuid = uuidv4();
 		const callbackUri = `${process.env.CALLBACK_HOST_URI}/api/callbacks/${uuid}?callerId=${callerId}`;
+		recordingCallBackUri = callbackUri;
 		const incomingCallContext = eventData.incomingCallContext;
 		const websocketUrl = process.env.CALLBACK_HOST_URI.replace(/^https:\/\//, 'wss://');
-		console.log(`Cognitive service endpoint:  ${process.env.COGNITIVE_SERVICE_ENDPOINT.trim()}`);
-        const callIntelligenceOptions: CallIntelligenceOptions = { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICE_ENDPOINT.trim() };
-        const transcriptionOptions: TranscriptionOptions = { transportUrl: websocketUrl, transportType: transportType, locale: locale, startTranscription: false }
-		const answerCallOptions: AnswerCallOptions = { callIntelligenceOptions: callIntelligenceOptions, transcriptionOptions: transcriptionOptions};
-		console.log(`TranscriptionOption:" ${JSON.stringify(transcriptionOptions)}`);
+		console.log(`Websocket url:- ${websocketUrl}`);
+		console.log(`Cognitive service endpoint:  ${process.env.COGNITIVE_SERVICES_ENDPOINT.trim()}`);
+		const callIntelligenceOptions: CallIntelligenceOptions = { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT.trim() };
+		const transcriptionOptions: TranscriptionOptions = { transportUrl: websocketUrl, transportType: transportType, locale: locale, startTranscription: true }
+		const answerCallOptions: AnswerCallOptions = { callIntelligenceOptions: callIntelligenceOptions, transcriptionOptions: transcriptionOptions };
 		answerCallResult = await acsClient.answerCall(incomingCallContext, callbackUri, answerCallOptions);
 		callConnection = answerCallResult.callConnection;
 	}
@@ -111,15 +115,7 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		console.log("TranscriptionSubscription:-->" + JSON.stringify(transcriptionSubscription));
 
 		await startRecording(eventData.serverCallId);
-		console.log(`Recording started. RecordingId: ${recordingId}`);
-		callMedia = acsClient.getCallConnection(eventData.callConnectionId).getCallMedia();
-		await initiateTranscription(callMedia);
-		console.log("Transcription initiated.");
-		await delayWithSetTimeout();
-		await pauseOrStopTranscriptionAndRecording(callMedia, false, recordingId);
-		await delayWithSetTimeout();
-		/* Play hello prompt to user */
-		await handleDtmfRecognizeAsync(callMedia, callerId, helpIVRPrompt, "hellocontext");
+		console.log(`Recording started with pause on start. RecordingId: ${recordingId}`);
 	}
 	else if (event.type === "Microsoft.Communication.PlayCompleted") {
 		if (eventData.operationContext === addAgentContext) {
@@ -134,12 +130,12 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		}
 		else if (eventData.operationContext === goodbyeContext ||
 			eventData.operationContext === addParticipantFailureContext) {
-			await pauseOrStopTranscriptionAndRecording(callMedia, true, recordingId);
+			await stopTranscriptionAndRecording(callMedia, eventData.callConnectionId, recordingId);
 			await acsClient.getCallConnection(eventData.callConnectionId).hangUp(true);
 		}
 	}
 	else if (event.type === "Microsoft.Communication.playFailed") {
-		await pauseOrStopTranscriptionAndRecording(callMedia, true, recordingId);
+		await stopTranscriptionAndRecording(callMedia, eventData.callConnectionId, recordingId);
 		await acsClient.getCallConnection(eventData.callConnectionId).hangUp(true);
 	}
 	else if (event.type === "Microsoft.Communication.RecognizeCompleted") {
@@ -151,7 +147,6 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		const match = regex.exec(dobValueNumbers);
 		if (match && match[0]) {
 			await resumeTranscriptionAndRecording(callMedia, recordingId);
-			await handlePlayAsync(callMedia, addAgentPrompt, addAgentContext);
 		}
 		else {
 			await handleDtmfRecognizeAsync(callMedia, callerId, incorrectDobPrompt, incorrectDobContext);
@@ -180,18 +175,27 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 		console.log(eventData.operationContext);
 		console.log(`Transcription status:--> ${eventData.transcriptionUpdate.transcriptionStatus}`);
 		console.log(`Transcription status details:--> ${eventData.transcriptionUpdate.transcriptionStatusDetails}`);
+		callMedia = acsClient.getCallConnection(eventData.callConnectionId).getCallMedia();
+		if (eventData.operationContext === undefined) {
+			const stopTranscriptionOptions: StopTranscriptionOptions = {
+				operationContext: "nextRecognizeContext"
+			}
+			await callMedia.stopTranscription(stopTranscriptionOptions);
+		}
+		else if (eventData.operationContext != undefined && eventData.operationContext === "startTranscriptionContext") {
+			await handlePlayAsync(callMedia, addAgentPrompt, addAgentContext);
+		}
 	}
 	else if (event.type === "Microsoft.Communication.TranscriptionStopped") {
-		isTrasncriptionActive = false;
 		console.log(`Received transcription event: ${event.type}`);
 		console.log(`Transcription status:--> ${eventData.transcriptionUpdate.transcriptionStatus}`);
 		console.log(`Transcription status details:--> ${eventData.transcriptionUpdate.transcriptionStatusDetails}`);
-	}
-	else if (event.type === "Microsoft.Communication.TranscriptionUpdated") {
-		isTrasncriptionActive = false;
-		console.log(`Received transcription event: ${event.type}`);
-		console.log(`Transcription status:--> ${eventData.transcriptionUpdate.transcriptionStatus}`);
-		console.log(`Transcription status details:--> ${eventData.transcriptionUpdate.transcriptionStatusDetails}`);
+		callMedia = acsClient.getCallConnection(eventData.callConnectionId).getCallMedia();
+
+		if (eventData.operationContext != undefined && eventData.operationContext === "nextRecognizeContext") {
+			/* Play hello prompt to user */
+			await handleDtmfRecognizeAsync(callMedia, callerId, helpIVRPrompt, "hellocontext");
+		}
 	}
 	else if (event.type === "Microsoft.Communication.TranscriptionFailed") {
 		console.log("Received transcription event=%s, CorrelationId=%s, SubCode=%s, Message=%s",
@@ -199,6 +203,10 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 			eventData.CorrelationId,
 			eventData?.ResultInformation?.SubCode,
 			eventData?.ResultInformation?.Message);
+	}
+	else if (event.type === "Microsoft.Communication.RecordingStateChanged") {
+		console.log("Received RecordingStateChanged event");
+		console.log(`Recording state:--> ${eventData.state}`)
 	}
 	else if (event.type === "Microsoft.Communication.CallDisconnected") {
 		console.log("Received CallDisconnected event");
@@ -233,7 +241,7 @@ app.get('/download', async (req, res) => {
 	}
 	else {
 		// Set the appropriate response headers for the file download
-		res.setHeader('Content-Disposition', 'attachment; filename="recording.wav"');
+		res.setHeader('Content-Disposition', 'attachment; filename="recording.mp4"');
 		res.setHeader('Content-Type', 'audio/wav');
 		const recordingStream = await acsClient.getCallRecording().downloadStreaming(recordingLocation);
 
@@ -250,18 +258,16 @@ async function resumeTranscriptionAndRecording(callMedia: CallMedia, recordingId
 	console.log(`Recording resumed. RecordingId: ${recordingId}`);
 }
 
-async function pauseOrStopTranscriptionAndRecording(callMedia: CallMedia, stopRecording: boolean, recordingId: string) {
-	console.log("Is trancription active-->" + isTrasncriptionActive)
-	if (isTrasncriptionActive) {
+async function stopTranscriptionAndRecording(callMedia: CallMedia, callConnectionId: string, recordingId: string) {
+	const callConnectionProperties: CallConnectionProperties = await acsClient.getCallConnection(callConnectionId).getCallConnectionProperties();
+	const recordingStateResult: RecordingStateResult = await acsClient.getCallRecording().getState(recordingId);
+
+	if (callConnectionProperties.transcriptionSubscription.state === "active") {
 		await callMedia.stopTranscription();
 	}
-	console.log(`stopRecording = ${stopRecording}`);
-	if (stopRecording) {
+
+	if (recordingStateResult.recordingState === "active") {
 		await acsClient.getCallRecording().stop(recordingId);
-		console.log(`Recording stopped. RecordingId: ${recordingId}`);
-	} else {
-		await acsClient.getCallRecording().pause(recordingId);
-		console.log(`Recording paused. RecordingId: ${recordingId}`);
 	}
 }
 
@@ -290,11 +296,10 @@ async function handlePlayAsync(callConnectionMedia: CallMedia, textToPlay: strin
 async function initiateTranscription(callConnectionMedia: CallMedia) {
 	const startTranscriptionOptions = {
 		locale: locale,
-		operationContext: "StartTranscript"
+		operationContext: "startTranscriptionContext"
 	};
 
 	await callConnectionMedia.startTranscription(startTranscriptionOptions);
-	isTrasncriptionActive = true;
 }
 async function startRecording(serverCallId: string) {
 	const callLocator: CallLocator = {
@@ -302,7 +307,15 @@ async function startRecording(serverCallId: string) {
 		kind: "serverCallLocator",
 	};
 
-	const recordingOptions: StartRecordingOptions = { callLocator: callLocator };
+	const recordingOptions: StartRecordingOptions =
+	{
+		callLocator: callLocator,
+		recordingChannel: "mixed",
+		recordingContent: "audioVideo",
+		recordingFormat: "mp4",
+		recordingStateCallbackEndpointUrl: recordingCallBackUri,
+		pauseOnStart: true
+	};
 	const response = await acsClient.getCallRecording().start(recordingOptions);
 	recordingId = response.recordingId;
 }
@@ -314,66 +327,57 @@ function convertWordsArrayToNumberString(wordArray) {
 	return result;
 }
 
-async function delayWithSetTimeout(): Promise<void> {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			resolve();
-		}, 5000); // 5000 milliseconds = 5 seconds
-	});
-}
-
 // Start the server
 server.listen(PORT, async () => {
 	console.log(`Server is listening on port ${PORT}`);
 	await createAcsClient();
 });
 
-
-const wss = new WebSocket.Server({ server});
+const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws: WebSocket) => {
-    console.log('Client connected');
-    ws.on('message', (packetData: ArrayBuffer) => {
-        const decoder = new TextDecoder();
-        const stringJson = decoder.decode(packetData);
-        console.log("STRING JSON=>--" + stringJson)
-        var response = streamingData(packetData);
-        if ('locale' in response) {
-            console.log("--------------------------------------------")
-            console.log("Transcription Metadata")
-            console.log("CALL CONNECTION ID:-->" + response.callConnectionId);
-            console.log("CORRELATION ID:-->" + response.correlationId);
-            console.log("LOCALE:-->" + response.locale);
-            console.log("SUBSCRIPTION ID:-->" + response.subscriptionId);
-            console.log("--------------------------------------------")
-        }
-        if ('text' in response) {
-            console.log("--------------------------------------------")
-            console.log("Transcription Data")
-            console.log("TEXT:-->" + response.text);
-            console.log("FORMAT:-->" + response.format);
-            console.log("CONFIDENCE:-->" + response.confidence);
-            console.log("OFFSET IN TICKS:-->" + response.offsetInTicks);
-            console.log("DURATION IN TICKS:-->" + response.durationInTicks);
-            console.log("RESULT STATE:-->" + response.resultState);
-            if ('phoneNumber' in response.participant) {
-                console.log("PARTICIPANT:-->" + response.participant.phoneNumber);
-            }
-            if ('communicationUserId' in response.participant) {
-                console.log("PARTICIPANT:-->" + response.participant.communicationUserId);
-            }
-            response.words.forEach(element => {
-                console.log("TEXT:-->" + element.text)
-                console.log("DURATION IN TICKS:-->" + element.durationInTicks)
-                console.log("OFFSET IN TICKS:-->" + element.offsetInTicks)
-            });
-            console.log("--------------------------------------------")
-        }
-    });
+	console.log('Client connected');
+	ws.on('message', (packetData: ArrayBuffer) => {
+		const decoder = new TextDecoder();
+		const stringJson = decoder.decode(packetData);
+		console.log("STRING JSON=>--" + stringJson)
+		var response = streamingData(packetData);
+		if ('locale' in response) {
+			console.log("--------------------------------------------")
+			console.log("Transcription Metadata")
+			console.log("CALL CONNECTION ID:-->" + response.callConnectionId);
+			console.log("CORRELATION ID:-->" + response.correlationId);
+			console.log("LOCALE:-->" + response.locale);
+			console.log("SUBSCRIPTION ID:-->" + response.subscriptionId);
+			console.log("--------------------------------------------")
+		}
+		if ('text' in response) {
+			console.log("--------------------------------------------")
+			console.log("Transcription Data")
+			console.log("TEXT:-->" + response.text);
+			console.log("FORMAT:-->" + response.format);
+			console.log("CONFIDENCE:-->" + response.confidence);
+			console.log("OFFSET IN TICKS:-->" + response.offsetInTicks);
+			console.log("DURATION IN TICKS:-->" + response.durationInTicks);
+			console.log("RESULT STATE:-->" + response.resultState);
+			if ('phoneNumber' in response.participant) {
+				console.log("PARTICIPANT:-->" + response.participant.phoneNumber);
+			}
+			if ('communicationUserId' in response.participant) {
+				console.log("PARTICIPANT:-->" + response.participant.communicationUserId);
+			}
+			response.words.forEach(element => {
+				console.log("TEXT:-->" + element.text)
+				console.log("DURATION IN TICKS:-->" + element.durationInTicks)
+				console.log("OFFSET IN TICKS:-->" + element.offsetInTicks)
+			});
+			console.log("--------------------------------------------")
+		}
+	});
 
-    ws.on('close', () => {
-        console.log('Client disconnected');
-    });
+	ws.on('close', () => {
+		console.log('Client disconnected');
+	});
 });
 
 console.log(`WebSocket server running on port ${PORT}`);
