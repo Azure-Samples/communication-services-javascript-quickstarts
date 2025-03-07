@@ -38,8 +38,7 @@ function ChatComponents(props: ChatComponentsProps): JSX.Element {
         // Remove duplicate messages based on messageId
         const uniqueMessages = Array.from(new Set(mergedMessages.map(msg => msg.messageId)))
           .map(id => mergedMessages.find(msg => msg.messageId === id))
-          .filter((msg): msg is ChatMessage => msg !== undefined);
-        
+          .filter((msg): msg is ChatMessage => msg !== undefined && msg.messageId !== "");        
         return uniqueMessages.sort((a, b) => a.createdOn.getTime() - b.createdOn.getTime());
       });
     }
@@ -83,8 +82,9 @@ function ChatComponents(props: ChatComponentsProps): JSX.Element {
           senderId: userId,
           senderDisplayName: displayName,
           createdOn: new Date(),
-          status: 'delivered',
-          contentType: 'text'
+          status: 'seen',
+          contentType: 'text',
+          mine: true
         };
         console.log('======================================setMessages2======================================');
         setMessages(prevMessages => [...prevMessages, promptMessage]);
@@ -106,7 +106,7 @@ function ChatComponents(props: ChatComponentsProps): JSX.Element {
           senderId: 'bot',
           senderDisplayName: 'Bot',
           createdOn: new Date(),
-          status: 'delivered',
+          status: 'seen',
           contentType: 'text'
         };
         console.log('======================================setMessages3======================================');
