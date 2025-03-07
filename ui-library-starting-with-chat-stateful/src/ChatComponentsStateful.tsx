@@ -1,18 +1,21 @@
 import { ChatThreadClient } from '@azure/communication-chat';
-import { usePropsFor, MessageThread, SendBox, RichTextSendBox, StatefulChatClient } from '@azure/communication-react';
-import { useCallback } from 'react';
+import { usePropsFor, MessageThread, SendBox, RichTextSendBox, StatefulChatClient, ChatMessage } from '@azure/communication-react';
+import { useCallback, useEffect, useState } from 'react';
 import { askAI, ContextItem } from './AIClient';
 interface ChatComponentsProps {
   chatClient: StatefulChatClient;
   chatThreadClient: ChatThreadClient;
   threadId: string;
+  userId: string;
+  displayName: string;
 }
 
 function ChatComponents(props: ChatComponentsProps): JSX.Element {
-  const { chatClient, chatThreadClient, threadId } = props;
+  const { chatClient, chatThreadClient, threadId, userId, displayName } = props;
 
   const messageThreadProps = usePropsFor(MessageThread);
   const sendBoxProps = usePropsFor(SendBox);
+
 /**
  * By default, the `richTextEditorEnabled` is set to false,
  * which means the plain text editor will be used for the SendBox component and the MessageThread component's edit function.
@@ -23,6 +26,22 @@ function ChatComponents(props: ChatComponentsProps): JSX.Element {
  * https://github.com/Azure-Samples/communication-services-javascript-quickstarts/tree/main/ui-library-quickstart-teams-interop-meeting-chat
  */
   const richTextEditorEnabled = false
+
+  const [messages, setMessages] = useState<ChatMessage[]>((messageThreadProps?.messages as ChatMessage[]) ?? []);
+  useEffect(() => {
+    // merge messageThreadProps.messages with local messages
+    if (messageThreadProps?.messages) {
+      setMessages(prevMessages => {
+        const serverMessages = messageThreadProps.messages as ChatMessage[];
+        const mergedMessages = [...prevMessages, ...serverMessages];
+        // Remove duplicate messages based on messageId
+        const uniqueMessages = Array.from(new Set(mergedMessages.map(msg => msg.messageId)))
+          .map(id => mergedMessages.find(msg => msg.messageId === id))
+          .filter((msg): msg is ChatMessage => msg !== undefined);
+        return uniqueMessages;
+      });
+    }
+  }, [messageThreadProps?.messages]);
 
   const isBotMessage = useCallback((content: any) => {
     return content.startsWith('/bot')
@@ -49,14 +68,43 @@ function ChatComponents(props: ChatComponentsProps): JSX.Element {
 
   const onSendMessage = useCallback(
     async (message: string) => {
+      if (!message) {
+        return;
+      }
       if (isBotMessage(message)) {
+        const promptMessage: ChatMessage = {
+          messageId: Math.random().toString(),
+          messageType: 'chat',
+          content: message,
+          senderId: userId,
+          senderDisplayName: displayName,
+          createdOn: new Date(),
+          status: 'delivered',
+          contentType: 'text'
+        };
+        setMessages(prevMessages => [...prevMessages, promptMessage]);
         // send message to bot
         console.log('Bot message detected, asking AI...');
         const botMessage = getBotMessage(message);
         const context = getContextForBot();
+        if (!botMessage) {
+          return;
+        }
         const AIResponse = await askAI(botMessage, chatClient.getState().displayName, context);
         console.log('Bot response:', AIResponse);
-        //TODO: Insert to the message list
+        // Insert to the message list
+        const messageId = Math.random().toString();
+        const newMessage: ChatMessage = {
+          messageId: messageId,
+          messageType: 'chat',
+          content: AIResponse,
+          senderId: 'bot',
+          senderDisplayName: 'Bot',
+          createdOn: new Date(),
+          status: 'delivered',
+          contentType: 'text'
+        };
+        setMessages(prevMessages => [...prevMessages, newMessage]);
         return
       }
     
@@ -65,9 +113,25 @@ function ChatComponents(props: ChatComponentsProps): JSX.Element {
         content: message,
         senderDisplayName: chatClient.getState().displayName
       };
+      console.log('Sending message:', message);
+      
       await chatThreadClient.sendMessage(sendMessageRequest);
     },
-    [chatClient, chatThreadClient, getBotMessage, getContextForBot, isBotMessage]
+    [chatClient, chatThreadClient, displayName, getBotMessage, getContextForBot, isBotMessage, userId]
+  );
+
+  const onMessageSeen = useCallback(
+    async (messageId: string) => {
+      const message = messages.find(msg => msg.messageId === messageId);
+      console.log('Message seen:', message?.content);
+
+      if (isBotMessage(message?.content)) {
+        return;
+      }
+      // directly call into stateful client
+      await chatThreadClient.sendReadReceipt({ chatMessageId: messageId });
+    },
+    [chatThreadClient, isBotMessage, messages]
   );
 
   const getSendBoxComponent = () => {
@@ -86,7 +150,10 @@ function ChatComponents(props: ChatComponentsProps): JSX.Element {
         {/*Props are updated asynchronously, so only render the component once props are populated.*/}
         { messageThreadProps && <MessageThread 
           {...messageThreadProps}
-          richTextEditorOptions={ richTextEditorEnabled ? {} : undefined } />}
+          messages={messages}
+          onMessageSeen={onMessageSeen}
+          richTextEditorOptions={ richTextEditorEnabled ? {} : undefined } />
+        }
       </div>
       <div style={{ margin: '0.5rem 0' }}>
         {getSendBoxComponent()}

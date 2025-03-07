@@ -37,7 +37,7 @@ function App(): JSX.Element {
     <FluentThemeProvider>
       <ChatClientProvider chatClient={statefulChatClient}>
         <ChatThreadClientProvider chatThreadClient={chatThreadClient}>
-          <ChatComponents chatClient={statefulChatClient} chatThreadClient={chatThreadClient} threadId={THREAD_ID}/>
+          <ChatComponents chatClient={statefulChatClient} chatThreadClient={chatThreadClient} threadId={THREAD_ID} userId={USER_ID} displayName={DISPLAY_NAME}/>
         </ChatThreadClientProvider>
       </ChatClientProvider>
     </FluentThemeProvider>
