@@ -6,7 +6,6 @@ import {
   ChatThreadClientProvider,
   DEFAULT_COMPONENT_ICONS,
 } from "@azure/communication-react";
-import React from "react";
 import ChatComponents from "./ChatComponentsStateful";
 import { initializeIcons, registerIcons } from "@fluentui/react";
 
@@ -38,7 +37,7 @@ function App(): JSX.Element {
     <FluentThemeProvider>
       <ChatClientProvider chatClient={statefulChatClient}>
         <ChatThreadClientProvider chatThreadClient={chatThreadClient}>
-          <ChatComponents />
+          <ChatComponents chatClient={statefulChatClient} chatThreadClient={chatThreadClient} threadId={THREAD_ID}/>
         </ChatThreadClientProvider>
       </ChatClientProvider>
     </FluentThemeProvider>

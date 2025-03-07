@@ -1,6 +1,16 @@
-import { usePropsFor, MessageThread, SendBox, RichTextSendBox } from '@azure/communication-react';
+import { ChatThreadClient } from '@azure/communication-chat';
+import { usePropsFor, MessageThread, SendBox, RichTextSendBox, StatefulChatClient } from '@azure/communication-react';
+import { useCallback } from 'react';
+import { askAI, ContextItem } from './AIClient';
+interface ChatComponentsProps {
+  chatClient: StatefulChatClient;
+  chatThreadClient: ChatThreadClient;
+  threadId: string;
+}
 
-function ChatComponents(): JSX.Element {
+function ChatComponents(props: ChatComponentsProps): JSX.Element {
+  const { chatClient, chatThreadClient, threadId } = props;
+
   const messageThreadProps = usePropsFor(MessageThread);
   const sendBoxProps = usePropsFor(SendBox);
 /**
@@ -14,12 +24,58 @@ function ChatComponents(): JSX.Element {
  */
   const richTextEditorEnabled = false
 
+  const isBotMessage = useCallback((content: any) => {
+    return content.startsWith('/bot')
+  }, []);
+
+  const getBotMessage = useCallback((content: any) => {
+    // If the token is found, remove it from the message content.
+    const msgToBot = content.slice(4).trim();
+    return msgToBot;
+  }, []);
+
+  const getContextForBot = useCallback(() => {
+    // get the history of the thread
+    const messages = chatClient.getState().threads[threadId].chatMessages;
+    const history: ContextItem[] = [];
+    for (const [_, message] of Object.entries(messages)) {
+      history.push({
+        senderName: message.senderDisplayName ?? '',
+        content: message.content?.message ?? ''
+      });
+    }
+    return history;
+  }, [chatClient, threadId]);
+
+  const onSendMessage = useCallback(
+    async (message: string) => {
+      if (isBotMessage(message)) {
+        // send message to bot
+        console.log('Bot message detected, asking AI...');
+        const botMessage = getBotMessage(message);
+        const context = getContextForBot();
+        const AIResponse = await askAI(botMessage, chatClient.getState().displayName, context);
+        console.log('Bot response:', AIResponse);
+        //TODO: Insert to the message list
+        return
+      }
+    
+      // directly call into stateful client
+      const sendMessageRequest = {
+        content: message,
+        senderDisplayName: chatClient.getState().displayName
+      };
+      await chatThreadClient.sendMessage(sendMessageRequest);
+    },
+    [chatClient, chatThreadClient, getBotMessage, getContextForBot, isBotMessage]
+  );
+
   const getSendBoxComponent = () => {
     if (richTextEditorEnabled) {
       return sendBoxProps && 
-        <RichTextSendBox {...sendBoxProps} />
+        <RichTextSendBox {...sendBoxProps} onSendMessage={onSendMessage}/>
     } else {
-      return sendBoxProps && <SendBox {...sendBoxProps} />
+      return sendBoxProps && <SendBox {...sendBoxProps} onSendMessage={onSendMessage}/>
     }
   }
   
