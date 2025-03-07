@@ -31,6 +31,7 @@ function ChatComponents(props: ChatComponentsProps): JSX.Element {
   useEffect(() => {
     // merge messageThreadProps.messages with local messages
     if (messageThreadProps?.messages) {
+      
       setMessages(prevMessages => {
         const serverMessages = messageThreadProps.messages as ChatMessage[];
         const mergedMessages = [...prevMessages, ...serverMessages];
@@ -38,7 +39,8 @@ function ChatComponents(props: ChatComponentsProps): JSX.Element {
         const uniqueMessages = Array.from(new Set(mergedMessages.map(msg => msg.messageId)))
           .map(id => mergedMessages.find(msg => msg.messageId === id))
           .filter((msg): msg is ChatMessage => msg !== undefined);
-        return uniqueMessages;
+        
+        return uniqueMessages.sort((a, b) => a.createdOn.getTime() - b.createdOn.getTime());
       });
     }
   }, [messageThreadProps?.messages]);
@@ -66,8 +68,10 @@ function ChatComponents(props: ChatComponentsProps): JSX.Element {
     return history;
   }, [chatClient, threadId]);
 
-  const onSendMessage = useCallback(
+  const onSendMessage = useCallback(    
     async (message: string) => {
+      console.log('======================================onSendMessage======================================');
+
       if (!message) {
         return;
       }
@@ -82,6 +86,7 @@ function ChatComponents(props: ChatComponentsProps): JSX.Element {
           status: 'delivered',
           contentType: 'text'
         };
+        console.log('======================================setMessages2======================================');
         setMessages(prevMessages => [...prevMessages, promptMessage]);
         // send message to bot
         console.log('Bot message detected, asking AI...');
@@ -104,6 +109,7 @@ function ChatComponents(props: ChatComponentsProps): JSX.Element {
           status: 'delivered',
           contentType: 'text'
         };
+        console.log('======================================setMessages3======================================');
         setMessages(prevMessages => [...prevMessages, newMessage]);
         return
       }
