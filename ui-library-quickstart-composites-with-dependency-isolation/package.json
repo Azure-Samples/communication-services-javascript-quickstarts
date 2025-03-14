@@ -26,6 +26,7 @@
     "start": "webpack-cli serve --mode=development --env development --open",
     "start:test": "webpack-cli serve --mode=development --env development",
     "build": "npm run clean && webpack --mode=development --env development",
+    "clean": "rm -rf dist",
     "test:e2e": "playwright test"
   },
   "eslintConfig": {
