@@ -7,7 +7,8 @@ import {
 	ConnectCallOptions,
 	CallLocator,
 	CallInvite,
-	AddParticipantOptions
+	AddParticipantOptions,
+	TextSource
 } from "@azure/communication-call-automation";
 import { CommunicationIdentityClient, CommunicationUserToken } from '@azure/communication-identity';
 import { CreateRoomOptions, RoomsClient } from '@azure/communication-rooms';
@@ -109,6 +110,7 @@ async function connectCall() {
 		console.log(`Callback Url:-->${callBackUri}`)
 		const response = await acsClient.connectCall(callLocator, callBackUri, connectCallOptions)
 		console.log("connecting call please wait....")
+		console.log(`Connect request correlation Id:--> ${response.callConnectionProperties.correlationId}`)
 	} else {
 		console.log("Room id is empty or room is not available.")
 	}
@@ -116,6 +118,11 @@ async function connectCall() {
 
 async function hangUpCall() {
 	await callConnection.hangUp(true);
+}
+
+async function playMedia() {
+	const play: TextSource = { text: "Hello, welcome to connect room contoso app.", voiceName: "en-US-NancyNeural", kind: "textSource" }
+	await callConnection.getCallMedia().playToAll([play]);
 }
 
 // POST endpoint to handle ongoing call events
@@ -136,6 +143,14 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 	}
 	else if (event.type === "Microsoft.Communication.AddParticipantFailed") {
 		console.log("Received AddParticipantFailed event")
+		console.log(`Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`)
+		console.log(`Message:->${eventData.resultInformation.message}`);
+	}
+	else if (event.type === "Microsoft.Communication.PlayCompleted") {
+		console.log("Received PlayCompleted event");
+	}
+	else if (event.type === "Microsoft.Communication.playFailed") {
+		console.log("Received playFailed event");
 		console.log(`Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`)
 		console.log(`Message:->${eventData.resultInformation.message}`);
 	}
@@ -171,6 +186,12 @@ app.get('/addParticipant', async (req, res) => {
 // GET endpoint to hangup call.
 app.get('/hangup', async (req, res) => {
 	await hangUpCall();
+	res.redirect('/');
+});
+
+// GET endpoint to play media to call.
+app.get('/playMedia', async (req, res) => {
+	await playMedia();
 	res.redirect('/');
 });
 

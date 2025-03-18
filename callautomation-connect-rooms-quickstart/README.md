@@ -50,6 +50,7 @@ Open the `.env` file to configure the following settings
 2. `ACS_RESOURCE_PHONE_NUMBER`: Phone number associated with the Azure Communication Service resource. For e.g. "+1425XXXAAAA"
 3. `TARGET_PHONE_NUMBER`: Target phone number to add in the call. For e.g. "+1425XXXAAAA"
 4. `CALLBACK_URI`: Base url of the app. (For local development replace the dev tunnel url)
+5. `COGNITIVE_SERVICES_ENDPOINT` : Cognitive service endpoint.
 
 ### Run app locally
 
