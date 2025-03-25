@@ -59,7 +59,7 @@ const httpTrigger = async function (req: HttpRequest, context: InvocationContext
     const fileContentBuffer = Buffer.from(fileContent);
     const size = fileContentBuffer.byteLength;
 
-    const uniqueFileName = `${v4()}-${file.name}`;
+    const uniqueFileName = `${v4()}-${CSS.escape(file.name)}`;
 
     context.log(`*** Uploading Filename:${uniqueFileName}, Content type:${file.type}, Length:${file.size}`);
 
