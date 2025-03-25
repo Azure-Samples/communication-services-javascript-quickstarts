@@ -42,7 +42,7 @@ export default function ChatComponents(): JSX.Element {
   };
 
   const uploadFile = async (file: File): Promise<void> => {
-    const uniqueFileName = `${v4()}-${CSS.escape(file.name)}`;
+    const uniqueFileName = `${v4()}-${encodeURI(file.name)}`;
     const data = new Form();
     data.append("file", file);
 
