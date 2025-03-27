@@ -42,7 +42,7 @@ export default function ChatComponents(): JSX.Element {
   };
 
   const uploadFile = async (file: File): Promise<void> => {
-    const uniqueFileName = `${v4()}-${encodeURI(file.name)}`;
+    const uniqueFileName = `${v4()}-${CSS.escape(file.name)}`;
     const data = new Form();
     data.append("file", file);
 
@@ -83,7 +83,7 @@ export default function ChatComponents(): JSX.Element {
     setFiles(Array.from(files));
     allAttachmentsWithProgress.current = Array.from(files).map((file) => ({
       name: file.name,
-      id: file.name,
+      id: CSS.escape(file.name),
       progress: 0,
     }));
     setAttachmentsWithProgress(allAttachmentsWithProgress.current);
@@ -141,7 +141,7 @@ const updateProgressForOneFile = (
   complete: boolean
 ) => {
   return allAttachmentsWithProgress.map((active) => {
-    if (active.id === fileId) {
+    if (active.id === CSS.escape(fileId)) {
       return {
         ...active,
         progress,
