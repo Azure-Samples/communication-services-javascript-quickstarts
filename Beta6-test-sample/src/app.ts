@@ -1,5 +1,6 @@
 import { config } from "dotenv";
 import fs, { accessSync } from "fs";
+import { Request, Response } from 'express';
 import express, { Application } from "express";
 import {
   CommunicationIdentifier,
@@ -74,7 +75,7 @@ const targetPhoneNumber: PhoneNumberIdentifier = {
   phoneNumber: process.env.TARGET_PHONE_NUMBER.trim(),
 };
 const participantPhoneNumber: PhoneNumberIdentifier = {
-  phoneNumber: process.env.TARGET_PHONE_NUMBER.trim(),
+  phoneNumber: process.env.PARTICIPANT_PHONE_NUMBER.trim(),
 };
 const acsPhoneNumber: PhoneNumberIdentifier = {
   phoneNumber: process.env.ACS_RESOURCE_PHONE_NUMBER.trim(),
@@ -100,27 +101,27 @@ async function createOutboundCall() {
     },
   };
 
-  const mediaStreamingOptions: MediaStreamingOptions = {
+  /*const mediaStreamingOptions: MediaStreamingOptions = {
     transportUrl: transportUrl,
     transportType: "websocket",
     contentType: "audio",
     audioChannelType: "unmixed",
     startMediaStreaming: false,
-  };
+  };*/
 
-  const transcriptionOptions: TranscriptionOptions = {
+  /*const transcriptionOptions: TranscriptionOptions = {
     transportUrl: transportUrl,
     transportType: "websocket",
     locale: "en-US",
     startTranscription: false,
-  };
+  };*/
 
   const options: CreateCallOptions = {
     callIntelligenceOptions: {
       cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
     },
-    mediaStreamingOptions: mediaStreamingOptions,
-    transcriptionOptions: transcriptionOptions,
+    //mediaStreamingOptions: mediaStreamingOptions,
+    //transcriptionOptions: transcriptionOptions,
   };
   console.log("Placing outbound call...");
   await acsClient.createCall(
@@ -129,6 +130,60 @@ async function createOutboundCall() {
     options
   );
 }
+
+async function createOutboundCallACS() {
+  const communicationUserId :  CommunicationUserIdentifier = {
+    communicationUserId: ""
+  }
+  const callInvite: CallInvite = {
+    targetParticipant: communicationUserId ,
+    
+  };
+
+ /* const mediaStreamingOptions: MediaStreamingOptions = {
+    transportUrl: transportUrl,
+    transportType: "websocket",
+    contentType: "audio",
+    audioChannelType: "unmixed",
+    startMediaStreaming: false,
+  };*/
+
+  /*const transcriptionOptions: TranscriptionOptions = {
+    transportUrl: transportUrl,
+    transportType: "websocket",
+    locale: "en-US",
+    startTranscription: false,
+  };*/
+
+  const options: CreateCallOptions = {
+    callIntelligenceOptions: {
+      cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
+    },
+    //mediaStreamingOptions: mediaStreamingOptions,
+    //transcriptionOptions: transcriptionOptions,
+  };
+  console.log("Placing outbound call...");
+  await acsClient.createCall(
+    callInvite,
+    process.env.CALLBACK_URI + "/api/callbacks",
+    options
+  );
+}
+
+
+
+async function getParticipantListAsync() {
+    const callConnection = acsClient.getCallConnection(callConnectionId); // Get the call connection using the global callConnectionId
+    const participants = await callConnection.listParticipants(); // Retrieve the participants
+
+    console.log("----------------------------------------------------------------------");
+    participants.values.map((participant) => {
+      console.log("Participant:-->", participant.identifier);
+      console.log("Is Participant on hold:-->", participant.isOnHold);
+      console.log("----------------------------------------------------------------------");
+    });
+
+  } 
 
 async function createGroupCall() {
   const mediaStreamingOptions: MediaStreamingOptions = {
@@ -145,15 +200,18 @@ async function createGroupCall() {
     locale: "en-US",
     startTranscription: false,
   };
-  const targets = [targetPhoneNumber, participantPhoneNumber];
+  const communicationUserId :  CommunicationUserIdentifier = {
+    communicationUserId: ""
+  }
+  const targets = [targetPhoneNumber, communicationUserId];
   const options: CreateCallOptions = {
     callIntelligenceOptions: {
       cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
     },
     operationContext: "groupCallContext",
     sourceCallIdNumber: acsPhoneNumber,
-    mediaStreamingOptions: mediaStreamingOptions,
-    transcriptionOptions: transcriptionOptions,
+    //mediaStreamingOptions: mediaStreamingOptions,
+    //transcriptionOptions: transcriptionOptions,
   };
   console.log("Placing outbound call...");
   await acsClient.createGroupCall(
@@ -162,6 +220,7 @@ async function createGroupCall() {
     options
   );
 }
+
 
 async function getChoices() {
   const choices: RecognitionChoice[] = [
@@ -179,6 +238,7 @@ async function getChoices() {
 
   return choices;
 }
+
 
 async function hangUpCallAsync() {
   await acsClient.getCallConnection(callConnectionId).hangUp(false);
@@ -543,7 +603,7 @@ async function getRecordingState(recordingId: string) {
   console.log(`Recording current state-->${recordingState}`);
 }
 
-async function addParticipantAsync() {
+async function addPSTNParticipantAsync() {
   const isCancelAddParticipant = false;
 
   const callInvite: CallInvite = {
@@ -565,13 +625,56 @@ async function addParticipantAsync() {
       .cancelAddParticipantOperation(response.invitationId);
   }
 }
+async function addACSParticipantAsync() {
+  const isCancelAddParticipant = false;
 
-async function removeParticipantAsync() {
+  const communicationUserId :  CommunicationUserIdentifier = {
+    communicationUserId: ""
+  }
+  const callInvite: CallInvite = {
+    targetParticipant: communicationUserId ,
+    
+  };
+  const options: AddParticipantOptions = {
+    operationContext: "addPstnUserContext",
+    invitationTimeoutInSeconds: 30,
+  };
+  const response = await acsClient
+    .getCallConnection(callConnectionId)
+    .addParticipant(callInvite, options);
+
+  if (isCancelAddParticipant) {
+    await acsClient
+      .getCallConnection(callConnectionId)
+      .cancelAddParticipantOperation(response.invitationId);
+  }
+}
+
+async function muteACSParticipantAsync() {
+  const communicationUserId :  CommunicationUserIdentifier = {
+    communicationUserId: ""
+  }
+  await acsClient
+    .getCallConnection(callConnectionId)
+    .muteParticipant(communicationUserId);
+  console.log(`Muted ACS participant: ${communicationUserId}`);
+}
+
+
+async function removePSTNParticipantAsync() {
   await acsClient
     .getCallConnection(callConnectionId)
     .removeParticipant(participantPhoneNumber);
 }
 
+async function removeACSParticipantAsync() {
+  const communicationUserId :  CommunicationUserIdentifier = {
+    communicationUserId: ""
+  }
+  await acsClient
+    .getCallConnection(callConnectionId)
+    .removeParticipant(communicationUserId);
+}
 async function cancelAddParticipantAsync(invitationId: string) {
   await acsClient
     .getCallConnection(callConnectionId)
@@ -667,7 +770,7 @@ async function holdParticipantAsync() {
   const holdOptions: HoldOptions = {
     playSource: textSource,
     operationContext: "holdUserContext",
-    operationCallbackUri: process.env.CALLBACK_URI + "/api/callbacks",
+    operationCallbackUrl: process.env.CALLBACK_URI + "/api/callbacks",
   };
   const target = GetCommunicationTarget();
   await acsClient
@@ -687,6 +790,7 @@ async function unholdParticipantAsync() {
     .getCallMedia()
     .unhold(target, unholdOptions);
 }
+
 
 async function playWithInterruptMediaFlagAsync() {
   const textSource: TextSource = {
@@ -1073,18 +1177,39 @@ app.get("/outboundCall", async (req, res) => {
   res.redirect("/");
 });
 
+app.get("/outboundCallACS", async (req, res) => {
+
+
+  await createOutboundCallACS();
+  res.redirect("/");
+}); 
 app.get("/groupCall", async (req, res) => {
   await createGroupCall();
   res.redirect("/");
 });
 
-app.get("/addParticipant", async (req, res) => {
-  await addParticipantAsync();
+app.get("/addPSTNParticipant", async (req, res) => {
+  await addPSTNParticipantAsync();
   res.redirect("/");
 });
 
-app.get("/removeParticipant", async (req, res) => {
-  await removeParticipantAsync();
+app.get("/addACSParticipant", async (req, res) => {
+  await addACSParticipantAsync();
+  res.redirect("/");
+});
+
+app.get("/getParticipantListAsync", async (req, res) => {
+  await getParticipantListAsync();
+  res.redirect("/");
+});
+
+app.get("/removePSTNParticipant", async (req, res) => {
+  await removePSTNParticipantAsync();
+  res.redirect("/");
+});
+
+app.get("/removeACSParticipant", async (req, res) => {
+  await removeACSParticipantAsync();
   res.redirect("/");
 });
 
@@ -1103,6 +1228,10 @@ app.get("/playMediaplayMediaToAllWithFileSource", async (req, res) => {
   res.redirect("/");
 });
 
+app.get("/terminateCallAsync", async (req, res) => {
+  await terminateCallAsync();
+  res.redirect("/");
+});
 app.get("/playMediaplayMediaToAllWithSSMLSource", async (req, res) => {
   await playMediaToAllWithSSMLSourceAsync();
   res.redirect("/");
@@ -1201,6 +1330,11 @@ app.get("/stopMediaStreaming", async (req, res) => {
 
 app.get("/startTranscription", async (req, res) => {
   await startTranscriptionAsync();
+  res.redirect("/");
+});
+
+app.get("/muteACSParticipant", async (req, res) => {
+  await muteACSParticipantAsync();
   res.redirect("/");
 });
 
