@@ -5,14 +5,16 @@ import {
 	CallAutomationClient,
 	AnswerCallOptions,
 	AnswerCallResult,
-	MediaStreamingOptions,
+	SsmlSource,
+	CallConnection,
+	TranscriptionOptions,
+	CallIntelligenceOptions,
+	StreamingData
 } from "@azure/communication-call-automation";
-
 import { v4 as uuidv4 } from 'uuid';
-
-import WebSocket from 'ws';
-import { startConversation, initWebsocket } from './azureOpenAiService'
-import { processWebsocketMessageAsync } from './mediaStreamingHandler'
+import { WebSocket, WebSocketServer } from 'ws';
+import { startConversation, initWebsocket } from './azureOpenAiService.js'
+import { processWebsocketMessageAsync } from './mediaStreamingHandler.js'
 
 config();
 
@@ -25,6 +27,7 @@ const server = http.createServer(app);
 let acsClient: CallAutomationClient;
 let answerCallResult: AnswerCallResult;
 let callerId: string;
+let callConnection: CallConnection;
 
 async function createAcsClient() {
 	const connectionString = process.env.CONNECTION_STRING || "";
@@ -50,20 +53,10 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 		const callbackUri = `${process.env.CALLBACK_URI}/api/callbacks/${uuid}?callerId=${callerId}`;
 		const incomingCallContext = eventData.incomingCallContext;
 		const websocketUrl = process.env.CALLBACK_URI.replace(/^https:\/\//, 'wss://');
-		const mediaStreamingOptions: MediaStreamingOptions = {
-			transportUrl: websocketUrl,
-			transportType: "websocket",
-			contentType: "audio",
-			audioChannelType: "unmixed",
-			startMediaStreaming: true,
-			enableBidirectional: true,
-			audioFormat: "Pcm24KMono"
-		}
-
-		const answerCallOptions: AnswerCallOptions = {
-			mediaStreamingOptions: mediaStreamingOptions
-		};
-
+		const callIntelligenceOptions: CallIntelligenceOptions = { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT.trim() };
+		const transcriptionOptions: TranscriptionOptions = { transportUrl: websocketUrl, transportType: "websocket", locale: "en-us", startTranscription: true }
+		const answerCallOptions: AnswerCallOptions = { callIntelligenceOptions: callIntelligenceOptions, transcriptionOptions: transcriptionOptions };
+		
 		answerCallResult = await acsClient.answerCall(
 			incomingCallContext,
 			callbackUri,
@@ -81,28 +74,19 @@ app.post('/api/callbacks/:contextId', async (req: any, res: any) => {
 	const event = req.body[0];
 	const eventData = event.data;
 	const callConnectionId = eventData.callConnectionId;
+	callConnection = acsClient.getCallConnection(callConnectionId);
+
 	console.log(`Received Event:-> ${event.type}, Correlation Id:-> ${eventData.correlationId}, CallConnectionId:-> ${callConnectionId}`);
 	if (event.type === "Microsoft.Communication.CallConnected") {
 		const callConnectionProperties = await acsClient.getCallConnection(callConnectionId).getCallConnectionProperties();
 		const mediaStreamingSubscription = callConnectionProperties.mediaStreamingSubscription;
 		console.log("MediaStreamingSubscription:-->" + JSON.stringify(mediaStreamingSubscription));
 	}
-	else if (event.type === "Microsoft.Communication.MediaStreamingStarted") {
+	else if (event.type === "Micorosoft.Communication.TranscriptionStarted") {
 		console.log(`Operation context:--> ${eventData.operationContext}`);
-		console.log(`Media streaming content type:--> ${eventData.mediaStreamingUpdate.contentType}`);
-		console.log(`Media streaming status:--> ${eventData.mediaStreamingUpdate.mediaStreamingStatus}`);
-		console.log(`Media streaming status details:--> ${eventData.mediaStreamingUpdate.mediaStreamingStatusDetails}`);
 	}
-	else if (event.type === "Microsoft.Communication.MediaStreamingStopped") {
+	else if (event.type === "Microsoft.Communication.TranscriptionStopped") {
 		console.log(`Operation context:--> ${eventData.operationContext}`);
-		console.log(`Media streaming content type:--> ${eventData.mediaStreamingUpdate.contentType}`);
-		console.log(`Media streaming status:--> ${eventData.mediaStreamingUpdate.mediaStreamingStatus}`);
-		console.log(`Media streaming status details:--> ${eventData.mediaStreamingUpdate.mediaStreamingStatusDetails}`);
-	}
-	else if (event.type === "Microsoft.Communication.MediaStreamingFailed") {
-		console.log(`Operation context:--> ${eventData.operationContext}`);
-		console.log(`Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`)
-		console.log(`Message:->${eventData.resultInformation.message}`);
 	}
 	else if (event.type === "Microsoft.Communication.CallDisconnected") {
 	}
@@ -119,25 +103,64 @@ server.listen(PORT, async () => {
 });
 
 //Websocket for receiving mediastreaming.
-const wss = new WebSocket.Server({ server });
-wss.on('connection', async (ws: WebSocket) => {
-	console.log('Client connected');
-	await initWebsocket(ws);
-	await startConversation()
-	ws.on('message', async (packetData: ArrayBuffer) => {
-		try {
-			if (ws.readyState === WebSocket.OPEN) {
-				await processWebsocketMessageAsync(packetData);
-			} else {
-				console.warn(`ReadyState: ${ws.readyState}`);
-			}
-		} catch (error) {
-			console.error('Error processing WebSocket message:', error);
+const wss = new WebSocketServer({ server });
+
+wss.on('connection', async (socket: WebSocket) => { // socket is an instance of WebSocket
+    console.log('Client connected');
+    await initWebsocket(socket);
+    await startConversation();
+	socket.on('message', async (packetData: ArrayBuffer) => {
+		const decoder = new TextDecoder();
+		const stringJson = decoder.decode(packetData);
+		console.log("STRING JSON=>--" + stringJson)
+		var response = StreamingData.parse(stringJson);
+		if ('text' in response) {
+			console.log("Transcription Data")
+			console.log("TEXT:-->" + response.text);
+			await processWebsocketMessageAsync(response.text);
 		}
 	});
-	ws.on('close', () => {
-		console.log('Client disconnected');
-	});
+
+    socket.on('close', () => {
+        console.log('Client disconnected');
+    });
 });
 
 console.log(`WebSocket server running on port ${PORT}`);
+
+export async function playToAll(message: string): Promise<void> {
+  if (!message.trim()) {
+    console.warn("Cannot play an empty message. Skipping playback.");
+    return;
+  }
+  
+  console.info(`Playing message: ${message}`);
+
+  // Escape HTML special characters in the message
+  const escapedMessage = escapeHtml(message);
+
+  // Create an SSML template
+  const ssmlTemplate = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
+      <voice name="en-US-NancyNeural">"${escapedMessage}"</voice>
+  </speak>`;
+  console.info(`Generated SSML: ${ssmlTemplate}`);
+
+  try {
+    // Create an SSML source for playback.
+	const ssmlSource: SsmlSource = { ssmlText: ssmlTemplate, kind: "ssmlSource" }
+
+	// Play the message to all participants
+	await callConnection.getCallMedia().playToAll([ssmlSource]);
+    console.info("Played audio to all participants:");	
+  } catch (error) {
+    console.error(`Error playing message: ${error}`);
+  }
+}
+
+function escapeHtml(unsafe: string): string {
+  return unsafe.replace(/&/g, "&amp;")
+               .replace(/</g, "&lt;")
+               .replace(/>/g, "&gt;")
+               .replace(/"/g, "&quot;")
+               .replace(/'/g, "&#039;");
+}

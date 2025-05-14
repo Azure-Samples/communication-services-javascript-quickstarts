@@ -1,138 +1,137 @@
-import WebSocket from 'ws';
+// Invoke azure_development-get_best_practices
+
+import WebSocketServer from 'ws';
 import { config } from 'dotenv';
-import { LowLevelRTClient, SessionUpdateMessage } from "rt-client";
+import { RTClient, SessionUpdateParams, RTResponse } from 'rt-client';
 import { OutStreamingData } from '@azure/communication-call-automation';
+import { playToAll } from './app.js';
+
 config();
 
-let ws: WebSocket;
+let ws: WebSocketServer;
+let realtimeStreaming: RTClient;
 
-const openAiServiceEndpoint = process.env.AZURE_OPENAI_SERVICE_ENDPOINT || "";
-const openAiKey = process.env.AZURE_OPENAI_SERVICE_KEY || "";
-const openAiDeploymentModel = process.env.AZURE_OPENAI_DEPLOYMENT_MODEL_NAME || "";
+const endpoint = process.env.AZURE_OPENAI_SERVICE_ENDPOINT ?? '';
+const apiKey   = process.env.AZURE_OPENAI_SERVICE_KEY       ?? '';
+const model    = process.env.AZURE_OPENAI_DEPLOYMENT_MODEL_NAME ?? '';
 
-const answerPromptSystemTemplate = `You are an AI assistant that helps people find information.`
+const SYSTEM_PROMPT = 'You are an AI assistant that helps people find information.';
 
-let realtimeStreaming: LowLevelRTClient;
-
-export async function sendAudioToExternalAi(data: string) {
-    try {
-        const audio = data
-        if (audio) {
-            await realtimeStreaming.send({
-                type: "input_audio_buffer.append",
-                audio: audio,
-            });
-        }
-    }
-    catch (e) {
-        console.log(e)
-    }
+export async function initWebsocket(socket: WebSocketServer) {
+  ws = socket;
 }
 
 export async function startConversation() {
-    await startRealtime(openAiServiceEndpoint, openAiKey, openAiDeploymentModel);
+  await startRealtime(endpoint, apiKey, model);
 }
 
-async function startRealtime(endpoint: string, apiKey: string, deploymentOrModel: string) {
-    try {
-        realtimeStreaming = new LowLevelRTClient(new URL(endpoint), { key: apiKey }, { deployment: deploymentOrModel });
-        console.log("sending session config");
-        await realtimeStreaming.send(createConfigMessage());
-        console.log("sent");
-
-    } catch (error) {
-        console.error("Error during startRealtime:", error);
-    }
-
-    setImmediate(async () => {
-        try {
-            await handleRealtimeMessages();
-        } catch (error) {
-            console.error('Error handling real-time messages:', error);
-        }
+export async function sendAudioToExternalAi(text: string) {
+  if (!text) return;
+  try {
+    console.log('Sending text to external AI');
+    await realtimeStreaming.sendItem({
+      type: 'message',
+      role: 'system',
+      content: [{ type: 'input_text', text }],
     });
+    await realtimeStreaming.generateResponse();
+  } catch (err) {
+    console.error('sendAudioToExternalAi failed:', err);
+  }
 }
 
-function createConfigMessage(): SessionUpdateMessage {
+async function startRealtime(url: string, key: string, deployment: string) {
+  try {
+    realtimeStreaming = new RTClient(
+      new URL(url),
+      { key },
+      { modelOrAgent: deployment, apiVersion: '2025-05-01-preview' }
+    );
+    console.log('Configuring realtime session');
+    await realtimeStreaming.configure(createConfig());
+    // start message loop
+    handleRealtimeMessages().catch(e => console.error('Realtime loop error:', e));
+    // send initial greeting
+    await realtimeStreaming.sendItem({
+      type: 'message',
+      role: 'system',
+      content: [{ type: 'input_text', text: 'Please say something to welcome the user.' }],
+    });
+    await realtimeStreaming.generateResponse();
+    console.log('Greeting sent');
+  } catch (err) {
+    console.error('startRealtime failed:', err);
+  }
+}
 
-    let configMessage: SessionUpdateMessage = {
-        type: "session.update",
-        session: {
-            instructions: answerPromptSystemTemplate,
-            voice: "shimmer",
-            input_audio_format: "pcm16",
-            output_audio_format: "pcm16",
-            turn_detection: {
-                type: "server_vad",
-            },
-            input_audio_transcription: {
-                model: "whisper-1"
-            }
-        }
-    };
-
-    return configMessage;
+function createConfig(): SessionUpdateParams {
+  return {
+    instructions: SYSTEM_PROMPT,
+    voice: { name: 'en-US-AvaNeural', type: 'azure-standard', temperature: 0.9 },
+    turn_detection: { type: 'server_vad' },
+    input_audio_transcription: { model: 'whisper-1', language: 'en-us' },
+    modalities: ['text', 'audio'],
+    input_audio_noise_reduction: { type: 'azure_deep_noise_suppression' },
+    input_audio_echo_cancellation: { type: 'server_echo_cancellation' },
+  };
 }
 
 export async function handleRealtimeMessages() {
-    for await (const message of realtimeStreaming.messages()) {
-        switch (message.type) {
-            case "session.created":
-                console.log("session started with id:-->" + message.session.id)
-                break;
-            case "response.audio_transcript.delta":
-                break;
-            case "response.audio.delta":
-                await receiveAudioForOutbound(message.delta)
-                break;
-            case "input_audio_buffer.speech_started":
-                console.log(`Voice activity detection started at ${message.audio_start_ms} ms`)
-                stopAudio();
-                break;
-            case "conversation.item.input_audio_transcription.completed":
-                console.log(`User:- ${message.transcript}`)
-                break;
-            case "response.audio_transcript.done":
-                console.log(`AI:- ${message.transcript}`)
-                break
-            case "response.done":
-                console.log(message.response.status)
-                break;
-            default:
-                break
+  for await (const evt of realtimeStreaming.events()) {
+    try {
+      if (evt.type === 'response') {
+        console.log('Received response event');
+        await handleResponse(evt);
+      } else if (evt.type === 'input_audio') {
+        console.log('Received input audio event');
+      }
+    } catch (err) {
+      console.error('Error handling event:', err);
+    }
+  }
+}
+
+const handleResponse = async (resp: RTResponse) => {
+  let finalText = '';
+  for await (const msg of resp) {
+    if (msg.type === 'message' && msg.role === 'assistant') {
+      for await (const content of msg) {
+        if (content.type === 'text') {
+          for await (const chunk of content.textChunks()) {
+            console.log('Text chunk:', chunk);
+          }
+        } else if (content.type === 'audio') {
+          for await (const t of content.transcriptChunks()) {
+            finalText += t;
+          }
         }
+      }
     }
+  }
+  console.log('Final assembled text:', finalText);
+  await playToAll(finalText);
+};
+
+async function sendMessage(json: string) {
+  if (ws?.readyState === WebSocketServer.OPEN) {
+    ws.send(json);
+  } else {
+    console.warn('WebSocket not open, cannot send message');
+  }
 }
 
-export async function initWebsocket(socket: WebSocket) {
-    ws = socket;
+export async function receiveAudioForOutbound(data: string) {
+  try {
+    sendMessage(OutStreamingData.getStreamingDataForOutbound(data));
+  } catch (err) {
+    console.error('receiveAudioForOutbound failed:', err);
+  }
 }
 
-async function stopAudio() {
-    try {
-
-        const jsonData = OutStreamingData.getStopAudioForOutbound()
-        sendMessage(jsonData);
-    }
-    catch (e) {
-        console.log(e)
-    }
-}
-async function receiveAudioForOutbound(data: string) {
-    try {
-
-        const jsonData = OutStreamingData.getStreamingDataForOutbound(data)
-        sendMessage(jsonData);
-    }
-    catch (e) {
-        console.log(e)
-    }
-}
-
-async function sendMessage(data:string) {
-    if (ws.readyState === WebSocket.OPEN) {
-        ws.send(data);
-    } else {
-        console.log("socket connection is not open.")
-    }
+export async function stopAudio() {
+  try {
+    sendMessage(OutStreamingData.getStopAudioForOutbound());
+  } catch (err) {
+    console.error('stopAudio failed:', err);
+  }
 }

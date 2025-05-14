@@ -2,10 +2,11 @@
   "name": "callautomation_az_openai_voice",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon ./src/app.ts"
+    "dev": "nodemon --watch './src/**/*' --exec \"node --loader ts-node/esm\" ./src/app.ts"
   },
   "keywords": [],
   "author": "",
@@ -20,7 +21,7 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "openai": "^4.72.0",
-    "rt-client": "https://github.com/Azure-Samples/aoai-realtime-audio-sdk/releases/download/js/v0.5.0/rt-client-0.5.0.tgz",
+    "rt-client": "./rt-client-0.5.2.tgz",
     "uuid": "^9.0.1",
     "ws": "^8.18.0"
   },
