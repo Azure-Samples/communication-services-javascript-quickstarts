@@ -1,4 +1,4 @@
-import { StreamingData, StreamingDataKind, AudioData } from '@azure/communication-call-automation';
+import { StreamingData, StreamingDataKind, AudioData, AudioMetadata } from '@azure/communication-call-automation';
 import { sendAudioToExternalAi } from './azureOpenAiService.js'
 
  /* Parsing the received buffer data to streaming data */
@@ -8,8 +8,13 @@ import { sendAudioToExternalAi } from './azureOpenAiService.js'
 
     // Get the streaming data kind 
     if (kind === StreamingDataKind.AudioData) {
-        const audioData = (result as AudioData).data
-        const audioBuffer = new TextEncoder().encode(audioData);
+        var audioData = (result as AudioData)
+        const audio = audioData.data
+        console.log('Audio Data:', audioData.isSilent, audioData.participant, audioData.timestamp);
+        const audioBuffer = new TextEncoder().encode(audio);
         await sendAudioToExternalAi(audioBuffer);
+    } else if (kind === StreamingDataKind.AudioMetadata) {
+        const audioMetadata = (result as AudioMetadata)
+        console.log('Audio Metadata:', audioMetadata);
     }
 }

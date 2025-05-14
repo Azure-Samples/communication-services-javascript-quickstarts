@@ -29,10 +29,7 @@ export async function startConversation() {
 export async function sendAudioToExternalAi(audio: Uint8Array) {
   if (!audio || !realtimeClient) return;
   try {
-    console.info('Sending audio to external AI');
     await realtimeClient.sendAudio(audio);
-    await realtimeClient.generateResponse();
-    console.info('Audio sent successfully');
   } catch (err) {
     console.error('sendAudioToExternalAi error:', err);
   }
@@ -46,10 +43,11 @@ async function startRealtime(endpoint: string, apiKey: string, model: string) {
       { modelOrAgent: model, apiVersion: '2025-05-01-preview' }
     );
     console.info('Configuring realtime session');
-    await realtimeClient.configure(createSessionConfig());
-
+    var session = await realtimeClient.configure(createSessionConfig());
+    console.info('Session configured:', session);
     // fire-and-forget message loop
     handleRealtimeMessages().catch(err => console.error('Realtime loop error:', err));
+    realtimeClient.generateResponse().catch(err => console.error('Realtime generation error:', err));
   } catch (err) {
     console.error('startRealtime failed:', err);
   }
@@ -70,12 +68,40 @@ function createSessionConfig(): SessionUpdateParams {
 }
 
 export async function handleRealtimeMessages() {
+  /*for await (const message of realtimeStreaming.messages()) {
+        switch (message.type) {
+            case "session.created":
+                console.log("session started with id:-->" + message.session.id)
+                break;
+            case "response.audio_transcript.delta":
+                break;
+            case "response.audio.delta":
+                await receiveAudioForOutbound(message.delta)
+                break;
+            case "input_audio_buffer.speech_started":
+                console.log(`Voice activity detection started at ${message.audio_start_ms} ms`)
+                stopAudio();
+                break;
+            case "conversation.item.input_audio_transcription.completed":
+                console.log(`User:- ${message.transcript}`)
+                break;
+            case "response.audio_transcript.done":
+                console.log(`AI:- ${message.transcript}`)
+                break
+            case "response.done":
+                console.log(message.response.status)
+                break;
+            default:
+                break
+        }
+    }*/
   for await (const evt of realtimeClient.events()) {
     console.info('Received event:', evt);
     try {
       if (evt.type === 'response') {
-        console.info('Received response');
+        console.info('Received response', evt);
         await handleResponse(evt);
+        console.info('Response handled');
       } else if (evt.type === 'input_audio') {
         console.info('Received input audio');
         await evt.waitForCompletion();
@@ -89,7 +115,7 @@ export async function handleRealtimeMessages() {
 
 async function handleResponse(response: RTResponse) {
   let transcript = '';
-  console.info('Processing response:', response);
+  let audioBuffer = '';
   for await (const msg of response) {
     console.info('Processing message:', msg);
     if (msg.type === 'message' && msg.role === 'assistant') {
@@ -102,20 +128,29 @@ async function handleResponse(response: RTResponse) {
           } else if (content.type === "audio") {
             const textTask = async () => {
               for await (const text of content.transcriptChunks()) {
+                transcript += text;
                 console.info('2. Received text chunk:', text);
               }
             };
             const audioTask = async () => {
               for await (const audio of content.audioChunks()) {
-                console.info('3. Received audio chunk:', audio);
+                // console.info('3. Received audio chunk:', audio);
+                audioBuffer += audio;
               }
             };
             await Promise.all([textTask(), audioTask()]);
           }
         }
       }
+      console.info('Finalizing response');
     }
+    console.info('Finalizing message');
+    console.info('Final transcript:', transcript);
+    receiveAudioForOutbound(audioBuffer).catch(err => console.error('Error in receiveAudioForOutbound:', err));
+    return;
   }
+  // console.info('Assistant response:', transcript);
+  // if (transcript) playOutbound(transcript);
 
 function playOutbound(text: string) {
   const payload = OutStreamingData.getStreamingDataForOutbound(text);

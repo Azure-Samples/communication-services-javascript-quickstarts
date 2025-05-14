@@ -57,7 +57,7 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 			audioChannelType: "unmixed",
 			startMediaStreaming: true,
 			enableBidirectional: true,
-			audioFormat: "Pcm24KMono"
+			audioFormat: "Pcm16KMono"
 		}
 
 		const answerCallOptions: AnswerCallOptions = {
