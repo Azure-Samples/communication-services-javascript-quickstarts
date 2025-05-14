@@ -10,9 +10,9 @@ import {
 
 import { v4 as uuidv4 } from 'uuid';
 
-import WebSocket from 'ws';
-import { startConversation, initWebsocket } from './azureOpenAiService'
-import { processWebsocketMessageAsync } from './mediaStreamingHandler'
+import { WebSocket, WebSocketServer } from 'ws';
+import { startConversation, initWebsocket } from './azureOpenAiService.js'
+import { processWebsocketMessageAsync } from './mediaStreamingHandler.js'
 
 config();
 
@@ -119,7 +119,7 @@ server.listen(PORT, async () => {
 });
 
 //Websocket for receiving mediastreaming.
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocketServer({ server });
 wss.on('connection', async (ws: WebSocket) => {
 	console.log('Client connected');
 	await initWebsocket(ws);

@@ -1,5 +1,5 @@
 import { StreamingData, StreamingDataKind, AudioData } from '@azure/communication-call-automation';
-import { sendAudioToExternalAi } from './azureOpenAiService'
+import { sendAudioToExternalAi } from './azureOpenAiService.js'
 
  /* Parsing the received buffer data to streaming data */
  export async function processWebsocketMessageAsync(receivedBuffer: ArrayBuffer) {
@@ -9,6 +9,7 @@ import { sendAudioToExternalAi } from './azureOpenAiService'
     // Get the streaming data kind 
     if (kind === StreamingDataKind.AudioData) {
         const audioData = (result as AudioData).data
-        await sendAudioToExternalAi(audioData)
+        const audioBuffer = new TextEncoder().encode(audioData);
+        await sendAudioToExternalAi(audioBuffer);
     }
 }
