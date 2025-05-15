@@ -13,9 +13,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { WebSocket, WebSocketServer } from 'ws';
 import { startConversation, initWebsocket } from './azureOpenAiService.js'
 import { processWebsocketMessageAsync } from './mediaStreamingHandler.js'
+import { playAudio } from 'openai/helpers/audio.js';
 
 config();
 
+let websocketMessage: ArrayBuffer;
 const PORT = process.env.PORT;
 const app: Application = express();
 app.use(express.json());
@@ -50,6 +52,7 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 		const callbackUri = `${process.env.CALLBACK_URI}/api/callbacks/${uuid}?callerId=${callerId}`;
 		const incomingCallContext = eventData.incomingCallContext;
 		const websocketUrl = process.env.CALLBACK_URI.replace(/^https:\/\//, 'wss://');
+		console.log(`Websocket URL: ${websocketUrl}`);
 		const mediaStreamingOptions: MediaStreamingOptions = {
 			transportUrl: websocketUrl,
 			transportType: "websocket",
@@ -57,7 +60,7 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 			audioChannelType: "unmixed",
 			startMediaStreaming: true,
 			enableBidirectional: true,
-			audioFormat: "Pcm16KMono"
+			audioFormat: "Pcm24KMono"
 		}
 
 		const answerCallOptions: AnswerCallOptions = {
@@ -69,8 +72,10 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 			callbackUri,
 			answerCallOptions
 		);
-
+		
+		console.log(`Incoming call callConnectionProperties. callConnectionProperties: ${answerCallResult.callConnectionProperties.mediaStreamingSubscription.subscribedContentTypes}`);
 		console.log(`Answer call ConnectionId:--> ${answerCallResult.callConnectionProperties.callConnectionId}`);
+		return res.sendStatus(200);
 	}
 	catch (error) {
 		console.error("Error during the incoming call event.", error);
@@ -120,24 +125,37 @@ server.listen(PORT, async () => {
 
 //Websocket for receiving mediastreaming.
 const wss = new WebSocketServer({ server });
+let lastPacketText = '';
+
 wss.on('connection', async (ws: WebSocket) => {
-	console.log('Client connected');
-	await initWebsocket(ws);
-	await startConversation()
-	ws.on('message', async (packetData: ArrayBuffer) => {
-		try {
-			if (ws.readyState === WebSocket.OPEN) {
-				await processWebsocketMessageAsync(packetData);
-			} else {
-				console.warn(`ReadyState: ${ws.readyState}`);
-			}
-		} catch (error) {
-			console.error('Error processing WebSocket message:', error);
-		}
-	});
-	ws.on('close', () => {
-		console.log('Client disconnected');
-	});
+  console.log('Client connected');
+  await initWebsocket(ws);
+  await startConversation();
+
+  ws.on('message', async (packetData: ArrayBuffer) => {
+    // decode incoming data to text
+    const text = new TextDecoder().decode(packetData);
+
+    // skip duplicates
+    if (text === lastPacketText) {
+      console.debug('Duplicate message received, skipping');
+      return;
+    }
+    lastPacketText = text;
+    try {
+      if (ws.readyState === WebSocket.OPEN) {
+        await processWebsocketMessageAsync(packetData);
+      } else {
+        console.warn(`ReadyState: ${ws.readyState}`);
+      }
+    } catch (error) {
+      console.error('Error processing WebSocket message:', error);
+    }
+  });
+
+  ws.on('close', () => {
+    console.log('Client disconnected');
+  });
 });
 
 console.log(`WebSocket server running on port ${PORT}`);
