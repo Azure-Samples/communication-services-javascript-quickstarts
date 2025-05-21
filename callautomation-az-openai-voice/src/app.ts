@@ -6,6 +6,8 @@ import {
 	AnswerCallOptions,
 	AnswerCallResult,
 	MediaStreamingOptions,
+	StreamingData,
+	TranscriptionOptions
 } from "@azure/communication-call-automation";
 
 import { v4 as uuidv4 } from 'uuid';
@@ -18,8 +20,7 @@ import { playAudio } from 'openai/helpers/audio.js';
 config();
 
 let websocketMessage: ArrayBuffer;
-const PORT = process.env.PORT;
-const app: Application = express();
+const PORT = process.env.PORT || 3000;const app: Application = express();
 app.use(express.json());
 // Create common server for app and websocket
 const server = http.createServer(app);
@@ -51,6 +52,9 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 		const uuid = uuidv4();
 		const callbackUri = `${process.env.CALLBACK_URI}/api/callbacks/${uuid}?callerId=${callerId}`;
 		const incomingCallContext = eventData.incomingCallContext;
+		if (!process.env.CALLBACK_URI) {
+			throw new Error("CALLBACK_URI environment variable is not defined.");
+		}
 		const websocketUrl = process.env.CALLBACK_URI.replace(/^https:\/\//, 'wss://');
 		console.log(`Websocket URL: ${websocketUrl}`);
 		const mediaStreamingOptions: MediaStreamingOptions = {
@@ -73,7 +77,11 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 			answerCallOptions
 		);
 		
-		console.log(`Incoming call callConnectionProperties. callConnectionProperties: ${answerCallResult.callConnectionProperties.mediaStreamingSubscription.subscribedContentTypes}`);
+		if (answerCallResult.callConnectionProperties.mediaStreamingSubscription) {
+			console.log(`Incoming call callConnectionProperties. callConnectionProperties: ${answerCallResult.callConnectionProperties.mediaStreamingSubscription.subscribedContentTypes}`);
+		} else {
+			console.log("Incoming call callConnectionProperties. mediaStreamingSubscription is undefined.");
+		}
 		console.log(`Answer call ConnectionId:--> ${answerCallResult.callConnectionProperties.callConnectionId}`);
 		return res.sendStatus(200);
 	}
@@ -133,24 +141,32 @@ wss.on('connection', async (ws: WebSocket) => {
   await startConversation();
 
   ws.on('message', async (packetData: ArrayBuffer) => {
-    // decode incoming data to text
-    const text = new TextDecoder().decode(packetData);
 
-    // skip duplicates
-    if (text === lastPacketText) {
-      console.debug('Duplicate message received, skipping');
-      return;
-    }
-    lastPacketText = text;
-    try {
-      if (ws.readyState === WebSocket.OPEN) {
-        await processWebsocketMessageAsync(packetData);
-      } else {
-        console.warn(`ReadyState: ${ws.readyState}`);
-      }
-    } catch (error) {
-      console.error('Error processing WebSocket message:', error);
-    }
+	const decoder = new TextDecoder();
+	const stringJson = decoder.decode(packetData);
+	var response = StreamingData.parse(packetData);
+	if ('locale' in response) {
+	}
+	if ('text' in response) {
+		console.log("User:" + response.text);
+	} else {
+		// skip duplicates
+		if (stringJson === lastPacketText) {
+			console.debug('Duplicate message received, skipping');
+			return;
+		}
+		lastPacketText = stringJson;
+		try {
+			if (ws.readyState === WebSocket.OPEN) {
+				await processWebsocketMessageAsync(packetData);
+			} else {
+				console.warn(`ReadyState: ${ws.readyState}`);
+			}
+		} catch (error) {
+		console.error('Error processing WebSocket message:', error);
+		}
+	}
+
   });
 
   ws.on('close', () => {

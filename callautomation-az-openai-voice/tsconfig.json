@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
-      "target": "ES2015",
+      "target": "ES2020",
       "module": "ESNext",
       "outDir": "./dist",
       "rootDir": "./src",
       "moduleResolution": "node",
       "esModuleInterop": true,
       "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true
+      "forceConsistentCasingInFileNames": true,
+      "strict": true
   },
-  "include": ["./src"]
+  "include": ["./src"],
+  "exclude": ["node_modules", "dist"]
 }
