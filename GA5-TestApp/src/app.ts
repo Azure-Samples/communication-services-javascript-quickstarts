@@ -457,19 +457,12 @@ async function playMediaToTargetWithInvalidPlaySourceAsync() {
         .play(playSources, [target], playOptions);
 }
 
-async function playRecognizeAsync() {
+async function playRecognizeChoiceAsync() {
     const textSource: TextSource = {
-        text: "",
+        text: "Hello, please enter your pin",
         voiceName: "en-US-NancyNeural",
-        kind: "textSource",
+        kind: "textSource"
     };
-
-    const fileSource: FileSource = {
-        url: MEDIA_URI + "MainMenu.wav",
-        kind: "fileSource",
-    };
-
-    const ssmlSource: SsmlSource = { ssmlText: "", kind: "ssmlSource" };
 
     const recognizeChoiceOptions: CallMediaRecognizeChoiceOptions = {
         choices: await getChoices(),
@@ -477,7 +470,24 @@ async function playRecognizeAsync() {
         initialSilenceTimeoutInSeconds: 10,
         playPrompt: textSource,
         operationContext: "choiceContex",
-        kind: "callMediaRecognizeChoiceOptions",
+        kind: "callMediaRecognizeChoiceOptions"
+    };
+
+    const target = GetCommunicationTarget();
+
+    console.log("play recognize choice initiated...");
+    await acsClient
+        .getCallConnection(callConnectionId)
+        .getCallMedia()
+        .startRecognizing(target, recognizeChoiceOptions);
+    console.log("play recognize choice initiated...");
+}
+
+async function playRecognizeDtmfAsync() {
+    const textSource: TextSource = {
+        text: "Hello, please enter your pin",
+        voiceName: "en-US-NancyNeural",
+        kind: "textSource"
     };
 
     const recognizeDtmfOptions: CallMediaRecognizeDtmfOptions = {
@@ -487,14 +497,44 @@ async function playRecognizeAsync() {
         maxTonesToCollect: 4,
         interruptPrompt: false,
         operationContext: "dtmfContext",
-        kind: "callMediaRecognizeDtmfOptions",
+        kind: "callMediaRecognizeDtmfOptions"
+    };
+
+    const target = GetCommunicationTarget();
+
+    await acsClient
+        .getCallConnection(callConnectionId)
+        .getCallMedia()
+        .startRecognizing(target, recognizeDtmfOptions);
+}
+
+async function playRecognizeSpeechAsync() {
+    const textSource: TextSource = {
+        text: "Hello, please enter your pin",
+        voiceName: "en-US-NancyNeural",
+        kind: "textSource"
     };
 
     const recognizeSpeechOptions: CallMediaRecognizeSpeechOptions = {
         endSilenceTimeoutInSeconds: 1,
         playPrompt: textSource,
         operationContext: "speechContext",
-        kind: "callMediaRecognizeSpeechOptions",
+        kind: "callMediaRecognizeSpeechOptions"
+    };
+
+    const target = GetCommunicationTarget();
+
+    await acsClient
+        .getCallConnection(callConnectionId)
+        .getCallMedia()
+        .startRecognizing(target, recognizeSpeechOptions);
+}
+
+async function playRecognizeSpeechOrDtmfAsync() {
+    const textSource: TextSource = {
+        text: "Hello, please enter your pin",
+        voiceName: "en-US-NancyNeural",
+        kind: "textSource"
     };
 
     const recongnizeSpeechOrDtmfOptions: CallMediaRecognizeSpeechOrDtmfOptions = {
@@ -503,8 +543,8 @@ async function playRecognizeAsync() {
         playPrompt: textSource,
         initialSilenceTimeoutInSeconds: 30,
         interruptPrompt: true,
-        operationContext: "sppechOrDtmfContext",
-        kind: "callMediaRecognizeSpeechOrDtmfOptions",
+        operationContext: "speechOrDtmfContext",
+        kind: "callMediaRecognizeSpeechOrDtmfOptions"
     };
 
     const target = GetCommunicationTarget();
@@ -512,7 +552,7 @@ async function playRecognizeAsync() {
     await acsClient
         .getCallConnection(callConnectionId)
         .getCallMedia()
-        .startRecognizing(target, recognizeChoiceOptions);
+        .startRecognizing(target, recongnizeSpeechOrDtmfOptions);
 }
 
 async function startContinuousDtmfAsync() {
@@ -1525,7 +1565,7 @@ app.get("/playMediaToTargetWithInvalidPlaySource", async (req, res) => {
 
 /**
  * @swagger
- * /recognizeMedia:
+ * /recognizeChoiceMedia:
  *   get:
  *     summary: Start media recognition
  *     description: Starts media recognition for a call participant.
@@ -1533,8 +1573,53 @@ app.get("/playMediaToTargetWithInvalidPlaySource", async (req, res) => {
  *       302:
  *         description: Redirect to home page after starting recognition
  */
-app.get("/recognizeMedia", async (req, res) => {
-    await playRecognizeAsync();
+app.get("/recognizeChoiceMedia", async (req, res) => {
+    await playRecognizeChoiceAsync();
+    res.redirect("/");
+});
+
+/**
+ * @swagger
+ * /recognizeDtmfMedia:
+ *   get:
+ *     summary: Start media recognition
+ *     description: Starts media recognition for a call participant.
+ *     responses:
+ *       302:
+ *         description: Redirect to home page after starting recognition
+ */
+app.get("/recognizeDtmfMedia", async (req, res) => {
+    await playRecognizeDtmfAsync();
+    res.redirect("/");
+});
+
+/**
+ * @swagger
+ * /recognizeSpeechMedia:
+ *   get:
+ *     summary: Start media recognition
+ *     description: Starts media recognition for a call participant.
+ *     responses:
+ *       302:
+ *         description: Redirect to home page after starting recognition
+ */
+app.get("/recognizeSpeechMedia", async (req, res) => {
+    await playRecognizeSpeechAsync();
+    res.redirect("/");
+});
+
+/**
+ * @swagger
+ * /recognizeSpeechOrDtmfMedia:
+ *   get:
+ *     summary: Start media recognition
+ *     description: Starts media recognition for a call participant.
+ *     responses:
+ *       302:
+ *         description: Redirect to home page after starting recognition
+ */
+app.get("/recognizeSpeechOrDtmfMedia", async (req, res) => {
+    await playRecognizeSpeechOrDtmfAsync();
     res.redirect("/");
 });
 
