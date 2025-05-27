@@ -12,12 +12,6 @@ export default defineConfig({
  server: {
     port: 3000, // Always serve at port 3000
   },
-  resolve: {
-    alias: {
-      crypto: "crypto-browserify",
-      process: "process/browser",
-    },
-  },
   plugins: [
     reactRefresh(),
     svgrPlugin({
