@@ -12,6 +12,14 @@ export default defineConfig({
  server: {
     port: 3000, // Always serve at port 3000
   },
+  resolve: {
+    alias: {
+      // Make sure browser's crypto is used, not Node.js crypto
+      crypto: false, // This prevents any crypto polyfill from being used
+      stream: false, // Often needed alongside crypto
+      util: false, // Sometimes needed for Azure libraries
+    },
+  },
   plugins: [
     reactRefresh(),
     svgrPlugin({
