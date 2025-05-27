@@ -2,6 +2,7 @@
   "name": "ui-library-call-readiness-quickstart",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@azure/communication-calling": "1.28.1-beta.2",
     "@azure/communication-calling-effects": "1.0.1",

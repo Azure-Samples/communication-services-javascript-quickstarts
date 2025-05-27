@@ -2,6 +2,7 @@
   "name": "ui-lib-c2c-testing-3",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@azure/communication-calling": "1.23.1",
     "@azure/communication-calling-effects": "1.0.1",
