@@ -19,5 +19,5 @@ jobs:
     uses: ./.github/workflows/ci-ui-library.yml
     with:
       runs-on: 'ubuntu-latest'
-      node-version: '16.x'
+      node-version: '22.x'
       working-directory: './ui-library-quickstart-rooms'

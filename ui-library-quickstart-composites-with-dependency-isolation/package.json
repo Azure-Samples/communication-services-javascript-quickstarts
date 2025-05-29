@@ -17,7 +17,6 @@
     "@types/uuid": "^8.3.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-scripts": "5.0.1",
     "typescript": "5.4.5",
     "uuid": "8.3.2",
     "web-vitals": "^1.1.2"
