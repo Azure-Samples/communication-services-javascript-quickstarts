@@ -43,3 +43,18 @@ Please use the [ui-library-quickstart-teams-interop-meeting-chat](https://github
 
 Open your browser to ` http://localhost:3000`. You should see the following with the Rich Text Editor enabled:
 ![Composite with Rich Text Editor](../media/CompositeWithRichTextEditor.png)
+
+## Data Collection
+
+The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use this information to provide services and improve our products and services. You may turn off the telemetry as described below. You can learn more about data collection and use in the help documentation and Microsoft’s [privacy statement](https://go.microsoft.com/fwlink/?LinkID=824704). For more information on the data collected by the Azure SDK, please visit the [Telemetry Guidelines](https://azure.github.io/azure-sdk/general_azurecore.html#telemetry-policy) page.
+
+### Telemetry Configuration
+
+Telemetry collection is on by default when using the `useAzureCommunication...Adapter` hooks or the `createAzureCommunication...Adapter`
+
+To opt out it is recommended developers:
+
+- Use components directly. Learn how to [use components](https://azure.github.io/communication-ui-library/?path=/docs/components-get-started--docs)
+- Create a custom custom adapter. Learn how to [create one here](https://azure.github.io/communication-ui-library/?path=/docs/composites-adapters--docs#createazurecommunicationchatadapterfromclient)
+
+This will disable telemetry for all methods going to ACS.
