@@ -79,4 +79,3 @@ You'll need to run the client and server separately:
 
 
 Navigate to your application at `localhost:4280`.
-
