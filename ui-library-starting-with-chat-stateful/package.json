@@ -2,6 +2,7 @@
   "name": "ui-library-starting-with-chat-stateful",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@azure/communication-calling": "1.35.1-beta.1",
     "@azure/communication-chat": "1.6.0-beta.3",
@@ -14,20 +15,20 @@
     "@types/node": "^22.15.18",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
+    "@vitejs/plugin-react": "^4.4.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-scripts": "5.0.1",
     "typescript": "^4.9.5",
+    "vite": "^6.3.5",
+    "vite-plugin-svgr": "^4.3.0",
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
     "@playwright/test": "^1.47.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "start": "vite",
+    "build": "tsc && vite build",
     "test:e2e": "playwright test"
   },
   "eslintConfig": {

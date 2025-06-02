@@ -16,5 +16,8 @@
   },
   "prettier": {
     "printWidth": 120
+  },
+  "engines": {
+    "node": "20.x"
   }
 }

@@ -95,3 +95,5 @@ The setup allows you to debug each service separately, but requires some orchest
 In either case, navigate to your app at `localhost:4280`.
 
 In this case, the Azure Functions will be served at `localhost:7071`. You will need to expose this port publicly to be able to register it as a webhook with EventGrid.
+
+Currently, `azure-functions-core-tools` supports up to Node.js v20. If you're using a higher version (e.g., v22), you may encounter issues such as `localhost:4280` showing a "This site can’t be reached" error.
