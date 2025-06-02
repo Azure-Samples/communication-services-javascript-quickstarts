@@ -38,7 +38,7 @@ This sample includes:
 You need a few Azure resources before running this sample locally.
 
 * An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F)  .
-* [Node.js](https://nodejs.org/en/) Active LTS and Maintenance LTS versions (16.x.x is recommended).
+* [Node.js](https://nodejs.org/en/) Active LTS and Maintenance LTS versions (20.x.x is recommended).
 * An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
 * An identity with Chat scope. Generate an identity using the [Azure Portal](https://docs.microsoft.com/azure/communication-services/quickstarts/identity/quick-create-identity).
 * [Azure Storage Account](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-overview)
@@ -79,3 +79,5 @@ You'll need to run the client and server separately:
 
 
 Navigate to your application at `localhost:4280`.
+
+Currently, `azure-functions-core-tools` supports up to Node.js v20. If you're using a higher version (e.g., v22), you may encounter issues such as `localhost:4280` showing a "This site can’t be reached" error.
