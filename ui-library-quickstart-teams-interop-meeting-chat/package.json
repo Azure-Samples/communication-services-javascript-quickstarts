@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@azure/communication-react": "1.27.0-beta.1",
+    "@azure/communication-react": "1.28.0-beta.1",
     "@fluentui/react": "8.101.0",
     "@types/node": "^22.15.18",
     "@types/react": "^18.0.0",
