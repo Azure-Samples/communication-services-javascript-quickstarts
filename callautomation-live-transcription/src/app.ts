@@ -8,7 +8,7 @@ import {
 	CallIntelligenceOptions, PlayOptions,
 	CallMediaRecognizeDtmfOptions,
 	TranscriptionOptions,
-	CallLocator, StartRecordingOptions, CallInvite, streamingData,
+	CallLocator, StartRecordingOptions, CallInvite, StreamingData,
 	StopTranscriptionOptions,
 	CallConnectionProperties,
 	RecordingStateResult
@@ -62,7 +62,6 @@ let recordingLocation: string;
 let recordingCallBackUri: string;
 const agentPhonenumber = process.env.AGENT_PHONE_NUMBER;
 const acsPhoneNumber = process.env.ACS_PHONE_NUMBER;
-const transportType = process.env.TRANSPORT_TYPE;
 const locale = process.env.LOCALE;
 
 async function createAcsClient() {
@@ -93,7 +92,7 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 		console.log(`Websocket url:- ${websocketUrl}`);
 		console.log(`Cognitive service endpoint:  ${process.env.COGNITIVE_SERVICES_ENDPOINT.trim()}`);
 		const callIntelligenceOptions: CallIntelligenceOptions = { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT.trim() };
-		const transcriptionOptions: TranscriptionOptions = { transportUrl: websocketUrl, transportType: transportType, locale: locale, startTranscription: true }
+		const transcriptionOptions: TranscriptionOptions = { transportUrl: websocketUrl, transportType: "websocket", locale: locale, startTranscription: true }
 		const answerCallOptions: AnswerCallOptions = { callIntelligenceOptions: callIntelligenceOptions, transcriptionOptions: transcriptionOptions };
 		answerCallResult = await acsClient.answerCall(incomingCallContext, callbackUri, answerCallOptions);
 		callConnection = answerCallResult.callConnection;
@@ -341,7 +340,7 @@ wss.on('connection', (ws: WebSocket) => {
 		const decoder = new TextDecoder();
 		const stringJson = decoder.decode(packetData);
 		console.log("STRING JSON=>--" + stringJson)
-		var response = streamingData(packetData);
+		var response = StreamingData.parse(packetData);
 		if ('locale' in response) {
 			console.log("--------------------------------------------")
 			console.log("Transcription Metadata")
