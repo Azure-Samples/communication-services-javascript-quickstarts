@@ -6,9 +6,11 @@ import { sendAudioToExternalAi } from './azureOpenAiService'
     const result = StreamingData.parse(receivedBuffer)
     const kind = StreamingData.getStreamingKind()
 
-    // Get the streaming data kind 
-    if (kind === StreamingDataKind.AudioData) {
-        const audioData = (result as AudioData).data
-        await sendAudioToExternalAi(audioData)
+    // Get the streaming data kind
+    if (kind === 'AudioData') {
+        const audioData = (result as AudioData)
+        if (!audioData.isSilent) {
+            await sendAudioToExternalAi(audioData.data)
+        }
     }
 }

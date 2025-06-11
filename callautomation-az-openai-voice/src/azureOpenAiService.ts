@@ -1,7 +1,7 @@
 import WebSocket from 'ws';
 import { config } from 'dotenv';
 import { LowLevelRTClient, SessionUpdateMessage } from "rt-client";
-import { OutStreamingData } from '@azure/communication-call-automation';
+import { createOutboundAudioData, createOutboundStopAudioData, OutStreamingData } from '@azure/communication-call-automation';
 config();
 
 let ws: WebSocket;
@@ -111,7 +111,7 @@ export async function initWebsocket(socket: WebSocket) {
 async function stopAudio() {
     try {
 
-        const jsonData = OutStreamingData.getStopAudioForOutbound()
+        const jsonData = createOutboundStopAudioData();
         sendMessage(jsonData);
     }
     catch (e) {
@@ -121,7 +121,7 @@ async function stopAudio() {
 async function receiveAudioForOutbound(data: string) {
     try {
 
-        const jsonData = OutStreamingData.getStreamingDataForOutbound(data)
+        const jsonData = createOutboundAudioData(data)
         sendMessage(jsonData);
     }
     catch (e) {
