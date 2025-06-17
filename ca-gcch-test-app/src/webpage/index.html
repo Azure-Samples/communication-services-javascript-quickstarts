@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Azure Communication Services GCCH Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 10px;
+      font-size: 14px;
+    }
+
+    h3,
+    h4 {
+      margin: 5px 0;
+    }
+
+    .form-section {
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      max-width: 400px;
+      font-size: 13px;
+    }
+
+    label,
+    input,
+    button {
+      font-size: 13px;
+    }
+
+    table {
+      width: 100%;
+    }
+
+    td {
+      padding: 4px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 4px;
+    }
+
+    button {
+      padding: 5px 10px;
+    }
+
+    .main-container {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .forms-container {
+      flex: 1;
+      max-width: 50%;
+    }
+
+    .logs-container {
+      flex: 0 0 50%;
+      max-width: 46%;
+      height: 90vh;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 10px;
+      background-color: #f9f9f9;
+    }
+
+    #logs {
+      white-space: pre-wrap;
+      font-family: monospace;
+      font-size: 13px;
+      height: 100%;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="main-container">
+    <div class="forms-container">
+      <h4>Azure Communication Services</h4>
+      <h3>GCCH TEST</h3>
+
+      <h4>Outbound call</h4>
+      <form class="form-section" action="/outboundCall" method="get">
+        <table>
+          <tr>
+            <td><label for="phone">Phone Number:</label></td>
+            <td><input type="text" id="phone" name="targetPhoneNumber"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">Create PSTN Call</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <!-- ACS Call Form -->
+      <form class="form-section" action="/outboundCallACS" method="get">
+        <table>
+          <tr>
+            <td><label for="acsUser">ACS User ID:</label></td>
+            <td><input type="text" id="acsUser" name="acsUserId"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">Create ACS Call</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <form class="form-section" action="/groupCall" method="get">
+        <table>
+          <tr>
+            <td><label for="acsUser">ACS User ID:</label></td>
+            <td><input type="text" id="acsUser" name="acsUserId"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">Create group call</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <h4>Add/Remove Participant</h4>
+      <form class="form-section" action="/addPSTNParticipant" method="get">
+        <table>
+          <tr>
+            <td><label for="pstnPhone">PSTN Participant:</label></td>
+            <td><input type="text" id="pstnPhone" name="participantPhoneNumber"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">Add PSTN Participant</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <!-- Add ACS Participant -->
+      <form class="form-section" action="/addACSParticipant" method="get">
+        <table>
+          <tr>
+            <td><label for="acsParticipant">ACS Participant:</label></td>
+            <td><input type="text" id="acsParticipant" name="acsParticipant"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">Add ACS Participant</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <!-- Add PSTN Participant -->
+      <form class="form-section" action="/removePSTNParticipant" method="get">
+        <table>
+          <tr>
+            <td><label for="pstnPhone">PSTN Participant:</label></td>
+            <td><input type="text" id="pstnPhone" name="participantPhoneNumber"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">Remove PSTN Participant</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <form class="form-section" action="/removeACSParticipant" method="get">
+        <table>
+          <tr>
+            <td><label for="acsParticipant">ACS Participant:</label></td>
+            <td><input type="text" id="acsParticipant" name="acsParticipant"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">Remove ACS Participant</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <h4>Transfer call</h4>
+      <form class="form-section" action="/transferCallToParticipant" method="get">
+        <table>
+          <tr>
+            <td><label for="isPstn">Is PSTN:</label></td>
+            <td><input type="checkbox" name="isPstn" value="false"></td>
+          </tr>
+          <tr>
+            <td><label for="transferTarget">Transfer target:</label></td>
+            <td><input type="text" id="transferTarget" name="transferTarget"></td>
+          </tr>
+          <tr>
+            <td><label for="targetParticipant">Target Participant:</label></td>
+            <td><input type="text" id="targetParticipant" name="targetParticipant"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">TransferCallToParticipant</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <h4>Mute Participant</h4>
+      <form class="form-section" action="/MuteACSParticipant" method="get">
+        <table>
+          <tr>
+            <td><label for="acsParticipant">ACS Participant:</label></td>
+            <td><input type="text" id="acsParticipant" name="acsParticipant"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">Mute ACS Participant</button></td>
+          </tr>
+        </table>
+      </form>
+      <h4>Get Participant</h4>
+      <form class="form-section" action="/getParticipant" method="get">
+        <table>
+          <tr>
+            <td><label for="isPstn">Is PSTN:</label></td>
+            <td><input type="checkbox" name="isPstn" value="false"></td>
+          </tr>
+          <tr>
+            <td><label for="acsParticipant">Target Participant:</label></td>
+            <td><input type="text" id="targetParticipant" name="targetParticipant"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">GetParticipant</button></td>
+          </tr>
+        </table>
+      </form>
+
+
+      <form class="form-section" action="/getParticipantListAsync" method="get">
+        <table>
+          <tr>
+            <td>Get participant list</td>
+            <td colspan="2"><button type="submit">GetParticipantList</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <h4>Terminate call</h4>
+      <form class="form-section" action="/terminateCallAsync" method="get">
+        <table>
+          <tr>
+            <td><label for="isForEveryone">Is For everyone :</label></td>
+            <td><input type="checkbox" name="isForEveryone" value="false"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">Terminate Call</button></td>
+          </tr>
+        </table>
+      </form>
+      <h4>Media streaming</h4>
+      <form class="form-section" action="/createPSTNCallWithMediaStreaming" method="get">
+        <table>
+
+          <td><label for="phone">Phone Number:</label></td>
+          <td><input type="text" id="phone" name="targetPhoneNumber"></td>
+          </tr>
+          <tr>
+            <td><label for="isStartMediaStreaming">IsStartMediaStreaming:</label></td>
+            <td><input type="checkbox" name="isStartMediaStreaming" value="false"></td>
+          </tr>
+          <tr>
+            <td><label for="isMixed">IsMixed:</label></td>
+            <td><input type="checkbox" name="isMixed" value="false"></td>
+          </tr>
+          <tr>
+            <td><label for="isEnableBidirection">IsEnableBidirection:</label></td>
+            <td><input type="checkbox" name="isEnableBidirection" value="false"></td>
+          </tr>
+          <tr>
+            <td><label for="isPCM24k">IsPCM24k:</label></td>
+            <td><input type="checkbox" name="isPCM24k" value="false"></td>
+          </tr>
+          <tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">CreatePSTNCallWithMediaStreaming</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <form class="form-section" action="/createACSCallWithMediaStreaming" method="get">
+        <table>
+          <tr>
+
+          </tr>
+          <td><label for="acsUser">ACS User ID:</label></td>
+          <td><input type="text" id="acsUser" name="acsUserId"></td>
+          <tr>
+            <td><label for="isStartMediaStreaming">IsStartMediaStreaming:</label></td>
+            <td><input type="checkbox" name="isStartMediaStreaming" value="false"></td>
+          </tr>
+          <tr>
+            <td><label for="isMixed">IsMixed:</label></td>
+            <td><input type="checkbox" name="isMixed" value="false"></td>
+          </tr>
+          <tr>
+            <td><label for="isEnableBidirection">IsEnableBidirection:</label></td>
+            <td><input type="checkbox" name="isEnableBidirection" value="false"></td>
+          </tr>
+          <tr>
+            <td><label for="isPCM24k">IsPCM24k:</label></td>
+            <td><input type="checkbox" name="isPCM24k" value="false"></td>
+          </tr>
+          <tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">CreateACSCallWithMediaStreaming</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <form class="form-section" action="/StartMediaStreaming" method="get">
+        <table>
+          <tr>
+            <td>Start media streaming</td>
+            <td colspan="2"><button type="submit">startMediaStreaming</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <form class="form-section" action="/stopMediaStreaming" method="get">
+        <table>
+          <tr>
+            <td>Stop media streaming</td>
+            <td colspan="2"><button type="submit">StopMediaStreaming</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <h4>Play media</h4>
+      <form class="form-section" action="/playMediaToAllWithFileSource" method="get">
+        <table>
+          <tr>
+            <td>Play media To all</td>
+            <td colspan="2"><button type="submit">PlayMediaToAllWithFileSource</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <form class="form-section" action="/playMediaToTargetWithFileSource" method="get">
+        <table>
+          <tr>
+            <td><label for="isPstn">Is PSTN:</label></td>
+            <td><input type="checkbox" name="isPstn" value="false"></td>
+          </tr>
+          <tr>
+            <td><label for="acsParticipant">Target Participant:</label></td>
+            <td><input type="text" id="targetParticipant" name="targetParticipant"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">PlayMediaToTargetWithFileSource</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <form class="form-section" action="/playWithInterruptMediaFlag" method="get">
+        <table>
+          <tr>
+            <td>Play Barge in:</td>
+            <td colspan="2"><button type="submit">PlayWithInterruptMediaFlag</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <h4>Recognize media</h4>
+      <form class="form-section" action="/recognizeMedia" method="get">
+        <table>
+          <tr>
+            <td><label for="isPstn">Is PSTN:</label></td>
+            <td><input type="checkbox" name="isPstn" value="false"></td>
+          </tr>
+          <tr>
+            <td><label for="acsParticipant">Target Participant:</label></td>
+            <td><input type="text" id="targetParticipant" name="targetParticipant"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">RecognizeMediaToTargetWithFileSource</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <h4>Recording</h4>
+      <form class="form-section" action="/startRecording" method="get">
+        <table>
+          <tr>
+            <td><label for="isRecordingWithCallConnectionId">Is Recording with call Connection id:</label></td>
+            <td><input type="checkbox" name="isRecordingWithCallConnectionId" value="false"></td>
+          </tr>
+          <tr>
+            <td><label for="isPauseOnStart">Is Pause on start:</label></td>
+            <td><input type="checkbox" name="isPauseOnStart" value="false"></td>
+          </tr>
+          <!-- <tr>
+        <td><label for="isByos">Is Byos:</label></td>
+        <td><input type="checkbox" name="isByos" value="false"></td>
+      </tr> -->
+          <tr>
+            <td><label for="recordingContent">Select content:</label></td>
+            <td>
+              <select id="recordingContent" name="recordingContent" onchange="handleContentChange()">
+                <option value="">Select</option>
+                <option value="audio">Audio</option>
+                <option value="audioVideo">Audio & Video</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><label for="recordingChannel">Select channel:</label></td>
+            <td>
+              <select id="recordingChannel" name="recordingChannel" onchange="handleChannelChange()">
+                <option value="">Select</option>
+                <option value="mixed">Mixed</option>
+                <option value="unmixed">Unmixed</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><label for="recordingFormat">Select format:</label></td>
+            <td>
+              <select id="recordingFormat" name="recordingFormat">
+                <option value="">Select</option>
+                <option value="mp3">MP3</option>
+                <option value="mp4">MP4</option>
+                <option value="wav">WAV</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">StartRecording</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <form class="form-section" action="/pauseRecording" method="get">
+        <table>
+          <tr>
+            <td>Pause recording:</td>
+            <td colspan="2"><button type="submit">PauseRecording</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <form class="form-section" action="/resumeRecording" method="get">
+        <table>
+          <tr>
+            <td>Resume recording:</td>
+            <td colspan="2"><button type="submit">ResumeRecording</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <form class="form-section" action="/stopRecording" method="get">
+        <table>
+          <tr>
+            <td>Stop recording:</td>
+            <td colspan="2"><button type="submit">StopRecording</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <form class="form-section" action="/download" method="get">
+        <table>
+          <tr>
+            <td>Download recording:</td>
+            <td colspan="2"><button type="submit">Download</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <form class="form-section" action="/downloadMetadata" method="get">
+        <table>
+          <tr>
+            <td> Download metadata:</td>
+            <td colspan="2"><button type="submit">DownloadMetadata</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <h4>Send/Continues DTMF</h4>
+      <form class="form-section" action="/sendDtmfTones" method="get">
+        <table>
+          <tr>
+            <td><label for="isPstn">Is PSTN:</label></td>
+            <td><input type="checkbox" name="isPstn" value="false"></td>
+          </tr>
+          <tr>
+            <td><label for="acsParticipant">Target Participant:</label></td>
+            <td><input type="text" id="targetParticipant" name="targetParticipant"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">SendDTMFTonesToTarget</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <form class="form-section" action="/startContinuousDtmf" method="get">
+        <table>
+          <tr>
+            <td><label for="isPstn">Is PSTN:</label></td>
+            <td><input type="checkbox" name="isPstn" value="false"></td>
+          </tr>
+          <tr>
+            <td><label for="acsParticipant">Target Participant:</label></td>
+            <td><input type="text" id="targetParticipant" name="targetParticipant"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">StartContinuousDtmf</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <form class="form-section" action="/stopContinuousDtmf" method="get">
+        <table>
+          <tr>
+            <td><label for="isPstn">Is PSTN:</label></td>
+            <td><input type="checkbox" name="isPstn" value="false"></td>
+          </tr>
+          <tr>
+            <td><label for="acsParticipant">Target Participant:</label></td>
+            <td><input type="text" id="targetParticipant" name="targetParticipant"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">StopContinuousDtmf</button></td>
+          </tr>
+        </table>
+      </form>
+      <h4>Cancel media</h4>
+      <form class="form-section" action="/cancelAllMediaOperation" method="get">
+        <table>
+          <tr>
+            <td>Cancel media operation</td>
+            <td colspan="2"><button type="submit">Cancel media</button></td>
+          </tr>
+        </table>
+      </form>
+      <h4>Hold Unhold</h4>
+      <form class="form-section" action="/holdParticipant" method="get">
+        <table>
+          <tr>
+            <td><label for="isPstn">Is PSTN:</label></td>
+            <td><input type="checkbox" name="isPstn" value="false"></td>
+          </tr>
+          <tr>
+            <td><label for="isWithPlaySource">Is PlaySource:</label></td>
+            <td><input type="checkbox" name="isWithPlaySource" value="false"></td>
+          </tr>
+          <tr>
+            <td><label for="acsParticipant">Target Participant:</label></td>
+            <td><input type="text" id="targetParticipant" name="targetParticipant"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">HoldParticipant</button></td>
+          </tr>
+        </table>
+      </form>
+
+      <form class="form-section" action="/unholdParticipant" method="get">
+        <table>
+          <tr>
+            <td><label for="isPstn">Is PSTN:</label></td>
+            <td><input type="checkbox" name="isPstn" value="false"></td>
+          </tr>
+          <tr>
+            <td><label for="acsParticipant">Target Participant:</label></td>
+            <td><input type="text" id="targetParticipant" name="targetParticipant"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">UnholdParticipant</button></td>
+          </tr>
+        </table>
+      </form>
+    </div>
+
+    <div class="logs-container">
+      <h2>Live Logs</h2>
+      <button style="padding: 0px 0px;" onclick="clearLogs()">Clear Logs</button>
+      <hr/>
+      <div id="logs"></div>
+    </div>
+  </div>
+
+  <script>
+    const logsDiv = document.getElementById('logs');
+    const socket = new WebSocket(`wss://${location.host}`);
+
+    socket.onmessage = function (event) {
+      logsDiv.textContent += event.data + '\n';
+      logsDiv.scrollTop = logsDiv.scrollHeight;
+      localStorage.setItem("liveLogs", logsDiv.innerHTML);
+    };
+
+    function handleContentChange() {
+      const content = document.getElementById("recordingContent").value;
+      const channel = document.getElementById("recordingChannel").value;
+
+      if (content === "audioVideo") {
+        document.getElementById("recordingChannel").value = "mixed";
+        document.getElementById("recordingFormat").value = "mp4";
+      } else if (content === "audio" && channel === "unmixed") {
+        document.getElementById("recordingFormat").value = "wav";
+      }
+    }
+
+    function handleChannelChange() {
+      const content = document.getElementById("recordingContent").value;
+      const channel = document.getElementById("recordingChannel").value;
+
+      if (content === "audio" && channel === "unmixed") {
+        document.getElementById("recordingFormat").value = "wav";
+      }
+    }
+
+    window.addEventListener("load", () => {
+      const savedLogs = localStorage.getItem("liveLogs");
+      if (savedLogs) {
+        document.getElementById("logs").innerHTML = savedLogs;
+      }
+    });
+
+    function clearLogs() {
+      localStorage.removeItem("liveLogs");
+      document.getElementById("logs").innerHTML = "";
+    }
+
+  </script>
+</body>
+
+</html>
