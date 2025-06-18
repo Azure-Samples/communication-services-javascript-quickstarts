@@ -112,6 +112,7 @@ async function createOutboundCall(pstnTarget: string) {
   }
   catch (error) {
     console.error("Failed to create pstn outbound call:", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -139,6 +140,7 @@ async function createOutboundCallACS(acsTarget: string) {
   }
   catch (error) {
     console.error("Failed to create acs outbound call:", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -163,6 +165,7 @@ async function getParticipant(isPstn: boolean, targetParticipant: string) {
   }
   catch (error) {
     console.error("Failed to get participant in call:", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -181,6 +184,7 @@ async function getParticipantListAsync() {
   }
   catch (error) {
     console.error("Failed to get participant list in call:", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -204,6 +208,7 @@ async function createGroupCall(acsTarget: string) {
     );
   } catch (error) {
     console.error("Failed to creaet group call:", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -270,6 +275,7 @@ async function createPSTNCallWithMediaStreaming(
   }
   catch (error) {
     console.error("Failed to create pstn call with media streaming:", error);
+    console.log(`Error message:- ${error.message}`);
   }
 
 }
@@ -315,6 +321,7 @@ async function createACSCallWithMediaStreamng(
   }
   catch (error) {
     console.error("Failed to create acs call with media streaming:", error);
+    console.log(`Error message:- ${error.message}`);
   }
 
 }
@@ -329,6 +336,7 @@ async function terminateCallAsync(isForEveryone: boolean) {
   }
   catch (error) {
     console.error("Failed to terminate call:", error);
+    console.log(`Error message:- ${error.message}`);
   }
 
 }
@@ -349,6 +357,7 @@ async function playMediaToAllWithFileSourceAsync() {
   }
   catch (error) {
     console.error("Failed to play media to all with filesource:", error);
+    console.log(`Error message:- ${error.message}`);
   }
 
 }
@@ -376,6 +385,7 @@ async function playMediaToTargetWithFileSourceAsync(isPstn: boolean, targetParti
   }
   catch (error) {
     console.error("Failed to play media to target with filesource:", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -412,6 +422,7 @@ async function playRecognizeAsync(isPstn: boolean, targetParticipant: string) {
   }
   catch (error) {
     console.error("Failed to recognize with filesource:", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -434,6 +445,7 @@ async function startContinuousDtmfAsync(isPstn: boolean, targetParticipant: stri
   }
   catch (error) {
     console.error("Failed to start continuous dtmf:", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -456,6 +468,7 @@ async function stopContinuousDtmfAsync(isPstn: boolean, targetParticipant: strin
   }
   catch (error) {
     console.error("Failed to stop continuous dtmf:", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -481,6 +494,7 @@ async function startSendingDtmfToneAsync(isPstn: boolean, targetParticipant: str
   }
   catch (error) {
     console.error("Failed to send dtmf tones :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -518,7 +532,7 @@ async function startRecordingAsync(
       recordingChannel: recordingChannel as RecordingChannel,
       recordingFormat: recordingFormat as RecordingFormat,
       pauseOnStart: isPauseOnStart,
-      recordingStateCallbackEndpointUrl:process.env.CALLBACK_URI + "/api/callbacks"
+      recordingStateCallbackEndpointUrl: process.env.CALLBACK_URI + "/api/callbacks"
       // recordingStorage: isByos === true ? recordingStorage : undefined,
     };
 
@@ -530,6 +544,7 @@ async function startRecordingAsync(
   }
   catch (error) {
     console.error("Failed to start recording :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -543,6 +558,7 @@ async function pauseRecordingAsync() {
   }
   catch (error) {
     console.error("Failed to pause recording :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -556,6 +572,7 @@ async function resumeRecordingAsync() {
   }
   catch (error) {
     console.error("Failed to resume recording :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -569,24 +586,24 @@ async function stopRecordingAsync() {
   }
   catch (error) {
     console.error("Failed to stop recording :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
-// async function getRecordingState(recordingId: string) {
-//   try {
-//     const response = await acsClient.getCallRecording().getState(recordingId);
-//     recordingState = response.recordingState;
-//     console.log(`Recording current state-->${recordingState}`);
-//   }
-//   catch (error) {
-//     console.error("Failed to get recording state :", error);
-//   }
-// }
+async function getRecordingState(recordingId: string) {
+  try {
+    const response = await acsClient.getCallRecording().getState(recordingId);
+    recordingState = response.recordingState;
+    console.log(`Recording current state-->${recordingState}`);
+  }
+  catch (error) {
+    console.error("Failed to get recording state :", error);
+    console.log(`Error message:- ${error.message}`);
+  }
+}
 
 async function addPSTNParticipantAsync(targetParticipant: string) {
   try {
-    const isCancelAddParticipant = false;
-
     const callInvite: CallInvite = {
       targetParticipant: { phoneNumber: targetParticipant },
       sourceCallIdNumber: acsPhoneNumber,
@@ -600,21 +617,16 @@ async function addPSTNParticipantAsync(targetParticipant: string) {
       .getCallConnection(callConnectionId)
       .addParticipant(callInvite, options);
 
-    if (isCancelAddParticipant) {
-      await acsClient
-        .getCallConnection(callConnectionId)
-        .cancelAddParticipantOperation(response.invitationId);
-    }
+    console.log(`INVITATION ID:- ${response.invitationId}`)
   }
   catch (error) {
     console.error("Failed to add pstn participant :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
 async function addACSParticipantAsync(acsParticipant: string) {
   try {
-    const isCancelAddParticipant = false;
-
     const communicationUserId: CommunicationUserIdentifier = {
       communicationUserId: acsParticipant
     }
@@ -630,14 +642,11 @@ async function addACSParticipantAsync(acsParticipant: string) {
       .getCallConnection(callConnectionId)
       .addParticipant(callInvite, options);
 
-    if (isCancelAddParticipant) {
-      await acsClient
-        .getCallConnection(callConnectionId)
-        .cancelAddParticipantOperation(response.invitationId);
-    }
+    console.log(`INVITATION ID:- ${response.invitationId}`)
   }
   catch (error) {
     console.error("Failed to add acs participant :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -653,6 +662,7 @@ async function muteACSParticipantAsync(acsParticipant: string) {
   }
   catch (error) {
     console.error("Failed to mute acs participant :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -666,6 +676,7 @@ async function removePSTNParticipantAsync(targetParticipant: string) {
   }
   catch (error) {
     console.error("Failed to remove pstn participant :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -680,6 +691,7 @@ async function removeACSParticipantAsync(targetParticipant: string) {
   }
   catch (error) {
     console.error("Failed to remove acs participant :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 
 }
@@ -691,6 +703,7 @@ async function cancelAddParticipantAsync(invitationId: string) {
   }
   catch (error) {
     console.error("Failed to cancel adding participant :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -703,6 +716,7 @@ async function cancelAllMediaOperationAsync() {
   }
   catch (error) {
     console.error("Failed to cancel media operation :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -732,6 +746,7 @@ async function transferCallToParticipantAsync(isPstn: boolean, transferTarget: s
   }
   catch (error) {
     console.error("Failed to initiate transfer call :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -748,6 +763,7 @@ async function startMediaStreamingAsync() {
   }
   catch (error) {
     console.error("Failed to start media streaming :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -764,6 +780,7 @@ async function stopMediaStreamingAsync() {
   }
   catch (error) {
     console.error("Failed to stop media streaming :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -772,11 +789,11 @@ async function holdParticipantAsync(isPstn: boolean, isWithPlaySource: boolean, 
     let target: CommunicationIdentifier;
     if (isPstn) {
       target = { phoneNumber: targetParticipant }
-      console.log(target);
+      //console.log(target);
 
     } else {
       target = { communicationUserId: targetParticipant }
-      console.log(target);
+      //console.log(target);
     }
 
     const fileSource: FileSource = {
@@ -797,6 +814,7 @@ async function holdParticipantAsync(isPstn: boolean, isWithPlaySource: boolean, 
   }
   catch (error) {
     console.error("Failed to hold participant :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -808,11 +826,8 @@ async function unholdParticipantAsync(isPstn: boolean, targetParticipant: string
     let target: CommunicationIdentifier;
     if (isPstn) {
       target = { phoneNumber: targetParticipant }
-      console.log(target);
-
     } else {
       target = { communicationUserId: targetParticipant }
-      console.log(target);
     }
 
     await acsClient
@@ -822,6 +837,7 @@ async function unholdParticipantAsync(isPstn: boolean, targetParticipant: string
   }
   catch (error) {
     console.error("Failed to unhold participant :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -848,6 +864,7 @@ async function playWithInterruptMediaFlagAsync() {
   }
   catch (error) {
     console.error("Failed to play barge in :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -860,6 +877,7 @@ async function getCallProperties(connectionId: string) {
   }
   catch (error) {
     console.error("Failed to get call properties :", error);
+    console.log(`Error message:- ${error.message}`);
   }
 }
 
@@ -1256,6 +1274,12 @@ app.get("/removeACSParticipant", async (req, res) => {
   res.redirect("/");
 });
 
+app.get("/cancelAddParticipant", async (req, res) => {
+  const invitationId = req.query.invitationId;
+  await cancelAddParticipantAsync(invitationId.toString());
+  res.redirect("/");
+});
+
 app.get("/transferCallToParticipant", async (req, res) => {
   const pstn = req.query.isPstn === undefined ? false : true
   const transferTarget = req.query.transferTarget;
@@ -1318,7 +1342,6 @@ app.get("/sendDtmfTones", async (req, res) => {
 });
 
 app.get("/startRecording", async (req, res) => {
-  debugger
   const isRecordingWithCallConnectionId = req.query.isRecordingWithCallConnectionId === undefined ? false : true
   const isPauseOnStart = req.query.isPauseOnStart === undefined ? false : true
   const recordingContent = req.query.recordingContent;
@@ -1331,6 +1354,16 @@ app.get("/startRecording", async (req, res) => {
     recordingChannel.toString(),
     recordingFormat.toString()
   );
+  res.redirect("/");
+});
+
+app.get("/getRecordingState", async (req, res) => {
+  if (recordingId) {
+    await getRecordingState(recordingId);
+  }
+  else {
+    console.log("Recording is not initiated.")
+  }
   res.redirect("/");
 });
 
@@ -1416,11 +1449,11 @@ server.listen(PORT, async () => {
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws: WebSocket) => {
-  console.log('Client connected');
+  // console.log('Client connected');
   ws.on('message', (packetData: ArrayBuffer) => {
     const decoder = new TextDecoder();
-    const stringJson = decoder.decode(packetData);
-    console.log("STRING JSON=>--" + stringJson)
+    //const stringJson = decoder.decode(packetData);
+    // console.log("STRING JSON=>--" + stringJson)
     var response = StreamingData.parse(packetData);
     const kind = StreamingData.getStreamingKind();
 
@@ -1499,19 +1532,30 @@ wss.on('connection', (ws: WebSocket) => {
       }
     }
     else {
+      //do nothing
+    }
+  });
 
+  //send recent logs on connected.
+  recentLogs.forEach(log => {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(log);
     }
 
   });
 
   ws.on('close', () => {
-    console.log('Client disconnected');
+    //console.log('Client disconnected');
   });
 });
 
 console.log(`WebSocket server running on port ${PORT}`);
 
+let recentLogs = [];
+
 function broadcastLog(log) {
+  recentLogs.push(log);
+  if (recentLogs.length > 1000) recentLogs.shift();
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(log);
@@ -1525,3 +1569,7 @@ console.log = (...args) => {
   originalLog(message);
   broadcastLog(message);
 };
+
+app.get("/clearLogs", async (req, res) => {
+  recentLogs = [];
+});

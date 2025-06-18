@@ -182,6 +182,19 @@
         </table>
       </form>
 
+      <form class="form-section" action="/cancelAddParticipant" method="get">
+        <table>
+          <tr>
+            <td><label for="invitationId">Cancel add participant:</label></td>
+            <td><input type="text" id="invitationId" name="invitationId"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2"><button type="submit">CancelAddParticipant</button></td>
+          </tr>
+        </table>
+      </form>
+
       <h4>Transfer call</h4>
       <form class="form-section" action="/transferCallToParticipant" method="get">
         <table>
@@ -445,6 +458,15 @@
         </table>
       </form>
 
+      <form class="form-section" action="/getRecordingState" method="get">
+        <table>
+          <tr>
+            <td>Get Recording state</td>
+            <td colspan="2"><button type="submit">GetRecordingState</button></td>
+          </tr>
+        </table>
+      </form>
+
       <form class="form-section" action="/pauseRecording" method="get">
         <table>
           <tr>
@@ -593,20 +615,77 @@
     <div class="logs-container">
       <h2>Live Logs</h2>
       <button style="padding: 0px 0px;" onclick="clearLogs()">Clear Logs</button>
-      <hr/>
-      <div id="logs"></div>
+      <hr />
+      <!-- <div id="logs"></div> -->
+      <iframe id="logFrame" style="width: 100%; height: 500px; border: 1px solid #ccc;"></iframe>
     </div>
   </div>
 
   <script>
-    const logsDiv = document.getElementById('logs');
-    const socket = new WebSocket(`wss://${location.host}`);
+    
+    const logFrame = document.getElementById('logFrame');
+    const iframeDoc = logFrame.contentDocument || logFrame.contentWindow.document;
+
+    // Initialize iframe content
+    iframeDoc.open();
+    iframeDoc.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body {
+          margin: 0;
+          background: #000;
+          color: #0f0;
+          font-family: monospace;
+          font-size: 14px;
+          padding: 10px;
+          overflow-y: scroll;
+          white-space: pre-wrap;
+        }
+      </style>
+    </head>
+    <body></body>
+    </html>
+  `);
+    iframeDoc.close();
+
+    const logBody = iframeDoc.body;
+    let logBuffer = [];
+
+    // Efficient flushing loop to prevent UI lockup
+    function flushLogs() {
+      if (logBuffer.length > 0) {
+        const fragment = iframeDoc.createDocumentFragment();
+        logBuffer.forEach(msg => {
+          const div = iframeDoc.createElement('div');
+          div.textContent = msg;
+          fragment.appendChild(div);
+        });
+        logBody.appendChild(fragment);
+        logBody.scrollTop = logBody.scrollHeight;
+        logBuffer = [];
+      }
+      requestAnimationFrame(flushLogs);
+    }
+
+    flushLogs(); // Start the flush loop
+
+    // Connect to WebSocket server
+    const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+    const socket = new WebSocket(`${protocol}://${location.host}`);
 
     socket.onmessage = function (event) {
-      logsDiv.textContent += event.data + '\n';
-      logsDiv.scrollTop = logsDiv.scrollHeight;
-      localStorage.setItem("liveLogs", logsDiv.innerHTML);
+      logBuffer.push(event.data);
     };
+
+    function clearLogs() {
+      logBody.innerHTML = '';
+
+      fetch('/clearLogs', { method: 'GET' })
+        .then(() => console.log('[Client] Server logs cleared'))
+        .catch(err => console.error('[Client] Failed to clear server logs', err));
+    }
 
     function handleContentChange() {
       const content = document.getElementById("recordingContent").value;
@@ -629,19 +708,6 @@
       }
     }
 
-    window.addEventListener("load", () => {
-      const savedLogs = localStorage.getItem("liveLogs");
-      if (savedLogs) {
-        document.getElementById("logs").innerHTML = savedLogs;
-      }
-    });
-
-    function clearLogs() {
-      localStorage.removeItem("liveLogs");
-      document.getElementById("logs").innerHTML = "";
-    }
-
   </script>
 </body>
-
 </html>
