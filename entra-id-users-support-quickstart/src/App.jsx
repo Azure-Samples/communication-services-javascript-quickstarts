@@ -21,14 +21,10 @@ function App() {
             });
             
             // Set up AzureCommunicationTokenCredential to request a Communication Services access token for a Microsoft Entra ID user.
-            const entraTokenCredentialOptions = {
+            const entraCommunicationTokenCredential = new AzureCommunicationTokenCredential({
                 resourceEndpoint: resourceEndpoint,
                 tokenCredential: entraTokenCredential,
-            };
-
-            const entraCommunicationTokenCredential = new AzureCommunicationTokenCredential(
-                entraTokenCredentialOptions
-            );
+            });
 
             // To obtain a Communication Services access token for Microsoft Entra ID call getToken() function.
             let accessToken = await entraCommunicationTokenCredential.getToken();
