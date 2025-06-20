@@ -98,9 +98,9 @@ async function createOutboundCall(pstnTarget: string) {
     };
 
     const options: CreateCallOptions = {
-      callIntelligenceOptions: {
-        cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
-      },
+      // callIntelligenceOptions: {
+      //   cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
+      // },
       operationContext: "CreatPSTNCallContext"
     };
     console.log("Placing pstn outbound call...");
@@ -127,9 +127,10 @@ async function createOutboundCallACS(acsTarget: string) {
     };
 
     const options: CreateCallOptions = {
-      callIntelligenceOptions: {
-        cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
-      },
+      // callIntelligenceOptions: {
+      //   cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
+      // },
+      operationContext:"CreateACSCallContext"
     };
     console.log("Placing acs outbound call...");
     await acsClient.createCall(
@@ -195,9 +196,9 @@ async function createGroupCall(acsTarget: string) {
     }
     const targets = [communicationUserId];
     const options: CreateCallOptions = {
-      callIntelligenceOptions: {
-        cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
-      },
+      // callIntelligenceOptions: {
+      //   cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
+      // },
       operationContext: "groupCallContext",
     };
     console.log("Placing group call...");
@@ -259,9 +260,9 @@ async function createPSTNCallWithMediaStreaming(
     };
 
     const options: CreateCallOptions = {
-      callIntelligenceOptions: {
-        cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
-      },
+      // callIntelligenceOptions: {
+      //   cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
+      // },
       mediaStreamingOptions: mediaStreamingOptions,
 
       operationContext: "CreatPSTNCallWithMediaStreamingContext"
@@ -307,9 +308,9 @@ async function createACSCallWithMediaStreamng(
     };
 
     const options: CreateCallOptions = {
-      callIntelligenceOptions: {
-        cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
-      },
+      // callIntelligenceOptions: {
+      //   cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
+      // },
       mediaStreamingOptions: mediaStreamingOptions,
     };
     console.log("Placing acs outbound call with media streaming...");
@@ -904,12 +905,12 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
     console.log(`WebSocket URL:- ${websocketUrl}`);
     const incomingCallContext = eventData.incomingCallContext;
 
-    const callIntelligenceOptions: CallIntelligenceOptions = {
-      cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT.trim(),
-    };
+    // const callIntelligenceOptions: CallIntelligenceOptions = {
+    //   cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT.trim(),
+    // };
     const answerCallOptions: AnswerCallOptions = {
-      callIntelligenceOptions: callIntelligenceOptions,
-
+      //callIntelligenceOptions: callIntelligenceOptions,
+      operationContext:"AnswerCallContext"
     };
 
     await acsClient.answerCall(incomingCallContext, callbackUri, answerCallOptions);
