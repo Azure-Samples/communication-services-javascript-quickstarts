@@ -70,7 +70,7 @@ export default defineConfig({
       // stdout: "pipe",
     },
     {
-      command: "npx -p node@16 npm run start:dev",
+      command: "npx -p node@20.9 npm run start:dev",
       port: 4280,
       reuseExistingServer: false,
       timeout: 120 * 1000,
