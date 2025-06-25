@@ -16,6 +16,6 @@
     "@playwright/test": "^1.47.1"
   },
   "engines": {
-    "node": "20.x"
+    "node": "20.9.x"
   }
 }
