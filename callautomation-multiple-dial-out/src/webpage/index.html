@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Azure Communication Services Quickstart</title>
+</head>
+
+<body>
+  <h4>Azure Communication Services</h4>
+  <h2>Multiple Dial Out Quickstart</h2>
+
+  <form>
+    <p>
+      <input type="submit" formaction="/connectCallB" value="Establish call To User B!">
+      <input type="submit" formaction="/connectCallC" value="Establish call To User C!">
+    </p>
+    <p>
+      <input type="submit" formaction="/connectCallA" value="User A calls Contoso App!">
+    </p>
+    <p>
+      <input type="submit" formaction="/moveParticipantB" value="Move Participant B to Call A!">
+      <input type="submit" formaction="/moveParticipantC" value="Move Participant C to Call A!">
+    </p>
+    <p>
+      <input type="submit" formaction="/hangup" value="Hangup call!">
+    </p>
+
+    <h3>Call Details</h3>
+
+    <div id="callIdA-info">
+      <h4>Call Connection A</h4>
+      <div>Call Connection Id: <span id="callIdA-text">Loading call Id...</span></div>
+      <div>Caller Id: <span id="callerIdA-text">Loading caller Id...</span></div>
+      <div>Receiver Id: <span id="receiverIdA-text">Loading receiver Id...</span></div>
+    </div>
+    <div id="callIdB-info">
+      <h4>Call Connection B</h4>
+      <div>Call Connection Id: <span id="callIdB-text">Loading call Id...</span></div>
+      <div>Caller Id: <span id="callerIdB-text">Loading caller Id...</span></div>
+      <div>Receiver Id: <span id="receiverIdB-text">Loading receiver Id...</span></div>
+    </div>
+    <div id="callIdC-info">
+      <h4>Call Connection C</h4>
+      <div>Call Connection Id: <span id="callIdC-text">Loading call Id...</span></div>
+      <div>Caller Id: <span id="callerIdC-text">Loading caller Id...</span></div>
+      <div>Receiver Id: <span id="receiverIdC-text">Loading receiver Id...</span></div>
+    </div>
+  </form>
+
+  <script>
+    fetch('/call-data')
+      .then(response => response.json())
+      .then(data => {
+        if (data.callConnectionIdA !== "") document.getElementById('callIdA-text').innerText = `${data.callConnectionIdA}`;
+        if (data.callerIdA !== "") document.getElementById('callerIdA-text').innerText = `${data.callerIdA}`;
+        if (data.receiverIdA !== "") document.getElementById('receiverIdA-text').innerText = `${data.receiverIdA}`;
+        if (data.callConnectionIdA !== "") document.getElementById('callIdA-text').innerText = `${data.callConnectionIdA}`;
+        if (data.callerIdA !== "") document.getElementById('callerIdA-text').innerText = `${data.callerIdA}`;
+        if (data.receiverIdA !== "") document.getElementById('receiverIdA-text').innerText = `${data.receiverIdA}`;
+        if (data.callConnectionIdB !== "") document.getElementById('callIdB-text').innerText = `${data.callConnectionIdB}`;
+        if (data.callerIdB !== "") document.getElementById('callerIdB-text').innerText = `${data.callerIdB}`;
+        if (data.receiverIdB !== "") document.getElementById('receiverIdB-text').innerText = `${data.receiverIdB}`;
+        if (data.callConnectionIdC !== "") document.getElementById('callIdC-text').innerText = `${data.callConnectionIdC}`;
+        if (data.callerIdC !== "") document.getElementById('callerIdC-text').innerText = `${data.callerIdC}`;
+        if (data.receiverIdC !== "") document.getElementById('receiverIdC-text').innerText = `${data.receiverIdC}`;
+      })
+      .catch(error => {
+        console.error('Error fetching user data:', error);
+      });
+  </script>
+</body>
+
+</html>
