@@ -22,6 +22,9 @@
       <input type="submit" formaction="/moveParticipantC" value="Move Participant C to Call A!">
     </p>
     <p>
+      <input type="submit" formaction="/playMedia" value="Play Media!">
+    </p>
+    <p>
       <input type="submit" formaction="/hangup" value="Hangup call!">
     </p>
 
@@ -48,25 +51,56 @@
   </form>
 
   <script>
-    fetch('/call-data')
-      .then(response => response.json())
-      .then(data => {
-        if (data.callConnectionIdA !== "") document.getElementById('callIdA-text').innerText = `${data.callConnectionIdA}`;
-        if (data.callerIdA !== "") document.getElementById('callerIdA-text').innerText = `${data.callerIdA}`;
-        if (data.receiverIdA !== "") document.getElementById('receiverIdA-text').innerText = `${data.receiverIdA}`;
-        if (data.callConnectionIdA !== "") document.getElementById('callIdA-text').innerText = `${data.callConnectionIdA}`;
-        if (data.callerIdA !== "") document.getElementById('callerIdA-text').innerText = `${data.callerIdA}`;
-        if (data.receiverIdA !== "") document.getElementById('receiverIdA-text').innerText = `${data.receiverIdA}`;
-        if (data.callConnectionIdB !== "") document.getElementById('callIdB-text').innerText = `${data.callConnectionIdB}`;
-        if (data.callerIdB !== "") document.getElementById('callerIdB-text').innerText = `${data.callerIdB}`;
-        if (data.receiverIdB !== "") document.getElementById('receiverIdB-text').innerText = `${data.receiverIdB}`;
-        if (data.callConnectionIdC !== "") document.getElementById('callIdC-text').innerText = `${data.callConnectionIdC}`;
-        if (data.callerIdC !== "") document.getElementById('callerIdC-text').innerText = `${data.callerIdC}`;
-        if (data.receiverIdC !== "") document.getElementById('receiverIdC-text').innerText = `${data.receiverIdC}`;
-      })
-      .catch(error => {
-        console.error('Error fetching user data:', error);
-      });
+    let fetchInterval;
+    let fetchCount = 0;
+
+    function fetchCallData() {
+      fetch('/call-data')
+        .then(response => response.json())
+        .then(data => {
+          if (data.callConnectionIdA !== "") document.getElementById('callIdA-text').innerText = `${data.callConnectionIdA}`;
+          if (data.callerIdA !== "") document.getElementById('callerIdA-text').innerText = `${data.callerIdA}`;
+          if (data.receiverIdA !== "") document.getElementById('receiverIdA-text').innerText = `${data.receiverIdA}`;
+          if (data.callConnectionIdB !== "") document.getElementById('callIdB-text').innerText = `${data.callConnectionIdB}`;
+          if (data.callerIdB !== "") document.getElementById('callerIdB-text').innerText = `${data.callerIdB}`;
+          if (data.receiverIdB !== "") document.getElementById('receiverIdB-text').innerText = `${data.receiverIdB}`;
+          if (data.callConnectionIdC !== "") document.getElementById('callIdC-text').innerText = `${data.callConnectionIdC}`;
+          if (data.callerIdC !== "") document.getElementById('callerIdC-text').innerText = `${data.callerIdC}`;
+          if (data.receiverIdC !== "") document.getElementById('receiverIdC-text').innerText = `${data.receiverIdC}`;
+        })
+        .catch(error => {
+          console.error('Error fetching user data:', error);
+        });
+    }
+
+    function periodicFetchCallData() {
+      fetchCount++;
+      console.log(`Periodic fetch #${fetchCount}`);
+      
+      fetchCallData();
+    }
+
+    function startPeriodicFetch() {
+      // Clear any existing interval
+      if (fetchInterval) {
+        clearInterval(fetchInterval);
+      }
+      // Reset counter
+      fetchCount = 0;
+      // Start fetching every 5 seconds
+      fetchInterval = setInterval(periodicFetchCallData, 5000);
+    }
+
+    // Initial fetch on page load
+    fetchCallData();
+
+    // Add event listener to all form submit buttons
+    document.addEventListener('DOMContentLoaded', () => {
+      // Start periodic fetching after any form submission
+      setTimeout(() => {
+        startPeriodicFetch();
+      }, 1000); // Start after 1 second to allow the form submission to complete
+    });
   </script>
 </body>
 

@@ -23,9 +23,11 @@ app.use(express.json());
 let callConnectionIdA: string;
 let callConnectionIdB: string;
 let callConnectionIdC: string;
+let callerId: string;
 let callerIdA: string;
 let callerIdB: string;
 let callerIdC: string;
+let receiverId: string;
 let receiverIdA: string;
 let receiverIdB: string;
 let receiverIdC: string;
@@ -51,16 +53,19 @@ async function createAcsClient() {
 }
 
 async function createOutboundCall(callToPhoneNumber: string) {
-	callerIdA = process.env.ACS_RESOURCE_PHONE_NUMBER || "" || "";
-	receiverIdA = callToPhoneNumber;
-	const callInvite: CallInvite = {
-		targetParticipant: { phoneNumber: callToPhoneNumber },
-		sourceCallIdNumber: {
-			phoneNumber: process.env.ACS_RESOURCE_PHONE_NUMBER || "",
-		},
+	callerId = process.env.ACS_RESOURCE_PHONE_NUMBER || "";
+	receiverId = callToPhoneNumber;
+	const communicationUserId = {
+		communicationUserId: callToPhoneNumber
 	};
-
-	const options: CreateCallOptions ={ callIntelligenceOptions: { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT } };
+	const callInvite = {
+		targetParticipant: communicationUserId
+	};
+	const options = {
+		callIntelligenceOptions: {
+			cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT
+		}
+	};
 	console.log("Placing outbound call...");
 	acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks", options);
 }
@@ -69,6 +74,15 @@ async function hangUpCall() {
 	await callConnectionA.hangUp(true);
 	await callConnectionB.hangUp(true);
 	await callConnectionC.hangUp(true);
+	callConnectionIdA = "";
+	callConnectionIdB = "";
+	callConnectionIdC = "";
+	callerIdA = "";
+	callerIdB = "";
+	callerIdC = "";
+	receiverIdA = "";
+	receiverIdB = "";
+	receiverIdC = "";
 }
 
 async function playMedia() {
@@ -109,7 +123,7 @@ async function validateEvent(eventData: any) {
 	}
 }
 
-app.post("/api/incomingCallA", async (req: any, res: any) => {
+app.post("/api/incomingCall", async (req: any, res: any) => {
 	const event = req.body[0];
 	const eventData = event.data;
 	if (event.eventType === "Microsoft.EventGrid.SubscriptionValidationEvent") {
@@ -130,11 +144,33 @@ app.post("/api/incomingCallA", async (req: any, res: any) => {
 app.post("/api/callbacks", async (req: any, res: any) => {
 	const event = req.body[0];
 	const eventData = event.data;
-	const callConnectionId = eventData.callConnectionId;
+	
 	if (event.type === "Microsoft.Communication.CallConnected") {
+		const callConnectionId = eventData.callConnectionId;
 		console.log("Received CallConnected event");
 		console.log(`Correlation id:-> ${eventData.correlationId}`)
 		console.log(`Call Connection Id:-> ${callConnectionId}`);
+		if (callConnectionIdA === undefined || callConnectionIdA === "") {
+			callerIdA = callerId;
+			receiverIdA = receiverId;
+			console.log(`Incoming call from: ${callerIdA} to: ${receiverIdA}`);
+			callConnectionIdA = callConnectionId;
+			callConnectionA = acsClient.getCallConnection(callConnectionIdA);
+		}
+		else if (callConnectionIdB === undefined || callConnectionIdB === "") {
+			callerIdB = callerId;
+			receiverIdB = receiverId;
+			console.log(`Incoming call from: ${callerIdB} to: ${receiverIdB}`);
+			callConnectionIdB = callConnectionId;
+			callConnectionB = acsClient.getCallConnection(callConnectionIdB);
+		}
+		else {
+			callerIdC = callerId;
+			receiverIdC = receiverId;
+			console.log(`Incoming call from: ${callerIdC} to: ${receiverIdC}`);
+			callConnectionIdC = callConnectionId;
+			callConnectionC = acsClient.getCallConnection(callConnectionIdC);
+		}
 	}
 	else if (event.type === "Microsoft.Communication.PlayCompleted") {
 		console.log("Received PlayCompleted event");
@@ -148,7 +184,7 @@ app.post("/api/callbacks", async (req: any, res: any) => {
 		console.log("Received CallDisconnected event");
 		console.log(`Correlation id:-> ${eventData.correlationId}`)
 	}
-
+	
 	res.sendStatus(200);
 });
 
@@ -176,6 +212,7 @@ app.get('/connectCallC', async (req, res) => {
 });
 
 app.get('/call-data', (req, res) => {
+	console.log("Call Data Endpoint Hit");
 	res.json({ callConnectionIdA, callConnectionIdB, callConnectionIdC, callerIdA, callerIdB, callerIdC, receiverIdA, receiverIdB, receiverIdC });
 });
 
