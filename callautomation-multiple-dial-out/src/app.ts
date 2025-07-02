@@ -4,13 +4,10 @@ import {
 	CallAutomationClient,
 	CallConnection,
 	CallInvite,
-	CreateCallOptions,
 	CallIntelligenceOptions,
-	TranscriptionOptions,
 	AnswerCallOptions,
 	TextSource
 } from "@azure/communication-call-automation";
-import { CommunicationUserToken } from '@azure/communication-identity';
 
 config();
 
@@ -23,31 +20,26 @@ app.use(express.json());
 let callConnectionIdA: string;
 let callConnectionIdB: string;
 let callConnectionIdC: string;
+let userA: string;
+let userB: string;
+let userC: string;
+let contosoPhNo: string;
 let callerId: string;
-let callerIdA: string;
-let callerIdB: string;
-let callerIdC: string;
 let receiverId: string;
-let receiverIdA: string;
-let receiverIdB: string;
-let receiverIdC: string;
 let callConnectionA: CallConnection;
 let callConnectionB: CallConnection;
 let callConnectionC: CallConnection;
 let acsClient: CallAutomationClient;
 const connectionString = process.env.CONNECTION_STRING || ""
-const locale = "en-US";
 
 async function createAcsClient() {
 	callConnectionIdA = "";
 	callConnectionIdB = "";
 	callConnectionIdC = "";
-	callerIdA = "";
-	callerIdB = "";
-	callerIdC = "";
-	receiverIdA = "";
-	receiverIdB = "";
-	receiverIdC = "";
+	userA = process.env.USER_A_PHONE_NUMBER || "";
+	userB = process.env.USER_B_PHONE_NUMBER || "";
+	userC = process.env.USER_C_PHONE_NUMBER || "";
+	contosoPhNo = process.env.ACS_RESOURCE_PHONE_NUMBER || "";
 	acsClient = new CallAutomationClient(connectionString);
 	console.log("Initialized ACS Client.");
 }
@@ -67,22 +59,33 @@ async function createOutboundCall(callToPhoneNumber: string) {
 		}
 	};
 	console.log("Placing outbound call...");
+	console.log(`Caller ID: ${callerId}, Receiver ID: ${receiverId}`);
 	acsClient.createCall(callInvite, process.env.CALLBACK_URI + "/api/callbacks", options);
 }
 
+async function redirectCall(sourceCallConnectionId: string, targetCallConnectionId: string) {
+	console.log("Moving participant...");
+	//acsClient.moveParticipant(sourceCallConnectionId, targetCallConnectionId, options);
+}
+
 async function hangUpCall() {
-	await callConnectionA.hangUp(true);
-	await callConnectionB.hangUp(true);
-	await callConnectionC.hangUp(true);
+	console.log(`call A: ${callConnectionIdA}, call B: ${callConnectionIdB}, call C: ${callConnectionIdC}`);
+	if (callConnectionA) {
+		callConnectionA = acsClient.getCallConnection(callConnectionIdA);
+		await callConnectionA.hangUp(true);
+	}
+	if (callConnectionB) {
+		callConnectionB = acsClient.getCallConnection(callConnectionIdB);
+		await callConnectionB.hangUp(true);
+	}
+	if (callConnectionC) {
+		callConnectionC = acsClient.getCallConnection(callConnectionIdC);
+		await callConnectionC.hangUp(true);
+	}
+	console.log("Calls hung up successfully.");
 	callConnectionIdA = "";
 	callConnectionIdB = "";
 	callConnectionIdC = "";
-	callerIdA = "";
-	callerIdB = "";
-	callerIdC = "";
-	receiverIdA = "";
-	receiverIdB = "";
-	receiverIdC = "";
 }
 
 async function playMedia() {
@@ -91,43 +94,24 @@ async function playMedia() {
 }
 
 async function validateEvent(eventData: any) {
+	callerId = process.env.USER_A_PHONE_NUMBER || "";
+	receiverId = process.env.ACS_RESOURCE_PHONE_NUMBER || "";
 	const incomingCallContext = eventData.incomingCallContext;
 	const callbackUri = process.env.CALLBACK_URI + "/api/callbacks";
-	const websocketUrl = process.env.CALLBACK_HOST_URI.replace(/^https:\/\//, 'wss://');
-	console.log(`Websocket url:- ${websocketUrl}`);
-	console.log(`Cognitive service endpoint:  ${process.env.COGNITIVE_SERVICES_ENDPOINT.trim()}`);
 	const callIntelligenceOptions: CallIntelligenceOptions = { cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT.trim() };
-	const transcriptionOptions: TranscriptionOptions = { transportUrl: websocketUrl, transportType: "websocket", locale: locale, startTranscription: true }
-	const answerCallOptions: AnswerCallOptions = { callIntelligenceOptions: callIntelligenceOptions, transcriptionOptions: transcriptionOptions };
+	const answerCallOptions: AnswerCallOptions = { callIntelligenceOptions: callIntelligenceOptions };
 	let answerCallResult = await acsClient.answerCall(incomingCallContext, callbackUri, answerCallOptions);
-	if (callConnectionIdA && callConnectionIdA !== "") {
-		callerIdA = eventData.from.rawId;
-		receiverIdA = eventData.to.rawId;
-		console.log(`Incoming call from: ${callerIdA} to: ${receiverIdA}`);
-		callConnectionIdA = answerCallResult.callConnectionProperties.callConnectionId;
-		callConnectionA = acsClient.getCallConnection(callConnectionIdA);
-	}
-	else if (callConnectionIdB && callConnectionIdB !== "") {
-		callerIdB = eventData.from.rawId;
-		receiverIdB = eventData.to.rawId;
-		console.log(`Incoming call from: ${callerIdB} to: ${receiverIdB}`);
-		callConnectionIdB = answerCallResult.callConnectionProperties.callConnectionId;
-		callConnectionB = acsClient.getCallConnection(callConnectionIdB);
-	}
-	else {
-		callerIdC = eventData.from.rawId;
-		receiverIdC = eventData.to.rawId;
-		console.log(`Incoming call from: ${callerIdC} to: ${receiverIdC}`);
-		callConnectionIdC = answerCallResult.callConnectionProperties.callConnectionId;
-		callConnectionC = acsClient.getCallConnection(callConnectionIdC);
-	}
+	callConnectionIdA = answerCallResult.callConnectionProperties.callConnectionId;
+	console.log(`Connection Id:  ${callConnectionIdA}`);
+	callConnectionA = acsClient.getCallConnection(callConnectionIdA);
 }
 
 app.post("/api/incomingCall", async (req: any, res: any) => {
 	const event = req.body[0];
 	const eventData = event.data;
+	console.log("IncomingCall event");
 	if (event.eventType === "Microsoft.EventGrid.SubscriptionValidationEvent") {
-		console.log("Received SubscriptionValidation event");
+		console.log("SubscriptionValidation event");
 		res.status(200).json({
 			validationResponse: eventData.validationCode,
 		});
@@ -144,30 +128,17 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 app.post("/api/callbacks", async (req: any, res: any) => {
 	const event = req.body[0];
 	const eventData = event.data;
-	
 	if (event.type === "Microsoft.Communication.CallConnected") {
 		const callConnectionId = eventData.callConnectionId;
 		console.log("Received CallConnected event");
 		console.log(`Correlation id:-> ${eventData.correlationId}`)
-		console.log(`Call Connection Id:-> ${callConnectionId}`);
-		if (callConnectionIdA === undefined || callConnectionIdA === "") {
-			callerIdA = callerId;
-			receiverIdA = receiverId;
-			console.log(`Incoming call from: ${callerIdA} to: ${receiverIdA}`);
-			callConnectionIdA = callConnectionId;
-			callConnectionA = acsClient.getCallConnection(callConnectionIdA);
-		}
-		else if (callConnectionIdB === undefined || callConnectionIdB === "") {
-			callerIdB = callerId;
-			receiverIdB = receiverId;
-			console.log(`Incoming call from: ${callerIdB} to: ${receiverIdB}`);
+		if (receiverId === userB) {
+			console.log(`Call Connection Id:-> ${callConnectionId}`);
 			callConnectionIdB = callConnectionId;
 			callConnectionB = acsClient.getCallConnection(callConnectionIdB);
 		}
-		else {
-			callerIdC = callerId;
-			receiverIdC = receiverId;
-			console.log(`Incoming call from: ${callerIdC} to: ${receiverIdC}`);
+		else if (receiverId === userC) {
+			console.log(`Call Connection Id:-> ${callConnectionId}`);
 			callConnectionIdC = callConnectionId;
 			callConnectionC = acsClient.getCallConnection(callConnectionIdC);
 		}
@@ -194,8 +165,8 @@ app.get('/', (req, res) => {
 });
 
 // GET endpoint to place phone call
-app.get('/connectCallA', async (req, res) => {
-	await createOutboundCall(process.env.USER_A_PHONE_NUMBER || "");
+app.get('/moveParticipantB', async (req, res) => {
+	await moveParticipant(callConnectionIdB, callConnectionIdA);
 	res.redirect('/');
 });
 
@@ -213,7 +184,8 @@ app.get('/connectCallC', async (req, res) => {
 
 app.get('/call-data', (req, res) => {
 	console.log("Call Data Endpoint Hit");
-	res.json({ callConnectionIdA, callConnectionIdB, callConnectionIdC, callerIdA, callerIdB, callerIdC, receiverIdA, receiverIdB, receiverIdC });
+	console.log(`call A: ${callConnectionIdA}, call B: ${callConnectionIdB}, call C: ${callConnectionIdC}`);
+	res.json({ callConnectionIdA, callConnectionIdB, callConnectionIdC, userA, userB, userC, contosoPhNo });
 });
 
 // GET endpoint to hangup call.
@@ -227,6 +199,13 @@ app.get('/playMedia', async (req, res) => {
 	await playMedia();
 	res.redirect('/');
 });
+
+// Move a participant from one call to another
+async function moveParticipant(fromCallConnectionId: string, toCallConnectionId: string) {
+	// Placeholder: Implement the logic to move a participant from one call to another
+	console.log(`Moving participant from call ${fromCallConnectionId} to call ${toCallConnectionId}`);
+	// Example: await acsClient.moveParticipant(fromCallConnectionId, toCallConnectionId);
+}
 
 // Start the server
 app.listen(PORT, async () => {

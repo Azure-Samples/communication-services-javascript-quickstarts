@@ -3,53 +3,86 @@
 
 <head>
   <title>Azure Communication Services Quickstart</title>
+  <style>
+    table {
+      width: 100vw;
+      table-layout: fixed;
+      align-content: center;
+    }
+    th, td {
+      width: 50vw;
+      vertical-align: top;
+      padding: 10px;
+      text-align: center;
+    }
+  </style>
 </head>
 
 <body>
-  <h4>Azure Communication Services</h4>
-  <h2>Multiple Dial Out Quickstart</h2>
-
+  <h2 style="text-align: center;">Multiple Dial Out Quickstart</h2>
   <form>
-    <p>
-      <input type="submit" formaction="/connectCallB" value="Establish call To User B!">
-      <input type="submit" formaction="/connectCallC" value="Establish call To User C!">
-    </p>
-    <p>
-      <input type="submit" formaction="/connectCallA" value="User A calls Contoso App!">
-    </p>
-    <p>
-      <input type="submit" formaction="/moveParticipantB" value="Move Participant B to Call A!">
-      <input type="submit" formaction="/moveParticipantC" value="Move Participant C to Call A!">
-    </p>
-    <p>
-      <input type="submit" formaction="/playMedia" value="Play Media!">
-    </p>
-    <p>
-      <input type="submit" formaction="/hangup" value="Hangup call!">
-    </p>
-
-    <h3>Call Details</h3>
-
-    <div id="callIdA-info">
-      <h4>Call Connection A</h4>
-      <div>Call Connection Id: <span id="callIdA-text">Loading call Id...</span></div>
-      <div>Caller Id: <span id="callerIdA-text">Loading caller Id...</span></div>
-      <div>Receiver Id: <span id="receiverIdA-text">Loading receiver Id...</span></div>
-    </div>
-    <div id="callIdB-info">
-      <h4>Call Connection B</h4>
-      <div>Call Connection Id: <span id="callIdB-text">Loading call Id...</span></div>
-      <div>Caller Id: <span id="callerIdB-text">Loading caller Id...</span></div>
-      <div>Receiver Id: <span id="receiverIdB-text">Loading receiver Id...</span></div>
-    </div>
-    <div id="callIdC-info">
-      <h4>Call Connection C</h4>
-      <div>Call Connection Id: <span id="callIdC-text">Loading call Id...</span></div>
-      <div>Caller Id: <span id="callerIdC-text">Loading caller Id...</span></div>
-      <div>Receiver Id: <span id="receiverIdC-text">Loading receiver Id...</span></div>
-    </div>
+    <table>
+      <tr>
+        <th>Call Connections</th>
+        <th>Call Details</th>
+      </tr>
+      <tr>
+        <td>    
+          <div>
+            <div style="font-weight: bold;">STEP 1. Create Call Connections</div>
+            <div>First establish Call Connections to User B and C</div>
+            <br/>
+            <input type="submit" formaction="/connectCallB" value="Establish call To User B!">
+            <input type="submit" formaction="/connectCallC" value="Establish call To User C!">
+          </div>
+          <p>
+            <div style="font-weight: bold;">STEP 2. Start Call Connection A</div>
+            <div>Now start a Call from User A to Contoso App manually from Web Client App</div>
+          </p>
+          <p>
+            <div style="font-weight: bold;">STEP 3. Move Call Connection B</div>
+            <div>Now move Call from User B to User A</div>
+            <br/>
+            <input type="submit" disabled formaction="/moveParticipantB" value="Move Participant B to Call A!">
+          </p>
+          <p>
+            <div style="font-weight: bold;">STEP 4. Move Call Connection C</div>
+            <div>Now move Call from User C to User A</div>
+            <br/>
+            <input type="submit" disabled formaction="/moveParticipantC" value="Move Participant C to Call A!">
+          </p>
+          <p>
+            <div style="font-weight: bold;">STEP 5. Play Media Anytime</div>
+            <input type="submit" disabled formaction="/playMedia" value="Play Media!">
+          </p>
+          <p>
+            <div style="font-weight: bold;">STEP 6. Hangup Call after Testing</div>
+            <input type="submit" disabled formaction="/hangup" value="Hangup call!">
+          </p>
+        </td>
+        <td>
+          <div id="callIdA-info">
+            <div style="font-weight: bold;">Call Connection A</div>
+            <div>Call Connection Id: <span id="callIdA-text">Loading call Id...</span></div>
+            <div>Caller Id: <span id="callerIdA-text">Loading caller Id...</span></div>
+            <div>Receiver Id: <span id="receiverIdA-text">Loading receiver Id...</span></div>
+          </div>
+          <p id="callIdB-info">
+            <div style="font-weight: bold;">Call Connection B</div>
+            <div>Call Connection Id: <span id="callIdB-text">Loading call Id...</span></div>
+            <div>Caller Id: <span id="callerIdB-text">Loading caller Id...</span></div>
+            <div>Receiver Id: <span id="receiverIdB-text">Loading receiver Id...</span></div>
+          </p>
+          <p id="callIdC-info">
+            <div style="font-weight: bold;">Call Connection C</div>
+            <div>Call Connection Id: <span id="callIdC-text">Loading call Id...</span></div>
+            <div>Caller Id: <span id="callerIdC-text">Loading caller Id...</span></div>
+            <div>Receiver Id: <span id="receiverIdC-text">Loading receiver Id...</span></div>
+          </p>
+        </td>
+      </tr>
+    </table>
   </form>
-
   <script>
     let fetchInterval;
     let fetchCount = 0;
@@ -58,15 +91,29 @@
       fetch('/call-data')
         .then(response => response.json())
         .then(data => {
-          if (data.callConnectionIdA !== "") document.getElementById('callIdA-text').innerText = `${data.callConnectionIdA}`;
-          if (data.callerIdA !== "") document.getElementById('callerIdA-text').innerText = `${data.callerIdA}`;
-          if (data.receiverIdA !== "") document.getElementById('receiverIdA-text').innerText = `${data.receiverIdA}`;
-          if (data.callConnectionIdB !== "") document.getElementById('callIdB-text').innerText = `${data.callConnectionIdB}`;
-          if (data.callerIdB !== "") document.getElementById('callerIdB-text').innerText = `${data.callerIdB}`;
-          if (data.receiverIdB !== "") document.getElementById('receiverIdB-text').innerText = `${data.receiverIdB}`;
-          if (data.callConnectionIdC !== "") document.getElementById('callIdC-text').innerText = `${data.callConnectionIdC}`;
-          if (data.callerIdC !== "") document.getElementById('callerIdC-text').innerText = `${data.callerIdC}`;
-          if (data.receiverIdC !== "") document.getElementById('receiverIdC-text').innerText = `${data.receiverIdC}`;
+          console.log('Call Connection Id A:', data.callConnectionIdA);
+          console.log('Call Connection Id B:', data.callConnectionIdB);
+          console.log('Call Connection Id C:', data.callConnectionIdC);
+          if (data.callConnectionIdA) document.getElementById('callIdA-text').innerText = `${data.callConnectionIdA}`;
+          if (data.userA) document.getElementById('callerIdA-text').innerText = `${data.userA}`;
+          if (data.contosoPhNo) document.getElementById('receiverIdA-text').innerText = `${data.contosoPhNo}`;
+          if (data.callConnectionIdB) document.getElementById('callIdB-text').innerText = `${data.callConnectionIdB}`;
+          if (data.contosoPhNo) document.getElementById('callerIdB-text').innerText = `${data.contosoPhNo}`;
+          if (data.userB) document.getElementById('receiverIdB-text').innerText = `${data.userB}`;
+          if (data.callConnectionIdC) document.getElementById('callIdC-text').innerText = `${data.callConnectionIdC}`;
+          if (data.contosoPhNo) document.getElementById('callerIdC-text').innerText = `${data.contosoPhNo}`;
+          if (data.userC) document.getElementById('receiverIdC-text').innerText = `${data.userC}`;
+          if (data.callConnectionIdA && data.callConnectionIdB && data.callConnectionIdC) {
+            document.querySelector('input[formaction="/moveParticipantB"]').disabled = false;
+            document.querySelector('input[formaction="/moveParticipantC"]').disabled = false;
+            document.querySelector('input[formaction="/playMedia"]').disabled = false;
+            document.querySelector('input[formaction="/hangup"]').disabled = false;
+          } else {
+            document.querySelector('input[formaction="/moveParticipantB"]').disabled = true;
+            document.querySelector('input[formaction="/moveParticipantC"]').disabled = true;
+            document.querySelector('input[formaction="/playMedia"]').disabled = true;
+            document.querySelector('input[formaction="/hangup"]').disabled = true;
+          }
         })
         .catch(error => {
           console.error('Error fetching user data:', error);
@@ -96,10 +143,13 @@
 
     // Add event listener to all form submit buttons
     document.addEventListener('DOMContentLoaded', () => {
-      // Start periodic fetching after any form submission
+      const form = document.querySelector('form');
+      form.addEventListener('submit', (event) => {
+        alert('Call submitted!');
+      });
       setTimeout(() => {
         startPeriodicFetch();
-      }, 1000); // Start after 1 second to allow the form submission to complete
+      }, 1000);
     });
   </script>
 </body>
