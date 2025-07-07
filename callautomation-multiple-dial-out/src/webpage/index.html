@@ -10,7 +10,6 @@
       align-content: center;
     }
     th, td {
-      width: 50vw;
       vertical-align: top;
       padding: 10px;
       text-align: center;
@@ -19,45 +18,48 @@
 </head>
 
 <body>
-  <h2 style="text-align: center;">Multiple Dial Out Quickstart</h2>
+  <h2 style="text-align: center;">Multiple Dial Out Sample</h2>
   <form>
     <table>
       <tr>
-        <th>Call Connections</th>
-        <th>Call Details</th>
+        <th style="width: 40vw;">Call Connections</th>
+        <th style="width: 60vw;">Call Details</th>
       </tr>
       <tr>
         <td>    
           <div>
-            <div style="font-weight: bold;">STEP 1. Create Call Connections</div>
-            <div>First establish Call Connections to User B and C</div>
-            <br/>
-            <input type="submit" formaction="/connectCallB" value="Establish call To User B!">
-            <input type="submit" formaction="/connectCallC" value="Establish call To User C!">
+            <div style="font-weight: bold;">STEP 1. Configure Webhook</div>
+            <div>Configure Event Grid webhook to point to /api/MoveParticipantEvent endpoint</div>
           </div>
           <p>
-            <div style="font-weight: bold;">STEP 2. Start Call Connection A</div>
-            <div>Now start a Call from User A to Contoso App manually from Web Client App</div>
+            <div style="font-weight: bold;">STEP 2. Make a Call</div>
+            <div>Make a call from User Phone Number to ACS Inbound Phone Number by clicking on this button</div>
+            <input type="submit" formaction="/userCallToCallAutomation" value="User Call To Call Automation!">
           </p>
           <p>
-            <div style="font-weight: bold;">STEP 3. Move Call Connection B</div>
-            <div>Now move Call from User B to User A</div>
-            <br/>
-            <input type="submit" disabled formaction="/moveParticipantB" value="Move Participant B to Call A!">
+            <div style="font-weight: bold;">STEP 3a. Create Call 2</div>
+            <div>Create a Call for ACS Test Identity 2 by clicking on this button and answer it manually from Web Client App</div>
+            <input type="submit" formaction="/createCall2" value="Create Call 2!">
           </p>
           <p>
-            <div style="font-weight: bold;">STEP 4. Move Call Connection C</div>
-            <div>Now move Call from User C to User A</div>
-            <br/>
-            <input type="submit" disabled formaction="/moveParticipantC" value="Move Participant C to Call A!">
+            <div style="font-weight: bold;">STEP 3b. Create Call 3</div>
+            <div>Create a Call for ACS Test Identity 3 by clicking on this button and answer it manually from Web Client App</div>
+            <input type="submit" formaction="/createCall3" value="Create Call 3!">
           </p>
           <p>
-            <div style="font-weight: bold;">STEP 5. Play Media Anytime</div>
-            <input type="submit" disabled formaction="/playMedia" value="Play Media!">
+            <div style="font-weight: bold;">STEP 4a. Move Call</div>
+            <div>Move Call for ACS Test Identity 2 to Initial Call</div>
+            <input type="submit" disabled formaction="/moveParticipant2" value="Move Participant 2!">
           </p>
           <p>
-            <div style="font-weight: bold;">STEP 6. Hangup Call after Testing</div>
-            <input type="submit" disabled formaction="/hangup" value="Hangup call!">
+            <div style="font-weight: bold;">STEP 4b. Move Call</div>
+            <div>Move Call for ACS Test Identity 3 to Initial Call</div>
+            <input type="submit" disabled formaction="/moveParticipant3" value="Move Participant 3!">
+          </p>
+          <p>
+            <div style="font-weight: bold;">STEP 5. Terminate Calls</div>
+            <div>Terminate all Calls created so far</div>
+            <input type="submit" disabled formaction="/terminateCalls" value="Terminate Calls!">
           </p>
         </td>
         <td>
@@ -91,28 +93,22 @@
       fetch('/call-data')
         .then(response => response.json())
         .then(data => {
-          console.log('Call Connection Id A:', data.callConnectionIdA);
-          console.log('Call Connection Id B:', data.callConnectionIdB);
-          console.log('Call Connection Id C:', data.callConnectionIdC);
-          if (data.callConnectionIdA) document.getElementById('callIdA-text').innerText = `${data.callConnectionIdA}`;
+          console.log('Call Connection Id 1:', data.callConnectionId1);
+          console.log('Call Connection Id 2:', data.callConnectionId2);
+          console.log('Call Connection Id 3:', data.callConnectionId3);
+          if (data.callConnectionId1) document.getElementById('callIdA-text').innerText = `${data.callConnectionId1}`;
           if (data.userA) document.getElementById('callerIdA-text').innerText = `${data.userA}`;
           if (data.contosoPhNo) document.getElementById('receiverIdA-text').innerText = `${data.contosoPhNo}`;
-          if (data.callConnectionIdB) document.getElementById('callIdB-text').innerText = `${data.callConnectionIdB}`;
+          if (data.callConnectionId2) document.getElementById('callIdB-text').innerText = `${data.callConnectionId2}`;
           if (data.contosoPhNo) document.getElementById('callerIdB-text').innerText = `${data.contosoPhNo}`;
           if (data.userB) document.getElementById('receiverIdB-text').innerText = `${data.userB}`;
-          if (data.callConnectionIdC) document.getElementById('callIdC-text').innerText = `${data.callConnectionIdC}`;
+          if (data.callConnectionId3) document.getElementById('callIdC-text').innerText = `${data.callConnectionId3}`;
           if (data.contosoPhNo) document.getElementById('callerIdC-text').innerText = `${data.contosoPhNo}`;
           if (data.userC) document.getElementById('receiverIdC-text').innerText = `${data.userC}`;
-          if (data.callConnectionIdA && data.callConnectionIdB && data.callConnectionIdC) {
-            document.querySelector('input[formaction="/moveParticipantB"]').disabled = false;
-            document.querySelector('input[formaction="/moveParticipantC"]').disabled = false;
-            document.querySelector('input[formaction="/playMedia"]').disabled = false;
-            document.querySelector('input[formaction="/hangup"]').disabled = false;
-          } else {
-            document.querySelector('input[formaction="/moveParticipantB"]').disabled = true;
-            document.querySelector('input[formaction="/moveParticipantC"]').disabled = true;
-            document.querySelector('input[formaction="/playMedia"]').disabled = true;
-            document.querySelector('input[formaction="/hangup"]').disabled = true;
+          if (data.callConnectionId1 && data.callConnectionId2 && data.callConnectionId3) {
+            document.querySelector('input[formaction="/moveParticipant2"]').disabled = false;
+            document.querySelector('input[formaction="/moveParticipant3"]').disabled = false;
+            document.querySelector('input[formaction="/terminateCalls"]').disabled = false;
           }
         })
         .catch(error => {
@@ -124,7 +120,7 @@
       fetchCount++;
       console.log(`Periodic fetch #${fetchCount}`);
       
-      fetchCallData();
+      //fetchCallData();
     }
 
     function startPeriodicFetch() {
@@ -139,7 +135,7 @@
     }
 
     // Initial fetch on page load
-    fetchCallData();
+    //fetchCallData();
 
     // Add event listener to all form submit buttons
     document.addEventListener('DOMContentLoaded', () => {
