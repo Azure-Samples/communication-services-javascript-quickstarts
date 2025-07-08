@@ -22,15 +22,19 @@
   <form>
     <table>
       <tr>
-        <th style="width: 40vw;">Call Connections</th>
-        <th style="width: 60vw;">Call Details</th>
+        <th style="width: 50vw;">Call Connections</th>
+        <th style="width: 50vw;">Call Details</th>
       </tr>
       <tr>
         <td>    
           <div>
+            <div style="font-weight: bold;">STEP 0. Assign Environment Variables</div>
+            <div>Configure environment variables in the .env file</div>
+          </div>
+          <p>
             <div style="font-weight: bold;">STEP 1. Configure Webhook</div>
             <div>Configure Event Grid webhook to point to /api/MoveParticipantEvent endpoint</div>
-          </div>
+          </p>
           <p>
             <div style="font-weight: bold;">STEP 2. Make a Call</div>
             <div>Make a call from User Phone Number to ACS Inbound Phone Number by clicking on this button</div>
@@ -64,22 +68,22 @@
         </td>
         <td>
           <div id="callIdA-info">
-            <div style="font-weight: bold;">Call Connection A</div>
+            <div style="font-weight: bold;">Call Connection 1</div>
             <div>Call Connection Id: <span id="callIdA-text">Loading call Id...</span></div>
             <div>Caller Id: <span id="callerIdA-text">Loading caller Id...</span></div>
-            <div>Receiver Id: <span id="receiverIdA-text">Loading receiver Id...</span></div>
+            <div>Callee Id: <span id="calleeIdA-text">Loading callee Id...</span></div>
           </div>
           <p id="callIdB-info">
-            <div style="font-weight: bold;">Call Connection B</div>
+            <div style="font-weight: bold;">Call Connection 2</div>
             <div>Call Connection Id: <span id="callIdB-text">Loading call Id...</span></div>
             <div>Caller Id: <span id="callerIdB-text">Loading caller Id...</span></div>
-            <div>Receiver Id: <span id="receiverIdB-text">Loading receiver Id...</span></div>
+            <div>Callee Id: <span id="calleeIdB-text">Loading callee Id...</span></div>
           </p>
           <p id="callIdC-info">
-            <div style="font-weight: bold;">Call Connection C</div>
+            <div style="font-weight: bold;">Call Connection 3</div>
             <div>Call Connection Id: <span id="callIdC-text">Loading call Id...</span></div>
             <div>Caller Id: <span id="callerIdC-text">Loading caller Id...</span></div>
-            <div>Receiver Id: <span id="receiverIdC-text">Loading receiver Id...</span></div>
+            <div>Callee Id: <span id="calleeIdC-text">Loading callee Id...</span></div>
           </p>
         </td>
       </tr>
@@ -97,17 +101,24 @@
           console.log('Call Connection Id 2:', data.callConnectionId2);
           console.log('Call Connection Id 3:', data.callConnectionId3);
           if (data.callConnectionId1) document.getElementById('callIdA-text').innerText = `${data.callConnectionId1}`;
-          if (data.userA) document.getElementById('callerIdA-text').innerText = `${data.userA}`;
-          if (data.contosoPhNo) document.getElementById('receiverIdA-text').innerText = `${data.contosoPhNo}`;
+          if (data.callerId1) document.getElementById('callerIdA-text').innerText = `${data.callerId1}`;
+          if (data.calleeId1) document.getElementById('calleeIdA-text').innerText = `${data.calleeId1}`;
           if (data.callConnectionId2) document.getElementById('callIdB-text').innerText = `${data.callConnectionId2}`;
-          if (data.contosoPhNo) document.getElementById('callerIdB-text').innerText = `${data.contosoPhNo}`;
-          if (data.userB) document.getElementById('receiverIdB-text').innerText = `${data.userB}`;
+          if (data.callerId2) document.getElementById('callerIdB-text').innerText = `${data.callerId2}`;
+          if (data.calleeId2) document.getElementById('calleeIdB-text').innerText = `${data.calleeId2}`;
           if (data.callConnectionId3) document.getElementById('callIdC-text').innerText = `${data.callConnectionId3}`;
-          if (data.contosoPhNo) document.getElementById('callerIdC-text').innerText = `${data.contosoPhNo}`;
-          if (data.userC) document.getElementById('receiverIdC-text').innerText = `${data.userC}`;
-          if (data.callConnectionId1 && data.callConnectionId2 && data.callConnectionId3) {
+          if (data.callerId3) document.getElementById('callerIdC-text').innerText = `${data.callerId3}`;
+          if (data.calleeId3) document.getElementById('calleeIdC-text').innerText = `${data.calleeId3}`;
+          document.querySelector('input[formaction="/moveParticipant2"]').disabled = true;
+          document.querySelector('input[formaction="/moveParticipant3"]').disabled = true;
+          document.querySelector('input[formaction="/terminateCalls"]').disabled = true;
+          if (data.callConnectionId1 && data.callConnectionId2) {
             document.querySelector('input[formaction="/moveParticipant2"]').disabled = false;
+          }
+          if (data.callConnectionId1 && data.callConnectionId3) {
             document.querySelector('input[formaction="/moveParticipant3"]').disabled = false;
+          }
+          if (data.callConnectionId1 || data.callConnectionId2 || data.callConnectionId3) {
             document.querySelector('input[formaction="/terminateCalls"]').disabled = false;
           }
         })
@@ -120,7 +131,7 @@
       fetchCount++;
       console.log(`Periodic fetch #${fetchCount}`);
       
-      //fetchCallData();
+      fetchCallData();
     }
 
     function startPeriodicFetch() {
@@ -135,7 +146,7 @@
     }
 
     // Initial fetch on page load
-    //fetchCallData();
+    fetchCallData();
 
     // Add event listener to all form submit buttons
     document.addEventListener('DOMContentLoaded', () => {
