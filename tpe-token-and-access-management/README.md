@@ -9,7 +9,7 @@ products:
 
 # Teams Extension User Demo
 
-A sample application showcasing the integration of Teams Extension User management with Azure Communication Services. This full-stack demo provides both client-side authentication and server-side API management to illustrate the complete workflow for managing Teams Extension access.
+A sample application demonstrating Teams Extension User management with Azure Communication Services and Entra ID authentication.
 
 This sample demonstrates how to:
 - Integrate Azure Communication Services Teams Extension User management APIs with Entra ID authentication
