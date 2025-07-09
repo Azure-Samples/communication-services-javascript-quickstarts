@@ -9,10 +9,10 @@ products:
 
 # Teams Extension User Demo
 
-A demonstration application showcasing the integration of Teams Extension User management with Azure Communication Services. This full-stack demo provides both client-side authentication and server-side API management to illustrate the complete workflow for managing Teams Extension access.
+A sample application showcasing the integration of Teams Extension User management with Azure Communication Services. This full-stack demo provides both client-side authentication and server-side API management to illustrate the complete workflow for managing Teams Extension access.
 
 This sample demonstrates how to:
-- Integrate Azure Communication Services Teams Extension User management APIs with Azure AD authentication
+- Integrate Azure Communication Services Teams Extension User management APIs with Entra ID authentication
 - Add and remove Teams Extension access for users through secure server-side operations
 - Generate ACS tokens using Azure credentials
 
@@ -20,7 +20,7 @@ This sample demonstrates how to:
 ## Project Structure
 
 ```
-demo_js/
+tpe-token-and-access-management/
 ├── client/
 │   └── client.js              # Client-side authentication and UI logic
 ├── server/
@@ -39,7 +39,7 @@ demo_js/
 - An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
 - [Node.js](https://nodejs.org/en/) (version 14 or higher)
 - An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
-- Azure AD application registration with appropriate permissions
+- Entra ID application registration with appropriate permissions
 
 > **Note:** This demo uses the Azure Communication Services JavaScript Common SDK (version 2.4.0 or higher) for token generation.
 
@@ -47,8 +47,8 @@ demo_js/
 
 1. **Clone the repository:**
    ```bash
-   git clone <repository-url>
-   cd demo_js
+   git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git
+   cd tpe-token-and-access-management
    ```
 
 2. **Install dependencies:**
@@ -56,8 +56,8 @@ demo_js/
    npm install
    ```
 
-3. **Configure Azure AD application:**
-   - Create an Azure AD app registration in the [Azure Portal](https://portal.azure.com)
+3. **Configure Entra ID application:**
+   - Create an Entra ID app registration in the [Azure Portal](https://portal.azure.com)
    - Add redirect URI using **Single-page application** platform: `http://localhost:3000`
    - Add API permissions: `https://auth.msft.communication.azure.com/TeamsExtension.ManageCalls`
    - Note the Client ID and Tenant ID
@@ -67,7 +67,7 @@ demo_js/
    - Note the connection string and endpoint URL
 
 5. **Update configuration files:**
-   - Edit `client/config.js` with your Azure AD configuration (Client ID, Tenant ID) and ACS endpoint
+   - Edit `client/config.js` with your Entra ID configuration (Client ID, Tenant ID) and ACS endpoint
    - Edit `server/config.js` with your server configuration (ACS endpoint, ACS resource key, user ID, tenant ID, client IDs array)
 
 ## Run the code
