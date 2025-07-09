@@ -34,55 +34,6 @@
 				"focus": false,
 				"panel": "shared"
 			}
-		},
-		{
-			"label": "Start Webpack Dev Server",
-			"type": "shell",
-			"command": "npm",
-			"args": [
-				"run",
-				"dev"
-			],
-			"group": "build",
-			"isBackground": true,
-			"problemMatcher": [],
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": false,
-				"panel": "shared"
-			}
-		},
-		{
-			"label": "Launch Chrome for Client Debug",
-			"type": "shell",
-			"command": "start",
-			"args": [
-				"chrome",
-				"--remote-debugging-port=9222",
-				"--user-data-dir=${workspaceFolder}/.chrome-debug",
-				"http://localhost:3000"
-			],
-			"group": "test",
-			"isBackground": true,
-			"problemMatcher": [],
-			"presentation": {
-				"echo": false,
-				"reveal": "never",
-				"focus": false,
-				"panel": "shared"
-			},
-			"windows": {
-				"command": "cmd",
-				"args": [
-					"/c",
-					"start",
-					"chrome",
-					"--remote-debugging-port=9222",
-					"--user-data-dir=${workspaceFolder}\\.chrome-debug",
-					"http://localhost:3000"
-				]
-			}
 		}
 	]
 }
