@@ -32,7 +32,7 @@ Currently, `azure-functions-core-tools` supports up to Node.js v20.9. If you're 
 ## Code organization
 
 - [app/](./app) - This directory contains source code for the React frontend.
-  - [app/src/App.tsx](./app/src/App.tsx) - Application entry-point. Built primarily using UI library's [CallComposite](https://azure.github.io/communication-ui-library/?path=/docs/composites-call-basicexample--basic-example). You will need to populate variables like `userId`, `userAccessToken` etc., in this file.
+  - [app/src/App.tsx](./app/src/App.tsx) - Application entry-point. Built primarily using UI library's [CallComposite](https://azure.github.io/communication-ui-library/?path=/story/composites-chatcomposite-basic-example--basic-example). You will need to populate variables like `userId`, `userAccessToken` etc., in this file.
   - [app/src/ChatComponents.tsx](./app/src/ChatComponents.tsx) - Chat UI built using UI Library components and logic for implementing file sharing.
 - [api/](./api) - This directory contains the source code for the backend API (Azure function).
   - [api/UploadFileToAzureBlobStore/index.ts](./api/UploadFileToAzureBlobStore/index.ts) - Azure Function to handle file uploads.

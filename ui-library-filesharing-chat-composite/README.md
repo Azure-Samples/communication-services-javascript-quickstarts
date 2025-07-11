@@ -29,7 +29,7 @@ This sample includes:
 ## Code organization
 
 - [app/](./app) - This directory contains source code for the React frontend.
-  - [app/src/App.tsx](./app/src/App.tsx) - Application entry-point. Built primarily using UI library's [ChatComposite](https://azure.github.io/communication-ui-library/?path=/docs/composites-chat-basicexample--basic-example).
+  - [app/src/App.tsx](./app/src/App.tsx) - Application entry-point. Built primarily using UI library's [ChatComposite](https://azure.github.io/communication-ui-library/?path=/story/composites-chatcomposite-basic-example--basic-example).
 - [api/](./api) - This directory contains the source code for the backend API.
   - [api/UploadFileToAzureBlobStore](./api/UploadFileToAzureBlobStore/index.ts) - Azure Function to upload the file to Azure Blob Store.
 
