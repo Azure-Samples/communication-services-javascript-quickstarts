@@ -14,7 +14,7 @@ products:
 ## Prerequisites
 
 - An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) .
-- [Node.js](https://nodejs.org/en/) Active LTS and Maintenance LTS versions (20.x.x is recommended).
+- [Node.js](https://nodejs.org/en/) Active LTS and Maintenance LTS versions (20.9.x is recommended).
 - An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
 - An identity with Chat scope. Generate an identity using the [Azure Portal](https://docs.microsoft.com/azure/communication-services/quickstarts/identity/quick-create-identity).
 
@@ -35,6 +35,6 @@ Currently, `azure-functions-core-tools` supports up to Node.js v20.9. If you're 
   - [app/src/App.tsx](./app/src/App.tsx) - Application entry-point. Built primarily using UI library's [CallComposite](https://azure.github.io/communication-ui-library/?path=/story/composites-chatcomposite-basic-example--basic-example). You will need to populate variables like `userId`, `userAccessToken` etc., in this file.
   - [app/src/ChatComponents.tsx](./app/src/ChatComponents.tsx) - Chat UI built using UI Library components and logic for implementing file sharing.
 - [api/](./api) - This directory contains the source code for the backend API (Azure function).
-  - [api/UploadFileToAzureBlobStore/index.ts](./api/UploadFileToAzureBlobStore/index.ts) - Azure Function to handle file uploads.
+  - [/api/functions/uploadFileToAzureBlobStore.ts](./api/functions/uploadFileToAzureBlobStore.ts) - Azure Function to handle file uploads.
 
 Additionally, [package.json](./package.json) provides some helper scripts to aid local development, using the developer tooling for [Azure Static Web Apps](https://docs.microsoft.com/azure/static-web-apps/).
