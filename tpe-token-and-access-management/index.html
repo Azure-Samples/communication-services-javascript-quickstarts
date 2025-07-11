@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teams Extension User Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #0078d4;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+        button:hover {
+            background-color: #106ebe;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .output {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            min-height: 100px;
+        }
+        .user-info {
+            background-color: #e7f3ff;
+            border-left: 4px solid #0078d4;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .error {
+            background-color: #ffe6e6;
+            border-left: 4px solid #d32f2f;
+            color: #d32f2f;
+        }
+        .success {
+            background-color: #e8f5e8;
+            border-left: 4px solid #4caf50;
+            color: #2e7d32;
+        }
+        .status-active {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        .token-info {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .credential-details {
+            margin: 1rem 0;
+        }
+        .user-details {
+            background-color: #e7f3ff;
+            border-radius: 3px;
+            padding: 0.8rem;
+            margin: 1rem 0;
+        }
+        .note {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 3px;
+            padding: 0.8rem;
+            margin: 1rem 0;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Teams Extension User Demo</h1>
+        
+        <div class="section">
+            <h2>1. Teams Extension User Management</h2>
+            <p>First, grant or revoke Teams Extension User access via server-side APIs. This step manages user permissions in the Teams Extension system.</p>
+            <button id="addAccessBtn">Add Teams Extension Access</button>
+            <button id="removeAccessBtn">Remove Teams Extension Access</button>
+            <div id="managementOutput" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h2>2. Authentication & Token Exchange</h2>
+            <p>After access is granted, sign in with your Azure account to authenticate and generate communication tokens</p>
+            
+            <button id="signInBtn">Sign In</button>
+            <button id="signOutBtn" disabled>Sign Out</button>
+            <div id="userInfo" class="user-info" style="display: none;"></div>
+            <div id="tokenOutput" class="output" style="display: none;"></div>
+        </div>
+
+        <div class="section">
+            <h2>3. Console Output</h2>
+            <div id="consoleOutput" class="output"></div>
+        </div>
+    </div>
+
+    <script src="bundle.js"></script>
+</body>
+</html>

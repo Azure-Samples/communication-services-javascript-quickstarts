@@ -1,0 +1,47 @@
+{
+  "name": "teams-extension-user-demo",
+  "version": "1.0.0",
+  "description": "Demo application for Teams Extension User management with Azure Communication Services integration",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "npm run build && npm run serve",
+    "dev": "webpack-dev-server --mode development",
+    "build": "webpack --mode production",
+    "build:dev": "webpack --mode development",
+    "serve": "node server/server.js",
+    "server": "node server/server.js",
+    "add-access": "node server/add-teams-extension-access.js",
+    "remove-access": "node server/remove-teams-extension-access.js",
+    "debug": "npm run build:dev && npm run serve",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "teams",
+    "azure",
+    "communication-services",
+    "demo",
+    "extension"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/communication-common": "^2.4.0",
+    "@azure/identity": "^4.10.2",
+    "@azure/msal-browser": "^4.14.0",
+    "axios": "^1.10.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "html-webpack-plugin": "^5.6.3",
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.2"
+  },
+  "devDependencies": {
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.1",
+    "path-browserify": "^1.0.1",
+    "stream-browserify": "^3.0.0",
+    "url": "^0.11.4",
+    "util": "^0.12.5"
+  }
+}
