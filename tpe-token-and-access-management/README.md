@@ -41,7 +41,14 @@ tpe-token-and-access-management/
 - An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
 - Entra ID application registration with appropriate permissions. [Create an Entra ID application](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app).
 
-> **Note:** This demo uses the Azure Communication Services JavaScript Common SDK (version 2.4.0 or higher) for token generation.
+## SDK Information
+
+This quickstart uses the **@azure/communication-common** (version 2.4.0) for user management and token generation. 
+
+For Teams Phone Extension capabilities, you can additionally use:
+- **@azure/communication-calling** (1.37.1-beta-rc.1.3)
+- **@azure/communication-call-automation** (1.5.0-beta.2)
+
 
 ## Before running sample code
 
