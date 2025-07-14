@@ -43,7 +43,7 @@ tpe-token-and-access-management/
 
 ## SDK Information
 
-This quickstart uses the **@azure/communication-common** (version 2.4.0) for user management and token generation. 
+This quickstart uses the **@azure/communication-common** (version 2.4.0 or higher) for user management and token generation. 
 
 For Teams Phone Extension capabilities, you can additionally use:
 - **@azure/communication-calling** (1.37.1-beta-rc.1.3)
