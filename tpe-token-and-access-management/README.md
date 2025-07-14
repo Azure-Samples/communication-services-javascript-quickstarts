@@ -39,7 +39,7 @@ tpe-token-and-access-management/
 - An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
 - [Node.js](https://nodejs.org/en/) (version 14 or higher)
 - An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
-- Entra ID application registration with appropriate permissions
+- Entra ID application registration with appropriate permissions. [Create an Entra ID application](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app).
 
 > **Note:** This demo uses the Azure Communication Services JavaScript Common SDK (version 2.4.0 or higher) for token generation.
 
