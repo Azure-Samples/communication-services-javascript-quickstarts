@@ -133,8 +133,8 @@ export class ACSTokenManager {
                 base64Payload += '='.repeat((4 - base64Payload.length % 4) % 4);
                 
                 const payload = JSON.parse(atob(base64Payload));
-                const skypeId = payload.skypeid || payload.sub || payload.oid || 'Not found in token';
-                
+                const skypeId = payload.skypeid || 'Not found in token';
+
                 return skypeId;
             }
         } catch (decodeError) {

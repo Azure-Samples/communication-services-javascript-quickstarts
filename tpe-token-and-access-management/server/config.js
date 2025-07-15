@@ -4,6 +4,7 @@
 
 const config = {
     // Azure Communication Services configuration
+    // Format: https://your-acs-resource.communication.azure.com/
     acs: {
         acsEndpoint: '<YOUR-RESOURCE-ENDPOINT>',
         resourceKey: '<YOUR-RESOURCE-KEY>'
