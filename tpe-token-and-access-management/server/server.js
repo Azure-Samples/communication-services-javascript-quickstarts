@@ -108,27 +108,6 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
 });
 
-// Error handling middleware
-app.use((error, req, res, next) => {
-    console.error(`[${new Date().toISOString()}] Unhandled error:`, error);
-    
-    res.status(500).json({
-        success: false,
-        error: 'Internal server error',
-        timestamp: new Date().toISOString()
-    });
-});
-
-// 404 handler
-app.use((req, res) => {
-    res.status(404).json({
-        success: false,
-        error: 'Endpoint not found',
-        path: req.path,
-        timestamp: new Date().toISOString()
-    });
-});
-
 // Start the server
 app.listen(PORT, () => {
     console.log(`\n=== Teams Extension User Demo Server ===`);
