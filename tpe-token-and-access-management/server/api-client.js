@@ -19,7 +19,7 @@ class APIClient {
      * @returns {Promise<object>} API response
      */
     async makeAPICall(method, endpoint, payload) {
-        const fullUrl = `${this.baseUrl}/${endpoint}`;
+        const fullUrl = `${this.baseUrl}${endpoint}`;
         const body = payload ? JSON.stringify(payload) : '';
         
         const requestOptions = {
@@ -27,7 +27,6 @@ class APIClient {
             url: fullUrl,
             body: body,
             headers: {
-                'User-Agent': 'TeamsExtensionManager/1.0',
                 'api-version': config.api.version
             }
         };

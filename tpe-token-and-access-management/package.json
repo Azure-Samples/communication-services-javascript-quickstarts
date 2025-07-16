@@ -10,8 +10,8 @@
     "build:dev": "webpack --mode development",
     "serve": "node server/server.js",
     "server": "node server/server.js",
-    "add-access": "node server/add-teams-extension-access.js",
-    "remove-access": "node server/remove-teams-extension-access.js",
+    "add-access": "node server/teams-extension-access-manager.js",
+    "remove-access": "node server/teams-extension-access-manager.js",
     "debug": "npm run build:dev && npm run serve",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -7,8 +7,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const config = require('./config');
-const TeamsExtensionAccessManager = require('./add-teams-extension-access');
-const TeamsExtensionAccessRemover = require('./remove-teams-extension-access');
+const TeamsExtensionAccessManager = require('./teams-extension-access-manager');
 
 const app = express();
 const PORT = config.server.port;
@@ -18,9 +17,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'dist')));
 
-// Initialize managers
+// Initialize manager
 const accessManager = new TeamsExtensionAccessManager();
-const accessRemover = new TeamsExtensionAccessRemover();
 
 /**
  * Add Teams Extension access for a user
@@ -84,7 +82,7 @@ app.post('/api/teams-extension/remove-access', async (req, res) => {
 
         console.log(`[${new Date().toISOString()}] Removing Teams Extension access for user: ${userId}`);
 
-        const result = await accessRemover.removeTeamsExtensionAccess(userId, tenantId);
+        const result = await accessManager.removeTeamsExtensionAccess(userId, tenantId);
 
         res.json({
             success: true,
@@ -108,27 +106,6 @@ app.post('/api/teams-extension/remove-access', async (req, res) => {
  */
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
-});
-
-// Error handling middleware
-app.use((error, req, res, next) => {
-    console.error(`[${new Date().toISOString()}] Unhandled error:`, error);
-    
-    res.status(500).json({
-        success: false,
-        error: 'Internal server error',
-        timestamp: new Date().toISOString()
-    });
-});
-
-// 404 handler
-app.use((req, res) => {
-    res.status(404).json({
-        success: false,
-        error: 'Endpoint not found',
-        path: req.path,
-        timestamp: new Date().toISOString()
-    });
 });
 
 // Start the server
