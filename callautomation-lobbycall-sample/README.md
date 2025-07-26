@@ -38,18 +38,14 @@ Create/Open the `.env` file to configure the following settings
 
 1. `PORT`: Assign constant 8080
 2. `CONNECTION_STRING`: Azure Communication Service resource's connection string.
-3. `ACS_INBOUND_PHONE_NUMBER`: Inbound Phone number associated with the Azure Communication Service resource. For e.g. "+1425XXXAAAA"
-4. `ACS_OUTBOUND_PHONE_NUMBER`: Outbound Phone number associated with the Azure Communication Service resource. For e.g. "+1425XXXAAAA"
-5. `USER_PHONE_NUMBER`: User phone number to add in the call. For e.g. "+1425XXXAAAA"
-6. `ACS_TEST_IDENTITY_2`: An ACS Communication Identifier to add in the call.
-7. `ACS_TEST_IDENTITY_3`: Another ACS Communication Identifier to add in the call.
-8. `CALLBACK_URI`: Base url of the app. (For local development replace the dev tunnel url)
-9. `COGNITIVE_SERVICES_ENDPOINT` : Cognitive service endpoint.
+3. `COGNITIVE_SERVICES_ENDPOINT` : Cognitive service endpoint.
+4. `CALLBACK_URI`: Base url of the app. (For local development replace the dev tunnel url)
+5. `PMA_ENDPOINT`: PMA endpoint url
+6. `ACS_GENERATED_ID`: ACS Generated Id
+7. `SOCKET_TOKEN`: Web Socket Token Key
 
 ### Run app locally
 
 1. Open a new Powershell window, cd into the `callautomation-lobbycall-sample` folder and run `npm run dev`
 2. Browser should pop up with the below page. If not navigate it to `http://localhost:8080/`
 3. Follow the steps.
-
-
