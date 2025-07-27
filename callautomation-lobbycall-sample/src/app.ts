@@ -1,12 +1,9 @@
 import { config } from 'dotenv';
 import express, { Application } from 'express';
-import { CommunicationUserIdentifier, PhoneNumberIdentifier } from "@azure/communication-common";
 import {
-	CallAutomationClient,
-	CallInvite,
-	AnswerCallOptions,
-	MoveParticipantsOptions
+	CallAutomationClient
 } from "@azure/communication-call-automation";
+import { PhoneNumberIdentifier, CommunicationUserIdentifier } from "@azure/communication-common";
 
 config();
 
