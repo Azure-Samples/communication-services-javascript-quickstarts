@@ -1,10 +1,11 @@
 import { config } from 'dotenv';
 import express, { Application } from 'express';
-import { CommunicationUserIdentifier, PhoneNumberIdentifier } from "@azure/communication-common";
+import { CommunicationUserIdentifier, getIdentifierRawId } from "@azure/communication-common";
 import {
 	CallAutomationClient,
 	CallInvite,
-	AnswerCallOptions,
+	TextSource,
+	PlayOptions,
 	MoveParticipantsOptions
 } from "@azure/communication-call-automation";
 
@@ -24,6 +25,7 @@ let lobbyCallerId: string;
 const callbackUriHost = process.env.CALLBACK_URI || "";
 const connectionString = process.env.CONNECTION_STRING || ""
 const endpoint = process.env.PMA_ENDPOINT || ""
+// let webSocket = null;
 
 async function createAcsClient() {
 	lobbyCallConnectionId = "";
@@ -35,9 +37,92 @@ async function createAcsClient() {
 	console.log("Initialized ACS Client.");
 }
 
-app.get('/TargetCallToAcsUser(Create)', async (req, res) => {
-    const acsTarget = req.body.acsTarget; // expects { "acsTarget": "<user id>" }
+const http = require('http');
+// const WebSocket = require('ws');
+// const server = http.createServer(app);
+
+// WebSocket server setup
+// const wss = new WebSocket.Server({ noServer: true });
+
+// server.on('upgrade', (request, socket, head) => {
+//     // Only accept connections to the correct path
+//     const url = request.url || '';
+//     if (url === `/ws/${process.env.SOCKET_TOKEN}`) {
+//         wss.handleUpgrade(request, socket, head, function done(ws) {
+//             wss.emit('connection', ws, request);
+//         });
+//     } else {
+//         socket.destroy();
+//     }
+// });
+
+// wss.on('connection', (ws) => {
+//     webSocket = ws;
+//     console.log('Received WEB SOCKET request.');
+
+//     ws.on('message', async (message) => {
+//         const jsResponse = message.toString();
+//         console.log(`Received from JS: ${jsResponse}`);
+
+//         // Move participant to target call if response is "yes"
+//         if (jsResponse.trim().toLowerCase() === 'yes') {
+//             console.log('TODO: Move Participant');
+//             try {
+//                 console.log(`
+// 					~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~
+// 					Move Participant operation started..
+// 					Source Caller Id:     ${lobbyCallerId}
+// 					Source Connection Id: ${lobbyCallConnectionId}
+// 					Target Connection Id: ${targetCallConnectionId}
+// 					`);
+
+//                 // Get the target connection
+//                 const targetConnection = acsClient.getCallConnection(targetCallConnectionId);
+
+//                 // Get participants from source connection for reference
+//                 // const sourceConnection = client.getCallConnection(lobbyConnectionId);
+
+//                 // Create participant identifier based on the input
+// 				let participantToMove;
+// 				if (lobbyCallerId.startsWith('+')) {
+// 					// Phone number
+// 					participantToMove = { phoneNumber: lobbyCallerId };
+// 					console.log(`Moving phone number participant: ${lobbyCallerId}`);
+// 				} else if (lobbyCallerId.startsWith('8:acs:')) {
+// 					// ACS Communication User
+// 					participantToMove = { communicationUserId: lobbyCallerId };
+// 					console.log(`Moving ACS user participant: ${lobbyCallerId}`);
+// 				} else {
+// 					console.log("Invalid participant format. Use phone number (+1234567890) or ACS user ID (8:acs:...)");
+// 				}
+
+// 				// Prepare move participants options
+// 				const options : MoveParticipantsOptions = {
+// 					operationContext: "MoveParticipant2"
+// 				};
+
+// 				// Call the ACS SDK to move participants
+// 				await targetConnection.moveParticipants([participantToMove], lobbyCallConnectionId, options);
+
+// 				console.log('Move Participants operation completed successfully.');
+//             } catch (ex) {
+//                 console.log(`Error in manual move participants operation: ${ex.message}`);
+//             }
+//         }
+//     });
+
+//     ws.on('close', () => {
+//         webSocket = null;
+//     });
+// });
+
+app.get('/targetCallToAcsUser', async (req, res) => {
+    const acsTarget = req.query.acsTarget as string; // expects ?acsTarget=<user id>
     console.log('\n~~~~~~~~~~~~ /TargetCall(Create)  ~~~~~~~~~~~~\n');
+
+    if (!acsTarget) {
+        return res.status(400).send('Missing acsTarget query parameter');
+    }
 
     try {
         const callbackUri = `${callbackUriHost}/api/callbacks`;
@@ -75,321 +160,65 @@ app.get('/TargetCallToAcsUser(Create)', async (req, res) => {
     }
 });
 
-app.get('/GetParticipants/:callConnectionId', async (req, res) => {
-    const callConnectionId = req.params.callConnectionId;
-    console.log(`\n~~~~~~~~~~~~ /GetParticipants/${callConnectionId} ~~~~~~~~~~~~\n`);
-    try {
-        const callConnection = acsClient.getCallConnection(callConnectionId);
-        const participantsResponse = await callConnection.getAllParticipant();
-        const participants = participantsResponse.value;
+app.get('/call-data', async (req, res) => {
+	let participantId1 = "";
+	let participantId2 = "";
+	let participantId3 = "";
+	if (lobbyCallConnectionId) {
+		console.log(`\n~~~~~~~~~~~~ /GetParticipants/${lobbyCallConnectionId} ~~~~~~~~~~~~\n`);
+		try {
+			const callConnection = acsClient.getCallConnection(lobbyCallConnectionId);
+			const participantsResponse = await callConnection.listParticipants();
+			const participants = participantsResponse.values;
 
-        // Format participant info
-        const participantInfo = participants.map(p => {
-            let type = p.identifier.kind || p.identifier.constructor.name;
-            let rawId = p.identifier.rawId;
-            let phoneNumber = p.identifier.phoneNumber || null;
-            let acsUserId = p.identifier.communicationUserId || null;
-
-            return {
-                rawId,
-                type,
-                phoneNumber,
-                acsUserId
-            };
-        });
-
-        // Sort: phone numbers first, then ACS users
-        participantInfo.sort((a, b) => {
-            if (!a.acsUserId && b.acsUserId) return -1;
-            if (a.acsUserId && !b.acsUserId) return 1;
-            return 0;
-        });
-
-        // Format output
-        if (participantInfo.length === 0) {
-            return res.status(404).json({
-                message: "No participants found for the specified call connection.",
-                callConnectionId
-            });
-        } else {
-            let msg = `\nNo of Participants: ${participantInfo.length}\nParticipants: \n-------------\n`;
-            msg += participantInfo.map((p, i) => {
-                if (p.acsUserId) {
-                    return `${i + 1}. ${p.type} - RawId: ${p.acsUserId}`;
-                } else {
-                    return `${i + 1}. ${p.type}       - RawId: ${p.rawId}, Phone: ${p.phoneNumber}`;
-                }
-            }).join('\n');
-            console.log(msg);
-            return res.type('text/plain').send(msg);
-        }
-    } catch (ex) {
-        console.error(`Error getting participants for call ${callConnectionId}: ${ex.message}`);
-        return res.status(400).json({
-            error: ex.message,
-            callConnectionId
-        });
-    }
-});
-
-app.get('/userCallToCallAutomation', async (req, res) => {
-    console.log("--------- UserCallToCallAutomation - Call 1 API Endpoint -------------------");
-    try {
-		const callbackUri = new URL('/api/callbacks', callbackUriHost).toString();
-		const callee : PhoneNumberIdentifier = {
-			phoneNumber: acsInboundPhoneNumber
-		};
-		const callInvite : CallInvite = {
-			targetParticipant: callee,
-			sourceCallIdNumber: {
-				phoneNumber: userPhoneNumber,
-			},
-		};
-		const options = {
-			callIntelligenceOptions: {
-				cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT
-			},
-			operationContext: 'CallOne'
-		};
-		var createCallResult = await acsClient.createCall(callInvite, callbackUri, options);
-		callConnectionId1 = createCallResult.callConnectionProperties.callConnectionId;
-		callerId1 = userPhoneNumber;
-		calleeId1 = acsInboundPhoneNumber;
-
-		console.log("=== Call From User to Call Automation ===");
-		console.log(`Created call from ${userPhoneNumber} to ${acsOutboundPhoneNumber}`);
-		console.log(`Connection ID: ${callConnectionId1}`);
-		console.log("=== END WORKFLOW INITIATION ===");
-    } catch (err) {
-        console.error('Error creating call:', err);
-    }
-	res.redirect('/');
-});
-
-app.get('/createCall2', async (req, res) => {
-    console.log('--------- createCall2 - Call 2 API Endpoint " -------------------');
-    try {
-		const callbackUri = new URL('/api/callbacks', callbackUriHost).toString();
-		const callee : PhoneNumberIdentifier = {
-			phoneNumber: acsOutboundPhoneNumber
-		};
-		const callInvite : CallInvite = {
-			targetParticipant: callee,
-			sourceCallIdNumber: {
-				phoneNumber: acsInboundPhoneNumber,
-			},
-		};
-		const options = {
-			callIntelligenceOptions: {
-				cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT
-			},
-			operationContext: 'CallTwo'
-		};
-		var createCallResult = await acsClient.createCall(callInvite, callbackUri, options);
-		callConnectionId2 = createCallResult.callConnectionProperties.callConnectionId;
-        // Track this as Call 2
-        lastWorkflowCallType = "CallTwo";
-		callerId2 = acsInboundPhoneNumber;
-		calleeId2 = acsOutboundPhoneNumber;
-
-        console.log('=== CALL TWO WORKFLOW INITIATED ===');
-        console.log(`Created call from ${acsInboundPhoneNumber} to ${acsOutboundPhoneNumber}`);
-        console.log(`Connection ID: ${callConnectionId2}`);
-        console.log(`This call should trigger MoveParticipantEvent (Scenario 2) which will redirect to ACS user ${acsTestIdentity2}`);
-        console.log('Operation Context: CallTwo');
-        console.log('=== END WORKFLOW INITIATION ===');
-    } catch (err) {
-        console.error('Error creating call:', err);
-    }
-	res.redirect('/');
-});
-
-app.get('/createCall3', async (req, res) => {
-    console.log('--------- createCall3 - Call 3 API Endpoint " -------------------');
-    try {
-		const callbackUri = new URL('/api/callbacks', callbackUriHost).toString();
-		const callee : PhoneNumberIdentifier = {
-			phoneNumber: acsOutboundPhoneNumber
-		};
-		const callInvite : CallInvite = {
-			targetParticipant: callee,
-			sourceCallIdNumber: {
-				phoneNumber: acsInboundPhoneNumber,
-			},
-		};
-		const options = {
-			callIntelligenceOptions: {
-				cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT
-			},
-			operationContext: 'CallThree'
-		};
-		var createCallResult = await acsClient.createCall(callInvite, callbackUri, options);
-		callConnectionId3 = createCallResult.callConnectionProperties.callConnectionId;
-        // Track this as Call 2
-        lastWorkflowCallType = "CallThree";
-		callerId3 = acsInboundPhoneNumber;
-		calleeId3 = acsOutboundPhoneNumber;
-
-        console.log('=== CALL THREE WORKFLOW INITIATED ===');
-        console.log(`Created call from ${acsInboundPhoneNumber} to ${acsOutboundPhoneNumber}`);
-        console.log(`Connection ID: ${callConnectionId3}`);
-        console.log(`This call should trigger MoveParticipantEvent (Scenario 3) which will redirect to ACS user ${acsTestIdentity3}`);
-        console.log('Operation Context: CallThree');
-        console.log('=== END WORKFLOW INITIATION ===');
-    } catch (err) {
-        console.error('Error creating call:', err);
-    }
-	res.redirect('/');
-});
-
-app.get('/moveParticipant2', async (req, res) => {
-    console.log('--------- MoveParticipant API End Point -------------------');
-
-    try {
-        const request = req.body;
-        console.log('=== MANUAL MOVE PARTICIPANT REQUESTED ===');
-        console.log(`Source Connection ID: ${callConnectionId2}`);
-        console.log(`Target Connection ID: ${callConnectionId1}`);
-        console.log(`Participant to Move: ${acsOutboundPhoneNumber}`);
-
-        // Get the target connection (where we want to move participants to)
-        const targetConnection = acsClient.getCallConnection(callConnectionId1);
-
-        // Get participants from source connection for reference (optional)
-        const sourceConnection = acsClient.getCallConnection(callConnectionId2);
-
-        // Create participant identifier based on the input
-        let participantToMove;
-        if (acsOutboundPhoneNumber.startsWith('+')) {
-            // Phone number
-            participantToMove = { phoneNumber: acsOutboundPhoneNumber };
-            console.log(`Moving phone number participant: ${acsOutboundPhoneNumber}`);
-        } else if (acsOutboundPhoneNumber.startsWith('8:acs:')) {
-            // ACS Communication User
-            participantToMove = { communicationUserId: acsOutboundPhoneNumber };
-            console.log(`Moving ACS user participant: ${acsOutboundPhoneNumber}`);
-        } else {
-            console.log("Invalid participant format. Use phone number (+1234567890) or ACS user ID (8:acs:...)");
-        }
-
-        // Prepare move participants options
-        const options : MoveParticipantsOptions = {
-            operationContext: "MoveParticipant2"
-        };
-
-        // Call the ACS SDK to move participants
-        await targetConnection.moveParticipants([participantToMove], callConnectionId2, options);
-		callConnectionId2 = "";
-		callerId2 = "";
-		calleeId2 = "";
-		calleeId1 = acsTestIdentity2;
-
-        // For demonstration, assume success
-        console.log('Move Participants operation completed successfully');
-        console.log(`Moved ${acsTestIdentity2} from ${callConnectionId2} to ${callConnectionId1}`);
-        console.log('=== MOVE PARTICIPANTS OPERATION COMPLETE ===');
-    } catch (err) {
-        console.error(`Error in manual move participant operation: ${err.message}`);
-    }
-	res.redirect('/');
-});
-
-app.get('/moveParticipant3', async (req, res) => {
-    console.log('--------- MoveParticipant API End Point -------------------');
-
-    try {
-        const request = req.body;
-        console.log('=== MANUAL MOVE PARTICIPANT REQUESTED ===');
-        console.log(`Source Connection ID: ${callConnectionId3}`);
-        console.log(`Target Connection ID: ${callConnectionId1}`);
-        console.log(`Participant to Move: ${acsOutboundPhoneNumber}`);
-
-        // Get the target connection (where we want to move participants to)
-        const targetConnection = acsClient.getCallConnection(callConnectionId1);
-
-        // Get participants from source connection for reference (optional)
-        const sourceConnection = acsClient.getCallConnection(callConnectionId3);
-
-        // Create participant identifier based on the input
-        let participantToMove;
-        if (acsOutboundPhoneNumber.startsWith('+')) {
-            // Phone number
-            participantToMove = { phoneNumber: acsOutboundPhoneNumber };
-            console.log(`Moving phone number participant: ${acsOutboundPhoneNumber}`);
-        } else if (acsOutboundPhoneNumber.startsWith('8:acs:')) {
-            // ACS Communication User
-            participantToMove = { communicationUserId: acsOutboundPhoneNumber };
-            console.log(`Moving ACS user participant: ${acsOutboundPhoneNumber}`);
-        } else {
-            console.log("Invalid participant format. Use phone number (+1234567890) or ACS user ID (8:acs:...)");
-        }
-
-        // Prepare move participants options
-        const options : MoveParticipantsOptions = {
-            operationContext: "MoveParticipant3"
-        };
-
-        // Call the ACS SDK to move participants
-        await targetConnection.moveParticipants([participantToMove], callConnectionId3, options);
-		callConnectionId3 = "";
-		callerId3 = "";
-		calleeId3 = "";
-		calleeId1 = acsTestIdentity3;
-
-        // For demonstration, assume success
-        console.log('Move Participants operation completed successfully');
-        console.log(`Moved ${acsTestIdentity3} from ${callConnectionId3} to ${callConnectionId1}`);
-        console.log('=== MOVE PARTICIPANTS OPERATION COMPLETE ===');
-    } catch (err) {
-        console.error(`Error in manual move participant operation: ${err.message}`);
-    }
-	res.redirect('/');
+			if (participants.length === 0) {
+				console.log(`No participants found in call ${lobbyCallConnectionId}`);
+			} else if (participants.length === 1) {
+				participantId1 = participants[0].identifier.toString();
+			} else if (participants.length === 2) {
+				participantId1 = participants[0].identifier.toString();
+				participantId2 = participants[1].identifier.toString();
+			} else if (participants.length === 3) {
+				participantId1 = participants[0].identifier.toString();
+				participantId2 = participants[1].identifier.toString();
+				participantId3 = participants[2].identifier.toString();
+			}
+		} catch (ex) {
+			console.error(`Error getting participants for call ${lobbyCallConnectionId}: ${ex.message}`);
+		}
+	}
+	res.json({ participantId1, participantId2, participantId3 });
 });
 
 app.get('/terminateCalls', async (req, res) => {
-	console.log(`calls 1: ${callConnectionId1}, 2: ${callConnectionId2}, 3: ${callConnectionId3}`);
-	if (callConnectionId1) {
+	console.log(`calls 1: ${lobbyCallConnectionId}, 2: ${targetCallConnectionId}`);
+	if (lobbyCallConnectionId) {
 		try {
-			console.log(`Terminating Call 1 with ID: ${callConnectionId1}`);
-			const callConnection1 = acsClient.getCallConnection(callConnectionId1);
-			await callConnection1.hangUp(true);
+			console.log(`Terminating Lobby Call with ID: ${lobbyCallConnectionId}`);
+			const lobbyConnection = acsClient.getCallConnection(lobbyCallConnectionId);
+			await lobbyConnection.hangUp(true);
 		} catch (error) {
-			console.error(`Error terminating Call 1: ${error.message}`);
+			console.error(`Error terminating Lobby Call: ${error.message}`);
 		}
 	}
-	if (callConnectionId2) {
+	if (targetCallConnectionId) {
 		try {
-			console.log(`Terminating Call 2 with ID: ${callConnectionId2}`);
-			const callConnection2 = acsClient.getCallConnection(callConnectionId2);
-			await callConnection2.hangUp(true);
+			console.log(`Terminating Target Call with ID: ${targetCallConnectionId}`);
+			const targetConnection = acsClient.getCallConnection(targetCallConnectionId);
+			await targetConnection.hangUp(true);
 		} catch (error) {
-			console.error(`Error terminating Call 2: ${error.message}`);
-		}
-	}
-	if (callConnectionId3) {
-		try {
-			console.log(`Terminating Call 3 with ID: ${callConnectionId3}`);
-			const callConnection3 = acsClient.getCallConnection(callConnectionId3);
-			await callConnection3.hangUp(true);
-		} catch (error) {
-			console.error(`Error terminating Call 3: ${error.message}`);
+			console.error(`Error terminating Target Call: ${error.message}`);
 		}
 	}
 	console.log("Calls hung up successfully.");
-	callConnectionId1 = "";
-	callConnectionId2 = "";
-	callConnectionId3 = "";
-	callerId1 = "";
-	callerId2 = "";
-	callerId3 = "";
-	calleeId1 = "";
-	calleeId2 = "";
-	calleeId3 = "";
+	lobbyCallConnectionId = "";
+	targetCallConnectionId = "";
+	lobbyCallerId = "";
 	res.redirect('/');
 });
 
-app.post('/api/moveParticipantEvent', async (req, res) => {
-    console.log('--------- /api/moveParticipantEvent -------------------');
+app.post('/api/lobbyCallSupportEventHandler', async (req, res) => {
+    console.log('--------- /api/lobbyCallSupportEventHandler -------------------');
 	const event = req.body[0];
 	const eventData = event.data;
 	if (event.eventType === "Microsoft.EventGrid.SubscriptionValidationEvent") {
@@ -408,59 +237,34 @@ app.post('/api/moveParticipantEvent', async (req, res) => {
 		console.log(`From Caller Id: ${fromCallerId}`);
 		console.log(`To Caller Id  : ${toCallerId}`);
 
-		// Scenario 1: User calls from their phone number to ACS inbound number
-		if (fromCallerId.includes(userPhoneNumber)) {
-			console.log('=== SCENARIO 1: USER INCOMING CALL ===');
-
-			const callbackUri = new URL('/api/callbacks', callbackUriHost).toString();
-			const options : AnswerCallOptions = {
-				operationContext: "CallOne"
+		// Lobby Call: Answer
+		if (toCallerId.includes(acsGeneratedId)) {
+			const callbackUri = `${callbackUriHost}/api/callbacks`;
+			const options = {
+				operationContext: 'LobbyCall',
+				callIntelligenceOptions: {
+					cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT
+				}
 			};
 
-			//console.log(`Incoming call context: ${eventData.incomingCallContext}`);
-			var answerCallResult = await acsClient.answerCall(eventData.incomingCallContext, callbackUri, options);
-			callConnectionId1 = answerCallResult.callConnectionProperties.callConnectionId;
+			const answerCallResult = await acsClient.answerCall(
+				eventData.incomingCallContext,
+				callbackUri,
+				options
+			);
+			lobbyCallConnectionId = answerCallResult.callConnectionProperties.callConnectionId;
 
-			console.log(`User Call Answered - CallConnectionId: ${callConnectionId1}`);
-			console.log(`Correlation Id: ${eventData.correlationId}`);
-			console.log('Operation Context: CallOne');
-			console.log('=== END SCENARIO 1 ===');
-		}
-		// Scenario 2: ACS inbound number calls ACS outbound number (workflow triggered)
-		else if (fromCallerId.includes(acsInboundPhoneNumber)) {
-			console.log('=== SCENARIO 2: WORKFLOW CALL TO BE REDIRECTED ===');
-			console.log(`Last Workflow Call Type: ${lastWorkflowCallType}`);
-
-			// Check which type of workflow call this is and redirect accordingly
-			let redirectTarget;
-			if (lastWorkflowCallType === 'CallTwo') {
-				// Redirect the call to ACS User Identity 2
-				redirectTarget = acsTestIdentity2;
-				const callee : CommunicationUserIdentifier = {
-					communicationUserId: redirectTarget
-				};
-				const callInvite : CallInvite = {
-					targetParticipant: callee
-				};
-				//console.log(`Incoming call context: ${eventData.incomingCallContext}`);
-				var redirectCallResult = await acsClient.redirectCall(eventData.incomingCallContext, callInvite);
-				console.log('PROCESSING CALL TWO - Redirecting to ACS User Identity 2');
-			} else if (lastWorkflowCallType === 'CallThree') {
-				// Redirect the call to ACS User Identity 3
-				redirectTarget = acsTestIdentity3;
-				const callee : CommunicationUserIdentifier = {
-					communicationUserId: redirectTarget
-				};
-				const callInvite : CallInvite = {
-					targetParticipant: callee
-				};
-				//console.log(`Incoming call context: ${eventData.incomingCallContext}`);
-				var redirectCallResult = await acsClient.redirectCall(eventData.incomingCallContext, callInvite);
-				console.log('PROCESSING CALL THREE - Redirecting to ACS User Identity 3');
-			}
-			console.log('=== END SCENARIO 2 ===');
+			console.log(
+				`User Call(Inbound) Answered by Call Automation.`,
+				`From Caller Raw Id: ${fromCallerId}`,
+				`To Caller Raw Id:   ${toCallerId}`,
+				`Lobby Call Connection Id: ${lobbyCallConnectionId}`,
+				`Correlation Id:           ${eventData.correlationId}`,
+				`Lobby Call answered successfully.`
+			);
 		}
 	}
+
     res.status(200).send();
 });
 
@@ -471,43 +275,64 @@ app.post('/api/callbacks', async (req, res) => {
 	// For demonstration, log the event type and IDs
 	console.log(`Received call event: ${event.type}`);
 	console.log(`Correlation id:-> ${eventData.correlationId}`)
+
 	if (event.type === "Microsoft.Communication.CallConnected") {
 		console.log('\n--------- CallConnected Event Block -------------------');
-		switch (eventData.operationContext) {
-			case 'CallOne':
-				//callConnectionId1 = callConnectionId;
-				console.log('=== CALL ONE CONNECTED ===');
-				console.log('User call connected');
-				console.log('=== END CALL ONE CONNECTED ===');
-				break;
-			case 'CallTwo':
-				//callConnectionId2 = callConnectionId;
-				calleeId2 = acsTestIdentity2;
-				console.log('=== CALL TWO CONNECTED ===');
-				console.log('User call connected');
-				console.log('=== END CALL TWO CONNECTED ===');
-				break;
-			case 'CallThree':
-				//callConnectionId3 = callConnectionId;
-				calleeId3 = acsTestIdentity3;
-				console.log('=== CALL THREE CONNECTED ===');
-				console.log('User call connected');
-				console.log('=== END CALL THREE CONNECTED ===');
-				break;
-		}
-	} else if (event.type === 'Microsoft.Communication.CallDisconnected') {
-		console.log(`Call disconnected: ${eventData.callConnectionId}`);
-	} else {
-		// Log other events but don't process them for Move Participants scenario
-		console.log(`Received event: ${event.type} - No action needed for Move Participants scenario`);
-	}
-    res.status(200).send();
-});
 
-app.get('/call-data', (req, res) => {
-	console.log("Call Data Endpoint Hit");
-	console.log(`call 1: ${callConnectionId1}, call 2: ${callConnectionId2}, call 3: ${callConnectionId3}`);
-	res.json({ callConnectionId1, callConnectionId2, callConnectionId3, callerId1, callerId2, callerId3, calleeId1, calleeId2, calleeId3 });
+		if ((eventData.operationContext || '') === 'LobbyCall') {
+			console.log('~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~');
+			console.log(`Received call event  : ${event.type}`);
+			console.log(`Lobby Call Connection Id: ${eventData.callConnectionId}`);
+			console.log(`Correlation Id:           ${eventData.correlationId}`);
+
+			// Record lobby caller id and connection id
+			const lobbyCallConnection = acsClient.getCallConnection(eventData.callConnectionId);
+			const callConnectionProperties = await lobbyCallConnection.getCallConnectionProperties();
+			lobbyCallerId = getIdentifierRawId(callConnectionProperties.source);
+			lobbyCallConnectionId = callConnectionProperties.callConnectionId;
+			console.log(`Lobby Caller Id:     ${lobbyCallerId}`);
+			console.log(`Lobby Connection Id: ${lobbyCallConnectionId}`);
+
+			// Play lobby waiting message
+			const callMedia = acsClient.getCallConnection(eventData.callConnectionId).getCallMedia();
+			const textSource: TextSource = {
+				text: "You are currently in a lobby call, we will notify the admin that you are waiting.",
+				voiceName: "en-US-NancyNeural",
+				kind: "textSource",
+			};
+			const playTo: CommunicationUserIdentifier[] = [{ communicationUserId: lobbyCallerId }];
+			const playOptions: PlayOptions = {
+				operationContext: "playToContext",
+			};
+			await callMedia.play([textSource], playTo, playOptions);
+		}
+	} else if (event.type === "Microsoft.Communication.PlayCompleted") {
+		console.log('~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~');
+		console.log(`Received event: ${event.type}`);
+
+		// // Notify Target Call user via websocket
+		// if (!webSocket || webSocket.readyState !== 1) { // 1 = OPEN
+		// 	console.log("ERROR: Web socket is not available.");
+		// 	return res.status(404).send("Message sent");
+		// }
+
+		const confirmMessageToTargetCall = "A user is waiting in lobby, do you want to add the user to your call?";
+		// // Notify Client
+		// webSocket.send(confirmMessageToTargetCall);
+		console.log(`Target Call notified with message: ${confirmMessageToTargetCall}`);
+		return res.status(200).send(`Target Call notified with message: ${confirmMessageToTargetCall}`);
+	} else if (event.type === "Microsoft.Communication.MoveParticipantsSucceeded") {
+		console.log('~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~');
+		console.log(`Received event: ${event.type}`);
+		console.log(`Call Connection Id: ${eventData.callConnectionId}`);
+		console.log(`Correlation Id:      ${eventData.correlationId}`);
+	} else if (event.type === "Microsoft.Communication.CallDisconnected") {
+		console.log('~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~');
+		console.log(`Received event: ${event.type}`);
+		console.log(`Call Connection Id: ${eventData.callConnectionId}`);
+	}
+
+    res.status(200).send();
 });
 
 // GET endpoint to serve the webpage
