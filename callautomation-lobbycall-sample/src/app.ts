@@ -8,6 +8,8 @@ import {
 	PlayOptions,
 	MoveParticipantsOptions
 } from "@azure/communication-call-automation";
+import * as http from 'http';
+import * as WebSocket from 'ws';
 
 config();
 
@@ -25,7 +27,7 @@ let lobbyCallerId: string;
 const callbackUriHost = process.env.CALLBACK_URI || "";
 const connectionString = process.env.CONNECTION_STRING || ""
 const endpoint = process.env.PMA_ENDPOINT || ""
-// let webSocket = null;
+let webSocket = null;
 
 async function createAcsClient() {
 	lobbyCallConnectionId = "";
@@ -37,84 +39,82 @@ async function createAcsClient() {
 	console.log("Initialized ACS Client.");
 }
 
-const http = require('http');
-// const WebSocket = require('ws');
-// const server = http.createServer(app);
+const server = http.createServer(app);
 
 // WebSocket server setup
-// const wss = new WebSocket.Server({ noServer: true });
+const wss = new WebSocket.Server({ noServer: true });
 
-// server.on('upgrade', (request, socket, head) => {
-//     // Only accept connections to the correct path
-//     const url = request.url || '';
-//     if (url === `/ws/${process.env.SOCKET_TOKEN}`) {
-//         wss.handleUpgrade(request, socket, head, function done(ws) {
-//             wss.emit('connection', ws, request);
-//         });
-//     } else {
-//         socket.destroy();
-//     }
-// });
+server.on('upgrade', (request, socket, head) => {
+    // Only accept connections to the correct path
+    const url = request.url || '';
+    if (url === `/ws/${process.env.SOCKET_TOKEN}`) {
+        wss.handleUpgrade(request, socket, head, function done(ws) {
+            wss.emit('connection', ws, request);
+        });
+    } else {
+        socket.destroy();
+    }
+});
 
-// wss.on('connection', (ws) => {
-//     webSocket = ws;
-//     console.log('Received WEB SOCKET request.');
+wss.on('connection', (ws) => {
+    webSocket = ws;
+    console.log('Received WEB SOCKET request.');
 
-//     ws.on('message', async (message) => {
-//         const jsResponse = message.toString();
-//         console.log(`Received from JS: ${jsResponse}`);
+    ws.on('message', async (message) => {
+        const jsResponse = message.toString();
+        console.log(`Received from JS: ${jsResponse}`);
 
-//         // Move participant to target call if response is "yes"
-//         if (jsResponse.trim().toLowerCase() === 'yes') {
-//             console.log('TODO: Move Participant');
-//             try {
-//                 console.log(`
-// 					~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~
-// 					Move Participant operation started..
-// 					Source Caller Id:     ${lobbyCallerId}
-// 					Source Connection Id: ${lobbyCallConnectionId}
-// 					Target Connection Id: ${targetCallConnectionId}
-// 					`);
+        // Move participant to target call if response is "yes"
+        if (jsResponse.trim().toLowerCase() === 'yes') {
+            console.log('TODO: Move Participant');
+            try {
+                console.log(`
+					~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~
+					Move Participant operation started..
+					Source Caller Id:     ${lobbyCallerId}
+					Source Connection Id: ${lobbyCallConnectionId}
+					Target Connection Id: ${targetCallConnectionId}
+					`);
 
-//                 // Get the target connection
-//                 const targetConnection = acsClient.getCallConnection(targetCallConnectionId);
+                // Get the target connection
+                const targetConnection = acsClient.getCallConnection(targetCallConnectionId);
 
-//                 // Get participants from source connection for reference
-//                 // const sourceConnection = client.getCallConnection(lobbyConnectionId);
+                // Get participants from source connection for reference
+                // const sourceConnection = client.getCallConnection(lobbyConnectionId);
 
-//                 // Create participant identifier based on the input
-// 				let participantToMove;
-// 				if (lobbyCallerId.startsWith('+')) {
-// 					// Phone number
-// 					participantToMove = { phoneNumber: lobbyCallerId };
-// 					console.log(`Moving phone number participant: ${lobbyCallerId}`);
-// 				} else if (lobbyCallerId.startsWith('8:acs:')) {
-// 					// ACS Communication User
-// 					participantToMove = { communicationUserId: lobbyCallerId };
-// 					console.log(`Moving ACS user participant: ${lobbyCallerId}`);
-// 				} else {
-// 					console.log("Invalid participant format. Use phone number (+1234567890) or ACS user ID (8:acs:...)");
-// 				}
+                // Create participant identifier based on the input
+				let participantToMove;
+				if (lobbyCallerId.startsWith('+')) {
+					// Phone number
+					participantToMove = { phoneNumber: lobbyCallerId };
+					console.log(`Moving phone number participant: ${lobbyCallerId}`);
+				} else if (lobbyCallerId.startsWith('8:acs:')) {
+					// ACS Communication User
+					participantToMove = { communicationUserId: lobbyCallerId };
+					console.log(`Moving ACS user participant: ${lobbyCallerId}`);
+				} else {
+					console.log("Invalid participant format. Use phone number (+1234567890) or ACS user ID (8:acs:...)");
+				}
 
-// 				// Prepare move participants options
-// 				const options : MoveParticipantsOptions = {
-// 					operationContext: "MoveParticipant2"
-// 				};
+				// Prepare move participants options
+				const options : MoveParticipantsOptions = {
+					operationContext: "MoveParticipant2"
+				};
 
-// 				// Call the ACS SDK to move participants
-// 				await targetConnection.moveParticipants([participantToMove], lobbyCallConnectionId, options);
+				// Call the ACS SDK to move participants
+				await targetConnection.moveParticipants([participantToMove], lobbyCallConnectionId, options);
 
-// 				console.log('Move Participants operation completed successfully.');
-//             } catch (ex) {
-//                 console.log(`Error in manual move participants operation: ${ex.message}`);
-//             }
-//         }
-//     });
+				console.log('Move Participants operation completed successfully.');
+            } catch (ex) {
+                console.log(`Error in manual move participants operation: ${ex.message}`);
+            }
+        }
+    });
 
-//     ws.on('close', () => {
-//         webSocket = null;
-//     });
-// });
+    ws.on('close', () => {
+        webSocket = null;
+    });
+});
 
 app.get('/targetCallToAcsUser', async (req, res) => {
     const acsTarget = req.query.acsTarget as string; // expects ?acsTarget=<user id>
@@ -217,8 +217,8 @@ app.get('/terminateCalls', async (req, res) => {
 	res.redirect('/');
 });
 
-app.post('/api/lobbyCallSupportEventHandler', async (req, res) => {
-    console.log('--------- /api/lobbyCallSupportEventHandler -------------------');
+app.post('/api/lobbyCallEventHandler', async (req, res) => {
+    console.log('--------- /api/lobbyCallEventHandler -------------------');
 	const event = req.body[0];
 	const eventData = event.data;
 	if (event.eventType === "Microsoft.EventGrid.SubscriptionValidationEvent") {
@@ -310,15 +310,15 @@ app.post('/api/callbacks', async (req, res) => {
 		console.log('~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~');
 		console.log(`Received event: ${event.type}`);
 
-		// // Notify Target Call user via websocket
-		// if (!webSocket || webSocket.readyState !== 1) { // 1 = OPEN
-		// 	console.log("ERROR: Web socket is not available.");
-		// 	return res.status(404).send("Message sent");
-		// }
+		// Notify Target Call user via websocket
+		if (!webSocket || webSocket.readyState !== 1) { // 1 = OPEN
+			console.log("ERROR: Web socket is not available.");
+			return res.status(404).send("Message sent");
+		}
 
 		const confirmMessageToTargetCall = "A user is waiting in lobby, do you want to add the user to your call?";
-		// // Notify Client
-		// webSocket.send(confirmMessageToTargetCall);
+		// Notify Client
+		webSocket.send(confirmMessageToTargetCall);
 		console.log(`Target Call notified with message: ${confirmMessageToTargetCall}`);
 		return res.status(200).send(`Target Call notified with message: ${confirmMessageToTargetCall}`);
 	} else if (event.type === "Microsoft.Communication.MoveParticipantsSucceeded") {
