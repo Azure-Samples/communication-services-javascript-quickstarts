@@ -1,7 +1,7 @@
 
 |page_type|languages|products
 |---|---|---|
-|sample|<table><tr><td>Typescript</tr></td></table>|<table><tr><td>azure</td><td>azure-communication-services</td></tr></table>|
+|sample|<table><tr><td>Typescript</td></tr></table>|<table><tr><td>azure</td><td>azure-communication-services</td></tr></table>|
 
 # Lobby Call Sample using Call Automation SDK
 

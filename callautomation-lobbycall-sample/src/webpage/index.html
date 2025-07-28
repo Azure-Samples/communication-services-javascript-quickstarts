@@ -37,7 +37,7 @@
           </p>
           <p>
             <div style="font-weight: bold;">STEP 2. Configure a Lobby Call</div>
-            <div>Make a Lobby call from Web Client App to ACS Generated ACS Identity manually. Once done, lobby call will be in a waiting state.</div>
+            <div>Make a Lobby call from Web Client App to ACS Generated Identity manually. Once done, lobby call will be in a waiting state.</div>
           </p>
           <p>
             <div style="font-weight: bold;">STEP 3. Create User Call</div>
@@ -86,7 +86,7 @@
       }
 
       // Call the API endpoint with the query parameter
-      fetch(`/TargetCallToAcsUser(Create)?acsTarget=${encodeURIComponent(acsTarget)}`)
+      fetch(`/targetCallToAcsUser?acsTarget=${encodeURIComponent(acsTarget)}`)
         .then(response => response.text())
         .then(data => {
           console.log('API Response:', data);
