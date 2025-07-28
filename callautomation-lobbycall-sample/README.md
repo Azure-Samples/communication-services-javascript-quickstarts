@@ -3,7 +3,7 @@
 |---|---|---|
 |sample|<table><tr><td>Typescript</tr></td></table>|<table><tr><td>azure</td><td>azure-communication-services</td></tr></table>|
 
-# Lobbay Call Sample using Call Automation SDK
+# Lobby Call Sample using Call Automation SDK
 
 In this quickstart sample, we cover how you can use the Call Automation SDK to perform lobby calls using Azure Communication Services (ACS) calls. This involves creating and managing several outgoing calls simultaneously and dynamically moving participants between these active calls.
 

@@ -160,7 +160,7 @@ app.get('/targetCallToAcsUser', async (req, res) => {
     }
 });
 
-app.get('/call-data', async (req, res) => {
+app.get('/getParticipants', async (req, res) => {
 	let participantId1 = "";
 	let participantId2 = "";
 	let participantId3 = "";
