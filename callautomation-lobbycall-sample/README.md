@@ -28,7 +28,7 @@ In this quickstart sample, we cover how you can use the Call Automation SDK to p
 
 ```bash
 devtunnel create --allow-anonymous
-devtunnel port create -p 8080
+devtunnel port create -p 8443
 devtunnel host
 ```
 
@@ -36,7 +36,7 @@ devtunnel host
 
 Create/Open the `.env` file to configure the following settings
 
-1. `PORT`: Assign constant 8080
+1. `PORT`: Assign constant 8443
 2. `CONNECTION_STRING`: Azure Communication Service resource's connection string.
 3. `COGNITIVE_SERVICES_ENDPOINT` : Cognitive service endpoint.
 4. `CALLBACK_URI`: Base url of the app. (For local development replace the dev tunnel url)
@@ -47,5 +47,5 @@ Create/Open the `.env` file to configure the following settings
 ### Run app locally
 
 1. Open a new Powershell window, cd into the `callautomation-lobbycall-sample` folder and run `npm run dev`
-2. Browser should pop up with the below page. If not navigate it to `http://localhost:8080/`
+2. Browser should pop up with the below page. If not navigate it to `http://localhost:8443/`
 3. Follow the steps.
