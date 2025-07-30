@@ -22,7 +22,11 @@ In this sample, we cover how you can use Call Automation SDK to support Lobby Ca
 
 1. Open the web client app and sign in with your Azure Communication Services identity.
 2. Clone the sample repository by running `git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git`.
-3. Run the application and observe logs at console, keep this application running.
+3. Navigate to the `LobbyCallSupport-Client` folder in the cloned repository.
+    ```bash
+    cd communication-services-javascript-quickstarts/LobbyCallSupport-Client
+    ```
+4. Run the application and observe logs at console, keep this application running.
 
     ```
     npx webpack serve --config webpack.config.js
