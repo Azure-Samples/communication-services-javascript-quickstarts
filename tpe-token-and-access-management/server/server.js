@@ -8,14 +8,24 @@ const cors = require('cors');
 const path = require('path');
 const config = require('./config');
 const TeamsExtensionAccessManager = require('./teams-extension-access-manager');
+const helmet = require('helmet'); // Added Helmet for security headers
+const rateLimit = require('express-rate-limit'); // Added rate limiting
 
 const app = express();
 const PORT = config.server.port;
 
 // Middleware
+app.use(helmet()); // Use Helmet to secure the app by setting various HTTP headers
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'dist')));
+
+// Rate limiting middleware
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100 // Limit each IP to 100 requests per windowMs
+});
+app.use(limiter); // Apply rate limiting to all requests
 
 // Initialize manager
 const accessManager = new TeamsExtensionAccessManager();
