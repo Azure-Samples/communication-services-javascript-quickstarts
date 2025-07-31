@@ -13,8 +13,6 @@ const callButton = document.getElementById("call-button");
 const hangUpButton = document.getElementById("hang-up-button");
 const acceptCallButton = document.getElementById('accept-call-button');
 let callStarted = false;
-let targetCallId = '';
-let token = "<acsGeneratedUserIdentityToken>";
 
 submitToken.addEventListener("click", async () => {
   const callClient = new CallClient();
@@ -79,7 +77,9 @@ acceptCallButton.onclick = async () => {
 }
 
 // Web socket implementation for moving participants from the lobby to the call
-let url = "<socket-url>"+ token;
+// Set this to false if you don't have a WebSocket server running
+const enableWebSocket = true;
+let url = "ws://m37cp1sk-7006.inc1.devtunnels.ms/ws";
 let socket = null;
 let isConnecting = false;
 let reconnectAttempts = 0;
@@ -91,11 +91,19 @@ function connectWebSocket() {
     return;
   }
   
+  console.log(`🔄 Attempting to connect to WebSocket: ${url}`);
   isConnecting = true;
-  socket = new WebSocket(url);
+  
+  try {
+    socket = new WebSocket(url);
+  } catch (error) {
+    console.error("❌ Failed to create WebSocket connection:", error);
+    isConnecting = false;
+    return;
+  }
 
   socket.onopen = () => {
-    console.log("✅ WebSocket connected");
+    console.log("✅ WebSocket connected successfully");
     isConnecting = false;
     reconnectAttempts = 0;
   };
@@ -126,21 +134,32 @@ function connectWebSocket() {
   };
 
   socket.onerror = (err) => {
-    console.error("WebSocket error", err);
+    console.error("❌ WebSocket connection error:", err);
+    console.log("💡 Make sure the WebSocket server is running at:", url);
     isConnecting = false;
   };
 
   socket.onclose = (event) => {
-    console.log("❌ WebSocket closed", event.code, event.reason);
+    console.log(`❌ WebSocket closed - Code: ${event.code}, Reason: ${event.reason || 'No reason provided'}`);
     isConnecting = false;
+    
+    // Provide more detailed information about the close reason
+    if (event.code === 1006) {
+      console.log("💡 Connection was closed abnormally - server might be unavailable");
+    } else if (event.code !== 1000) {
+      console.log("💡 Connection closed unexpectedly");
+    }
     
     // Only attempt reconnection if it wasn't a clean close (code 1000)
     if (event.code !== 1000 && reconnectAttempts < maxReconnectAttempts) {
       reconnectAttempts++;
-      console.log(`🔄 Attempting to reconnect... (${reconnectAttempts}/${maxReconnectAttempts})`);
+      console.log(`🔄 Attempting to reconnect... (${reconnectAttempts}/${maxReconnectAttempts}) in ${reconnectDelay/1000} seconds`);
       setTimeout(() => {
         connectWebSocket();
       }, reconnectDelay);
+    } else if (reconnectAttempts >= maxReconnectAttempts) {
+      console.log("❌ Max reconnection attempts reached. WebSocket functionality will be disabled.");
+      console.log("💡 To enable WebSocket features, ensure your server is running and refresh the page.");
     }
   };
 }
@@ -153,10 +172,28 @@ function closeWebSocket() {
   }
 }
 
-// Initialize WebSocket connection
-connectWebSocket();
+// Initialize WebSocket connection only if enabled
+if (enableWebSocket) {
+  connectWebSocket();
+} else {
+  console.log("💡 WebSocket is disabled. To enable lobby features, set enableWebSocket = true and ensure your server is running.");
+}
 
 // Handle page unload to properly close WebSocket
 window.addEventListener('beforeunload', () => {
   closeWebSocket();
+});
+
+// Handle visibility change to manage connection
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    // Page is hidden, optionally close connection
+    // console.log("📱 Page hidden");
+  } else {
+    // Page is visible, ensure connection is active
+    // console.log("📱 Page visible");
+    if (!socket || socket.readyState === WebSocket.CLOSED) {
+      // connectWebSocket();
+    }
+  }
 });
