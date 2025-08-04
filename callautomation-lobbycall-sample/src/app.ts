@@ -19,22 +19,24 @@ app.use(express.static('src/webpage'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+const connectionString = process.env.CONNECTION_STRING || ""
+const callbackUriHost = process.env.CALLBACK_URI || "";
+const acsGeneratedIdForLobbyCallReceiver = process.env.ACS_GENERATED_ID_FOR_LOBBY_CALL_RECEIVER || "";
+const acsGeneratedIdForTargetCallReceiver = process.env.ACS_GENERATED_ID_FOR_TARGET_CALL_RECEIVER || "";
+const acsGeneratedIdForTargetCallSender = process.env.ACS_GENERATED_ID_FOR_TARGET_CALL_SENDER || "";
+const textToPlayToLobbyUser = "You are currently in a lobby call, we will notify the admin that you are waiting.";
+const confirmMessageToTargetCall = "A user is waiting in lobby, do you want to add the lobby user to your call?";
+
 let lobbyCallConnectionId: string;
 let targetCallConnectionId: string;
-let acsGeneratedId: string;
 let acsClient: CallAutomationClient;
 let lobbyCallerId: string;
-const callbackUriHost = process.env.CALLBACK_URI || "";
-const connectionString = process.env.CONNECTION_STRING || ""
-const endpoint = process.env.PMA_ENDPOINT || ""
 let webSocket = null;
 
 async function createAcsClient() {
 	lobbyCallConnectionId = "";
 	targetCallConnectionId = "";
-	acsGeneratedId = process.env.ACS_GENERATED_ID || "";
 	lobbyCallerId = "";
-	// acsClient = new CallAutomationClient(endpoint, connectionString);
 	acsClient = new CallAutomationClient(connectionString);
 	console.log("Initialized ACS Client.");
 }
@@ -45,9 +47,9 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ noServer: true });
 
 server.on('upgrade', (request, socket, head) => {
-    // Only accept connections to the correct path
+    // Accept connections to the /ws path without token validation
     const url = request.url || '';
-    if (url === `/ws/${process.env.SOCKET_TOKEN}`) {
+    if (url === '/ws') {
         wss.handleUpgrade(request, socket, head, function done(ws) {
             wss.emit('connection', ws, request);
         });
@@ -66,7 +68,7 @@ wss.on('connection', (ws) => {
 
         // Move participant to target call if response is "yes"
         if (jsResponse.trim().toLowerCase() === 'yes') {
-            console.log('TODO: Move Participant');
+            console.log('Move Participant');
             try {
                 console.log(`
 					~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~
@@ -164,17 +166,17 @@ app.get('/getParticipants', async (req, res) => {
 	let participantId1 = "";
 	let participantId2 = "";
 	let participantId3 = "";
-	if (targetCallConnectionId) {
-		console.log(`\n~~~~~~~~~~~~ /GetParticipants/${targetCallConnectionId} ~~~~~~~~~~~~\n`);
+	if (lobbyCallConnectionId) {
+		console.log(`\n~~~~~~~~~~~~ /GetParticipants/${lobbyCallConnectionId} ~~~~~~~~~~~~\n`);
 		try {
-			const callConnection = acsClient.getCallConnection(targetCallConnectionId);
+			const callConnection = acsClient.getCallConnection(lobbyCallConnectionId);
 			const participantsResponse = await callConnection.listParticipants();
 			const participants = participantsResponse.values;
 
 			// alert(`JSON.stringify(participants)`);
 			console.log(`Participants: ${JSON.stringify(participants)}`);
 			if (participants.length === 0) {
-				console.log(`No participants found in call ${targetCallConnectionId}`);
+				console.log(`No participants found in call ${lobbyCallConnectionId}`);
 			} else if (participants.length >= 1) {
 				const id1 = participants[0].identifier;
 				if (isCommunicationUserIdentifier(id1)) {
@@ -212,7 +214,7 @@ app.get('/getParticipants', async (req, res) => {
 				}
 			}
 		} catch (ex) {
-			console.error(`Error getting participants for call ${targetCallConnectionId}: ${ex.message}`);
+			console.error(`Error getting participants for call ${lobbyCallConnectionId}: ${ex.message}`);
 		}
 	}
 	res.json({ participantId1, participantId2, participantId3 });
@@ -266,7 +268,7 @@ app.post('/api/lobbyCallEventHandler', async (req, res) => {
 		console.log(`To Caller Id  : ${toCallerId}`);
 
 		// Lobby Call: Answer
-		if (toCallerId.includes(acsGeneratedId)) {
+		if (toCallerId.includes(acsGeneratedIdForLobbyCallReceiver)) {
 			const callbackUri = `${callbackUriHost}/api/callbacks`;
 			const options = {
 				operationContext: 'LobbyCall',
@@ -291,6 +293,73 @@ app.post('/api/lobbyCallEventHandler', async (req, res) => {
 				`Lobby Call answered successfully.`
 			);
 		}
+	}
+
+    res.status(200).send();
+});
+
+app.post('/api/callbacks', async (req, res) => {
+    console.log('--------- /api/callbacks -------------------');
+	const event = req.body[0];
+	const eventData = event.data;
+	// For demonstration, log the event type and IDs
+	console.log(`Received call event: ${event.type}`);
+	console.log(`Correlation id:-> ${eventData.correlationId}`)
+
+	if (event.type === "Microsoft.Communication.CallConnected") {
+		console.log('\n--------- CallConnected Event Block -------------------');
+
+		if ((eventData.operationContext || '') === 'LobbyCall') {
+			console.log('~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~');
+			console.log(`Received call event  : ${event.type}`);
+			console.log(`Lobby Call Connection Id: ${eventData.callConnectionId}`);
+			console.log(`Correlation Id:           ${eventData.correlationId}`);
+
+			// Record lobby caller id and connection id
+			const lobbyCallConnection = acsClient.getCallConnection(eventData.callConnectionId);
+			const callConnectionProperties = await lobbyCallConnection.getCallConnectionProperties();
+			lobbyCallerId = getIdentifierRawId(callConnectionProperties.source);
+			lobbyCallConnectionId = callConnectionProperties.callConnectionId;
+			console.log(`Lobby Caller Id:     ${lobbyCallerId}`);
+			console.log(`Lobby Connection Id: ${lobbyCallConnectionId}`);
+
+			// Play lobby waiting message
+			const callMedia = acsClient.getCallConnection(eventData.callConnectionId).getCallMedia();
+			const textSource: TextSource = {
+				text: "You are currently in a lobby call, we will notify the admin that you are waiting.",
+				voiceName: "en-US-NancyNeural",
+				kind: "textSource",
+			};
+			const playTo: CommunicationUserIdentifier[] = [{ communicationUserId: lobbyCallerId }];
+			const playOptions: PlayOptions = {
+				operationContext: "playToContext",
+			};
+			await callMedia.play([textSource], playTo, playOptions);
+		}
+	} else if (event.type === "Microsoft.Communication.PlayCompleted") {
+		console.log('~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~');
+		console.log(`Received event: ${event.type}`);
+
+		// Notify Target Call user via websocket
+		if (!webSocket || webSocket.readyState !== 1) { // 1 = OPEN
+			console.log("ERROR: Web socket is not available.");
+			return res.status(404).send("Message sent");
+		}
+
+		const confirmMessageToTargetCall = "A user is waiting in lobby, do you want to add the user to your call?";
+		// Notify Client
+		webSocket.send(confirmMessageToTargetCall);
+		console.log(`Target Call notified with message: ${confirmMessageToTargetCall}`);
+		return res.status(200).send(`Target Call notified with message: ${confirmMessageToTargetCall}`);
+	} else if (event.type === "Microsoft.Communication.MoveParticipantsSucceeded") {
+		console.log('~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~');
+		console.log(`Received event: ${event.type}`);
+		console.log(`Call Connection Id: ${eventData.callConnectionId}`);
+		console.log(`Correlation Id:      ${eventData.correlationId}`);
+	} else if (event.type === "Microsoft.Communication.CallDisconnected") {
+		console.log('~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~');
+		console.log(`Received event: ${event.type}`);
+		console.log(`Call Connection Id: ${eventData.callConnectionId}`);
 	}
 
     res.status(200).send();
@@ -335,20 +404,49 @@ app.post('/api/lobbyCallEventHandler', async (req, res) => {
 // 			await callMedia.play([textSource], playTo, playOptions);
 // 		}
 // 	} else if (event.type === "Microsoft.Communication.PlayCompleted") {
+// 		// Log event
 // 		console.log('~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~');
 // 		console.log(`Received event: ${event.type}`);
 
-// 		// Notify Target Call user via websocket
-// 		if (!webSocket || webSocket.readyState !== 1) { // 1 = OPEN
-// 			console.log("ERROR: Web socket is not available.");
-// 			return res.status(404).send("Message sent");
-// 		}
+// 		// Move Participant logic
+// 		try {
+// 			console.log('~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~');
+// 			console.log('Move Participant operation started..');
+// 			console.log(`Source Caller Id:     ${lobbyCallerId}`);
+// 			console.log(`Source Connection Id: ${lobbyCallConnectionId}`);
+// 			console.log(`Target Connection Id: ${targetCallConnectionId}`);
 
-// 		const confirmMessageToTargetCall = "A user is waiting in lobby, do you want to add the user to your call?";
-// 		// Notify Client
-// 		webSocket.send(confirmMessageToTargetCall);
-// 		console.log(`Target Call notified with message: ${confirmMessageToTargetCall}`);
-// 		return res.status(200).send(`Target Call notified with message: ${confirmMessageToTargetCall}`);
+// 			// Get the target connection
+// 			const targetConnection = acsClient.getCallConnection(targetCallConnectionId);
+
+// 			// Get participants from source connection for reference (optional)
+// 			// const sourceConnection = client.getCallConnection(lobbyConnectionId);
+
+// 			// Create participant identifier based on the input
+// 			let participantToMove;
+// 			if (lobbyCallerId.startsWith('+')) {
+// 				// Phone number
+// 				participantToMove = { kind: 'phoneNumber', phoneNumber: lobbyCallerId };
+// 			} else if (lobbyCallerId.startsWith('8:acs:')) {
+// 				// ACS Communication User
+// 				participantToMove = { kind: 'communicationUser', communicationUserId: lobbyCallerId };
+// 			} else {
+// 				res.status(400).send('Invalid participant format. Use phone number (+1234567890) or ACS user ID (8:acs:...)');
+// 				return;
+// 			}
+
+// 			// Move participant
+// 			const response = await targetConnection.moveParticipants([participantToMove], lobbyCallConnectionId);
+
+// 			console.log('\nMove Participants operation completed successfully.');
+// 		} catch (ex) {
+// 			console.log(`Error in manual move participants operation: ${ex.message}`);
+// 			res.status(400).json({
+// 				Success: false,
+// 				Error: ex.message,
+// 				Message: 'Move participants operation failed.'
+// 			});
+// 		}
 // 	} else if (event.type === "Microsoft.Communication.MoveParticipantsSucceeded") {
 // 		console.log('~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~');
 // 		console.log(`Received event: ${event.type}`);
@@ -362,102 +460,6 @@ app.post('/api/lobbyCallEventHandler', async (req, res) => {
 
 //     res.status(200).send();
 // });
-
-app.post('/api/callbacks', async (req, res) => {
-    console.log('--------- /api/callbacks -------------------');
-	const event = req.body[0];
-	const eventData = event.data;
-	// For demonstration, log the event type and IDs
-	console.log(`Received call event: ${event.type}`);
-	console.log(`Correlation id:-> ${eventData.correlationId}`)
-
-	if (event.type === "Microsoft.Communication.CallConnected") {
-		console.log('\n--------- CallConnected Event Block -------------------');
-
-		if ((eventData.operationContext || '') === 'LobbyCall') {
-			console.log('~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~');
-			console.log(`Received call event  : ${event.type}`);
-			console.log(`Lobby Call Connection Id: ${eventData.callConnectionId}`);
-			console.log(`Correlation Id:           ${eventData.correlationId}`);
-
-			// Record lobby caller id and connection id
-			const lobbyCallConnection = acsClient.getCallConnection(eventData.callConnectionId);
-			const callConnectionProperties = await lobbyCallConnection.getCallConnectionProperties();
-			lobbyCallerId = getIdentifierRawId(callConnectionProperties.source);
-			lobbyCallConnectionId = callConnectionProperties.callConnectionId;
-			console.log(`Lobby Caller Id:     ${lobbyCallerId}`);
-			console.log(`Lobby Connection Id: ${lobbyCallConnectionId}`);
-
-			// Play lobby waiting message
-			const callMedia = acsClient.getCallConnection(eventData.callConnectionId).getCallMedia();
-			const textSource: TextSource = {
-				text: "You are currently in a lobby call, we will notify the admin that you are waiting.",
-				voiceName: "en-US-NancyNeural",
-				kind: "textSource",
-			};
-			const playTo: CommunicationUserIdentifier[] = [{ communicationUserId: lobbyCallerId }];
-			const playOptions: PlayOptions = {
-				operationContext: "playToContext",
-			};
-			await callMedia.play([textSource], playTo, playOptions);
-		}
-	} else if (event.type === "Microsoft.Communication.PlayCompleted") {
-		// Log event
-		console.log('~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~');
-		console.log(`Received event: ${event.type}`);
-
-		// Move Participant logic
-		try {
-			console.log('~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~');
-			console.log('Move Participant operation started..');
-			console.log(`Source Caller Id:     ${lobbyCallerId}`);
-			console.log(`Source Connection Id: ${lobbyCallConnectionId}`);
-			console.log(`Target Connection Id: ${targetCallConnectionId}`);
-
-			// Get the target connection
-			const targetConnection = acsClient.getCallConnection(targetCallConnectionId);
-
-			// Get participants from source connection for reference (optional)
-			// const sourceConnection = client.getCallConnection(lobbyConnectionId);
-
-			// Create participant identifier based on the input
-			let participantToMove;
-			if (lobbyCallerId.startsWith('+')) {
-				// Phone number
-				participantToMove = { kind: 'phoneNumber', phoneNumber: lobbyCallerId };
-			} else if (lobbyCallerId.startsWith('8:acs:')) {
-				// ACS Communication User
-				participantToMove = { kind: 'communicationUser', communicationUserId: lobbyCallerId };
-			} else {
-				res.status(400).send('Invalid participant format. Use phone number (+1234567890) or ACS user ID (8:acs:...)');
-				return;
-			}
-
-			// Move participant
-			const response = await targetConnection.moveParticipants([participantToMove], lobbyCallConnectionId);
-
-			console.log('\nMove Participants operation completed successfully.');
-		} catch (ex) {
-			console.log(`Error in manual move participants operation: ${ex.message}`);
-			res.status(400).json({
-				Success: false,
-				Error: ex.message,
-				Message: 'Move participants operation failed.'
-			});
-		}
-	} else if (event.type === "Microsoft.Communication.MoveParticipantsSucceeded") {
-		console.log('~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~');
-		console.log(`Received event: ${event.type}`);
-		console.log(`Call Connection Id: ${eventData.callConnectionId}`);
-		console.log(`Correlation Id:      ${eventData.correlationId}`);
-	} else if (event.type === "Microsoft.Communication.CallDisconnected") {
-		console.log('~~~~~~~~~~~~  /api/callbacks ~~~~~~~~~~~~');
-		console.log(`Received event: ${event.type}`);
-		console.log(`Call Connection Id: ${eventData.callConnectionId}`);
-	}
-
-    res.status(200).send();
-});
 
 // GET endpoint to serve the webpage
 app.get('/', (req, res) => {
