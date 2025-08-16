@@ -1,10 +1,10 @@
 const oneSignalRegistrationTokens = new Map();
 
-function getOneSignalRegistrationToken(communicationUserId) {
+function getOneSignalRegistrationInfo(communicationUserId) {
 	return oneSignalRegistrationTokens.get(communicationUserId);
 }
 
-function setOneSignalRegistrationToken(communicationUserId, token) {
+function setOneSignalRegistrationInfo(communicationUserId, token) {
 	oneSignalRegistrationTokens.set(communicationUserId, token);
 }
 
