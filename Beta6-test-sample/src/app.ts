@@ -1,5 +1,7 @@
 import { config } from "dotenv";
-import fs, { accessSync } from "fs";
+import fs, { accessSync, unwatchFile } from "fs";
+import http from 'http';
+import WebSocket from 'ws';
 import { Request, Response } from 'express';
 import express, { Application } from "express";
 import {
@@ -8,7 +10,7 @@ import {
   isCommunicationUserIdentifier,
   PhoneNumberIdentifier,
 } from "@azure/communication-common";
-import {} from "@azure/communication-common";
+import { } from "@azure/communication-common";
 import {
   CallAutomationClient,
   CallConnection,
@@ -41,6 +43,15 @@ import {
   StopTranscriptionOptions,
   HoldOptions,
   UnholdOptions,
+  StreamingData,
+  StreamingDataKind,
+  AudioFormat,
+  CallIntelligenceOptions,
+  AnswerCallOptions,
+  ConnectCallOptions,
+  parseCallAutomationEvent,
+  SummarizationOptions,
+  SummarizeCallOptions
 } from "@azure/communication-call-automation";
 import path from "path";
 
@@ -52,6 +63,9 @@ app.use(express.static("webpage"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// Create common server for app and websocket
+const server = http.createServer(app);
+
 let callConnectionId: string;
 let callConnection: CallConnection;
 let serverCallId: string;
@@ -62,6 +76,7 @@ let recordingLocation: string;
 let recordingMetadataLocation: string;
 let recordingDeleteLocation: string;
 let recordingState: string;
+let callerId: string;
 
 const confirmLabel = `Confirm`;
 const cancelLabel = `Cancel`;
@@ -86,11 +101,68 @@ const targetCommuncationUser: CommunicationUserIdentifier = {
 const participantCommuncationUser: CommunicationUserIdentifier = {
   communicationUserId: process.env.PARTICIPANT_COMMUNICATION_USER.trim(),
 };
-const transportUrl = process.env.TRANSPORT_URL.trim();
+const websocketUrl = process.env.CALLBACK_URI.replace(/^https:\/\//, 'wss://');
+const transportUrl = websocketUrl;
 async function createAcsClient() {
   const connectionString = process.env.CONNECTION_STRING || "";
   acsClient = new CallAutomationClient(connectionString);
   console.log("Initialized ACS Client.");
+}
+
+async function sumarizeCall() {
+  const summarizeCallOptions: SummarizeCallOptions = {
+    operationContext: "SummarizeCallContext",
+    summarizationOptions: {
+      enableEndCallSummary: false,
+      locale: "es-ES"
+    }
+  }
+  await acsClient.getCallConnection(callConnectionId)
+    .getCallMedia()
+    .summarizeCall(summarizeCallOptions)
+}
+
+async function connectCall() {
+
+  const mediaStreamingOptions: MediaStreamingOptions = {
+    transportUrl: transportUrl,
+    transportType: "websocket",
+    contentType: "audio",
+    audioChannelType: "unmixed",
+    startMediaStreaming: true,
+    // // enableDtmfTones: true,
+    // enableBidirectional: true,
+    // // audioFormat:"pcm24KMono",
+    // audioFormat:"pcm16KMono",
+  };
+
+  const roomCallLocator: CallLocator = {
+    id: "99455010479855809",
+    kind: "roomCallLocator"
+  }
+
+  const transcriptionOptions: TranscriptionOptions = {
+    transportUrl: transportUrl,
+    transportType: "websocket",
+    locale: "en-US",
+    startTranscription: true,
+  };
+
+  const options: ConnectCallOptions = {
+    callIntelligenceOptions: {
+      cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
+    },
+    //mediaStreamingOptions: mediaStreamingOptions,
+    transcriptionOptions: transcriptionOptions,
+  };
+  console.log("Connecting call...");
+  const connectResult = await acsClient.connectCall(
+    roomCallLocator,
+    process.env.CALLBACK_URI + "/api/callbacks",
+    options
+  );
+
+  console.log(`{Connect Correlation Id:- ${connectResult.callConnectionProperties.correlationId}}`)
 }
 
 async function createOutboundCall() {
@@ -101,27 +173,44 @@ async function createOutboundCall() {
     },
   };
 
-  /*const mediaStreamingOptions: MediaStreamingOptions = {
+  const mediaStreamingOptions: MediaStreamingOptions = {
     transportUrl: transportUrl,
+    //transportUrl: "https://abc.com",
     transportType: "websocket",
     contentType: "audio",
     audioChannelType: "unmixed",
-    startMediaStreaming: false,
-  };*/
+    startMediaStreaming: true,
+    // enableDtmfTones: true,
+    // enableBidirectional: true,
+    //audioFormat:"pcm24KMono",
+    //audioFormat:"pcm16KMono",
+  };
 
-  /*const transcriptionOptions: TranscriptionOptions = {
+  const transcriptionOptions: TranscriptionOptions = {
     transportUrl: transportUrl,
+    locale:"es-ES",
     transportType: "websocket",
-    locale: "en-US",
-    startTranscription: false,
-  };*/
+    startTranscription: true,
+    // enableSentimentAnalysis:true,
+    // piiRedactionOptions:{
+    //   enable:true,
+    //   redactionType:"maskWithCharacter"
+    // },
+    // locales:["es-ES","en-US"],
+    // summarizationOptions:{
+    //   enableEndCallSummary:true,
+    //   locale:"es-ES"
+    // }
+  };
 
   const options: CreateCallOptions = {
     callIntelligenceOptions: {
       cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
     },
     //mediaStreamingOptions: mediaStreamingOptions,
-    //transcriptionOptions: transcriptionOptions,
+    transcriptionOptions: transcriptionOptions,
+    operationContext: "CreatPSTNCallContext",
+    enableLoopbackAudio:true
   };
   console.log("Placing outbound call...");
   await acsClient.createCall(
@@ -132,28 +221,37 @@ async function createOutboundCall() {
 }
 
 async function createOutboundCallACS() {
-  const communicationUserId :  CommunicationUserIdentifier = {
-    communicationUserId: ""
-  }
+  // const communicationUserId: CommunicationUserIdentifier = {
+  //   communicationUserId: targetCommuncationUser
+  // }
   const callInvite: CallInvite = {
-    targetParticipant: communicationUserId ,
-    
+    targetParticipant: targetCommuncationUser,
   };
 
- /* const mediaStreamingOptions: MediaStreamingOptions = {
+  const mediaStreamingOptions: MediaStreamingOptions = {
     transportUrl: transportUrl,
     transportType: "websocket",
     contentType: "audio",
     audioChannelType: "unmixed",
-    startMediaStreaming: false,
-  };*/
+    startMediaStreaming: true,
+  }
 
-  /*const transcriptionOptions: TranscriptionOptions = {
-    transportUrl: transportUrl,
-    transportType: "websocket",
-    locale: "en-US",
-    startTranscription: false,
-  };*/
+  // const transcriptionOptions: TranscriptionOptions = {
+  //   transportUrl: transportUrl,
+  //   transportType: "websocket",
+  //   locale: "en-US",
+  //   startTranscription: true,
+  //   // enableSentimentAnalysis:true,
+  //   // piiRedactionOptions:{
+  //   //   enable:true,
+  //   //   redactionType:"maskWithCharacter"
+  //   // },
+  //   // locales:["hi-IN","en-US"],
+  //   // summarizationOptions:{
+  //   //   enableEndCallSummary:true,
+  //   //   locale:"en-us"
+  //   // }
+  // };
 
   const options: CreateCallOptions = {
     callIntelligenceOptions: {
@@ -162,6 +260,8 @@ async function createOutboundCallACS() {
     //mediaStreamingOptions: mediaStreamingOptions,
     //transcriptionOptions: transcriptionOptions,
   };
+
+  debugger;
   console.log("Placing outbound call...");
   await acsClient.createCall(
     callInvite,
@@ -170,20 +270,34 @@ async function createOutboundCallACS() {
   );
 }
 
+async function getParticipantAsync() {
+  const callConnection = acsClient.getCallConnection(callConnectionId); // Get the call connection using the global callConnectionId
+  const target = GetCommunicationTarget();
 
+  const participant = await callConnection.getParticipant(target); // Retrieve the participants
+
+  console.log("----------------------------------------------------------------------");
+
+  console.log("Participant:-->", participant.identifier);
+  console.log("Is Participant on hold:-->", participant.isOnHold);
+  console.log("Is Participant on Mute:-->", participant.isMuted);
+  console.log("----------------------------------------------------------------------");
+
+}
 
 async function getParticipantListAsync() {
-    const callConnection = acsClient.getCallConnection(callConnectionId); // Get the call connection using the global callConnectionId
-    const participants = await callConnection.listParticipants(); // Retrieve the participants
+  const callConnection = acsClient.getCallConnection(callConnectionId); // Get the call connection using the global callConnectionId
+  const participants = await callConnection.listParticipants(); // Retrieve the participants
 
+  console.log("----------------------------------------------------------------------");
+  participants.values.map((participant) => {
+    console.log("Participant:-->", participant.identifier);
+    console.log("Is Participant on hold:-->", participant.isOnHold);
+    console.log("Is Participant on Mute:-->", participant.isMuted);
     console.log("----------------------------------------------------------------------");
-    participants.values.map((participant) => {
-      console.log("Participant:-->", participant.identifier);
-      console.log("Is Participant on hold:-->", participant.isOnHold);
-      console.log("----------------------------------------------------------------------");
-    });
+  });
 
-  } 
+}
 
 async function createGroupCall() {
   const mediaStreamingOptions: MediaStreamingOptions = {
@@ -191,27 +305,27 @@ async function createGroupCall() {
     transportType: "websocket",
     contentType: "audio",
     audioChannelType: "unmixed",
-    startMediaStreaming: false,
+    startMediaStreaming: true,
   };
 
   const transcriptionOptions: TranscriptionOptions = {
     transportUrl: transportUrl,
     transportType: "websocket",
     locale: "en-US",
-    startTranscription: false,
+    startTranscription: true,
   };
-  const communicationUserId :  CommunicationUserIdentifier = {
-    communicationUserId: ""
-  }
+  const communicationUserId = participantCommuncationUser
   const targets = [targetPhoneNumber, communicationUserId];
+  //const targets = [targetPhoneNumber];
   const options: CreateCallOptions = {
     callIntelligenceOptions: {
       cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
     },
     operationContext: "groupCallContext",
     sourceCallIdNumber: acsPhoneNumber,
-    //mediaStreamingOptions: mediaStreamingOptions,
+    mediaStreamingOptions: mediaStreamingOptions,
     //transcriptionOptions: transcriptionOptions,
+    enableLoopbackAudio:false
   };
   console.log("Placing outbound call...");
   await acsClient.createGroupCall(
@@ -256,11 +370,17 @@ async function playMediaToAllWithTextSourceAsync() {
   };
   const playToAllOptions: PlayToAllOptions = {
     operationContext: "playToAllContext",
+    loop: false
   };
   await acsClient
     .getCallConnection(callConnectionId)
     .getCallMedia()
     .playToAll([textSource], playToAllOptions);
+
+    // await acsClient
+    // .getCallConnection(callConnectionId)
+    // .getCallMedia()
+    // .playToAll([textSource]);
 }
 
 async function playMediaToAllWithFileSourceAsync() {
@@ -298,14 +418,23 @@ async function playMediaToTargetWithTextSourceAsync() {
     voiceName: "en-US-NancyNeural",
     kind: "textSource",
   };
+  const fileSource: FileSource = {
+    url: MEDIA_URI + "MainMenu.wav",
+    kind: "fileSource",
+  };
   const target = GetCommunicationTarget();
   const playOptions: PlayOptions = {
     operationContext: "playToContext",
   };
+  // await acsClient
+  //   .getCallConnection(callConnectionId)
+  //   .getCallMedia()
+  //   .play([textSource,fileSource], [target], playOptions);
+
   await acsClient
     .getCallConnection(callConnectionId)
     .getCallMedia()
-    .play([textSource], [target], playOptions);
+    .play([textSource, fileSource], [target]);
 }
 
 async function playMediaToTargetWithFileSourceAsync() {
@@ -317,10 +446,15 @@ async function playMediaToTargetWithFileSourceAsync() {
   const playOptions: PlayOptions = {
     operationContext: "playToContext",
   };
-  await acsClient
+  // await acsClient
+  //   .getCallConnection(callConnectionId)
+  //   .getCallMedia()
+  //   .play([fileSource], [target], playOptions);
+
+    await acsClient
     .getCallConnection(callConnectionId)
     .getCallMedia()
-    .play([fileSource], [target], playOptions);
+    .play([fileSource], [target]);
 }
 async function playMediaToTargetWithSSMLSourceAsync() {
   const ssmlSource: SsmlSource = {
@@ -357,10 +491,15 @@ async function playMediaToAllWithMultiplePlaySourcesAsync() {
   const playToAllOptions: PlayToAllOptions = {
     operationContext: "playToAllContext",
   };
+  // await acsClient
+  //   .getCallConnection(callConnectionId)
+  //   .getCallMedia()
+  //   .playToAll(playSources, playToAllOptions);
+
   await acsClient
     .getCallConnection(callConnectionId)
     .getCallMedia()
-    .playToAll(playSources, playToAllOptions);
+    .playToAll(playSources);
 }
 
 async function playMediaToTargetWithMultiplePlaySourcesAsync() {
@@ -383,10 +522,15 @@ async function playMediaToTargetWithMultiplePlaySourcesAsync() {
   const playOptions: PlayOptions = {
     operationContext: "playToContext",
   };
+  // await acsClient
+  //   .getCallConnection(callConnectionId)
+  //   .getCallMedia()
+  //   .play(playSources, [target], playOptions);
+
   await acsClient
     .getCallConnection(callConnectionId)
     .getCallMedia()
-    .play(playSources, [target], playOptions);
+    .play(playSources, [target]);
 }
 
 async function playMediaToAllWithInvalidPlaySourceAsync() {
@@ -442,29 +586,42 @@ async function playMediaToTargetWithInvalidPlaySourceAsync() {
 
 async function playRecognizeAsync() {
   const textSource: TextSource = {
-    text: "",
+    text: "Hi, this recognize test please provide input.",
     voiceName: "en-US-NancyNeural",
     kind: "textSource",
   };
 
   const fileSource: FileSource = {
-    url: MEDIA_URI + "MainMenu.wav",
+     url: MEDIA_URI + "MainMenu.wav",
+    //url:"https://dummy.com/data",
     kind: "fileSource",
   };
 
-  const ssmlSource: SsmlSource = { ssmlText: "", kind: "ssmlSource" };
+    const ssmlSource: SsmlSource = {
+    ssmlText:
+      '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US"><voice name="en-US-JennyNeural">Hi, this is ssml test played through ssml source thanks. Goodbye!</voice></speak>',
+    kind: "ssmlSource",
+  };
+
+  const playSources = [textSource, fileSource, ssmlSource]
+
+  
 
   const recognizeChoiceOptions: CallMediaRecognizeChoiceOptions = {
     choices: await getChoices(),
     interruptPrompt: false,
     initialSilenceTimeoutInSeconds: 10,
-    playPrompt: textSource,
+    //playPrompt: textSource,
+    playPrompts:playSources,
     operationContext: "choiceContex",
     kind: "callMediaRecognizeChoiceOptions",
+    speechLanguages: ["en-us", "en-au"],
+    enableSentimentAnalysis: true
   };
 
   const recognizeDtmfOptions: CallMediaRecognizeDtmfOptions = {
-    playPrompt: textSource,
+    //playPrompt: textSource,
+    playPrompts: playSources,
     interToneTimeoutInSeconds: 5,
     initialSilenceTimeoutInSeconds: 15,
     maxTonesToCollect: 4,
@@ -474,20 +631,26 @@ async function playRecognizeAsync() {
   };
 
   const recognizeSpeechOptions: CallMediaRecognizeSpeechOptions = {
-    endSilenceTimeoutInSeconds: 1,
-    playPrompt: textSource,
+    endSilenceTimeoutInSeconds: 30,
+    // playPrompt: textSource,
+    playPrompts: playSources,
     operationContext: "speechContext",
     kind: "callMediaRecognizeSpeechOptions",
+    speechLanguages: ["en-us", "en-au"],
+    enableSentimentAnalysis: true
   };
 
   const recongnizeSpeechOrDtmfOptions: CallMediaRecognizeSpeechOrDtmfOptions = {
     maxTonesToCollect: 2,
     endSilenceTimeoutInSeconds: 1,
-    playPrompt: textSource,
+    //playPrompt: textSource,
+    playPrompts: playSources,
     initialSilenceTimeoutInSeconds: 30,
     interruptPrompt: true,
     operationContext: "sppechOrDtmfContext",
     kind: "callMediaRecognizeSpeechOrDtmfOptions",
+    speechLanguages: ["en-us", "en-au"],
+    enableSentimentAnalysis: true
   };
 
   const target = GetCommunicationTarget();
@@ -495,7 +658,7 @@ async function playRecognizeAsync() {
   await acsClient
     .getCallConnection(callConnectionId)
     .getCallMedia()
-    .startRecognizing(target, recognizeChoiceOptions);
+    .startRecognizing(target, recognizeSpeechOptions);
 }
 
 async function startContinuousDtmfAsync() {
@@ -541,17 +704,24 @@ async function startRecordingAsync() {
     id: serverCallId,
     kind: "serverCallLocator",
   };
+
+  // const callLocator: CallLocator = {
+  //   id: "99472844827083807",
+  //   kind: "roomCallLocator"
+  // }
   const recordingStorage: RecordingStorage = {
     recordingStorageKind: "azureBlobStorage",
     recordingDestinationContainerUrl: bringYourOwnStorageUrl,
   };
   const recordingOptions: StartRecordingOptions = {
     callLocator: callLocator,
-    recordingContent: "audio",
-    recordingChannel: "unmixed",
-    recordingFormat: "wav",
+    // callConnectionId: callConnectionProperties.callConnectionId,
+    recordingContent: "audioVideo",
+    recordingChannel: "mixed",
+    recordingFormat: "mp4",
     pauseOnStart: isPauseOnStart,
-    recordingStorage: isByos === true ? recordingStorage : undefined,
+    // recordingStorage: isByos === true ? recordingStorage : undefined,
+    recordingStateCallbackEndpointUrl:process.env.CALLBACK_URI + "/api/callbacks",
   };
   const response = await acsClient.getCallRecording().start(recordingOptions);
   recordingId = response.recordingId;
@@ -628,12 +798,10 @@ async function addPSTNParticipantAsync() {
 async function addACSParticipantAsync() {
   const isCancelAddParticipant = false;
 
-  const communicationUserId :  CommunicationUserIdentifier = {
-    communicationUserId: ""
-  }
+  const communicationUserId = participantCommuncationUser
   const callInvite: CallInvite = {
-    targetParticipant: communicationUserId ,
-    
+    targetParticipant: communicationUserId,
+
   };
   const options: AddParticipantOptions = {
     operationContext: "addPstnUserContext",
@@ -651,9 +819,7 @@ async function addACSParticipantAsync() {
 }
 
 async function muteACSParticipantAsync() {
-  const communicationUserId :  CommunicationUserIdentifier = {
-    communicationUserId: ""
-  }
+  const communicationUserId = participantCommuncationUser
   await acsClient
     .getCallConnection(callConnectionId)
     .muteParticipant(communicationUserId);
@@ -668,9 +834,7 @@ async function removePSTNParticipantAsync() {
 }
 
 async function removeACSParticipantAsync() {
-  const communicationUserId :  CommunicationUserIdentifier = {
-    communicationUserId: ""
-  }
+  const communicationUserId = participantCommuncationUser;
   await acsClient
     .getCallConnection(callConnectionId)
     .removeParticipant(communicationUserId);
@@ -694,7 +858,8 @@ async function transferCallToParticipantAsync() {
     transferee: targetPhoneNumber,
   };
   await callConnection.transferCallToParticipant(
-    participantPhoneNumber,
+    // participantPhoneNumber,
+    participantCommuncationUser,
     options
   );
   console.log(`Transfer call initiated.`);
@@ -709,6 +874,11 @@ async function startMediaStreamingAsync() {
     .getCallConnection(callConnectionId)
     .getCallMedia()
     .startMediaStreaming(streamingOptions);
+
+  // await acsClient
+  //   .getCallConnection(callConnectionId)
+  //   .getCallMedia()
+  //   .startMediaStreaming();
 }
 
 async function stopMediaStreamingAsync() {
@@ -720,22 +890,50 @@ async function stopMediaStreamingAsync() {
     .getCallConnection(callConnectionId)
     .getCallMedia()
     .stopMediaStreaming(streamingOptions);
+  // await acsClient
+  //   .getCallConnection(callConnectionId)
+  //   .getCallMedia()
+  //   .stopMediaStreaming();
+
 }
 
 async function startTranscriptionAsync() {
   const startTranscriptionOptions: StartTranscriptionOptions = {
     locale: "en-us",
     operationContext: "startTranscriptionContext",
+    // enableSentimentAnalysis: true,
+    // piiRedactionOptions: {
+    //   enable: true,
+    //   redactionType: "maskWithCharacter"
+    // },
+    // // locales:["hi-IN","en-US"],
+    // // summarizationOptions:{
+    // //   enableEndCallSummary:true,
+    // //   locale:"en-us"
+    // // }
   };
+  // await acsClient
+  //   .getCallConnection(callConnectionId)
+  //   .getCallMedia()
+  //   .startTranscription(startTranscriptionOptions);
+
   await acsClient
     .getCallConnection(callConnectionId)
     .getCallMedia()
-    .startTranscription(startTranscriptionOptions);
-}
+    .startTranscription();
 
+}
 async function updateTranscriptionAsync() {
   const options: UpdateTranscriptionOptions = {
     operationContext: "updateTranscriptionContext",
+    // piiRedactionOptions: {
+    //   enable: true,
+    //   redactionType: "maskWithCharacter"
+    // },
+    // summarizationOptions: {
+    //   enableEndCallSummary: false,
+    //   locale: "en-us"
+    // }
   };
   await acsClient
     .getCallConnection(callConnectionId)
@@ -747,15 +945,21 @@ async function stopTranscriptionAsync() {
   const stopTranscriptionOptions: StopTranscriptionOptions = {
     operationContext: "stopTranscriptionOptions",
   };
+  // await acsClient
+  //   .getCallConnection(callConnectionId)
+  //   .getCallMedia()
+  //   .stopTranscription(stopTranscriptionOptions);
+
   await acsClient
     .getCallConnection(callConnectionId)
     .getCallMedia()
-    .stopTranscription(stopTranscriptionOptions);
+    .stopTranscription();
+
 }
 
 async function holdParticipantAsync() {
   const textSource: TextSource = {
-    text: "",
+    text: "Hi, You are on hold please wait...",
     voiceName: "en-US-NancyNeural",
     kind: "textSource",
   };
@@ -777,6 +981,11 @@ async function holdParticipantAsync() {
     .getCallConnection(callConnectionId)
     .getCallMedia()
     .hold(target, holdOptions);
+
+    // await acsClient
+    // .getCallConnection(callConnectionId)
+    // .getCallMedia()
+    // .hold(target);
 }
 
 async function unholdParticipantAsync() {
@@ -794,7 +1003,7 @@ async function unholdParticipantAsync() {
 
 async function playWithInterruptMediaFlagAsync() {
   const textSource: TextSource = {
-    text: "",
+    text: "Hi, this is barge in test played through play source thanks. Goodbye!",
     voiceName: "en-US-NancyNeural",
     kind: "textSource",
   };
@@ -806,7 +1015,8 @@ async function playWithInterruptMediaFlagAsync() {
 
   const ssmlSource: SsmlSource = { ssmlText: "", kind: "ssmlSource" };
 
-  const playSources = [textSource, fileSource, ssmlSource];
+  // const playSources = [textSource, fileSource, ssmlSource];
+  const playSources = [textSource];
 
   const interruptOption: PlayToAllOptions = {
     loop: true,
@@ -842,6 +1052,89 @@ async function getCallProperties(connectionId: string) {
   return response;
 }
 
+
+app.post("/api/incomingCall", async (req: any, res: any) => {
+  const event = req.body[0];
+  const eventData = event.data;
+  if (event.eventType === "Microsoft.EventGrid.SubscriptionValidationEvent") {
+    console.log("Received SubscriptionValidation event");
+    res.status(200).json({
+      validationResponse: eventData.validationCode,
+    });
+
+    return;
+  }
+
+  if (event.eventType === "Microsoft.Communication.IncomingCall") {
+    console.log("INCOMING CALL...");
+    callerId = eventData.from.rawId;
+    console.log(`Caller Id:- ${callerId}`);
+    //const uuid = uuidv4();
+    //const callbackUri = `${process.env.CALLBACK_HOST_URI}/api/callbacks/${uuid}?callerId=${callerId}`;
+    const callbackUri = `${process.env.CALLBACK_URI + "/api/callbacks"}`;
+    const websocketUrl = process.env.CALLBACK_URI.replace(/^https:\/\//, 'wss://');
+    console.log(`WebSocket URL:- ${websocketUrl}`);
+    const incomingCallContext = eventData.incomingCallContext;
+    //console.log(`Cognitive service endpoint:  ${process.env.COGNITIVE_SERVICES_ENDPOINT.trim()}`);
+
+    const mediaStreamingOptions: MediaStreamingOptions = {
+      transportUrl: websocketUrl,
+      transportType: "websocket",
+      contentType: "audio",
+      audioChannelType: "unmixed",
+      startMediaStreaming: true,
+      // enableDtmfTones: true,
+      // enableBidirectional: false,
+      // //audioFormat:"pcm24KMono",
+      // audioFormat: "pcm16KMono",
+    };
+
+    // const transcriptionOptions: TranscriptionOptions = {
+    //   transportUrl: websocketUrl,
+    //   transportType: "websocket",
+    //   locale: "en-US",
+    //   startTranscription: true,
+    //   // enableSentimentAnalysis: true,
+    //   // piiRedactionOptions: {
+    //   //   enable: true,
+    //   //   redactionType: "maskWithCharacter"
+    //   // },
+    //   // locales: ["hi-IN", "en-US"],
+    //   // summarizationOptions: {
+    //   //   enableEndCallSummary: true,
+    //   //   locale: "hi-IN"
+    //   // }
+    // // }
+
+    const transcriptionOptions: TranscriptionOptions = {
+      transportUrl: websocketUrl,
+      transportType: "websocket",
+      locale: "en-US",
+      startTranscription: true,
+    }
+    const callIntelligenceOptions: CallIntelligenceOptions = {
+      cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT.trim(),
+    };
+    const answerCallOptions: AnswerCallOptions = {
+      callIntelligenceOptions: callIntelligenceOptions,
+      //mediaStreamingOptions: mediaStreamingOptions,
+      transcriptionOptions: transcriptionOptions,
+      enableLoopbackAudio:true
+    };
+
+    // const callInvite : CallInvite = {
+		// 			targetParticipant: {
+    //         communicationUserId:"8:acs:19ae37ff-1a44-4e19-aade-198eedddbdf2_00000029-3849-70e9-9ef3-3a3a0d00438f"
+    //       }
+		// 		};
+
+    // await acsClient.redirectCall(incomingCallContext, callInvite)
+
+    await acsClient.answerCall(incomingCallContext, callbackUri, answerCallOptions);
+  }
+});
+
+
 // POST endpoint to handle ongoing call events
 app.post("/api/callbacks", async (req: any, res: any) => {
   const event = req.body[0];
@@ -856,30 +1149,48 @@ app.post("/api/callbacks", async (req: any, res: any) => {
   );
   callConnection = acsClient.getCallConnection(callConnectionId);
 
+  const eventParser = parseCallAutomationEvent(event)
+  if (eventParser.kind === "TranscriptionStarted") {
+    console.log("OperationContext:--" + eventParser.operationContext)
+    console.log("CorrelationId:--" + eventParser.correlationId)
+  }
+  if (eventParser.kind === "TranscriptionCallSummaryUpdated") {
+    console.log("OperationContext:--" + eventParser.operationContext)
+    console.log("CorrelationId:--" + eventParser.correlationId)
+    var transcriptionUpdate = eventParser.transcriptionUpdate
+    console.log("Summarization Message:--" + transcriptionUpdate?.transcriptionMessage)
+  }
+  if (eventParser.kind === "TranscriptionStopped") {
+    console.log("OperationContext:--" + eventParser.operationContext)
+    console.log("CorrelationId:--" + eventParser.correlationId)
+  }
+
   if (event.type === "Microsoft.Communication.CallConnected") {
     console.log("Received CallConnected event");
     callConnectionId = eventData.callConnectionId;
+    debugger;
     const properties = await getCallProperties(eventData.callConnectionId);
     console.log("CORRELATION ID****--> " + properties.correlationId);
     console.log("CALL CONNECTION ID****--> " + properties.callConnectionId);
     console.log("Answered For:-> " + properties.answeredFor);
+    console.log("OperationContext:-> " + eventData.operationContext);
 
     console.log(
       "Media Streaming Subscription Id--> " +
-        properties.mediaStreamingSubscription.id
+      properties.mediaStreamingSubscription.id
     );
     console.log(
       "Media Streaming Subscription State--> " +
-        properties.mediaStreamingSubscription.state
+      properties.mediaStreamingSubscription.state
     );
 
     console.log(
       "Transcription Subscription Id--> " +
-        properties.transcriptionSubscription.id
+      properties.transcriptionSubscription.id
     );
     console.log(
       "Transcription Subscription State--> " +
-        properties.transcriptionSubscription.state
+      properties.transcriptionSubscription.state
     );
   } else if (event.type === "Microsoft.Communication.RecognizeCompleted") {
     console.log("Received RecognizeCompleted event");
@@ -887,6 +1198,11 @@ app.post("/api/callbacks", async (req: any, res: any) => {
     if (eventData.recognitionType === "choices") {
       const labelDetected = eventData.choiceResult.label;
       console.log(`Detected label:--> ${labelDetected}`);
+      console.log("#######"+ JSON.stringify(eventData.choiceResult));
+      console.log(`Language Identified-${eventData.choiceResult.languageIdentified}`)
+      if (eventData.choiceResult && eventData.choiceResult.sentimentAnalysisResult !== undefined) {
+        console.log(`Sentiment-${eventData?.choiceResult.sentimentAnalysisResult.sentiment}`)
+      }
     }
     if (eventData.recognitionType === "dtmf") {
       const tones = eventData.dtmfResult.tones;
@@ -900,14 +1216,19 @@ app.post("/api/callbacks", async (req: any, res: any) => {
         text,
         eventData.operationContext
       );
+      console.log(`Language Identified-${eventData.speechResult.languageIdentified}`)
+      if (eventData.speechResult && eventData.speechResult.sentimentAnalysisResult !== undefined) {
+        console.log(`Sentiment-${eventData?.speechResult.sentimentAnalysisResult.sentiment}`)
+      }
     }
   } else if (event.type === "Microsoft.Communication.RecognizeFailed") {
-    console.log("Received PlayFailed event");
+    console.log("Received RecognizeFailed event");
     callConnectionId = eventData.callConnectionId;
     console.log(
       `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
     );
     console.log(`Message:->${eventData.resultInformation.message}`);
+    console.log(`PlayFailedSourceIndex:->${eventData.failedPlaySourceIndex}`);
   } else if (event.type === "Microsoft.Communication.RecognizeCanceled") {
     console.log("Received RecognizeCanceled event");
     callConnectionId = eventData.callConnectionId;
@@ -917,6 +1238,7 @@ app.post("/api/callbacks", async (req: any, res: any) => {
   } else if (event.type === "Microsoft.Communication.PlayCompleted") {
     console.log("Received PlayCompleted event");
     callConnectionId = eventData.callConnectionId;
+    console.log("OperationContext:- " + eventData?.operationContext);
   } else if (event.type === "Microsoft.Communication.PlayFailed") {
     console.log("Received PlayFailed event");
     callConnectionId = eventData.callConnectionId;
@@ -924,6 +1246,7 @@ app.post("/api/callbacks", async (req: any, res: any) => {
       `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
     );
     console.log(`Message:->${eventData.resultInformation.message}`);
+    console.log(`PlayFailedSourceIndex:->${eventData.failedPlaySourceIndex}`);
   } else if (event.type === "Microsoft.Communication.PlayCanceled") {
     console.log("Received PlayCanceled event");
     callConnectionId = eventData.callConnectionId;
@@ -992,7 +1315,7 @@ app.post("/api/callbacks", async (req: any, res: any) => {
     console.log(`Message:->${eventData.resultInformation.message}`);
   } else if (event.type === "Microsoft.Communication.RecordingStateChanged") {
     console.log("Received RecordingStateChanged event");
-    callConnectionId = eventData.callConnectionId;
+    console.log(`RECORDING STATE:->${eventData.state}`);
   } else if (event.type === "Microsoft.Communication.CallTransferAccepted") {
     console.log("Received CallTransferAccepted event");
     callConnectionId = eventData.callConnectionId;
@@ -1030,22 +1353,23 @@ app.post("/api/callbacks", async (req: any, res: any) => {
       `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
     );
     console.log(`Message:->${eventData.resultInformation.message}`);
-  } else if (event.type === "Microsoft.Communication.TranscriptionStarted") {
-    console.log("Received TranscriptionStarted event");
-    callConnectionId = eventData.callConnectionId;
-    console.log(eventData.operationContext);
-    console.log(eventData.transcriptionUpdate.transcriptionStatus);
-    console.log(eventData.transcriptionUpdate.transcriptionStatusDetails);
-  } else if (event.type === "Microsoft.Communication.TranscriptionStopped") {
-    console.log("Received TranscriptionStopped event");
-    callConnectionId = eventData.callConnectionId;
-    console.log(eventData.operationContext);
-    console.log(eventData.transcriptionUpdate.transcriptionStatus);
-    console.log(eventData.transcriptionUpdate.transcriptionStatusDetails);
+    // } else if (event.type === "Microsoft.Communication.TranscriptionStarted") {
+    //   console.log("Received TranscriptionStarted event");
+    //   callConnectionId = eventData.callConnectionId;
+    //   console.log("OperationContext:- "+eventData.operationContext);
+    //   console.log(eventData.transcriptionUpdate.transcriptionStatus);
+    //   console.log(eventData.transcriptionUpdate.transcriptionStatusDetails);
+    // } else if (event.type === "Microsoft.Communication.TranscriptionStopped") {
+    //   console.log("Received TranscriptionStopped event");
+    //   callConnectionId = eventData.callConnectionId;
+    //   console.log("############ "+JSON.stringify(eventData))
+    //   console.log("OperationContext:- "+eventData.operationContext);
+    //   console.log(eventData.transcriptionUpdate.transcriptionStatus);
+    //   console.log(eventData.transcriptionUpdate.transcriptionStatusDetails);
   } else if (event.type === "Microsoft.Communication.TranscriptionUpdated") {
     console.log("Received TranscriptionUpdated event");
     callConnectionId = eventData.callConnectionId;
-    console.log(eventData.operationContext);
+    console.log("OperationContext:- " + eventData.operationContext);
     console.log(eventData.transcriptionUpdate.transcriptionStatus);
     console.log(eventData.transcriptionUpdate.transcriptionStatusDetails);
   } else if (event.type === "Microsoft.Communication.TranscriptionFailed") {
@@ -1056,6 +1380,7 @@ app.post("/api/callbacks", async (req: any, res: any) => {
     console.log(`Message:->${eventData.resultInformation.message}`);
   } else if (event.type === "Microsoft.Communication.CallDisconnected") {
     console.log("Received CallDisconnected event");
+    console.log("CORELAITON ID:--" + eventData.correlationId);
   }
 
   res.sendStatus(200);
@@ -1167,6 +1492,12 @@ app.get("/", (req, res) => {
   res.sendFile("index.html", { root: "src/webpage" });
 });
 
+app.get("/connectCall", async (req, res) => {
+
+  await connectCall();
+  res.redirect("/");
+});
+
 // GET endpoint to place phone call
 app.get("/outboundCall", async (req, res) => {
   callee = {
@@ -1178,13 +1509,22 @@ app.get("/outboundCall", async (req, res) => {
 });
 
 app.get("/outboundCallACS", async (req, res) => {
-
-
   await createOutboundCallACS();
   res.redirect("/");
-}); 
+});
 app.get("/groupCall", async (req, res) => {
   await createGroupCall();
+  res.redirect("/");
+});
+
+app.get("/outboundCall", async (req, res) => {
+  const targetPhoneNumber = req.query.targetPhoneNumber;
+  console.log("PHONENUMBER:-->" + targetPhoneNumber)
+  callee = {
+    phoneNumber: process.env.TARGET_PHONE_NUMBER || "",
+  };
+
+  await createOutboundCall();
   res.redirect("/");
 });
 
@@ -1195,6 +1535,11 @@ app.get("/addPSTNParticipant", async (req, res) => {
 
 app.get("/addACSParticipant", async (req, res) => {
   await addACSParticipantAsync();
+  res.redirect("/");
+});
+
+app.get("/getParticipantAsync", async (req, res) => {
+  await getParticipantAsync();
   res.redirect("/");
 });
 
@@ -1218,12 +1563,12 @@ app.get("/transferCallToParticipant", async (req, res) => {
   res.redirect("/");
 });
 
-app.get("/playMediaplayMediaToAllWithTextSource", async (req, res) => {
+app.get("/playMediaToAllWithTextSource", async (req, res) => {
   await playMediaToAllWithTextSourceAsync();
   res.redirect("/");
 });
 
-app.get("/playMediaplayMediaToAllWithFileSource", async (req, res) => {
+app.get("/playMediaToAllWithFileSource", async (req, res) => {
   await playMediaToAllWithFileSourceAsync();
   res.redirect("/");
 });
@@ -1232,46 +1577,46 @@ app.get("/terminateCallAsync", async (req, res) => {
   await terminateCallAsync();
   res.redirect("/");
 });
-app.get("/playMediaplayMediaToAllWithSSMLSource", async (req, res) => {
+app.get("/playMediaToAllWithSSMLSource", async (req, res) => {
   await playMediaToAllWithSSMLSourceAsync();
   res.redirect("/");
 });
 
-app.get("/playMediaplayMediaToTargetWithTextSource", async (req, res) => {
+app.get("/playMediaToTargetWithTextSource", async (req, res) => {
   await playMediaToTargetWithTextSourceAsync();
   res.redirect("/");
 });
 
-app.get("/playMediaplayMediaToTargetWithFileSource", async (req, res) => {
+app.get("/playMediaToTargetWithFileSource", async (req, res) => {
   await playMediaToTargetWithFileSourceAsync();
   res.redirect("/");
 });
 
-app.get("/playMediaplayMediaToTargetWithSSMLSource", async (req, res) => {
+app.get("/playMediaToTargetWithSSMLSource", async (req, res) => {
   await playMediaToTargetWithSSMLSourceAsync();
   res.redirect("/");
 });
 
-app.get("/playMediaplayMediaToAllWithMultiplePlaySources", async (req, res) => {
+app.get("/playMediaToAllWithMultiplePlaySources", async (req, res) => {
   await playMediaToAllWithMultiplePlaySourcesAsync();
   res.redirect("/");
 });
 
 app.get(
-  "/playMediaplayMediaToTargetWithMultiplePlaySources",
+  "/playMediaToTargetWithMultiplePlaySources",
   async (req, res) => {
     await playMediaToTargetWithMultiplePlaySourcesAsync();
     res.redirect("/");
   }
 );
 
-app.get("/playMediaplayMediaToAllWithInvalidPlaySource", async (req, res) => {
+app.get("/playMediaToAllWithInvalidPlaySource", async (req, res) => {
   await playMediaToAllWithInvalidPlaySourceAsync();
   res.redirect("/");
 });
 
 app.get(
-  "/playMediaplayMediaToTargetWithInvalidPlaySource",
+  "/playMediaToTargetWithInvalidPlaySource",
   async (req, res) => {
     await playMediaToTargetWithInvalidPlaySourceAsync();
     res.redirect("/");
@@ -1343,7 +1688,7 @@ app.get("/updateTranscription", async (req, res) => {
   res.redirect("/");
 });
 
-app.get("/stopTranscription", async (req, res) => {
+app.get("/stopTranscriptionAsync", async (req, res) => {
   await stopTranscriptionAsync();
   res.redirect("/");
 });
@@ -1368,8 +1713,129 @@ app.get("/cancelAllMediaOperation", async (req, res) => {
   res.redirect("/");
 });
 
+app.get("/summarizeCall", async (req, res) => {
+  await sumarizeCall();
+  res.redirect("/");
+});
+
 // Start the server
-app.listen(PORT, async () => {
+server.listen(PORT, async () => {
   console.log(`Server is listening on port ${PORT}`);
   await createAcsClient();
 });
+
+const wss = new WebSocket.Server({ server });
+
+wss.on('connection', (ws: WebSocket) => {
+  console.log('Client connected');
+  ws.on('message', (packetData: ArrayBuffer) => {
+    const decoder = new TextDecoder();
+    const stringJson = decoder.decode(packetData);
+    console.log("STRING JSON=>--" + stringJson)
+    var response = StreamingData.parse(packetData);
+    const kind = StreamingData.getStreamingKind();
+
+    if (kind === "AudioMetadata") {
+      if ('encoding' in response) {
+        console.log("--------------------------------------------")
+        console.log("Audio metadata")
+        console.log("SUBSCRIPTION ID:-->" + response.subscriptionId);
+        console.log("ENCODING:-->" + response.encoding);
+        console.log("SAMPLE RATE:-->" + response.sampleRate);
+        console.log("CHANNELS:-->" + response.channels);
+        // console.log("LENGTH:-->" + response.length);
+        console.log("--------------------------------------------")
+      }
+    }
+    else if (kind === "AudioData") {
+
+      if ('isSilent' in response) {
+        console.log("--------------------------------------------")
+        console.log("Audio data")
+        console.log("DATA:-->" + response.data);
+        console.log("TIMESTAMP:-->" + response.timestamp);
+        console.log("IS SILENT:-->" + response.isSilent);
+        if (response.participant !== undefined) {
+          if ('phoneNumber' in response.participant) {
+            console.log("PARTICIPANT:-->" + response.participant.phoneNumber);
+          }
+          if ('communicationUserId' in response.participant) {
+            console.log("PARTICIPANT:-->" + response.participant.communicationUserId);
+          }
+        }
+        console.log("--------------------------------------------")
+      }
+    }
+
+    else if (kind === "DtmfData") {
+      if ('data' in response) {
+        console.log("--------------------------------------------");
+        console.log("DTMF Data:-->" + response.data);
+        console.log("--------------------------------------------");
+      }
+    }
+    else if (kind === "TranscriptionMetadata") {
+      if ('locale' in response) {
+        console.log("--------------------------------------------")
+        console.log("Transcription Metadata")
+        console.log("CALL CONNECTION ID:-->" + response.callConnectionId);
+        console.log("CORRELATION ID:-->" + response.correlationId);
+        console.log("LOCALE:-->" + response.locale);
+        console.log("SUBSCRIPTION ID:-->" + response.subscriptionId);
+        console.log("SPEECH MODEL ENDPOINT:-->" + response.speechRecognitionModelEndpointId);
+        console.log("IS ENABLE SENTIMENT ANALYSIS:-->" + response?.enableSentimentAnalysis);
+        if (response.piiRedactionOptions) {
+          console.log("PII REDACTION ENABLE:-->" + response.piiRedactionOptions?.enable);
+          console.log("PII REDACTION TYPE:-->" + response.piiRedactionOptions?.redactionType);
+        }
+
+        if (response.locales) {
+          response.locales.map(language => {
+            console.log("LOCALES:-->" + language);
+          })
+        }
+
+        console.log("--------------------------------------------")
+      }
+    }
+    else if (kind === "TranscriptionData") {
+      if ('text' in response) {
+        console.log("--------------------------------------------")
+        console.log("Transcription Data")
+        console.log("TEXT:-->" + response.text);
+        console.log("FORMAT:-->" + response.format);
+        console.log("CONFIDENCE:-->" + response.confidence);
+        console.log("OFFSET IN TICKS:-->" + response.offsetInTicks);
+        console.log("DURATION IN TICKS:-->" + response.durationInTicks);
+        console.log("RESULT STATE:-->" + response.resultState);
+        if ('phoneNumber' in response.participant) {
+          console.log("PARTICIPANT:-->" + response.participant.phoneNumber);
+        }
+        if ('communicationUserId' in response.participant) {
+          console.log("PARTICIPANT:-->" + response.participant.communicationUserId);
+        }
+        response.words.forEach(element => {
+          console.log("TEXT:-->" + element.text)
+          console.log("DURATION IN TICKS:-->" + element.durationInTicks)
+          console.log("OFFSET IN TICKS:-->" + element.offsetInTicks)
+        });
+        if (response.sentimentAnalysisResult) {
+          console.log("SENTIMENT:-->" + response.sentimentAnalysisResult.sentiment)
+        }
+        console.log("LANGUAGE IDENTIFIED:-->" + response.languageIdentified);
+        console.log("--------------------------------------------")
+      }
+    }
+    else {
+      //console.log(stringJson)
+      //{"kind":"DtmfData","dtmfData":{"data":"8"}}
+    }
+
+  });
+
+  ws.on('close', () => {
+    console.log('Client disconnected');
+  });
+});
+
+console.log(`WebSocket server running on port ${PORT}`);

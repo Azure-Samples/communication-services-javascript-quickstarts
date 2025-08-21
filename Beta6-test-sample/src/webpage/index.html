@@ -18,11 +18,16 @@
   <h4>Azure Communication Services</h4>
   <h3>BETA6 TEST SAMPLE</h3>
   <form style="display: block;">
+     <div style="margin-bottom: 10px;">
+      <h4>Connect Call</h4>
+      <input class="large-button" type="submit" formaction="/connectCall" value="Connect call!">
+    </div>
     <div style="margin-bottom: 10px;">
       <h4>Create Call</h4>
       <input class="large-button" type="submit" formaction="/outboundCall" value="Place a call!">
       <input class="large-button" type="submit" formaction="/outboundCallACS" value="Place a call ACS!">
       <input class="large-button" type="submit" formaction="/groupCall" value="Place group call!">
+      
     </div>
     <div style="margin-bottom: 10px;">
       <h4>Add/Remove Participant</h4>
@@ -135,8 +140,16 @@
         value="terminate">
     </div>
     <div style="margin-bottom: 10px;">
+      <input class="large-button" type="submit" formaction="/getParticipantAsync"
+        value="Get participant">
+    </div>
+    <div style="margin-bottom: 10px;">
       <input class="large-button" type="submit" formaction="/getParticipantListAsync"
         value="List participant">
+    </div>
+    <div style="margin-bottom: 10px;">
+      <input class="large-button" type="submit" formaction="/summarizeCall"
+        value="SummarizeCall">
     </div>
   </form>
 </body>
