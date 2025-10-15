@@ -78,8 +78,8 @@ acceptCallButton.onclick = async () => {
 
 // Web socket implementation for moving participants from the lobby to the call
 // Set this to false if you don't have a WebSocket server running
-const enableWebSocket = true;
-let url = "<web-socket-url>";
+const enableWebSocket = process.env.ENABLE_WEBSOCKET === 'true' || true;
+let socket_url = process.env.WEBSOCKET_URL || "ws://localhost:7006/ws";
 let socket = null;
 let isConnecting = false;
 let reconnectAttempts = 0;
@@ -91,11 +91,11 @@ function connectWebSocket() {
     return;
   }
   
-  console.log(`🔄 Attempting to connect to WebSocket: ${url}`);
+  console.log(`🔄 Attempting to connect to WebSocket: ${socket_url}`);
   isConnecting = true;
   
   try {
-    socket = new WebSocket(url);
+    socket = new WebSocket(socket_url);
   } catch (error) {
     console.error("❌ Failed to create WebSocket connection:", error);
     isConnecting = false;
@@ -135,7 +135,7 @@ function connectWebSocket() {
 
   socket.onerror = (err) => {
     console.error("❌ WebSocket connection error:", err);
-    console.log("💡 Make sure the WebSocket server is running at:", url);
+    console.log("💡 Make sure the WebSocket server is running at:", socket_url);
     isConnecting = false;
   };
 
