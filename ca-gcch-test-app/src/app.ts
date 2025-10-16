@@ -81,6 +81,9 @@ const websocketUrl = process.env.CALLBACK_URI.replace(/^https:\/\//, 'wss://');
 const transportUrl = websocketUrl;
 async function createAcsClient() {
   const connectionString = process.env.CONNECTION_STRING || "";
+  console.log("Creating ACS Client with connection string:", connectionString ? "✓ Set" : "✗ Missing");
+  console.log("Callback URI:", process.env.CALLBACK_URI + "/api/callbacks" || "✗ Missing");
+  console.log("Port:", process.env.PORT || "✗ Missing");
   acsClient = new CallAutomationClient(connectionString);
   console.log("Initialized ACS Client.");
 }
@@ -104,11 +107,13 @@ async function createOutboundCall(pstnTarget: string) {
       operationContext: "CreatPSTNCallContext"
     };
     console.log("Placing pstn outbound call...");
-    await acsClient.createCall(
+    const createCallResult = await acsClient.createCall(
       callInvite,
       process.env.CALLBACK_URI + "/api/callbacks",
       options
     );
+    console.log("Placed pstn outbound call...");
+    console.log("Call created successfully. Call Connection:", (await createCallResult.callConnection.getCallConnectionProperties()).callConnectionId);
   }
   catch (error) {
     console.error("Failed to create pstn outbound call:", error);
@@ -133,11 +138,12 @@ async function createOutboundCallACS(acsTarget: string) {
       operationContext:"CreateACSCallContext"
     };
     console.log("Placing acs outbound call...");
-    await acsClient.createCall(
+    const createCallResult = await acsClient.createCall(
       callInvite,
       process.env.CALLBACK_URI + "/api/callbacks",
       options
     );
+    console.log("Call created successfully. Call Connection:", (await createCallResult.callConnection.getCallConnectionProperties()).callConnectionId);
   }
   catch (error) {
     console.error("Failed to create acs outbound call:", error);
@@ -202,11 +208,12 @@ async function createGroupCall(acsTarget: string) {
       operationContext: "groupCallContext",
     };
     console.log("Placing group call...");
-    await acsClient.createGroupCall(
+    const createCallResult = await acsClient.createGroupCall(
       targets,
       process.env.CALLBACK_URI + "/api/callbacks",
       options
     );
+    console.log("Call created successfully. Call Connection:", (await createCallResult.callConnection.getCallConnectionProperties()).callConnectionId);
   } catch (error) {
     console.error("Failed to creaet group call:", error);
     console.log(`Error message:- ${error.message}`);
@@ -268,11 +275,12 @@ async function createPSTNCallWithMediaStreaming(
       operationContext: "CreatPSTNCallWithMediaStreamingContext"
     };
     console.log("Placing pstn call with media streaming...");
-    await acsClient.createCall(
+    const createCallResult = await acsClient.createCall(
       callInvite,
       process.env.CALLBACK_URI + "/api/callbacks",
       options
     );
+    console.log("Call created successfully. Call Connection:", (await createCallResult.callConnection.getCallConnectionProperties()).callConnectionId);
   }
   catch (error) {
     console.error("Failed to create pstn call with media streaming:", error);
@@ -314,11 +322,12 @@ async function createACSCallWithMediaStreamng(
       mediaStreamingOptions: mediaStreamingOptions,
     };
     console.log("Placing acs outbound call with media streaming...");
-    await acsClient.createCall(
+    const createCallResult = await acsClient.createCall(
       callInvite,
       process.env.CALLBACK_URI + "/api/callbacks",
       options
     );
+    console.log("Call created successfully. Call Connection:", (await createCallResult.callConnection.getCallConnectionProperties()).callConnectionId);
   }
   catch (error) {
     console.error("Failed to create acs call with media streaming:", error);
@@ -913,24 +922,57 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
       operationContext:"AnswerCallContext"
     };
 
-    await acsClient.answerCall(incomingCallContext, callbackUri, answerCallOptions);
+    console.log("Answering incoming call with callback URI:", callbackUri);
+    const answerResult = await acsClient.answerCall(incomingCallContext, callbackUri, answerCallOptions);
+    console.log("Answer call result:", answerResult);
   }
 });
 
-
 // POST endpoint to handle ongoing call events
 app.post("/api/callbacks", async (req: any, res: any) => {
-  const event = req.body[0];
-  const eventData = event.data;
-  callConnectionId = eventData.callConnectionId;
-  serverCallId = eventData.serverCallId;
-  // console.log(
-  //   "Call back event received, callConnectionId=%s, serverCallId=%s, eventType=%s",
-  //   callConnectionId,
-  //   serverCallId,
-  //   event.type
-  // );
-  callConnection = acsClient.getCallConnection(callConnectionId);
+  try {
+    console.log("=== CALLBACK RECEIVED ===");
+    console.log("Request body:", JSON.stringify(req.body, null, 2));
+    console.log("Request headers:", JSON.stringify(req.headers, null, 2));
+    console.log("Request method:", req.method);
+    console.log("Request URL:", req.url);
+    
+    // Handle both array and single event formats
+    let events = Array.isArray(req.body) ? req.body : [req.body];
+    
+    if (!events || events.length === 0) {
+      console.log("No events found in callback payload");
+      return res.status(200).json({ message: "No events to process" });
+    }
+
+    for (const event of events) {
+      if (!event || !event.data) {
+        console.log("Invalid event structure:", event);
+        continue;
+      }
+
+      const eventData = event.data;
+      console.log("Processing event type:", event.type);
+      
+      if (eventData.callConnectionId) {
+        callConnectionId = eventData.callConnectionId;
+        console.log("Updated callConnectionId:", callConnectionId);
+      }
+      if (eventData.serverCallId) {
+        serverCallId = eventData.serverCallId;
+        console.log("Updated serverCallId:", serverCallId);
+      }
+      
+      console.log(
+        "Call back event received, callConnectionId=%s, serverCallId=%s, eventType=%s",
+        callConnectionId,
+        serverCallId,
+        event.type
+      );
+      
+      if (callConnectionId) {
+        callConnection = acsClient.getCallConnection(callConnectionId);
+      }
 
   //const eventParser = parseCallAutomationEvent(event)
 
@@ -1106,8 +1148,13 @@ app.post("/api/callbacks", async (req: any, res: any) => {
     console.log("Received CallDisconnected event");
     console.log("CORELAITON ID:--" + eventData.correlationId);
   }
+    }
 
   res.sendStatus(200);
+  } catch (error) {
+    console.error("Error processing callback:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 // POST endpoint to receive recording events
@@ -1218,8 +1265,15 @@ app.get("/", (req, res) => {
 
 // GET endpoint to place phone call
 app.get("/outboundCall", async (req, res) => {
+  console.log("Placing call...");
   const targetPhoneNumber = req.query.targetPhoneNumber;
   const pstn = req.query.isPstn === undefined ? false : true
+  console.log("Target number: " + targetPhoneNumber);
+  if (pstn) {
+    console.log("Placing call to PSTN number...");
+  } else {
+    console.log("Placing call to ACS user...");
+  }
   await createOutboundCall(targetPhoneNumber.toString());
   res.redirect("/");
 });
