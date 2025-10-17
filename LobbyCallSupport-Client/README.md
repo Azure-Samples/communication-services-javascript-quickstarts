@@ -57,6 +57,10 @@ ENABLE_WEBSOCKET=true
    `npx webpack serve --config webpack.config.js`.
 2. Enter the token (User id and token generated in Azure) in the input box and click on `Connect` button.
 3. Once connected, you can start making calls to the target user.
+   Start the target call in Client application,
+   - Add token of target call sender(token would be generated in Azure user & tokens section).
+   - Add user id of the target call receiver <ACS_GENERATED_ID_FOR_LOBBY_CALL_RECEIVER>.
+   - Click on Start Call button to initiate the call.
 4. Also start a lobby call by entering the `<acsGeneratedIdForLobbyCallReceiver>` in other ACS Test client app at `https://acssampleapp.azurewebsites.net/`.
-5. Once the lobby call is started, you can hear the lobby call message followed by a confirm dialog saying `"A user is waiting in lobby, do you want to add the lobby user to your call?` in the application.
+5. Once the lobby call is started, you can hear the lobby call message followed by a confirm dialog saying `"A user is waiting in lobby, do you want to add the lobby user to your call?` in this JS Client application.
 6. The web socket configured in the application sends your answer to the server app which determines whether move the lobby call participant to the target call running in this session.
