@@ -1,6 +1,7 @@
 import { config } from "dotenv";
 import fs, { accessSync } from "fs";
 import http from 'http';
+import https from 'https';
 import WebSocket from 'ws';
 import { Request, Response } from 'express';
 import express, { Application } from "express";
@@ -53,7 +54,30 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Create common server for app and websocket
-const server = http.createServer(app);
+// Prefer HTTPS when SSL key/cert are available (paths via env or certs/), otherwise fallback to HTTP
+let server: any;
+const sslKeyPath = process.env.SSL_KEY_PATH || path.join(process.cwd(), 'certs', 'server.key');
+const sslCertPath = process.env.SSL_CERT_PATH || path.join(process.cwd(), 'certs', 'server.crt');
+const sslPfxPath = process.env.SSL_PFX_PATH || path.join(process.cwd(), 'certs', 'server.pfx');
+const sslPfxPassword = process.env.SSL_PFX_PASSWORD || 'changeit';
+try {
+  if (fs.existsSync(sslPfxPath)) {
+    const pfx = fs.readFileSync(sslPfxPath);
+    server = https.createServer({ pfx, passphrase: sslPfxPassword }, app);
+    console.log('HTTPS server configured using PFX:', sslPfxPath);
+  } else if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath)) {
+    const key = fs.readFileSync(sslKeyPath);
+    const cert = fs.readFileSync(sslCertPath);
+    server = https.createServer({ key, cert }, app);
+    console.log('HTTPS server configured using certs:', sslKeyPath, sslCertPath);
+  }
+} catch (err) {
+  console.warn('Error configuring HTTPS server, falling back to HTTP:', err && err.message);
+}
+if (!server) {
+  server = http.createServer(app);
+  console.log('HTTP server configured (no SSL certs found)');
+}
 
 let callConnectionId: string;
 let callConnection: CallConnection;
@@ -101,9 +125,9 @@ async function createOutboundCall(pstnTarget: string) {
     };
 
     const options: CreateCallOptions = {
-      // callIntelligenceOptions: {
-      //   cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
-      // },
+      callIntelligenceOptions: {
+        cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
+      },
       operationContext: "CreatPSTNCallContext"
     };
     console.log("Placing pstn outbound call...");
