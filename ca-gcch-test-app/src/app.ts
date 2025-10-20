@@ -1,9 +1,8 @@
 import { config } from "dotenv";
-import fs, { accessSync } from "fs";
+import fs from "fs";
 import http from 'http';
 import https from 'https';
 import WebSocket from 'ws';
-import { Request, Response } from 'express';
 import express, { Application } from "express";
 import {
   CommunicationIdentifier,
@@ -29,21 +28,17 @@ import {
   AddParticipantOptions,
   TransferCallToParticipantOptions,
   MediaStreamingOptions,
-
   StartMediaStreamingOptions,
   StopMediaStreamingOptions,
   HoldOptions,
   UnholdOptions,
   StreamingData,
-  CallIntelligenceOptions,
   AnswerCallOptions,
-  parseCallAutomationEvent,
   RecordingContent,
   RecordingChannel,
   RecordingFormat
 } from "@azure/communication-call-automation";
 import path from "path";
-import { connect } from "http2";
 
 config();
 
@@ -54,30 +49,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Create common server for app and websocket
-// Prefer HTTPS when SSL key/cert are available (paths via env or certs/), otherwise fallback to HTTP
 let server: any;
-const sslKeyPath = process.env.SSL_KEY_PATH || path.join(process.cwd(), 'certs', 'server.key');
-const sslCertPath = process.env.SSL_CERT_PATH || path.join(process.cwd(), 'certs', 'server.crt');
-const sslPfxPath = process.env.SSL_PFX_PATH || path.join(process.cwd(), 'certs', 'server.pfx');
-const sslPfxPassword = process.env.SSL_PFX_PASSWORD || 'changeit';
-try {
-  if (fs.existsSync(sslPfxPath)) {
-    const pfx = fs.readFileSync(sslPfxPath);
-    server = https.createServer({ pfx, passphrase: sslPfxPassword }, app);
-    console.log('HTTPS server configured using PFX:', sslPfxPath);
-  } else if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath)) {
-    const key = fs.readFileSync(sslKeyPath);
-    const cert = fs.readFileSync(sslCertPath);
-    server = https.createServer({ key, cert }, app);
-    console.log('HTTPS server configured using certs:', sslKeyPath, sslCertPath);
-  }
-} catch (err) {
-  console.warn('Error configuring HTTPS server, falling back to HTTP:', err && err.message);
-}
-if (!server) {
-  server = http.createServer(app);
-  console.log('HTTP server configured (no SSL certs found)');
-}
+server = http.createServer(app);
+console.log('HTTP server configured (no SSL certs found)');
 
 let callConnectionId: string;
 let callConnection: CallConnection;
@@ -125,9 +99,9 @@ async function createOutboundCall(pstnTarget: string) {
     };
 
     const options: CreateCallOptions = {
-      callIntelligenceOptions: {
-        cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
-      },
+      // callIntelligenceOptions: {
+      //   cognitiveServicesEndpoint: process.env.COGNITIVE_SERVICES_ENDPOINT,
+      // },
       operationContext: "CreatPSTNCallContext"
     };
     console.log("Placing pstn outbound call...");
@@ -152,7 +126,6 @@ async function createOutboundCallACS(acsTarget: string) {
     }
     const callInvite: CallInvite = {
       targetParticipant: communicationUserId,
-
     };
 
     const options: CreateCallOptions = {
@@ -180,7 +153,6 @@ async function getParticipant(isPstn: boolean, targetParticipant: string) {
     let target: CommunicationIdentifier;
     if (isPstn) {
       target = { phoneNumber: targetParticipant }
-
     } else {
       target = { communicationUserId: targetParticipant }
     }
@@ -243,7 +215,6 @@ async function createGroupCall(acsTarget: string) {
     console.log(`Error message:- ${error.message}`);
   }
 }
-
 
 async function getChoices() {
   const choices: RecognitionChoice[] = [
@@ -357,7 +328,6 @@ async function createACSCallWithMediaStreamng(
     console.error("Failed to create acs call with media streaming:", error);
     console.log(`Error message:- ${error.message}`);
   }
-
 }
 
 // async function hangUpCallAsync() {
@@ -372,7 +342,6 @@ async function terminateCallAsync(isForEveryone: boolean) {
     console.error("Failed to terminate call:", error);
     console.log(`Error message:- ${error.message}`);
   }
-
 }
 
 async function playMediaToAllWithFileSourceAsync() {
@@ -393,7 +362,6 @@ async function playMediaToAllWithFileSourceAsync() {
     console.error("Failed to play media to all with filesource:", error);
     console.log(`Error message:- ${error.message}`);
   }
-
 }
 
 async function playMediaToTargetWithFileSourceAsync(isPstn: boolean, targetParticipant: string) {
@@ -466,7 +434,6 @@ async function startContinuousDtmfAsync(isPstn: boolean, targetParticipant: stri
     if (isPstn) {
       target = { phoneNumber: targetParticipant }
       console.log(target);
-
     } else {
       target = { communicationUserId: targetParticipant }
       console.log(target);
@@ -489,7 +456,6 @@ async function stopContinuousDtmfAsync(isPstn: boolean, targetParticipant: strin
     if (isPstn) {
       target = { phoneNumber: targetParticipant }
       console.log(target);
-
     } else {
       target = { communicationUserId: targetParticipant }
       console.log(target);
@@ -512,7 +478,6 @@ async function startSendingDtmfToneAsync(isPstn: boolean, targetParticipant: str
     if (isPstn) {
       target = { phoneNumber: targetParticipant }
       console.log(target);
-
     } else {
       target = { communicationUserId: targetParticipant }
       console.log(target);
@@ -666,7 +631,6 @@ async function addACSParticipantAsync(acsParticipant: string) {
     }
     const callInvite: CallInvite = {
       targetParticipant: communicationUserId,
-
     };
     const options: AddParticipantOptions = {
       operationContext: "addAcsUserContext",
@@ -675,7 +639,6 @@ async function addACSParticipantAsync(acsParticipant: string) {
     const response = await acsClient
       .getCallConnection(callConnectionId)
       .addParticipant(callInvite, options);
-
     console.log(`INVITATION ID:- ${response.invitationId}`)
   }
   catch (error) {
@@ -699,7 +662,6 @@ async function muteACSParticipantAsync(acsParticipant: string) {
     console.log(`Error message:- ${error.message}`);
   }
 }
-
 
 async function removePSTNParticipantAsync(targetParticipant: string) {
   try {
@@ -727,8 +689,8 @@ async function removeACSParticipantAsync(targetParticipant: string) {
     console.error("Failed to remove acs participant :", error);
     console.log(`Error message:- ${error.message}`);
   }
-
 }
+
 async function cancelAddParticipantAsync(invitationId: string) {
   try {
     await acsClient
@@ -762,7 +724,6 @@ async function transferCallToParticipantAsync(isPstn: boolean, transferTarget: s
     if (isPstn) {
       target = { phoneNumber: transferTarget }
       transferee = { phoneNumber: targetParticipant }
-
     } else {
       target = { communicationUserId: transferTarget }
       transferee = { communicationUserId: targetParticipant }
@@ -823,11 +784,10 @@ async function holdParticipantAsync(isPstn: boolean, isWithPlaySource: boolean, 
     let target: CommunicationIdentifier;
     if (isPstn) {
       target = { phoneNumber: targetParticipant }
-      //console.log(target);
-
+      console.log(target);
     } else {
       target = { communicationUserId: targetParticipant }
-      //console.log(target);
+      console.log(target);
     }
 
     const fileSource: FileSource = {
@@ -953,6 +913,21 @@ app.post("/api/incomingCall", async (req: any, res: any) => {
 });
 
 // POST endpoint to handle ongoing call events
+app.post("/api/testcall", async (req: any, res: any) => {
+  try {
+    console.log("=== CALLBACK RECEIVED ===");
+    console.log("Request body:", JSON.stringify(req.body, null, 2));
+    console.log("Request headers:", JSON.stringify(req.headers, null, 2));
+    console.log("Request method:", req.method);
+    console.log("Request URL:", req.url);
+    res.sendStatus(200);
+  } catch (error) {
+    console.error("Error processing callback:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// POST endpoint to handle ongoing call events
 app.post("/api/callbacks", async (req: any, res: any) => {
   try {
     console.log("=== CALLBACK RECEIVED ===");
@@ -998,181 +973,181 @@ app.post("/api/callbacks", async (req: any, res: any) => {
         callConnection = acsClient.getCallConnection(callConnectionId);
       }
 
-  //const eventParser = parseCallAutomationEvent(event)
+    //const eventParser = parseCallAutomationEvent(event)
 
-  if (event.type === "Microsoft.Communication.CallConnected") {
-    console.log("Received CallConnected event");
-    callConnectionId = eventData.callConnectionId;
-    const properties = await getCallProperties(eventData.callConnectionId);
-    console.log("CORRELATION ID****--> " + properties.correlationId);
-    console.log("CALL CONNECTION ID****--> " + properties.callConnectionId);
-    console.log("Answered For:-> " + properties.answeredFor);
-    console.log("OperationContext:-> " + eventData.operationContext);
+    if (event.type === "Microsoft.Communication.CallConnected") {
+      console.log("Received CallConnected event");
+      callConnectionId = eventData.callConnectionId;
+      const properties = await getCallProperties(eventData.callConnectionId);
+      console.log("CORRELATION ID****--> " + properties.correlationId);
+      console.log("CALL CONNECTION ID****--> " + properties.callConnectionId);
+      console.log("Answered For:-> " + properties.answeredFor);
+      console.log("OperationContext:-> " + eventData.operationContext);
 
-    console.log(
-      "Media Streaming Subscription Id--> " +
-      properties.mediaStreamingSubscription.id
-    );
-    console.log(
-      "Media Streaming Subscription State--> " +
-      properties.mediaStreamingSubscription.state
-    );
-
-  } else if (event.type === "Microsoft.Communication.RecognizeCompleted") {
-    console.log("Received RecognizeCompleted event");
-    callConnectionId = eventData.callConnectionId;
-    if (eventData.recognitionType === "choices") {
-      const labelDetected = eventData.choiceResult.label;
-      console.log(`Detected label:--> ${labelDetected}`);
-    }
-    if (eventData.recognitionType === "dtmf") {
-      const tones = eventData.dtmfResult.tones;
-      console.log(`DTMF TONES:-->${tones}`);
-      console.log(`Current context-->${eventData.operationContext}`);
-    }
-    if (eventData.recognitionType === "speech") {
-      const text = eventData.speechResult.speech;
       console.log(
-        "Recognition completed, text=%s, context=%s",
-        text,
-        eventData.operationContext
+        "Media Streaming Subscription Id--> " +
+        properties.mediaStreamingSubscription.id
       );
+      console.log(
+        "Media Streaming Subscription State--> " +
+        properties.mediaStreamingSubscription.state
+      );
+
+    } else if (event.type === "Microsoft.Communication.RecognizeCompleted") {
+      console.log("Received RecognizeCompleted event");
+      callConnectionId = eventData.callConnectionId;
+      if (eventData.recognitionType === "choices") {
+        const labelDetected = eventData.choiceResult.label;
+        console.log(`Detected label:--> ${labelDetected}`);
+      }
+      if (eventData.recognitionType === "dtmf") {
+        const tones = eventData.dtmfResult.tones;
+        console.log(`DTMF TONES:-->${tones}`);
+        console.log(`Current context-->${eventData.operationContext}`);
+      }
+      if (eventData.recognitionType === "speech") {
+        const text = eventData.speechResult.speech;
+        console.log(
+          "Recognition completed, text=%s, context=%s",
+          text,
+          eventData.operationContext
+        );
+      }
+    } else if (event.type === "Microsoft.Communication.RecognizeFailed") {
+      console.log("Received PlayFailed event");
+      callConnectionId = eventData.callConnectionId;
+      console.log(
+        `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
+      );
+      console.log(`Message:->${eventData.resultInformation.message}`);
+    } else if (event.type === "Microsoft.Communication.RecognizeCanceled") {
+      console.log("Received RecognizeCanceled event");
+      callConnectionId = eventData.callConnectionId;
+    } else if (event.type === "Microsoft.Communication.PlayStarted") {
+      console.log("Received PlayStarted event");
+      callConnectionId = eventData.callConnectionId;
+    } else if (event.type === "Microsoft.Communication.PlayCompleted") {
+      console.log("Received PlayCompleted event");
+      callConnectionId = eventData.callConnectionId;
+    } else if (event.type === "Microsoft.Communication.PlayFailed") {
+      console.log("Received PlayFailed event");
+      callConnectionId = eventData.callConnectionId;
+      console.log(
+        `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
+      );
+      console.log(`Message:->${eventData.resultInformation.message}`);
+    } else if (event.type === "Microsoft.Communication.PlayCanceled") {
+      console.log("Received PlayCanceled event");
+      callConnectionId = eventData.callConnectionId;
+    } else if (event.type === "Microsoft.Communication.AddParticipantSucceeded") {
+      console.log("Received AddParticipantSucceeded event");
+      callConnectionId = eventData.callConnectionId;
+    } else if (event.type === "Microsoft.Communication.AddParticipantFailed") {
+      console.log("Received AddParticipantFailed event");
+      callConnectionId = eventData.callConnectionId;
+      console.log(
+        `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
+      );
+      console.log(`Message:->${eventData.resultInformation.message}`);
+    } else if (
+      event.type === "Microsoft.Communication.RemoveParticipantSucceeded"
+    ) {
+      console.log("Received RemoveParticipantSucceeded event");
+      callConnectionId = eventData.callConnectionId;
+    } else if (event.type === "Microsoft.Communication.RemoveParticipantFailed") {
+      console.log("Received RemoveParticipantFailed event");
+      callConnectionId = eventData.callConnectionId;
+      console.log(
+        `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
+      );
+      console.log(`Message:->${eventData.resultInformation.message}`);
+    } else if (
+      event.type === "Microsoft.Communication.CancelAddParticipantSucceeded"
+    ) {
+      console.log("Received CancelAddParticipantSucceeded event");
+      callConnectionId = eventData.callConnectionId;
+    } else if (
+      event.type === "Microsoft.Communication.CancelAddParticipantFailed"
+    ) {
+      console.log("Received CancelAddParticipantFailed event");
+      callConnectionId = eventData.callConnectionId;
+      console.log(
+        `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
+      );
+      console.log(`Message:->${eventData.resultInformation.message}`);
+    } else if (
+      event.type ===
+      "Microsoft.Communication.ContinuousDtmfRecognitionToneReceived"
+    ) {
+      console.log("Received ContinuousDtmfRecognitionToneReceived event");
+      callConnectionId = eventData.callConnectionId;
+      console.log(`Tone received:--> ${eventData.tone}`);
+      console.log(`SequenceId:--> ${eventData.sequenceId}`);
+    } else if (
+      event.type === "Microsoft.Communication.ContinuousDtmfRecognitionToneFailed"
+    ) {
+      console.log("Received ContinuousDtmfRecognitionToneFailed event");
+      callConnectionId = eventData.callConnectionId;
+      console.log(
+        `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
+      );
+      console.log(`Message:->${eventData.resultInformation.message}`);
+    } else if (event.type === "Microsoft.Communication.SendDtmfTonesCompleted") {
+      console.log("Received SendDtmfTonesCompleted event");
+      callConnectionId = eventData.callConnectionId;
+    } else if (event.type === "Microsoft.Communication.SendDtmfTonesFailed") {
+      console.log("Received SendDtmfTonesFailed event");
+      callConnectionId = eventData.callConnectionId;
+      console.log(
+        `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
+      );
+      console.log(`Message:->${eventData.resultInformation.message}`);
+    } else if (event.type === "Microsoft.Communication.RecordingStateChanged") {
+      console.log("Received RecordingStateChanged event");
+      console.log(`Recording State:- ${eventData.state}`);
+      recordingState = eventData.state;
+    } else if (event.type === "Microsoft.Communication.CallTransferAccepted") {
+      console.log("Received CallTransferAccepted event");
+      callConnectionId = eventData.callConnectionId;
+    } else if (event.type === "Microsoft.Communication.CallTransferFailed") {
+      console.log("Received CallTransferFailed event");
+      callConnectionId = eventData.callConnectionId;
+      console.log(
+        `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
+      );
+      console.log(`Message:->${eventData.resultInformation.message}`);
+    } else if (event.type === "Microsoft.Communication.HoldFailed") {
+      console.log("Received HoldFailed event");
+      callConnectionId = eventData.callConnectionId;
+      console.log(
+        `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
+      );
+      console.log(`Message:->${eventData.resultInformation.message}`);
+    } else if (event.type === "Microsoft.Communication.MediaStreamingStarted") {
+      console.log("Received MediaStreamingStarted event");
+      callConnectionId = eventData.callConnectionId;
+      console.log(eventData.operationContext);
+      console.log(eventData.mediaStreamingUpdate.contentType);
+      console.log(eventData.mediaStreamingUpdate.mediaStreamingStatus);
+      console.log(eventData.mediaStreamingUpdate.mediaStreamingStatusDetails);
+    } else if (event.type === "Microsoft.Communication.MediaStreamingStopped") {
+      console.log("Received MediaStreamingStopped event");
+      callConnectionId = eventData.callConnectionId;
+      console.log(eventData.operationContext);
+      console.log(eventData.mediaStreamingUpdate.contentType);
+      console.log(eventData.mediaStreamingUpdate.mediaStreamingStatus);
+      console.log(eventData.mediaStreamingUpdate.mediaStreamingStatusDetails);
+    } else if (event.type === "Microsoft.Communication.MediaStreamingFailed") {
+      console.log("Received MediaStreamingFailed event");
+      console.log(
+        `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
+      );
+      console.log(`Message:->${eventData.resultInformation.message}`);
+    } else if (event.type === "Microsoft.Communication.CallDisconnected") {
+      console.log("Received CallDisconnected event");
+      console.log("CORELAITON ID:--" + eventData.correlationId);
     }
-  } else if (event.type === "Microsoft.Communication.RecognizeFailed") {
-    console.log("Received PlayFailed event");
-    callConnectionId = eventData.callConnectionId;
-    console.log(
-      `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
-    );
-    console.log(`Message:->${eventData.resultInformation.message}`);
-  } else if (event.type === "Microsoft.Communication.RecognizeCanceled") {
-    console.log("Received RecognizeCanceled event");
-    callConnectionId = eventData.callConnectionId;
-  } else if (event.type === "Microsoft.Communication.PlayStarted") {
-    console.log("Received PlayStarted event");
-    callConnectionId = eventData.callConnectionId;
-  } else if (event.type === "Microsoft.Communication.PlayCompleted") {
-    console.log("Received PlayCompleted event");
-    callConnectionId = eventData.callConnectionId;
-  } else if (event.type === "Microsoft.Communication.PlayFailed") {
-    console.log("Received PlayFailed event");
-    callConnectionId = eventData.callConnectionId;
-    console.log(
-      `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
-    );
-    console.log(`Message:->${eventData.resultInformation.message}`);
-  } else if (event.type === "Microsoft.Communication.PlayCanceled") {
-    console.log("Received PlayCanceled event");
-    callConnectionId = eventData.callConnectionId;
-  } else if (event.type === "Microsoft.Communication.AddParticipantSucceeded") {
-    console.log("Received AddParticipantSucceeded event");
-    callConnectionId = eventData.callConnectionId;
-  } else if (event.type === "Microsoft.Communication.AddParticipantFailed") {
-    console.log("Received AddParticipantFailed event");
-    callConnectionId = eventData.callConnectionId;
-    console.log(
-      `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
-    );
-    console.log(`Message:->${eventData.resultInformation.message}`);
-  } else if (
-    event.type === "Microsoft.Communication.RemoveParticipantSucceeded"
-  ) {
-    console.log("Received RemoveParticipantSucceeded event");
-    callConnectionId = eventData.callConnectionId;
-  } else if (event.type === "Microsoft.Communication.RemoveParticipantFailed") {
-    console.log("Received RemoveParticipantFailed event");
-    callConnectionId = eventData.callConnectionId;
-    console.log(
-      `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
-    );
-    console.log(`Message:->${eventData.resultInformation.message}`);
-  } else if (
-    event.type === "Microsoft.Communication.CancelAddParticipantSucceeded"
-  ) {
-    console.log("Received CancelAddParticipantSucceeded event");
-    callConnectionId = eventData.callConnectionId;
-  } else if (
-    event.type === "Microsoft.Communication.CancelAddParticipantFailed"
-  ) {
-    console.log("Received CancelAddParticipantFailed event");
-    callConnectionId = eventData.callConnectionId;
-    console.log(
-      `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
-    );
-    console.log(`Message:->${eventData.resultInformation.message}`);
-  } else if (
-    event.type ===
-    "Microsoft.Communication.ContinuousDtmfRecognitionToneReceived"
-  ) {
-    console.log("Received ContinuousDtmfRecognitionToneReceived event");
-    callConnectionId = eventData.callConnectionId;
-    console.log(`Tone received:--> ${eventData.tone}`);
-    console.log(`SequenceId:--> ${eventData.sequenceId}`);
-  } else if (
-    event.type === "Microsoft.Communication.ContinuousDtmfRecognitionToneFailed"
-  ) {
-    console.log("Received ContinuousDtmfRecognitionToneFailed event");
-    callConnectionId = eventData.callConnectionId;
-    console.log(
-      `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
-    );
-    console.log(`Message:->${eventData.resultInformation.message}`);
-  } else if (event.type === "Microsoft.Communication.SendDtmfTonesCompleted") {
-    console.log("Received SendDtmfTonesCompleted event");
-    callConnectionId = eventData.callConnectionId;
-  } else if (event.type === "Microsoft.Communication.SendDtmfTonesFailed") {
-    console.log("Received SendDtmfTonesFailed event");
-    callConnectionId = eventData.callConnectionId;
-    console.log(
-      `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
-    );
-    console.log(`Message:->${eventData.resultInformation.message}`);
-  } else if (event.type === "Microsoft.Communication.RecordingStateChanged") {
-    console.log("Received RecordingStateChanged event");
-    console.log(`Recording State:- ${eventData.state}`);
-    recordingState = eventData.state;
-  } else if (event.type === "Microsoft.Communication.CallTransferAccepted") {
-    console.log("Received CallTransferAccepted event");
-    callConnectionId = eventData.callConnectionId;
-  } else if (event.type === "Microsoft.Communication.CallTransferFailed") {
-    console.log("Received CallTransferFailed event");
-    callConnectionId = eventData.callConnectionId;
-    console.log(
-      `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
-    );
-    console.log(`Message:->${eventData.resultInformation.message}`);
-  } else if (event.type === "Microsoft.Communication.HoldFailed") {
-    console.log("Received HoldFailed event");
-    callConnectionId = eventData.callConnectionId;
-    console.log(
-      `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
-    );
-    console.log(`Message:->${eventData.resultInformation.message}`);
-  } else if (event.type === "Microsoft.Communication.MediaStreamingStarted") {
-    console.log("Received MediaStreamingStarted event");
-    callConnectionId = eventData.callConnectionId;
-    console.log(eventData.operationContext);
-    console.log(eventData.mediaStreamingUpdate.contentType);
-    console.log(eventData.mediaStreamingUpdate.mediaStreamingStatus);
-    console.log(eventData.mediaStreamingUpdate.mediaStreamingStatusDetails);
-  } else if (event.type === "Microsoft.Communication.MediaStreamingStopped") {
-    console.log("Received MediaStreamingStopped event");
-    callConnectionId = eventData.callConnectionId;
-    console.log(eventData.operationContext);
-    console.log(eventData.mediaStreamingUpdate.contentType);
-    console.log(eventData.mediaStreamingUpdate.mediaStreamingStatus);
-    console.log(eventData.mediaStreamingUpdate.mediaStreamingStatusDetails);
-  } else if (event.type === "Microsoft.Communication.MediaStreamingFailed") {
-    console.log("Received MediaStreamingFailed event");
-    console.log(
-      `Code:->${eventData.resultInformation.code}, Subcode:->${eventData.resultInformation.subCode}`
-    );
-    console.log(`Message:->${eventData.resultInformation.message}`);
-  } else if (event.type === "Microsoft.Communication.CallDisconnected") {
-    console.log("Received CallDisconnected event");
-    console.log("CORELAITON ID:--" + eventData.correlationId);
   }
-    }
 
   res.sendStatus(200);
   } catch (error) {
@@ -1205,6 +1180,7 @@ app.post("/api/recordingFileStatus", async (req, res) => {
     res.sendStatus(200);
   }
 });
+
 // GET endpoint to download call audio
 app.get("/download", async (req, res) => {
   if (recordingLocation === null || recordingLocation === undefined) {
@@ -1309,6 +1285,7 @@ app.get("/outboundCallACS", async (req, res) => {
   await createOutboundCallACS(acsUser.toString());
   res.redirect("/");
 });
+
 app.get("/groupCall", async (req, res) => {
   const acsUser = req.query.acsUserId;
   await createGroupCall(acsUser.toString());
@@ -1397,7 +1374,6 @@ app.get("/recognizeMedia", async (req, res) => {
   await playRecognizeAsync(pstn, targetParticipant.toString());
   res.redirect("/");
 });
-
 
 app.get("/startContinuousDtmf", async (req, res) => {
   const pstn = req.query.isPstn === undefined ? false : true
@@ -1518,7 +1494,6 @@ app.get("/createACSCallWithMediaStreaming", async (req, res) => {
   res.redirect("/");
 });
 
-
 // Start the server
 server.listen(PORT, async () => {
   console.log(`Server is listening on port ${PORT}`);
@@ -1567,7 +1542,6 @@ wss.on('connection', (ws: WebSocket) => {
         console.log("--------------------------------------------")
       }
     }
-
     else if (kind === "DtmfData") {
       if ('data' in response) {
         console.log("--------------------------------------------");
