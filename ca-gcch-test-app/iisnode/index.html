@@ -1,0 +1,87 @@
+<html>
+<head>
+    <title>iisnode logs</title>
+    <style type="text/css">
+        body
+        {
+            font-family: "Trebuchet MS" , Arial, Helvetica, sans-serif;
+        }
+        table
+        {
+            border-collapse: collapse;
+        }
+        td, th
+        {
+            border: 1px solid lightgray;
+            padding: 3px 7px 2px 7px;
+        }
+        th
+        {
+            text-align: left;
+            padding-top: 5px;
+            padding-bottom: 4px;
+            background-color: Gray;
+            color: #ffffff;
+        }
+        td.stderr
+        {
+            color: Red;
+        }
+    </style>
+</head>
+<body>
+    <table id="logFilesTable">
+        <tr>
+            <th>
+                Computer name
+            </th>
+            <th>
+                PID
+            </th>
+            <th>
+                Type
+            </th>
+            <th>
+                Created
+            </th>
+            <th>
+                Link
+            </th>
+        </tr>
+    </table>
+    <p id="lastUpdated"></p>
+    <script type="text/javascript">
+
+        // this is replaced with actual data at runtime by code in interceptor.js
+        var logFiles = [{"file":"GCCH-JS-TEST-1620-stderr-1760683185605.txt","computername":"GCCH-JS-TEST","pid":1620,"type":"stderr","created":1760683185605},{"file":"GCCH-JS-TEST-1620-stdout-1760683185605.txt","computername":"GCCH-JS-TEST","pid":1620,"type":"stdout","created":1760683185605},{"file":"GCCH-JS-TEST-5504-stderr-1760682683102.txt","computername":"GCCH-JS-TEST","pid":5504,"type":"stderr","created":1760682683102},{"file":"GCCH-JS-TEST-5504-stdout-1760682683101.txt","computername":"GCCH-JS-TEST","pid":5504,"type":"stdout","created":1760682683101},{"file":"GCCH-JS-TEST-7684-stderr-1760684117473.txt","computername":"GCCH-JS-TEST","pid":7684,"type":"stderr","created":1760684117473},{"file":"GCCH-JS-TEST-7684-stdout-1760684117472.txt","computername":"GCCH-JS-TEST","pid":7684,"type":"stdout","created":1760684117472},{"file":"GCCH-JS-TEST-7888-stderr-1760683467313.txt","computername":"GCCH-JS-TEST","pid":7888,"type":"stderr","created":1760683467313},{"file":"GCCH-JS-TEST-7888-stdout-1760683467312.txt","computername":"GCCH-JS-TEST","pid":7888,"type":"stdout","created":1760683467312},{"file":"GCCH-JS-TEST-8112-stdout-1760684606901.txt","computername":"GCCH-JS-TEST","pid":8112,"type":"stdout","created":1760684606901},{"file":"GCCH-JS-TEST-8296-stdout-1760684195046.txt","computername":"GCCH-JS-TEST","pid":8296,"type":"stdout","created":1760684195046},{"file":"GCCH-JS-TEST-8920-stderr-1760684120308.txt","computername":"GCCH-JS-TEST","pid":8920,"type":"stderr","created":1760684120308},{"file":"GCCH-JS-TEST-8920-stdout-1760684120306.txt","computername":"GCCH-JS-TEST","pid":8920,"type":"stdout","created":1760684120306}];
+        var lastUpdated = 1760684606910;
+        var date = new Date();
+
+        date.setTime(lastUpdated);
+        document.getElementById('lastUpdated').innerHTML = 'Index was last updated ' + date;
+
+        logFiles.sort(function (a, b) {
+            return b.created - a.created;
+        });
+
+        var logFilesTable = document.getElementById("logFilesTable");
+        for (var i = 0; i < logFiles.length; i++) {
+            var logFile = logFiles[i];
+            date.setTime(logFile.created);
+            var row = logFilesTable.insertRow(-1);
+            var computerNameCell = row.insertCell(0);
+            var pidCell = row.insertCell(1);
+            var typeCell = row.insertCell(2);
+            var dateCell = row.insertCell(3);
+            var logCell = row.insertCell(4);
+            computerNameCell.innerHTML = logFile.computername;
+            pidCell.innerHTML = logFile.pid.toString();
+            typeCell.innerHTML = logFile.type;
+            typeCell.setAttribute('class', logFile.type);
+            dateCell.innerHTML = date.toString();
+            logCell.innerHTML = '<a href="' + logFile.file + '">log</a>';
+        };
+
+    </script>
+</body>
+</html>
