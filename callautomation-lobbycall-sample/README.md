@@ -5,88 +5,142 @@
 
 # Call Automation - Lobby Call Support Sample
 
-In this sample, we cover how you can use Call Automation SDK to support Lobby Call where we join Lobby call users to a target call upon confirmation of admin in the target call.
-
-# Design
+This sample demonstrates how to use Azure Communication Services Call Automation SDK to support a "Lobby Call" scenario, where users wait in a lobby and can be joined to a target call by an admin.
 
 ![Lobby Call Support](./Resources/Lobby_Call_Support_Scenario.jpg)
 
 ## Prerequisites
 
-- Create an Azure account with an active subscription. For details, see [Create an account for free](https://azure.microsoft.com/free/)
+- Azure account with active subscription. For details, see [Create an account for free](https://azure.microsoft.com/free/)
 - [Visual Studio Code](https://code.visualstudio.com/download) installed
 - [Node.js](https://nodejs.org/en/download) installed
 - Create an Azure Communication Services resource. For details, see [Create an Azure Communication Resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource). You will need to record your resource **connection string** for this sample.
 - Get a phone number for your new Azure Communication Services resource. For details, see [Get a phone number](https://learn.microsoft.com/azure/communication-services/quickstarts/telephony/get-phone-number?tabs=windows&pivots=programming-language-csharp)
 
-## Before running the sample for the first time
+## Setup
 
-1. Open an instance of PowerShell, Windows Terminal, Command Prompt or equivalent and navigate to the directory that you would like to clone the sample to.
-2. git clone `https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git`.
-3. cd into the `callautomation-lobbycall-sample` folder.
-4. From the root of the above folder, and with node installed, run `npm install`
+1. **Clone the repository and install dependencies:**
+   ```bash
+   git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git
+   cd communication-services-javascript-quickstarts/callautomation-lobbycall-sample
+   npm install
+   ```
 
-## Running the client App for the sample
+2. **Configure environment variables:**
+   Create a `.env` file in the project root with the following keys:
+   ```env
+   PORT=8443
+   CONNECTION_STRING="<your ACS connection string>"
+   COGNITIVE_SERVICES_ENDPOINT="<your cognitive services endpoint>"
+   CALLBACK_URI="<your dev tunnel or public URL>"
+   PMA_ENDPOINT="<your PMA endpoint>"
+   ACS_GENERATED_ID="<your ACS identity for lobby call receiver>"
+   SOCKET_TOKEN="<your ACS token for authentication>"
+   ```
 
-1. Open the web client app at [JS Client Sample](https://github.com/Azure-Samples/communication-services-javascript-quickstarts/tree/users/v-kuppu/LobbyCallConfirmSample) and sign in with your Azure Communication Services identity.
-2. Clone the sample repository by running `git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git`.
-3. Run the application and observe logs at console, keep this application running.
+3. **Set up Azure DevTunnels (for webhook callbacks):**
+   [Azure DevTunnels](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started?tabs=windows) enables you to share local web services on the internet for webhook callbacks.
+   ```bash
+   devtunnel create --allow-anonymous
+   devtunnel port create -p 8443
+   devtunnel host
+   ```
+   Update your `CALLBACK_URI` in `.env` with the generated tunnel URL.
 
-    ```
-    npx webpack serve --config webpack.config.js
-    ```
+## Running the Application
 
-### Setup and host your Azure DevTunnel
+1. **Start the backend server:**
+   ```bash
+   npm run dev
+   ```
 
-[Azure DevTunnels](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started?tabs=windows) is an Azure service that enables you to share local web services hosted on the internet. Use the commands below to connect your local development environment to the public internet. This creates a tunnel with a persistent endpoint URL and which allows anonymous access. We will then use this endpoint to notify your application of calling events from the ACS Call Automation service.
+2. **Access the web interface:**
+   - Local: `http://localhost:8443/`
+   - Public: Your DevTunnel URL (e.g., `https://your-tunnel.inc1.devtunnels.ms`)
 
-```bash
-devtunnel create --allow-anonymous
-devtunnel port create -p 8443
-devtunnel host
-```
+## Web Interface Usage
 
-### Configuring application
+The web page provides a step-by-step interface for the lobby call workflow:
 
-Create/Open the `.env` file to configure the following settings
+### Steps:
+1. **Configure Environment Variables** - Ensure your `.env` file is properly set up
+2. **Configure Webhook** - Point Event Grid webhook to `/api/lobbyCallEventHandler` endpoint
+3. **Configure Lobby Call** - Make a lobby call from your ACS client app to the generated ACS identity
+4. **Create Target Call** - Enter an ACS Target User ID and click "Create Call!"
+5. **Answer User Call** - Answer the call manually from your ACS client app
+6. **View Participants** - The right panel shows participant IDs in the target call (auto-refreshed)
+7. **Terminate Calls** - Use the "Terminate Calls!" button to end all active calls
 
-1. `PORT`: Assign constant 8443
-2. `CONNECTION_STRING`: Azure Communication Service resource's connection string.
-3. `COGNITIVE_SERVICES_ENDPOINT` : Cognitive service endpoint.
-4. `CALLBACK_URI`: Base url of the app. (For local development replace the dev tunnel url)
-5. `ACS_ID_FOR_LOBBY_CALL_RECEIVER`: ACS Inbound Phone Number
-6. `ACS_ID_FOR_TARGET_CALL_RECEIVER`: ACS Phone Number to make the first call, external user number in real time
-7. `ACS_ID_FOR_TARGET_CALL_SENDER`: ACS identity generated using web client
-8. `SOCKET_TOKEN`: ACS identity generated using web client
+## API Endpoints
 
-### To Run app 
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/targetCallToAcsUser?acsTarget=<user_id>` | Initiates a call to the specified ACS user |
+| `GET` | `/getParticipants` | Returns participant list in the current target call |
+| `GET` | `/terminateCalls` | Terminates all active calls and resets state |
+| `POST` | `/api/lobbyCallEventHandler` | Handles incoming Event Grid webhook events for lobby calls |
+| `POST` | `/api/callbacks` | Handles ACS call automation callbacks (CallConnected, PlayCompleted, etc.) |
+| `GET` | `/` | Serves the main web interface |
 
-1. Open a new Powershell window, cd into the `callautomation-lobbycall-sample` folder and run `npm run dev`
-2. Browser should pop up with the below page. If not navigate it to `http://localhost:8443/`
-3. Follow the steps.
+## Workflow Overview
 
-## Run app locally
+1. **Lobby Call Setup**: User calls the ACS generated identity for lobby
+2. **Call Answered**: Call Automation answers and plays waiting message
+3. **Target Call Creation**: Admin creates a target call via web interface
+4. **Automatic Join**: After play completes, lobby user is automatically moved to target call
+5. **Participant Management**: View and manage participants through the web interface
 
-1. Setup EventSubscription(Incoming) with filter for `TO.DATA.RAWID = <ACS_GENERATED_ID_TARGET_CALL_RECEIVER>, <ACS_GENERATED_ID_LOBBY_CALL_RECEIVER>`.
-2. Setup the following keys in the config/constants
-	 ```"acsConnectionString": "<acsConnectionString>",
-	 "cognitiveServiceEndpoint": "<cognitiveServiceEndpoint>",
-	 "callbackUriHost": "<callbackUriHost>",
-	 "textToPlayToLobbyUser": "You are currently in a lobby call, we will notify the admin that you are waiting.",
-	 "confirmMessageToTargetCall": "A user is waiting in lobby, do you want to add the lobby user to your call?",
-	 "acsGeneratedIdForLobbyCallReceiver": "<acsGeneratedIdForLobbyCallReceiver>",(Generate Voice Calling Identity in Azure Portal)
-	 "acsGeneratedIdForTargetCallReceiver": "<acsGeneratedIdForTargetCallReceiver>",(Generate Voice Calling Identity in Azure Portal)
-	 "acsGeneratedIdForTargetCallSender": "<acsGeneratedIdForTargetCallSender>",(Generate Voice Calling Identity in Azure Portal)
-	 "socketToken": "<socketToken>"(Token associated with <acsGeneratedIdForTargetCallSender> in Azure Portal)```
-3. Define a websocket in your application(program.cs) to send and receive messages from and to client application(JS Hero App in this case).
-4. Define a Client application that receives and responds to server notifications. Client application is available at <url>.
-5. Enter and validate user token in client app to send calls.
-6. Start call to `<acsGeneratedIdForTargetCallReceiver>`.
-7. Expect Call Connected evennt in /callbacks
-8. Start a call from ACS Test app(angular) to acsGeneratedIdForLobbyCallReceiver
-9. Call will be answered and automated voice will be played to lobby user with the text `<textToPlayToLobbyUser>`. 
-10. Once the play completed, Target call will be notified with `<confirmMessageToTargetCall>`.
-11. Once the Target call confirms from client application, Move `<acsGeneratedIdForLobbyCallReceiver>` in the backend sample.
-12. If Target user says no, then no MOVE will be performed.
-13. Ensure MoveParticipantSucceeded event is received in `/callbacks` endpoint.
-14. Check `/Getparticipants` endpoint be called with Target call id, Target call must have the recent lobby user in the call.
+## Event Handling
+
+The application handles these key ACS events:
+- **IncomingCall**: Automatically answers lobby calls
+- **CallConnected**: Records caller information and plays lobby message
+- **PlayCompleted**: Triggers automatic move of lobby user to target call
+- **MoveParticipantsSucceeded**: Confirms successful participant transfer
+- **CallDisconnected**: Handles call cleanup
+
+## Features
+
+- **Automatic Lobby Management**: Users are automatically placed in lobby with custom message
+- **Real-time Participant Tracking**: Web interface shows current participants
+- **Automatic Call Transfer**: Lobby users automatically join target call after message plays
+- **Call State Management**: Proper cleanup and state management for all calls
+- **Event Grid Integration**: Webhook support for incoming call events
+
+## Development Notes
+
+- The sample uses HTTP-only communication (no WebSocket client in the web interface)
+- Participant information refreshes every 50 seconds automatically
+- All call events and operations are logged to the console
+- The server handles both HTTP requests and WebSocket upgrade for future extensibility
+
+## Troubleshooting
+
+### Common Issues:
+- **Port already in use**: Kill existing Node.js processes with `taskkill /F /IM node.exe`
+- **WebSocket connection errors**: Ensure DevTunnel is running and CALLBACK_URI is correct
+- **Call not connecting**: Verify ACS connection string and cognitive services endpoint
+- **Event Grid webhooks not working**: Check that webhook URL points to your public DevTunnel URL
+
+### Debugging:
+- Check browser console for client-side errors
+- Monitor server console for API call logs and ACS events
+- Verify Event Grid webhook configuration in Azure portal
+- Test endpoints individually using tools like Postman
+
+## Architecture
+
+The application consists of:
+- **Express.js Backend**: Handles ACS Call Automation and webhook events
+- **Web Interface**: Simple HTML/JavaScript frontend for call management
+- **Azure Communication Services**: Provides calling capabilities
+- **Azure Cognitive Services**: Powers text-to-speech for lobby messages
+- **Azure Event Grid**: Delivers incoming call webhooks
+
+## Security Considerations
+
+- Store sensitive keys in environment variables, not in code
+- Use HTTPS for production deployments
+- Implement proper authentication for production use
+- Validate webhook signatures from Azure Event Grid
+- Restrict DevTunnel access in production environments
