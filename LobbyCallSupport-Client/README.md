@@ -8,15 +8,9 @@
 - The target call user can then choose to accept or reject the lobby user joining the target call upon receiving an alert.
 - The sample uses a web socket to communicate the confirmation back to a server application at [DotNet-LobbyCallSupportSample](https://github.com/Azure-Samples/communication-services-dotnet-quickstarts/tree/users/v-kuppu/LobbyCallSupportSample/LobbyCallSupportSample) that handles incoming call events and send notifications to the client application.
 
-# Design
-
-![Lobby Call Support](./Resources/Lobby_Call_Support_Scenario.jpg)
-
 ## Prerequisites
 
-- An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
-- A deployed Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
-- A server application at [DotNet-LobbyCallSupportSample](https://github.com/Azure-Samples/communication-services-dotnet-quickstarts/tree/users/v-kuppu/LobbyCallSupportSample/LobbyCallSupportSample) that can handle incoming call events and send notifications to the client application.
+   A server application at [DotNet-LobbyCallSupportSample](https://github.com/Azure-Samples/communication-services-dotnet-quickstarts/tree/users/v-kuppu/LobbyCallSupportSample/LobbyCallSupportSample) that can handle incoming call events and send notifications to the client application.
 
 ## Before running the sample for the first time
 
@@ -59,8 +53,8 @@ ENABLE_WEBSOCKET=true
 3. Once connected, you can start making calls to the target user.
    Start the target call in Client application,
    - Add token of target call sender(token would be generated in Azure user & tokens section).
-   - Add user id of the target call receiver <ACS_GENERATED_ID_FOR_LOBBY_CALL_RECEIVER>.
+   - Add user id of the target call receiver `<acsLobbyCallReceiver>`.
    - Click on Start Call button to initiate the call.
-4. Also start a lobby call by entering the `<acsGeneratedIdForLobbyCallReceiver>` in other ACS Test client app at `https://acssampleapp.azurewebsites.net/`.
+4. Also start a lobby call by entering the `<acsLobbyCallReceiver>` in other ACS Test client app at `https://acssampleapp.azurewebsites.net/`.
 5. Once the lobby call is started, you can hear the lobby call message followed by a confirm dialog saying `"A user is waiting in lobby, do you want to add the lobby user to your call?` in this JS Client application.
 6. The web socket configured in the application sends your answer to the server app which determines whether move the lobby call participant to the target call running in this session.
