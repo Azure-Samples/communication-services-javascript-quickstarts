@@ -79,7 +79,7 @@ acceptCallButton.onclick = async () => {
 // Web socket implementation for moving participants from the lobby to the call
 // Set this to false if you don't have a WebSocket server running
 const enableWebSocket = process.env.ENABLE_WEBSOCKET === 'true' || true;
-let socket_url = process.env.WEBSOCKET_URL || "ws://localhost:7006/ws";
+let socket_url = process.env.WEBSOCKET_URL || "ws://localhost:80/ws";
 let socket = null;
 let isConnecting = false;
 let reconnectAttempts = 0;
