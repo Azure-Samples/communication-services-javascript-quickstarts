@@ -18,6 +18,6 @@
     "printWidth": 120
   },
   "engines": {
-    "node": "20.x"
+    "node": "20.9.x"
   }
 }

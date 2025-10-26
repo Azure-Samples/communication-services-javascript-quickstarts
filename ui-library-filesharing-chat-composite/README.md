@@ -1,10 +1,10 @@
 ---
 page_type: sample
 languages:
-- javascript
+  - javascript
 products:
-- azure
-- azure-communication-services
+  - azure
+  - azure-communication-services
 ---
 
 # UI Library Sample - File Sharing using UI Chat Composite
@@ -15,10 +15,11 @@ into an [Azure Communication Services][docs-root] powered [React] application.
 For a step-by-step guide to building this sample yourself, see the [associated tutorial](https://docs.microsoft.com/azure/communication-services/tutorials/file-sharing-tutorial).
 
 This sample includes:
-* A React based application showcasing file sharing feature using UI chat composite provided by the [Azure Communication Services UI library][docs-ui-library].
-* Backend API for uploading file to Azure Blob Storage built using [Typescript Azure Functions][typescript-azure-functions].
 
->This Quickstart for FileSharing is not to be confused with the Teams Interopability feature where a ACS user can receive [SharePoint files](https://learn.microsoft.com/microsoft-365/solutions/microsoft-365-limit-sharing?view=o365-worldwide) with proper file permissions shared by a Teams user. This feature is currently available in Public Preview, for more information please refer to [Supplemental Terms of Use for Microsoft Azure Previews.](https://azure.microsoft.com/support/legal/preview-supplemental-terms/)
+- A React based application showcasing file sharing feature using UI chat composite provided by the [Azure Communication Services UI library][docs-ui-library].
+- Backend API for uploading file to Azure Blob Storage built using [Typescript Azure Functions][typescript-azure-functions].
+
+> This Quickstart for FileSharing is not to be confused with the Teams Interopability feature where a ACS user can receive [SharePoint files](https://learn.microsoft.com/microsoft-365/solutions/microsoft-365-limit-sharing?view=o365-worldwide) with proper file permissions shared by a Teams user. This feature is currently available in Public Preview, for more information please refer to [Supplemental Terms of Use for Microsoft Azure Previews.](https://azure.microsoft.com/support/legal/preview-supplemental-terms/)
 
 [docs-root]: https://docs.microsoft.com/en-us/azure/communication-services/
 [docs-ui-library]: https://azure.github.io/communication-ui-library/
@@ -27,35 +28,36 @@ This sample includes:
 
 ## Code organization
 
-* [app/](./app) - This directory contains source code for the React frontend.
-  * [app/src/App.tsx](./app/src/App.tsx) - Application entry-point. Built primarily using UI library's [ChatComposite](https://azure.github.io/communication-ui-library/?path=/docs/composites-chat-basicexample--basic-example).
-* [api/](./api) - This directory contains the source code for the backend API.
-  * [api/UploadFileToAzureBlobStore](./api/UploadFileToAzureBlobStore/index.ts) - Azure Function to upload the file to Azure Blob Store.
-
+- [app/](./app) - This directory contains source code for the React frontend.
+  - [app/src/App.tsx](./app/src/App.tsx) - Application entry-point. Built primarily using UI library's [ChatComposite](https://azure.github.io/communication-ui-library/?path=/story/composites-chatcomposite-basic-example--basic-example).
+- [api/](./api) - This directory contains the source code for the backend API.
+  - [api/functions/uploadFileToAzureBlobStore.ts](./api/functions/uploadFileToAzureBlobStore.ts) - Azure Function to upload the file to Azure Blob Store.
 
 ### Prerequisites - Azure Resources
 
 You need a few Azure resources before running this sample locally.
 
-* An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F)  .
-* [Node.js](https://nodejs.org/en/) Active LTS and Maintenance LTS versions (20.x.x is recommended).
-* An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
-* An identity with Chat scope. Generate an identity using the [Azure Portal](https://docs.microsoft.com/azure/communication-services/quickstarts/identity/quick-create-identity).
-* [Azure Storage Account](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-overview)
-* [Azure Blob Storage](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-nodejs)
-  * For using azure storage in production environments, please follow the [azure storage application architecture guide](https://docs.microsoft.com/en-us/azure/architecture/guide/multitenant/service/storage) 
+- An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) .
+- [Node.js](https://nodejs.org/en/) Active LTS and Maintenance LTS versions (20.9.x is recommended).
+- An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
+- An identity with Chat scope. Generate an identity using the [Azure Portal](https://docs.microsoft.com/azure/communication-services/quickstarts/identity/quick-create-identity).
+- [Azure Storage Account](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-overview)
+- [Azure Blob Storage](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-nodejs)
+  - For using azure storage in production environments, please follow the [azure storage application architecture guide](https://docs.microsoft.com/en-us/azure/architecture/guide/multitenant/service/storage)
 
-### Prerequisites -- Configuration
+### Prerequisites
+
+#### Configuration
 
 Once you have these resources setup, you need to replace the placeholders in these two files:
 
-* [api/local.settings.json](./api/local.settings.json)
-  * Enter the access key based [connection string for the Azure Storage account](https://docs.microsoft.com/en-us/azure/storage/common/storage-configure-connection-string).
-* Enter all the required details in [app/src/App.tsx](./app/src/App.tsx).
-  * A UserId and Token can be generated using [Azure Portal](https://docs.microsoft.com/azure/communication-services/quickstarts/identity/quick-create-identity).
-  * ThreadId can be generated by following [Microsoft Docs](https://docs.microsoft.com/en-us/javascript/api/overview/azure/communication-chat-readme?view=azure-node-latest).
+- [api/local.settings.json](./api/local.settings.json)
+  - Enter the access key based [connection string for the Azure Storage account](https://docs.microsoft.com/en-us/azure/storage/common/storage-configure-connection-string).
+- Enter all the required details in [app/src/App.tsx](./app/src/App.tsx).
+  - A UserId and Token can be generated using [Azure Portal](https://docs.microsoft.com/azure/communication-services/quickstarts/identity/quick-create-identity).
+  - ThreadId can be generated by following [Microsoft Docs](https://docs.microsoft.com/en-us/javascript/api/overview/azure/communication-chat-readme?view=azure-node-latest).
 
-### Prerequisites - Developement Environment
+#### Development Environment
 
 Install NPM dependencies
 
@@ -77,7 +79,6 @@ You'll need to run the client and server separately:
 - Start the Static Web Apps proxy:
   `npm run start:dev`
 
-
 Navigate to your application at `localhost:4280`.
 
-Currently, `azure-functions-core-tools` supports up to Node.js v20. If you're using a higher version (e.g., v22), you may encounter issues such as `localhost:4280` showing a "This site can’t be reached" error.
+Currently, `azure-functions-core-tools` supports up to Node.js v20.9. If you're using a higher version (e.g., v22), you may encounter issues such as `localhost:4280` showing a "This site can’t be reached" error.

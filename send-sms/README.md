@@ -36,4 +36,4 @@ For full instructions on how to build this code sample from scratch, look at [Qu
 
 ## Run Locally
 
-1. Run the app using ```node sens-sms.js```
+1. Run the app using ```node send-sms.js```
