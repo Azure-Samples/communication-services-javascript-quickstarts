@@ -5,7 +5,7 @@
 
 # Multiple Dial Out using Call Automation SDK
 
-In this quickstart sample, we cover how you can use the Call Automation SDK to perform multiple dial-outs using Azure Communication Services (ACS) calls. This involves creating and managing several outgoing calls simultaneously and dynamically moving participants between these active calls.
+This sample demonstrates how to utilize the Call Automation SDK to implement a Move Participants Call scenario.
 
 ## Features
 
@@ -16,6 +16,10 @@ This sample demonstrates:
 - Real-time UI updates with call status
 - Event-driven webhooks for call automation
 - Call redirection to ACS Communication Users
+
+# Design
+
+![Move Participant](./resources/Move_Participant_Sample.jpg)
 
 ## Prerequisites
 
