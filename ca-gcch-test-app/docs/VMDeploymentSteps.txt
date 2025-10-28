@@ -205,3 +205,43 @@ Write-Host "Azure CLI commands saved to: $AppDir\azure-nsg-config.sh"
 10.4. Check if iisnode module is loaded.
 10.5. Check IIS mappings
 
+Steps for Reverse Proxy Deployment:
+Install Prerequisites on the Server:
+Node.js Runtime
+IIS with the URL Rewrite Module and Application Request Routing (ARR) module installed.
+PM2 (Process Manager for Node.js):
+{npm install -g pm2}
+
+Start Your Node.js App with PM2:
+Navigate to your application's root folder.
+Start your application's main file (e.g., server.js or app.js). 
+You will need to use a production start script, typically npm start, not npm run dev.
+{pm2 start app.js --name "MyNodeApp"}
+
+Save the process list to automatically restart after a server reboot:
+{pm2 save}
+Configure ARR/Reverse Proxy in IIS:
+In IIS Manager, at the Server level, go to Application Request Routing Cache 
+Server Proxy Settings and ensure Enable Proxy is checked.
+Create a new IIS Website (or use an existing one).
+In the website's configuration, open the URL Rewrite feature.
+Add a new rule of type Reverse Proxy.
+Set the Inbound Rule to route traffic to your running Node.js port (e.g., localhost:3000).
+
+Example web.config for Reverse Proxy:
+Create a web.config in the physical path of your IIS site:
+XML
+<configuration>
+    <system.webServer>
+        <rewrite>
+            <rules>
+                <rule name="Reverse Proxy to Node" stopProcessing="true">
+                    <match url="(.*)" />
+                    <action type="Rewrite" url="http://localhost:3000/{R:1}" />
+                </rule>
+            </rules>
+        </rewrite>
+    </system.webServer>
+</configuration>
+
+Note: The port 3000 must match the port your Node.js application is listening on.
