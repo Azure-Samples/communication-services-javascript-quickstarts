@@ -2,6 +2,7 @@ import { config } from "dotenv";
 import fs from "fs";
 import http from 'http';
 import https from 'https';
+import path from 'path';
 import WebSocket from 'ws';
 import express, { Application } from "express";
 import {
@@ -38,7 +39,6 @@ import {
   RecordingChannel,
   RecordingFormat
 } from "@azure/communication-call-automation";
-import path from "path";
 
 config();
 
@@ -112,6 +112,7 @@ async function createOutboundCall(pstnTarget: string) {
     );
     console.log("Placed pstn outbound call...");
     console.log("Call created successfully. Call Connection:", (await createCallResult.callConnection.getCallConnectionProperties()).callConnectionId);
+    console.log("Correlation Id:", (await createCallResult.callConnection.getCallConnectionProperties()).correlationId);
   }
   catch (error) {
     console.error("Failed to create pstn outbound call:", error);
@@ -330,10 +331,6 @@ async function createACSCallWithMediaStreamng(
   }
 }
 
-// async function hangUpCallAsync() {
-//   await acsClient.getCallConnection(callConnectionId).hangUp(false);
-// }
-
 async function terminateCallAsync(isForEveryone: boolean) {
   try {
     await acsClient.getCallConnection(callConnectionId).hangUp(isForEveryone);
@@ -510,11 +507,6 @@ async function startRecordingAsync(
       .getCallConnection(callConnectionId)
       .getCallConnectionProperties();
     const serverCallId = callConnectionProperties.serverCallId;
-
-    // console.log(`IS BYOS--> ${isByos}`);
-    // if (isByos) {
-    //   console.log(`BYOS URL--> ${bringYourOwnStorageUrl}`);
-    // }
 
     const callLocator: CallLocator = {
       id: serverCallId,
@@ -931,10 +923,6 @@ app.post("/api/testcall", async (req: any, res: any) => {
 app.post("/api/callbacks", async (req: any, res: any) => {
   try {
     console.log("=== CALLBACK RECEIVED ===");
-    console.log("Request body:", JSON.stringify(req.body, null, 2));
-    console.log("Request headers:", JSON.stringify(req.headers, null, 2));
-    console.log("Request method:", req.method);
-    console.log("Request URL:", req.url);
     
     // Handle both array and single event formats
     let events = Array.isArray(req.body) ? req.body : [req.body];
@@ -972,8 +960,6 @@ app.post("/api/callbacks", async (req: any, res: any) => {
       if (callConnectionId) {
         callConnection = acsClient.getCallConnection(callConnectionId);
       }
-
-    //const eventParser = parseCallAutomationEvent(event)
 
     if (event.type === "Microsoft.Communication.CallConnected") {
       console.log("Received CallConnected event");

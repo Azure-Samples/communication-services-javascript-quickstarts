@@ -1,10 +1,11 @@
-|page_type|languages|products
+
+|page_type|languages|products|
 |---|---|---|
-|sample|<table><tr><td>Typescript</tr></td></table>|<table><tr><td>azure</td><td>azure-communication-services</td></tr></table>|
+|sample|<table><tr><td>Typescript</td></tr></table>|<table><tr><td>azure</td><td>azure-communication-services</td></tr></table>|
 
-# Call Automation - Quick Start Sample
+# Azure Communication Services Call Automation Outbound Calling Sample
 
-In this quickstart, we cover how you can use Call Automation SDK to make an outbound call to a phone number and use the newly announced integration with Azure AI services to play dynamic prompts to participants using Text-to-Speech and recognize user voice input through Speech-to-Text to drive business logic in your application.
+This sample demonstrates how to use the Azure Communication Services (ACS) Call Automation SDK to place outbound phone calls, play dynamic prompts using Azure AI Text-to-Speech, and recognize user voice input with Speech-to-Text. The app is designed for easy local development and secure public callback support, with clear guidance for HTTPS tunneling and production deployment.
 
 # Design
 
@@ -32,10 +33,25 @@ In this quickstart, we cover how you can use Call Automation SDK to make an outb
 [Azure DevTunnels](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started?tabs=windows) is an Azure service that enables you to share local web services hosted on the internet. Use the commands below to connect your local development environment to the public internet. This creates a tunnel with a persistent endpoint URL and which allows anonymous access. We will then use this endpoint to notify your application of calling events from the ACS Call Automation service.
 
 ```bash
+# Install Dev Tunnel CLI (if not already installed)
+npm install -g @dev-tunnels/cli
+
+# Sign in to your Azure account
+devtunnel user login
+
+# Create a tunnel (anonymous access is OK for dev)
 devtunnel create --allow-anonymous
+
+# Forward local port 8080 (or your app port)
 devtunnel port create -p 8080
+
+# Start hosting the tunnel
 devtunnel host
 ```
+
+The CLI will display a public HTTPS URL (e.g. `https://<random>.dev.tunnels.ms`). Use this as your `CALLBACK_URI` in `.env`.
+
+**Tip:** You can also use the provided PowerShell script `scripts/start-ngrok-dev.ps1` for ngrok-based tunneling and automatic `.env` updates.
 
 ### Configuring application
 
