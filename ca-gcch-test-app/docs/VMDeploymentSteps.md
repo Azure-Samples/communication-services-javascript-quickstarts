@@ -204,6 +204,17 @@ try {
   - Click **Apply** to save the rule.
   - This will forward all HTTPS traffic received by IIS to your Node.js app running on port 8080.
 
+
+## Key Fix: Enable Proxy in Application Request Routing Cache
+- If your rewrite rule is failing with an HTTP error like 404.4 Not Found or 502 Bad Gateway, the ARR proxy is likely disabled.
+  - Open IIS Manager.
+  - Select the Server node (top-level node).
+  - Double-click Application Request Routing Cache. (If it's not displayed you can download it and install.)
+  - In the right-hand Actions pane, click Server Proxy Settings.
+  - Check the box for Enable proxy.
+  - Click Apply and restart IIS.
+
+
 ## Create environment configuration
 - Update your `.env` file with the following:
   ```env
