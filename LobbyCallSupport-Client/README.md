@@ -4,57 +4,50 @@
 
 # Call Automation - Lobby Call Support Client Sample
 
-- This sample is used to establish a target call between two ACS users and then waits for Lobby call users to connect the target call.
-- The target call user can then choose to accept or reject the lobby user joining the target call upon receiving an alert.
-- The sample uses a web socket to communicate the confirmation back to a server application at [DotNet-LobbyCallSupportSample](https://github.com/Azure-Samples/communication-services-dotnet-quickstarts/tree/users/v-kuppu/LobbyCallSupportSample/LobbyCallSupportSample) that handles incoming call events and send notifications to the client application.
+This sample demonstrates how to use Azure Communication Services (ACS) to establish a call between two ACS users and manage lobby call participants. The client allows a target call user to accept or reject lobby users who request to join an ongoing call. Communication with the server is handled via WebSocket.
+
+## Features
+
+- Initiate a call between two ACS users.
+- Receive lobby join requests and accept or reject them in real time.
+- Communicate with a backend server using WebSocket for lobby notifications.
+- Integrates with the [DotNet-LobbyCallSupportSample server](https://github.com/Azure-Samples/communication-services-dotnet-quickstarts/tree/users/v-kuppu/LobbyCallSupportSample/LobbyCallSupportSample).
 
 ## Prerequisites
 
-   A server application at [DotNet-LobbyCallSupportSample](https://github.com/Azure-Samples/communication-services-dotnet-quickstarts/tree/users/v-kuppu/LobbyCallSupportSample/LobbyCallSupportSample) that can handle incoming call events and send notifications to the client application.
+- [Node.js](https://nodejs.org/) (v14 or higher recommended)
+- An Azure Communication Services resource
+- Access to the [DotNet-LobbyCallSupportSample server](https://github.com/Azure-Samples/communication-services-dotnet-quickstarts/tree/users/v-kuppu/LobbyCallSupportSample/LobbyCallSupportSample)
 
-## Before running the sample for the first time
+## Getting Started
 
-1. Open the web client app and sign in with your Azure Communication Services identity.
-2. Clone the sample repository by running `git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git`.
-3. Navigate to the `LobbyCallSupport-Client` folder in the cloned repository.
-   ```bash
-   cd communication-services-javascript-quickstarts/LobbyCallSupport-Client
-   ```
-4. Install the required dependencies:
-   ```bash
+### 1. Clone the Repository
+`git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git`.
+
+### 2. Install Dependencies
+```bash
    npm install
    ```
-5. Configure environment variables:
-   - Copy `.env.example` to `.env`
-   - Update the `WEBSOCKET_URL` with your WebSocket server URL
-   - Optionally set `ENABLE_WEBSOCKET` to `true` or `false`
 
-### Configuring application
+### 3. Configure Environment Variables
 
-#### Environment Variables
-
-Create a `.env` file in the project root with the following variables:
-
-- `WEBSOCKET_URL`: WebSocket URL configured in the server application to send lobby call notifications to the client app
-- `ENABLE_WEBSOCKET`: Set to `true` to enable WebSocket functionality, `false` to disable
-
-Example `.env` file:
-
+- Copy `.env.example` to `.env`:
+```bash
+   cp .env.example .env
+   ```
+- Edit `.env` and set the following:
+  - `WEBSOCKET_URL`: The WebSocket server URL for lobby notifications.
 ```
-WEBSOCKET_URL=ws://your-websocket-server-url:port/ws
-ENABLE_WEBSOCKET=true
+WEBSOCKET_URL=ws://your-websocket-server-url/ws
 ```
 
-## Run app locally
+### 5. Usage
 
-1. Run the application with
-   `npx webpack serve --config webpack.config.js`.
-2. Enter the token (User id and token generated in Azure) in the input box and click on `Connect` button.
-3. Once connected, you can start making calls to the target user.
-   Start the target call in Client application,
-   - Add token of target call sender(token would be generated in Azure user & tokens section).
-   - Add user id of the target call receiver `<acsLobbyCallReceiver>`.
-   - Click on Start Call button to initiate the call.
-4. Also start a lobby call by entering the `<acsLobbyCallReceiver>` in other ACS Test client app at `https://acssampleapp.azurewebsites.net/`.
-5. Once the lobby call is started, you can hear the lobby call message followed by a confirm dialog saying `"A user is waiting in lobby, do you want to add the lobby user to your call?` in this JS Client application.
-6. The web socket configured in the application sends your answer to the server app which determines whether move the lobby call participant to the target call running in this session.
+1. Run the application with `npx webpack serve --config webpack.config.js`.
+2. Enter the target call sender's token and the receiver's user ID.
+3. Click **Start Call** to initiate a call.
+4. To simulate a lobby call, use another ACS test client (e.g., [ACS Sample App](https://acssampleapp.azurewebsites.net/)) and enter the receiver's user ID.
+5. When a lobby user requests to join, a confirmation dialog will appear. Accept or reject the request.
+6. The client communicates your decision to the server via WebSocket.
+
+> **Tip:** Keep the browser's Developer Console open to view WebSocket alerts, debug messages and to not suppress alerts.

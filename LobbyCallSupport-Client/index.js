@@ -78,8 +78,8 @@ acceptCallButton.onclick = async () => {
 
 // Web socket implementation for moving participants from the lobby to the call
 // Set this to false if you don't have a WebSocket server running
-const enableWebSocket = process.env.ENABLE_WEBSOCKET === 'true' || true;
-let socket_url = process.env.WEBSOCKET_URL || "ws://localhost:80/ws";
+const enableWebSocket = true;
+let socket_url = process.env.WEBSOCKET_URL;
 let socket = null;
 let isConnecting = false;
 let reconnectAttempts = 0;
@@ -188,10 +188,8 @@ window.addEventListener('beforeunload', () => {
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     // Page is hidden, optionally close connection
-    // console.log("📱 Page hidden");
   } else {
     // Page is visible, ensure connection is active
-    // console.log("📱 Page visible");
     if (!socket || socket.readyState === WebSocket.CLOSED) {
       // connectWebSocket();
     }
