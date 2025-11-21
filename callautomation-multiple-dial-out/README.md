@@ -72,7 +72,9 @@ npm install
 devtunnel login
 
 # Create and start a tunnel
-devtunnel host -p 7006
+devtunnel create --allow-anonymous
+devtunnel port create -p 8443
+devtunnel host
 ```
 
 ---
