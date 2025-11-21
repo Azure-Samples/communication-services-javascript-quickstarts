@@ -19,6 +19,9 @@
 
 <body>
   <h2 style="text-align: center;">Lobby Call Sample</h2>
+  <div style="text-align: center; margin-bottom: 10px;">
+    WebSocket Status: <span id="connection-status" style="font-weight: bold;">Connecting...</span>
+  </div>
   <form>
     <table>
       <tr>
@@ -28,19 +31,19 @@
       <tr>
         <td>    
           <div>
-            <div style="font-weight: bold;">STEP 0. Assign Environment Variables</div>
+            <div style="font-weight: bold;">STEP 1. Assign Environment Variables</div>
             <div>Configure environment variables in the .env file</div>
           </div>
           <p>
-            <div style="font-weight: bold;">STEP 1. Configure Webhook</div>
+            <div style="font-weight: bold;">STEP 2. Configure Webhook</div>
             <div>Configure Event Grid webhook to point to /api/lobbyCallEventHandler endpoint</div>
           </p>
           <p>
-            <div style="font-weight: bold;">STEP 2. Configure a Lobby Call</div>
+            <div style="font-weight: bold;">STEP 3. Configure a Lobby Call</div>
             <div>Make a Lobby call from Web Client App to ACS Generated Identity manually. Once done, lobby call will be in a waiting state.</div>
           </p>
           <p>
-            <div style="font-weight: bold;">STEP 3. Create User Call</div>
+            <div style="font-weight: bold;">STEP 4. Create User Call</div>
             <div>Create a Call for ACS Identity by entering the target ACS User ID and clicking the button. Answer it manually from Web Client App</div>
             <div style="margin: 5px 0;">
               <label for="acsTarget">ACS Target User ID:</label><br>
@@ -49,12 +52,8 @@
             <input type="button" onclick="createTargetCall()" value="Create Call!">
           </p>
           <p>
-            <div style="font-weight: bold;">STEP 4. Answer User Call</div>
+            <div style="font-weight: bold;">STEP 5. Answer User Call</div>
             <div>Once User call is connected, a message is played in Lobby asking to answer the User's call. You can accept it or reject it. Accept it manually from Web Client App. Now User is connected to Lobby call.</div>
-          </p>
-          <p>
-            <div style="font-weight: bold;">STEP 5. Get Participants List in Lobby Call</div>
-            <div>The list of all the participants in the Lobby call are automatically refreshed on the right panel.</div>
           </p>
           <p>
             <div style="font-weight: bold;">STEP 6. Terminate Calls</div>
@@ -63,19 +62,86 @@
           </p>
         </td>
         <td>
-          <div id="participantInfo">
-            <div style="font-weight: bold;">Lobby Call Info</div>
-            <div>Participant Id 1: <span id="pIdA-text">Loading participant Id...</span></div>
-            <div>Participant Id 2: <span id="pIdB-text">Loading participant Id...</span></div>
-            <div>Participant Id 3: <span id="pIdC-text">Loading participant Id...</span></div>
+          <div id="callInfo">
+            <div style="font-weight: bold;">Call Status</div>
+            <div>Participants will be displayed here when <b>Microsoft.Communication.MoveParticipantSucceeded</b> event is received.</div>
+            <div style="margin-top: 15px;">
+              <input type="button" onclick="fetchParticipants()" value="Refresh Participants" style="background-color: #007acc; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+            </div>
           </div>
         </td>
       </tr>
     </table>
   </form>
   <script>
-    let fetchInterval;
-    let fetchCount = 0;
+    let websocket = null;
+
+    // WebSocket connection setup
+    function initializeWebSocket() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      
+      console.log('Connecting to WebSocket:', wsUrl);
+      
+      websocket = new WebSocket(wsUrl);
+      
+      websocket.onopen = function(event) {
+        console.log('WebSocket connection established');
+        updateConnectionStatus(true);
+      };
+      
+      websocket.onmessage = function(event) {
+        console.log('WebSocket message received:', event.data);
+        
+        // Try to parse as JSON for structured messages
+        let messageData;
+        try {
+          messageData = JSON.parse(event.data);
+        } catch (e) {
+          messageData = null;
+        }
+        
+        // Handle participants update
+        if (messageData && messageData.type === 'participantsUpdate') {
+          console.log('Participants update received:', messageData.participants);
+          renderParticipants(messageData.participants);
+          return;
+        }
+        
+        // Show confirmation dialog when lobby user is waiting
+        if (event.data.includes('lobby')) {
+          const userResponse = confirm(event.data + '\n\nClick OK to accept or Cancel to reject.');
+          const response = userResponse ? 'yes' : 'no';
+          
+          console.log('Sending response:', response);
+          websocket.send(response);
+        }
+      };
+      
+      websocket.onclose = function(event) {
+        console.log('WebSocket connection closed');
+        updateConnectionStatus(false);
+        
+        // Attempt to reconnect after 3 seconds
+        setTimeout(() => {
+          console.log('Attempting to reconnect WebSocket...');
+          initializeWebSocket();
+        }, 3000);
+      };
+      
+      websocket.onerror = function(error) {
+        console.error('WebSocket error:', error);
+        updateConnectionStatus(false);
+      };
+    }
+
+    function updateConnectionStatus(connected) {
+      const statusElement = document.getElementById('connection-status');
+      if (statusElement) {
+        statusElement.textContent = connected ? 'Connected' : 'Disconnected';
+        statusElement.style.color = connected ? 'green' : 'red';
+      }
+    }
 
     function createTargetCall() {
       const acsTarget = document.getElementById('acsTarget').value.trim();
@@ -91,8 +157,8 @@
         .then(data => {
           console.log('API Response:', data);
           alert('Call created successfully!');
-          // Optionally refresh the call data
-          fetchParticipantData();
+          // Enable terminate button after successful call creation
+          document.querySelector('input[formaction="/terminateCalls"]').disabled = false;
         })
         .catch(error => {
           console.error('Error creating call:', error);
@@ -100,47 +166,58 @@
         });
     }
 
-    function fetchParticipantData() {
+    function renderParticipants(participants) {
+      const callInfoDiv = document.getElementById('callInfo');
+      
+      // Create or update participants section
+      let participantsSection = document.getElementById('participants-section');
+      if (!participantsSection) {
+        participantsSection = document.createElement('div');
+        participantsSection.id = 'participants-section';
+        participantsSection.style.marginTop = '20px';
+        callInfoDiv.appendChild(participantsSection);
+      }
+      
+      // Build participants HTML
+      let participantsHtml = '<div style="font-weight: bold; color: green;">Current Participants</div>';
+      participantsHtml += '<div style="margin-top: 10px;">';
+      
+      let participantCount = 0;
+      if (participants.participantId1) {
+        participantCount++;
+        participantsHtml += `<div style="margin-bottom: 5px;"><strong>Participant 1:</strong> ${participants.participantId1}</div>`;
+      }
+      if (participants.participantId2) {
+        participantCount++;
+        participantsHtml += `<div style="margin-bottom: 5px;"><strong>Participant 2:</strong> ${participants.participantId2}</div>`;
+      }
+      if (participants.participantId3) {
+        participantCount++;
+        participantsHtml += `<div style="margin-bottom: 5px;"><strong>Participant 3:</strong> ${participants.participantId3}</div>`;
+      }
+      
+      if (participantCount === 0) {
+        participantsHtml += '<div style="color: #666;">No participants found</div>';
+      } else {
+        participantsHtml += `<div style="margin-top: 10px; font-size: 14px; color: #666;">Total participants: ${participantCount}</div>`;
+      }
+      
+      participantsHtml += '</div>';
+      participantsSection.innerHTML = participantsHtml;
+    }
+
+    function fetchParticipants() {
       fetch('/getParticipants')
         .then(response => response.json())
-        .then(data => {
-          console.log('Participant Id 1:', data.participantId1);
-          console.log('Participant Id 2:', data.participantId2);
-          console.log('Participant Id 3:', data.participantId3);
-          if (data.participantId1) document.getElementById('pIdA-text').innerText = `${data.participantId1}`;
-          if (data.participantId2) document.getElementById('pIdB-text').innerText = `${data.participantId2}`;
-          if (data.participantId3) document.getElementById('pIdC-text').innerText = `${data.participantId3}`;
-          if (data.participantId1) {
-            document.querySelector('input[formaction="/terminateCalls"]').disabled = false;
-          } else {
-            document.querySelector('input[formaction="/terminateCalls"]').disabled = true;
-          }
+        .then(participants => {
+          console.log('Participants fetched:', participants);
+          renderParticipants(participants);
         })
         .catch(error => {
-          console.error('Error fetching user data:', error);
+          console.error('Error fetching participants:', error);
+          alert('Error fetching participants: ' + error.message);
         });
     }
-
-    function periodicFetchCallData() {
-      fetchCount++;
-      console.log(`Periodic fetch #${fetchCount}`);
-      
-      fetchParticipantData();
-    }
-
-    function startPeriodicFetch() {
-      // Clear any existing interval
-      if (fetchInterval) {
-        clearInterval(fetchInterval);
-      }
-      // Reset counter
-      fetchCount = 0;
-      // Start fetching every 5 seconds
-      fetchInterval = setInterval(periodicFetchCallData, 5000);
-    }
-
-    // Initial fetch on page load
-    fetchParticipantData();
 
     // Add event listener to all form submit buttons
     document.addEventListener('DOMContentLoaded', () => {
@@ -148,9 +225,9 @@
       form.addEventListener('submit', (event) => {
         alert('Submitted!');
       });
-      setTimeout(() => {
-        startPeriodicFetch();
-      }, 1000);
+      
+      // Initialize WebSocket connection
+      initializeWebSocket();
     });
   </script>
 </body>

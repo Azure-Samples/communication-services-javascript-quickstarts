@@ -1,7 +1,6 @@
-
-|page_type|languages|products
-|---|---|---|
-|sample|<table><tr><td>Typescript</td></tr></table>|<table><tr><td>azure</td><td>azure-communication-services</td></tr></table>|
+| page_type | languages                                   | products                                                                    |
+| --------- | ------------------------------------------- | --------------------------------------------------------------------------- |
+| sample    | <table><tr><td>Typescript</td></tr></table> | <table><tr><td>azure</td><td>azure-communication-services</td></tr></table> |
 
 # Call Automation - Lobby Call Support Sample
 
@@ -20,6 +19,7 @@ This sample demonstrates how to use Azure Communication Services Call Automation
 ## Setup
 
 1. **Clone the repository and install dependencies:**
+
    ```bash
    git clone https://github.com/Azure-Samples/communication-services-javascript-quickstarts.git
    cd communication-services-javascript-quickstarts/callautomation-lobbycall-sample
@@ -28,14 +28,13 @@ This sample demonstrates how to use Azure Communication Services Call Automation
 
 2. **Configure environment variables:**
    Create a `.env` file in the project root with the following keys:
+
    ```env
    PORT=8443
    CONNECTION_STRING="<your ACS connection string>"
    COGNITIVE_SERVICES_ENDPOINT="<your cognitive services endpoint>"
    CALLBACK_URI="<your dev tunnel or public URL>"
-   PMA_ENDPOINT="<your PMA endpoint>"
    ACS_GENERATED_ID="<your ACS identity for lobby call receiver>"
-   SOCKET_TOKEN="<your ACS token for authentication>"
    ```
 
 3. **Set up Azure DevTunnels (for webhook callbacks):**
@@ -50,6 +49,7 @@ This sample demonstrates how to use Azure Communication Services Call Automation
 ## Running the Application
 
 1. **Start the backend server:**
+
    ```bash
    npm run dev
    ```
@@ -63,24 +63,25 @@ This sample demonstrates how to use Azure Communication Services Call Automation
 The web page provides a step-by-step interface for the lobby call workflow:
 
 ### Steps:
+
 1. **Configure Environment Variables** - Ensure your `.env` file is properly set up
 2. **Configure Webhook** - Point Event Grid webhook to `/api/lobbyCallEventHandler` endpoint
 3. **Configure Lobby Call** - Make a lobby call from your ACS client app to the generated ACS identity
-4. **Create Target Call** - Enter an ACS Target User ID and click "Create Call!"
-5. **Answer User Call** - Answer the call manually from your ACS client app
-6. **View Participants** - The right panel shows participant IDs in the target call (auto-refreshed)
+4. **Create Target Call** - Enter an ACS Target User ID and click "Create Call!". 
+5. **Answer User Call** - Answer the call manually from your ACS client app before lobby call is played with waiting message.
+6. **View Participants** - The right panel shows participant IDs in the target call when refreshed after the MoveParticipantsSucceeded event is received.
 7. **Terminate Calls** - Use the "Terminate Calls!" button to end all active calls
 
 ## API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/targetCallToAcsUser?acsTarget=<user_id>` | Initiates a call to the specified ACS user |
-| `GET` | `/getParticipants` | Returns participant list in the current target call |
-| `GET` | `/terminateCalls` | Terminates all active calls and resets state |
-| `POST` | `/api/lobbyCallEventHandler` | Handles incoming Event Grid webhook events for lobby calls |
-| `POST` | `/api/callbacks` | Handles ACS call automation callbacks (CallConnected, PlayCompleted, etc.) |
-| `GET` | `/` | Serves the main web interface |
+| Method | Endpoint                                   | Description                                                                |
+| ------ | ------------------------------------------ | -------------------------------------------------------------------------- |
+| `GET`  | `/targetCallToAcsUser?acsTarget=<user_id>` | Initiates a call to the specified ACS user                                 |
+| `GET`  | `/getParticipants`                         | Returns participant list in the current target call                        |
+| `GET`  | `/terminateCalls`                          | Terminates all active calls and resets state                               |
+| `POST` | `/api/lobbyCallEventHandler`               | Handles incoming Event Grid webhook events for lobby calls                 |
+| `POST` | `/api/callbacks`                           | Handles ACS call automation callbacks (CallConnected, PlayCompleted, etc.) |
+| `GET`  | `/`                                        | Serves the main web interface                                              |
 
 ## Workflow Overview
 
@@ -93,6 +94,7 @@ The web page provides a step-by-step interface for the lobby call workflow:
 ## Event Handling
 
 The application handles these key ACS events:
+
 - **IncomingCall**: Automatically answers lobby calls
 - **CallConnected**: Records caller information and plays lobby message
 - **PlayCompleted**: Triggers automatic move of lobby user to target call
@@ -117,12 +119,14 @@ The application handles these key ACS events:
 ## Troubleshooting
 
 ### Common Issues:
+
 - **Port already in use**: Kill existing Node.js processes with `taskkill /F /IM node.exe`
 - **WebSocket connection errors**: Ensure DevTunnel is running and CALLBACK_URI is correct
 - **Call not connecting**: Verify ACS connection string and cognitive services endpoint
 - **Event Grid webhooks not working**: Check that webhook URL points to your public DevTunnel URL
 
 ### Debugging:
+
 - Check browser console for client-side errors
 - Monitor server console for API call logs and ACS events
 - Verify Event Grid webhook configuration in Azure portal
@@ -131,6 +135,7 @@ The application handles these key ACS events:
 ## Architecture
 
 The application consists of:
+
 - **Express.js Backend**: Handles ACS Call Automation and webhook events
 - **Web Interface**: Simple HTML/JavaScript frontend for call management
 - **Azure Communication Services**: Provides calling capabilities
