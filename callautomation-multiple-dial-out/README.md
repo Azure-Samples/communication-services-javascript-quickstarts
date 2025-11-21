@@ -65,15 +65,8 @@ npm install
 ## Setup and Host Azure Dev Tunnel
 
 ```
-# Install Dev Tunnel CLI (if not already installed)
-# Dev Tunnel CLI comes with Visual Studio or can be installed separately
-
-# Authenticate with Azure
-devtunnel login
-
-# Create and start a tunnel
 devtunnel create --allow-anonymous
-devtunnel port create -p 8443
+devtunnel port create -p 8080
 devtunnel host
 ```
 
