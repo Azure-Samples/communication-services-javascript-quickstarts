@@ -44,10 +44,11 @@ WEBSOCKET_URL=ws://your-websocket-server-url/ws
 ### 5. Usage
 
 1. Run the application with `npx webpack serve --config webpack.config.js`.
-2. Enter the target call sender's token and the receiver's user ID.
-3. Click **Start Call** to initiate a call.
-4. To simulate a lobby call, use another ACS test client (e.g., [ACS Sample App](https://acssampleapp.azurewebsites.net/)) and enter the receiver's user ID.
-5. When a lobby user requests to join, a confirmation dialog will appear. Accept or reject the request.
-6. The client communicates your decision to the server via WebSocket.
+2. Open the url shown(http://localhost:<port-number>) in browser.
+3. Enter the target call sender's token and the receiver's user ID.
+4. Click **Start Call** to initiate a call.
+5. To simulate a lobby call, use another ACS test client (e.g., [ACS Sample App](https://acssampleapp.azurewebsites.net/)) and enter the receiver's user ID.
+6. When a lobby user requests to join, a confirmation dialog will appear. Accept or reject the request.
+7. The client communicates your decision to the server via WebSocket.
 
 > **Tip:** Keep the browser's Developer Console open to view WebSocket alerts, debug messages and to not suppress alerts.
