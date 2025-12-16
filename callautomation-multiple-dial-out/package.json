@@ -1,0 +1,33 @@
+{
+  "name": "callautomation-move-participants",
+  "version": "1.0.0",
+  "description": "Azure Communication Services Call Automation Move Participants Sample",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "nodemon ./src/app.ts",
+    "start": "ts-node ./src/app.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/communication-call-automation": "^1.6.0-beta.1",
+    "@azure/communication-common": "^2.2.0",
+    "@azure/communication-identity": "^1.3.1",
+    "@azure/communication-rooms": "^1.1.1",
+    "@azure/eventgrid": "^4.12.0",
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.2.1",
+    "@types/swagger-ui-express": "^4.1.8",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  }
+}
