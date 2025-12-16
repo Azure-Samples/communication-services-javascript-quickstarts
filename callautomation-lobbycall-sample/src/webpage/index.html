@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Azure Communication Services Quickstart</title>
+  <style>
+    table {
+      width: 100vw;
+      table-layout: fixed;
+      align-content: center;
+    }
+    th, td {
+      vertical-align: top;
+      padding: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <h2 style="text-align: center;">Lobby Call Sample</h2>
+  <div style="text-align: center; margin-bottom: 10px;">
+    WebSocket Status: <span id="connection-status" style="font-weight: bold;">Connecting...</span>
+  </div>
+  <form>
+    <table>
+      <tr>
+        <th style="width: 50vw;">Call Connections</th>
+        <th style="width: 50vw;">Call Details</th>
+      </tr>
+      <tr>
+        <td>    
+          <div>
+            <div style="font-weight: bold;">STEP 1. Assign Environment Variables</div>
+            <div>Configure environment variables in the .env file</div>
+          </div>
+          <p>
+            <div style="font-weight: bold;">STEP 2. Configure Webhook</div>
+            <div>Configure Event Grid webhook to point to /api/lobbyCallEventHandler endpoint</div>
+          </p>
+          <p>
+            <div style="font-weight: bold;">STEP 3. Configure a Lobby Call</div>
+            <div>Make a Lobby call from Web Client App to ACS Generated Identity manually. Once done, lobby call will be in a waiting state.</div>
+          </p>
+          <p>
+            <div style="font-weight: bold;">STEP 4. Create User Call</div>
+            <div>Create a Call for ACS Identity by entering the target ACS User ID and clicking the button. Answer it manually from Web Client App</div>
+            <div style="margin: 5px 0;">
+              <label for="acsTarget">ACS Target User ID:</label><br>
+              <input type="text" id="acsTarget" name="acsTarget" placeholder="Enter ACS Target User ID" style="width: 550px;">
+            </div>
+            <input type="button" onclick="createTargetCall()" value="Create Call!">
+          </p>
+          <p>
+            <div style="font-weight: bold;">STEP 5. Answer User Call</div>
+            <div>Once User call is connected, a message is played in Lobby asking to answer the User's call. You can accept it or reject it. Accept it manually from Web Client App. Now User is connected to Lobby call.</div>
+          </p>
+          <p>
+            <div style="font-weight: bold;">STEP 6. Terminate Calls</div>
+            <div>Terminate all Calls created so far</div>
+            <input type="submit" disabled formaction="/terminateCalls" value="Terminate Calls!">
+          </p>
+        </td>
+        <td>
+          <div id="callInfo">
+            <div style="font-weight: bold;">Call Status</div>
+            <div>Participants will be displayed here when <b>Microsoft.Communication.MoveParticipantSucceeded</b> event is received.</div>
+            <div style="margin-top: 15px;">
+              <input type="button" onclick="fetchParticipants()" value="Refresh Participants" style="background-color: #007acc; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </form>
+  <script>
+    let websocket = null;
+
+    // WebSocket connection setup
+    function initializeWebSocket() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      
+      console.log('Connecting to WebSocket:', wsUrl);
+      
+      websocket = new WebSocket(wsUrl);
+      
+      websocket.onopen = function(event) {
+        console.log('WebSocket connection established');
+        updateConnectionStatus(true);
+      };
+      
+      websocket.onmessage = function(event) {
+        console.log('WebSocket message received:', event.data);
+        
+        // Try to parse as JSON for structured messages
+        let messageData;
+        try {
+          messageData = JSON.parse(event.data);
+        } catch (e) {
+          messageData = null;
+        }
+        
+        // Handle participants update
+        if (messageData && messageData.type === 'participantsUpdate') {
+          console.log('Participants update received:', messageData.participants);
+          renderParticipants(messageData.participants);
+          return;
+        }
+        
+        // Show confirmation dialog when lobby user is waiting
+        if (event.data.includes('lobby')) {
+          const userResponse = confirm(event.data + '\n\nClick OK to accept or Cancel to reject.');
+          const response = userResponse ? 'yes' : 'no';
+          
+          console.log('Sending response:', response);
+          websocket.send(response);
+        }
+      };
+      
+      websocket.onclose = function(event) {
+        console.log('WebSocket connection closed');
+        updateConnectionStatus(false);
+        
+        // Attempt to reconnect after 3 seconds
+        setTimeout(() => {
+          console.log('Attempting to reconnect WebSocket...');
+          initializeWebSocket();
+        }, 3000);
+      };
+      
+      websocket.onerror = function(error) {
+        console.error('WebSocket error:', error);
+        updateConnectionStatus(false);
+      };
+    }
+
+    function updateConnectionStatus(connected) {
+      const statusElement = document.getElementById('connection-status');
+      if (statusElement) {
+        statusElement.textContent = connected ? 'Connected' : 'Disconnected';
+        statusElement.style.color = connected ? 'green' : 'red';
+      }
+    }
+
+    function createTargetCall() {
+      const acsTarget = document.getElementById('acsTarget').value.trim();
+      
+      if (!acsTarget) {
+        alert('Please enter an ACS Target User ID');
+        return;
+      }
+
+      // Call the API endpoint with the query parameter
+      fetch(`/targetCallToAcsUser?acsTarget=${encodeURIComponent(acsTarget)}`)
+        .then(response => response.text())
+        .then(data => {
+          console.log('API Response:', data);
+          alert('Call created successfully!');
+          // Enable terminate button after successful call creation
+          document.querySelector('input[formaction="/terminateCalls"]').disabled = false;
+        })
+        .catch(error => {
+          console.error('Error creating call:', error);
+          alert('Error creating call: ' + error.message);
+        });
+    }
+
+    function renderParticipants(participants) {
+      const callInfoDiv = document.getElementById('callInfo');
+      
+      // Create or update participants section
+      let participantsSection = document.getElementById('participants-section');
+      if (!participantsSection) {
+        participantsSection = document.createElement('div');
+        participantsSection.id = 'participants-section';
+        participantsSection.style.marginTop = '20px';
+        callInfoDiv.appendChild(participantsSection);
+      }
+      
+      // Build participants HTML
+      let participantsHtml = '<div style="font-weight: bold; color: green;">Current Participants</div>';
+      participantsHtml += '<div style="margin-top: 10px;">';
+      
+      let participantCount = 0;
+      if (participants.participantId1) {
+        participantCount++;
+        participantsHtml += `<div style="margin-bottom: 5px;"><strong>Participant 1:</strong> ${participants.participantId1}</div>`;
+      }
+      if (participants.participantId2) {
+        participantCount++;
+        participantsHtml += `<div style="margin-bottom: 5px;"><strong>Participant 2:</strong> ${participants.participantId2}</div>`;
+      }
+      if (participants.participantId3) {
+        participantCount++;
+        participantsHtml += `<div style="margin-bottom: 5px;"><strong>Participant 3:</strong> ${participants.participantId3}</div>`;
+      }
+      
+      if (participantCount === 0) {
+        participantsHtml += '<div style="color: #666;">No participants found</div>';
+      } else {
+        participantsHtml += `<div style="margin-top: 10px; font-size: 14px; color: #666;">Total participants: ${participantCount}</div>`;
+      }
+      
+      participantsHtml += '</div>';
+      participantsSection.innerHTML = participantsHtml;
+    }
+
+    function fetchParticipants() {
+      fetch('/getParticipants')
+        .then(response => response.json())
+        .then(participants => {
+          console.log('Participants fetched:', participants);
+          renderParticipants(participants);
+        })
+        .catch(error => {
+          console.error('Error fetching participants:', error);
+          alert('Error fetching participants: ' + error.message);
+        });
+    }
+
+    // Add event listener to all form submit buttons
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.querySelector('form');
+      form.addEventListener('submit', (event) => {
+        alert('Submitted!');
+      });
+      
+      // Initialize WebSocket connection
+      initializeWebSocket();
+    });
+  </script>
+</body>
+
+</html>
