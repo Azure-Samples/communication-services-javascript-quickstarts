@@ -1,6 +1,7 @@
 import { config } from 'dotenv';
 import express, { Application } from 'express';
 import http from 'http';
+import helmet from 'helmet'; // Import helmet for security headers
 import { PhoneNumberIdentifier, createIdentifierFromRawId } from "@azure/communication-common";
 import {
 	CallAutomationClient, CallConnection, AnswerCallOptions, CallMedia,
@@ -21,6 +22,7 @@ config();
 const PORT = process.env.PORT;
 const app: Application = express();
 app.use(express.json());
+app.use(helmet()); // Use helmet to secure Express app by setting various HTTP headers
 
 // Create common server for app and websocket
 const server = http.createServer(app);
