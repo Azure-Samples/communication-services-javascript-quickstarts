@@ -11,7 +11,7 @@ products:
 
 # Build a conversation SMS bot with Azure Open AI
 
-It is no secret that Large Language Models (LLM) like Chat GPT have been all the rage in the last couple of months. These conversational models offer seamless and intuitive interfaces for users to interact with, enabling them to easily ask questions or carry out tasks.  The Azure Communication Services team strives to provide developers with the tools to integrate these conversational entities with communication channels, and delight end users with exceptional support. In this blog we will show you how to use Azure Communication Services SMS capability and Azure Open AI’s GPT model to light up a personalized end user interaction scenario.
+It is no secret that Large Language Models (LLM) like ChatGPT have been all the rage in the last couple of months. These conversational models offer seamless and intuitive interfaces for users to interact with, enabling them to easily ask questions or carry out tasks.  The Azure Communication Services team strives to provide developers with the tools to integrate these conversational entities with communication channels, and delight end users with exceptional support. In this blog we will show you how to use Azure Communication Services SMS capability and Azure Open AI’s GPT model to light up a personalized end user interaction scenario.
 
 ## Pre-requisites
 
