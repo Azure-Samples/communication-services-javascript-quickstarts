@@ -5,7 +5,7 @@ Azure Communication Services enable developers to add communication capabilities
 ## Prerequisites
 
 - Create an Azure account with an active subscription. For details, see [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
-- Install [Node.js](https://nodejs.org/en/download/) Active LTS and Maintenance LTS versions (8.11.1 and 10.14.1 recommended).
+- Install [Node.js](https://nodejs.org/en/download/) Active LTS and Maintenance LTS versions.
 - Create an Azure Communication Services resource. For details, see [Create an Azure Communication Resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource?tabs=windows&pivots=platform-azp).
 
 ## Quickstarts
