@@ -29,10 +29,7 @@ npm run start
 
 Open your browser and navigate to http://localhost:8080/. You should see the following:
 
-In the developer tools console within your browser you should see following:
-
-Azure Communication Rooms client created!
-
+In the developer tools console within your browser you should see console info log statements from 'client.js' for various rooms operations such as Created Room and Added Participants. 
 
 
 
