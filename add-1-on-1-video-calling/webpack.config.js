@@ -16,7 +16,7 @@ module.exports = {
     plugins: [
         new CopyPlugin({
             patterns: [
-                './index.thml',
+                './index.html',
                 './styles.css'
             ]
         }),
