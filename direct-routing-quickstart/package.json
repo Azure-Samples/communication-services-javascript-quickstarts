@@ -10,6 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@azure/communication-phone-numbers": "^1.2.0-alpha.20230214.1"
+    "@azure/communication-phone-numbers": "^1.2.0"
   }
 }
